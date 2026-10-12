@@ -180,23 +180,33 @@ GA003,345685.5,4567885.3,20,7.1,156,3.8,42,36,22
 
 ### 4.1 Main Dock Widget
 
-The plugin provides a dock widget with 6 tabs:
+**Header (always visible)**: choose the point layer and the numeric field once; every tab uses this selection.
+A summary line shows valid points, CRS and extent, and warns when the CRS is geographic (degrees).
+The header also holds *Load example data*, *Tutorial* and the language selector (IT/EN, remembered).
+Each tab has an info box, the parameters, a persistent **results** box and the **chart** (interactive Plotly
+when QtWebEngine is available, otherwise a static preview with an "open in browser" button).
+A progress bar with a *Cancel* button sits at the bottom of the panel.
 
-1. **Data Tab**: Layer and field selection, descriptive statistics
-2. **Variogram Tab**: Variogram calculation and model fitting
-3. **Kriging Tab**: Spatial interpolation with multiple methods
-4. **ML Tab**: Machine Learning pattern recognition
-5. **Sampling Tab**: Optimal sampling design
-6. **Report Tab**: Report generation in HTML/PDF
+1. **Data**: descriptive statistics (n, missing, min/max, mean, median, std, CV, quartiles, skewness, kurtosis),
+   interpretation notes and histogram.
+2. **Variogram**: maximum distance (*Auto* = 1/3 of the area diagonal), model (spherical, exponential, Gaussian,
+   Matérn), optional manual nugget/sill/range, anisotropy check (directional variograms at 0°, 45°, 90°, 135°).
+3. **Kriging**: variogram status, cell size with grid preview (max 500 cells per side), prediction and uncertainty
+   rasters, leave-one-out cross-validation (RMSE, MAE, ME, R², MSDR). Co-kriging, spatio-temporal and batch
+   kriging live in the Processing Toolbox.
+4. **Patterns (ML)**: one or more point layers, K-Means (chosen or automatic number of groups), DBSCAN,
+   Isolation Forest; output point layer with labels. Supervised Random Forest is in Processing.
+5. **Sampling**: new sampling locations from the selected layer, optional study-area polygon (reprojected
+   automatically); criteria: maximin coverage, kriging-variance reduction, stratified grid, adaptive.
+6. **Report**: sections flagged *available / not yet calculated*, HTML export with interactive charts, PDF export.
 
 ### 4.2 Toolbar Actions
 
-- **GeoArchaeo Panel**: Show/hide main dock
-- **Quick Variogram**: Jump to variogram analysis
-- **Quick Kriging**: Jump to kriging interpolation
-- **Pattern Recognition**: Jump to ML analysis
-- **Generate Report**: Create full analysis report
-- **Load Test Layers**: Load sample data for testing
+- **GeoArchaeo Panel**: show/hide the dock
+- **Help**: open the HTML help
+- **Load example data**: open the example-data dialog (plugin `test_layers` folder)
+- **Variogram / Kriging / Pattern recognition**: jump to the corresponding tab
+- **Report**: save the HTML report
 
 ---
 

@@ -5,18 +5,12 @@ Compatible with QGIS 3.x (Qt5) and QGIS 4.x (Qt6)
 """
 
 import sys
-import subprocess
+import subprocess  # nosec B404 - usato solo per 'pip install' delle dipendenze, su conferma dell'utente
 import importlib
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog
 from qgis.PyQt.QtWidgets import QMessageBox
 
-# Qt5/Qt6 compatibility for Qgis message levels
-try:
-    Qgis_Info = Qgis.MessageLevel.Info
-    Qgis_Warning = Qgis.MessageLevel.Warning
-except AttributeError:
-    Qgis_Info = Qgis_Info
-    Qgis_Warning = Qgis_Warning
+from .compat import Qgis_Info, Qgis_Warning, QMessageBox_Yes, QMessageBox_No
 
 def check_and_install_dependencies():
     """Verifica e installa le dipendenze necessarie"""
@@ -44,14 +38,10 @@ def check_and_install_dependencies():
         msg += "\n".join(missing_packages)
         msg += "\n\nVuoi installarli automaticamente?"
         
-        reply = QMessageBox.question(
-            None, 
-            "Dipendenze Mancanti", 
-            msg,
-            QMessageBox.Yes | QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
+        yes, no = QMessageBox_Yes, QMessageBox_No
+        reply = QMessageBox.question(None, "Dipendenze Mancanti", msg, yes | no)
+
+        if reply == yes:
             try:
                 # Trova il percorso Python di QGIS
                 python_exec = sys.executable
@@ -64,10 +54,10 @@ def check_and_install_dependencies():
                         Qgis_Info
                     )
                     
-                    subprocess.check_call([
-                        python_exec, "-m", "pip", "install", 
-                        "--user", package
-                    ])
+                    # Argomenti fissi (lista, senza shell): interprete di QGIS + nome
+                    # pacchetto preso da una tabella interna, mai da input esterno.
+                    subprocess.check_call(  # nosec B603
+                        [python_exec, "-m", "pip", "install", "--user", package])
                 
                 QMessageBox.information(
                     None,

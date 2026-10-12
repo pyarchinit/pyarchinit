@@ -2153,7 +2153,7 @@ class PyArchInitPlugin(object):
         try:
             from .modules.geoarchaeo.gui.main_dock import GeoArchaeoDockWidget
             if not hasattr(self, '_geoarchaeo_dock') or self._geoarchaeo_dock is None:
-                self._geoarchaeo_dock = GeoArchaeoDockWidget(self.iface.mainWindow())
+                self._geoarchaeo_dock = GeoArchaeoDockWidget(self.iface, self.iface.mainWindow())
                 self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._geoarchaeo_dock)
             self._geoarchaeo_dock.show()
             self._geoarchaeo_dock.raise_()
@@ -2306,6 +2306,10 @@ class PyArchInitPlugin(object):
         self._unload_stratigraph_sync()
         # GeoArchaeo dock cleanup (locale-independent)
         if hasattr(self, '_geoarchaeo_dock') and self._geoarchaeo_dock is not None:
+            try:
+                self._geoarchaeo_dock.cleanup()
+            except Exception as e:
+                print(f"GeoArchaeo cleanup: {e}")
             self.iface.removeDockWidget(self._geoarchaeo_dock)
             self._geoarchaeo_dock = None
         # Remove the plugin

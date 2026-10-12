@@ -10,22 +10,20 @@
 ## Key Features
 
 ### Geostatistical Analysis
-- **Automatic variograms** with anisotropy detection
-- **6 Kriging methods**: Ordinary, Universal, Co-Kriging, Regression, Indicator, Spatio-Temporal
-- **Automatic cross-validation** (LOO, k-fold)
-- **Batch processing** for datasets > 100k points
+- **Variograms** with weighted model fitting (spherical, exponential, Gaussian, Matérn) and directional anisotropy check
+- **Ordinary Kriging** with uncertainty map and leave-one-out cross-validation (RMSE, MAE, ME, R², MSDR)
+- **Co-Kriging** (regression + residual kriging), **spatio-temporal kriging** and **batch kriging** in the Processing Toolbox
+- **Compositional analysis** (CLR/ILR/ALR transforms)
 
 ### Machine Learning
-- **Automatic pattern recognition** for archaeological structures
-- **Spatial clustering** (K-Means, DBSCAN)
-- **Anomaly detection** with Isolation Forest
-- **Random Forest** predictions
+- **Spatial clustering** (K-Means, DBSCAN) and **anomaly detection** (Isolation Forest) in the panel
+- **Random Forest** supervised classification (Processing, with a label field)
 
 ### GIS Integration
 - **Native QGIS Processing Provider**
-- **SpatiaLite** data management
-- **GeoTIFF export** for publications
-- **Interactive charts** with Plotly
+- **GeoTIFF rasters** (prediction + uncertainty) added to the project
+- **Interactive charts** with Plotly (static preview when QtWebEngine is missing)
+- **Italian/English interface**, built-in tutorial and example data
 
 ### Archaeology-Specific
 - **Ceramic analysis** and artifact distribution
@@ -41,15 +39,10 @@
 # Python dependencies
 pip install numpy scipy pandas scikit-learn plotly
 
-# SpatiaLite (Ubuntu/Debian)
-sudo apt-get install libspatialite-dev spatialite-bin
-
-# SpatiaLite (macOS)
-brew install spatialite-tools
-
-# SpatiaLite (Windows)
-# Included in OSGeo4W
 ```
+
+QGIS already ships numpy, scipy and (usually) scikit-learn, plotly and matplotlib; the plugin offers to install
+anything missing on first start.
 
 ### Method 1: From ZIP (Recommended)
 
@@ -78,16 +71,12 @@ The plugin is available in the official QGIS Plugin Repository.
 
 ### 1. First Analysis in 5 Minutes
 
-```python
-# 1. Open QGIS and activate GeoArchaeo
-# 2. Load your point data (CSV, SHP, etc.)
-# 3. Click the GeoArchaeo icon in the toolbar
-# 4. In the panel:
-#    - "Data" tab -> Select layer and field
-#    - "Variogram" tab -> Click "Calculate"
-#    - "Kriging" tab -> Click "Run"
-# 5. Result: a professional interpolated map!
-```
+1. Open QGIS and click the GeoArchaeo icon in the toolbar (or load the example data from the panel).
+2. At the top of the panel choose the **point layer** and the **numeric field** once: every tab uses them.
+3. **Data** tab: statistics and histogram.
+4. **Variogram** tab: "Auto" distance, spherical model, *Calculate variogram*.
+5. **Kriging** tab: check the grid size shown, *Run kriging* → prediction and uncertainty rasters are added to the map, with cross-validation metrics.
+6. **Report** tab: save an HTML report with all the charts.
 
 ### 2. Python Console Example
 
@@ -158,12 +147,15 @@ The repository includes sample datasets for testing:
 
 ```
 test_layers/
-├── villa_ceramica.csv        # 500 points - ceramic distribution
-├── necropoli.csv             # 120 tombs with attributes
-├── geofisica_survey.csv      # Geophysical survey grid
-├── soil_samples.csv          # 80 points - compositional analysis
-└── ricognizione_survey.csv   # Field survey data
+├── villa_ceramica.gpkg       # 500 points - ceramic distribution (EPSG:32633)
+├── geofisica_survey.gpkg     # 4800 points - GPR + magnetometry
+├── necropoli.gpkg            # 120 tombs with attributes
+├── soil_samples.gpkg         # 80 points - compositional analysis
+├── area_studio.geojson       # study-area polygon for sampling design
+└── *.csv                     # the same data and extra surveys as CSV (x, y columns)
 ```
+
+Use **Load example data** in the panel (or the toolbar button) to add them to the project.
 
 ## Development
 
@@ -177,13 +169,24 @@ geoarchaeo/
 ├── compat.py                   # Qt5/Qt6 compatibility
 ├── i18n.py                     # Internationalization (IT/EN)
 ├── core/
-│   └── geostat_engine.py       # Geostatistical engine
+│   └── geostat_engine.py       # Geostatistical engine (QGIS-independent, vectorised)
 ├── gui/
-│   └── main_dock.py            # Dock widget interface
+│   ├── main_dock.py            # Dock widget interface
+│   └── tutorial_html.py        # Built-in tutorial (IT/EN)
+├── tests/                      # pytest suite (engine + headless QGIS)
 ├── icons/                      # Icons and resources
 ├── doc/                        # Documentation
 ├── test_layers/                # Sample datasets
 └── metadata.txt                # QGIS metadata
+```
+
+### Running the tests
+
+```bash
+# engine only (any Python with numpy/scipy/scikit-learn)
+python -m pytest tests/test_engine.py
+# full suite with the QGIS Python (macOS example)
+/Applications/QGIS.app/Contents/MacOS/bin/python3 -m pytest tests/
 ```
 
 ### Contributing
@@ -231,7 +234,8 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 - [x] Basic Machine Learning
 - [x] Full documentation
 - [x] Plugin in official QGIS repository
-- [ ] Multilingual GUI (IT/EN/ES/FR)
+- [x] Bilingual GUI (IT/EN)
+- [ ] More languages (ES/FR)
 - [ ] Video tutorials
 - [ ] Online workshops
 

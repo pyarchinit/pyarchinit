@@ -67,3 +67,7 @@ resources/dbfiles/*.sqlite-shm
 
 # Lo stile della simbologia che QGIS si scrive nella cartella del plugin.
 symbology-style.db
+
+# GeoPackage di esempio di GeoArchaeo: i file WAL/SHM li apre QGIS nei test
+modules/geoarchaeo/test_layers/*.gpkg-wal
+modules/geoarchaeo/test_layers/*.gpkg-shm

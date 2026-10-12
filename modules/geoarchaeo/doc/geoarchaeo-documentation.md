@@ -257,63 +257,58 @@ Per co-kriging di GPR + Magnetometria:
 
 ### 4.1 Toolbar
 
-| Icona | Funzione | Shortcut |
-|-------|----------|----------|
-| 📊 | Apri/Chiudi pannello | Ctrl+Shift+G |
-| 📈 | Variogramma rapido | Ctrl+V |
-| 🗺️ | Kriging rapido | Ctrl+K |
-| 🤖 | ML Pattern Recognition | Ctrl+M |
-| 📝 | Genera report | Ctrl+R |
+| Icona | Funzione |
+|-------|----------|
+| 📊 | Apri/Chiudi pannello |
+| ❓ | Guida |
+| 🗂️ | Carica dati di esempio |
+| 📈 | Vai alla scheda Variogramma |
+| 🗺️ | Vai alla scheda Kriging |
+| 🤖 | Vai alla scheda Pattern (ML) |
+| 📝 | Salva report HTML |
 
-### 4.2 Dock Widget - Tab
+### 4.2 Dock Widget
+
+**Intestazione (sempre visibile)**: selezione del layer di punti e del campo numerico, usati da tutte le schede;
+un riepilogo indica punti validi, CRS ed estensione e avvisa se il CRS è geografico (gradi).
+I pulsanti *Carica dati di esempio* e *Tutorial* e il selettore di lingua (IT/EN, memorizzato) completano l'intestazione.
+Ogni scheda mostra un riquadro informativo, i parametri, un riquadro con i **risultati** (che restano visibili) e il
+**grafico**: interattivo (Plotly) se QtWebEngine è disponibile, altrimenti anteprima statica con pulsante
+"Apri grafico interattivo nel browser". In fondo al pannello: barra di avanzamento e pulsante *Annulla*.
 
 #### Tab 1: Dati
-- **Selezione layer**: dropdown con layers caricati
-- **Campo valore**: campi numerici del layer
-- **Statistiche**: media, dev.std, skewness, kurtosis
-- **Istogramma**: distribuzione valori
-- **Test normalità**: Shapiro-Wilk, Kolmogorov-Smirnov
+- **Statistiche**: n, mancanti, min/max, media, mediana, dev. standard, coeff. di variazione, quartili, asimmetria, curtosi
+- **Interpretazione**: asimmetria, possibili valori anomali
+- **Istogramma** con box plot
 
 #### Tab 2: Variogramma
-- **Parametri**:
-  - Distanza max: default 30% estensione
-  - N° lags: 12-20 ottimale
-  - Modello: Sferico (default), Esponenziale, Gaussiano, Matérn
-- **Anisotropia**: check per analisi direzionale
-- **Output**: grafico interattivo Plotly
+- **Distanza massima** (pulsante *Auto* = 1/3 della diagonale dell'area)
+- **Modello**: sferico (consigliato), esponenziale, gaussiano, Matérn (ν = 1.5)
+- **Parametri manuali** (opzionali): nugget / sill / range fissati
+- **Anisotropia**: variogrammi direzionali a 0°, 45°, 90°, 135° (modello geometrico: stesso sill, range per direzione)
+- **Risultati**: parametri, RMSE del fit, numero di coppie, lettura in parole del nugget e del range
 
 #### Tab 3: Kriging
-- **Metodi**:
-  - **Ordinary**: no trend, media costante
-  - **Universal**: con trend polinomiale
-  - **Co-Kriging**: multi-variabile
-  - **Regression**: con covariate esterne
-  - **Indicator**: probabilità sopra soglia
-  - **Spazio-Temporale**: per fasi scavo
-- **Risoluzione**: dimensione pixel output (m)
-- **Search radius**: raggio ricerca punti
+- **Stato del variogramma**: disponibile / non calcolato (stima automatica) / calcolato su un altro layer
+- **Risoluzione cella** con anteprima della griglia (celle totali, limite 500 per lato)
+- **Output**: raster della stima e raster dell'incertezza (dev. standard, opzionale)
+- **Cross-validation leave-one-out**: RMSE, MAE, ME, R², MSDR con interpretazione
+- Co-kriging, spazio-temporale e batch kriging sono nella Processing Toolbox
 
-#### Tab 4: Machine Learning
-- **Supervisionato** (richiede training):
-  - Random Forest: robusto, feature importance
-  - SVM: pattern non-lineari
-  - Neural Network: relazioni complesse
-- **Non supervisionato**:
-  - K-Means: clustering semplice
-  - DBSCAN: cluster forma irregolare
-  - Isolation Forest: anomalie
+#### Tab 4: Pattern (ML)
+- **Layer**: uno o più layer di punti (coordinate + attributi numerici)
+- **Metodi**: K-Means (numero gruppi o automatico), DBSCAN (gruppi per densità + isolati), Isolation Forest (anomalie)
+- **Output**: layer di punti con etichetta, dimensione del gruppo e legenda; Random Forest supervisionato in Processing
 
 #### Tab 5: Campionamento
-- **Strategie**:
-  - **Maximin**: massimizza copertura
-  - **Riduzione varianza**: minimizza incertezza
-  - **Stratificato**: per zone/periodi
-  - **Adattivo**: basato su primi risultati
+- **Punti esistenti**: il layer scelto in alto; **area di studio** poligonale opzionale (riproiettata automaticamente)
+- **Criteri**: copertura (maximin), riduzione incertezza (varianza di kriging, usa il variogramma se disponibile),
+  griglia stratificata, adattivo (zone meno dense)
+- **Output**: layer con i punti proposti e tabella delle coordinate
 
 #### Tab 6: Report
-- Selezione componenti da includere
-- Export HTML/PDF
-- Template personalizzabili
+- Sezioni selezionabili con indicazione *disponibile / non ancora calcolato*
+- Export HTML (con grafici interattivi) e PDF
 
 ### 4.3 Processing Toolbox
 

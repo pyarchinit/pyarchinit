@@ -1,23 +1,54 @@
 """
-Interfaccia dock widget principale
+Interfaccia dock widget principale di GeoArchaeo
 Compatible with QGIS 3.x (Qt5) and QGIS 4.x (Qt6)
+
+Struttura del pannello:
+- intestazione sempre visibile: layer di punti + campo numerico (usati da tutte le schede)
+- schede nell'ordine di lavoro: Dati -> Variogramma -> Kriging -> Pattern (ML) -> Campionamento -> Report
+- ogni scheda mostra i propri risultati in un riquadro persistente e il grafico nel pannello
 """
 
+import gc
+import os
+import html as html_lib
+import tempfile
+import traceback
+from datetime import datetime
+
+import numpy as np
+
 from qgis.PyQt.QtWidgets import (
-    QDockWidget, QWidget, QVBoxLayout, QHBoxLayout,
-    QTabWidget, QPushButton, QComboBox, QSpinBox,
-    QDoubleSpinBox, QLabel, QTextEdit, QFileDialog,
-    QProgressBar, QGroupBox, QCheckBox, QListWidget,
-    QMessageBox, QSlider, QListWidgetItem, QTextBrowser,
-    QDialog, QDialogButtonBox, QToolBar, QAction, QMenu
+    QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
+    QTabWidget, QPushButton, QComboBox, QSpinBox, QDoubleSpinBox,
+    QLabel, QTextBrowser, QFileDialog, QProgressBar, QGroupBox,
+    QCheckBox, QListWidget, QListWidgetItem, QMessageBox, QDialog,
+    QDialogButtonBox, QScrollArea, QSizePolicy
 )
-from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer, QUrl
-from qgis.PyQt.QtGui import QIcon, QDesktopServices
+from qgis.PyQt.QtCore import QThread, pyqtSignal, QUrl
+from qgis.PyQt.QtGui import QDesktopServices, QPixmap, QColor
+from qgis.core import (
+    QgsMessageLog, QgsProject, QgsRasterLayer, QgsVectorLayer, QgsField,
+    QgsFeature, QgsGeometry, QgsPointXY, QgsMarkerSymbol, QgsRendererCategory,
+    QgsCategorizedSymbolRenderer, QgsCoordinateReferenceSystem, QgsFeatureRequest,
+    QgsRectangle, QgsUnitTypes, QgsRasterShader, QgsColorRampShader,
+    QgsSingleBandPseudoColorRenderer, QgsCoordinateTransform
+)
+from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 
-# Import i18n module
-from ..i18n import tr, tr_format, get_language, set_language
+from ..i18n import tr, tr_format, tr2, get_language, set_language, TRANSLATIONS
+from ..compat import (
+    Qt_UserRole, Qt_AlignCenter, Qt_SmoothTransformation, Qt_KeepAspectRatio,
+    QVariant_Int, QVariant_Double, QVariant_String,
+    Qgis_Info, Qgis_Warning, Qgis_Critical, Qgis_Success,
+    QListWidget_MultiSelection, QDialogButtonBox_Ok, QDialogButtonBox_Cancel,
+    LayerFilter_Point, LayerFilter_Polygon, FieldFilter_Numeric,
+    exec_dialog, is_point_layer, attribute_to_float, question_yes_no, polygon_region,
+    Qt_RichText, QFrame_NoFrame, ColorRamp_Interpolated, print_document, pdf_printer
+)
+from ..core.geostat_engine import GeostatEngine, MAX_GRID_SIDE, VARIOGRAM_MODELS, limit_native_threads
+from .tutorial_html import get_tutorial_html
 
-# QWebEngineView is optional - fallback to QTextBrowser if not available
+# QWebEngineView is optional - fallback to static PNG preview if not available
 WEBENGINE_AVAILABLE = False
 try:
     from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
@@ -25,31 +56,62 @@ try:
 except ImportError:
     QWebEngineView = None
 
-from qgis.core import (
-    QgsMessageLog, Qgis, QgsMapLayerProxyModel,
-    QgsFieldProxyModel, QgsApplication, QgsTask,
-    QgsRasterLayer, QgsProject, QgsRasterFileWriter,
-    QgsRasterPipe, QgsRasterProjector, QgsPointXY,
-    QgsVectorLayer, QgsField, QgsFeature, QgsGeometry,
-    QgsMarkerSymbol, QgsRendererCategory, QgsCategorizedSymbolRenderer,
-    QgsCoordinateReferenceSystem
-)
-from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
+LOG_TAG = 'GeoArchaeo'
+INFO_STYLE = "QLabel { background-color: #e3f2fd; color: #1a237e; padding: 8px; border-radius: 5px; }"
+RESULT_STYLE = "QLabel { background-color: #f1f8e9; color: #1b5e20; padding: 8px; border-radius: 5px; }"
+HINT_STYLE = "QLabel { color: #616161; font-size: 11px; }"
+WARN_STYLE = "QLabel { color: #e65100; }"
 
-from ..compat import (
-    Qt_UserRole, QVariant_Int, QVariant_Double, QVariant_String,
-    Qgis_Info, Qgis_Warning, Qgis_Critical, Qgis_Success
-)
-import tempfile
-import os
-import json
-import numpy as np
-from datetime import datetime
+MODEL_LABEL_KEYS = {'spherical': 'model_spherical', 'exponential': 'model_exponential',
+                    'gaussian': 'model_gaussian', 'matern': 'model_matern'}
+ML_METHODS = [('kmeans', 'ml_kmeans'), ('dbscan', 'ml_dbscan'), ('isolation_forest', 'ml_isolation')]
+SAMPLING_METHODS = [('maximin', 'sampling_maximin', 'sampling_maximin_desc'),
+                    ('variance', 'sampling_variance', 'sampling_variance_desc'),
+                    ('stratified', 'sampling_stratified', 'sampling_stratified_desc'),
+                    ('adaptive', 'sampling_adaptive', 'sampling_adaptive_desc')]
+REPORT_SECTIONS = [('stats', 'section_stats'), ('variogram', 'section_variogram'),
+                   ('kriging', 'section_kriging'), ('ml', 'section_ml'), ('sampling', 'section_sampling')]
+LARGE_GRID_CELLS = 40000
+MIN_POINTS = 5
+
+
+def log(message, level=None):
+    QgsMessageLog.logMessage(str(message), LOG_TAG, level if level is not None else Qgis_Info)
+
+
+def boundary_geometry(boundary_layer, target_crs):
+    """Unione dei poligoni del layer, riproiettata nel CRS dei punti (None se assente)."""
+    if boundary_layer is None:
+        return None
+    geoms = [f.geometry() for f in boundary_layer.getFeatures()
+             if f.geometry() is not None and not f.geometry().isEmpty()]
+    if not geoms:
+        return None
+    geom = QgsGeometry.unaryUnion(geoms) if len(geoms) > 1 else QgsGeometry(geoms[0])
+    source_crs = boundary_layer.crs()
+    if source_crs.isValid() and target_crs.isValid() and source_crs != target_crs:
+        geom.transform(QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance()))
+    return polygon_region(geom)
+
+
+def fmt(value, digits=3):
+    """Formatta un numero in modo leggibile (3 cifre significative)."""
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if not np.isfinite(value):
+        return '-'
+    if value == 0:
+        return '0'
+    if abs(value) >= 1000:
+        return f"{value:,.0f}"
+    return f"{value:.{digits}g}"
 
 
 class AnalysisThread(QThread):
-    """Thread per analisi pesanti - versione robusta"""
-    finished = pyqtSignal(object)
+    """Esegue un'analisi del motore in un thread separato."""
+    result_ready = pyqtSignal(object)
     error = pyqtSignal(str)
     progress = pyqtSignal(int)
 
@@ -58,157 +120,202 @@ class AnalysisThread(QThread):
         self.engine = engine
         self.method = method
         self.params = params
-        self._is_cancelled = False
+        self._cancelled = False
 
     def cancel(self):
-        """Request thread cancellation"""
-        self._is_cancelled = True
+        self._cancelled = True
+
+    def is_cancelled(self):
+        return self._cancelled
+
+    def _progress(self, fraction):
+        self.progress.emit(int(max(0.0, min(1.0, fraction)) * 100))
+        return not self._cancelled
+
+    def _compute(self, p):
+        if self.method == 'variogram':
+            return self.engine.calculate_variogram(
+                p['points'], p['values'], p['max_dist'], p['model_type'],
+                check_anisotropy=p.get('check_anisotropy', False),
+                fixed_params=p.get('fixed_params'))
+        if self.method == 'kriging':
+            return self.engine.ordinary_kriging(
+                p['points'], p['values'], p['extent'], p['pixel_size'],
+                p.get('variogram_params'), progress=self._progress)
+        if self.method == 'ml':
+            return self.engine.ml_pattern_recognition(
+                p['layers_data'], p['method'], n_clusters=p.get('n_clusters'))
+        if self.method == 'sampling':
+            return self.engine.optimal_sampling_design(
+                p['existing_points'], p.get('boundary'), p['n_new'], p['method'],
+                variogram_params=p.get('variogram_params'))
+        raise ValueError(f"Unknown analysis: {self.method}")
 
     def run(self):
-        """Esegue analisi nel thread con protezione massima"""
-        import traceback
-        import sys
-        import os
-        from datetime import datetime
-
-        # File logging
-        log_file = os.path.expanduser("~/Desktop/geoarchaeo_kriging_log.txt")
-        def log(msg):
-            try:
-                with open(log_file, 'a') as f:
-                    f.write(f"[THREAD {datetime.now().strftime('%H:%M:%S.%f')}] {msg}\n")
-                    f.flush()
-            except:
-                pass
-
-        log(f"="*60)
-        log(f"THREAD START: method={self.method}")
-
-        result = None
+        p = self.params
+        # Il garbage collector ciclico di Python puo' scattare in qualunque thread:
+        # se raccogliesse qui un oggetto Qt del thread principale (es. un layer non
+        # piu' referenziato) QGIS andrebbe in crash. Lo sospendiamo durante il calcolo.
+        gc.disable()
         try:
-            # Log start
-            QgsMessageLog.logMessage(
-                f"Starting analysis: {self.method}",
-                'GeoArchaeo', Qgis_Info
-            )
-            log("QgsMessageLog OK")
-
-            if self._is_cancelled:
-                log("Cancelled before start")
-                self.error.emit("Analysis cancelled")
+            with limit_native_threads():
+                result = self._compute(p)
+            if self._cancelled:
+                self.error.emit('cancelled')
                 return
-
-            if self.method == 'variogram':
-                log("Calling calculate_variogram...")
-                result = self.engine.calculate_variogram(
-                    self.params['points'],
-                    self.params['values'],
-                    self.params['max_dist'],
-                    self.params['model_type']
-                )
-                log("calculate_variogram returned OK")
-            elif self.method == 'kriging':
-                log("Calling ordinary_kriging...")
-                log(f"  points shape: {self.params['points'].shape}")
-                log(f"  values shape: {self.params['values'].shape}")
-                log(f"  pixel_size: {self.params['pixel_size']}")
-                result = self.engine.ordinary_kriging(
-                    self.params['points'],
-                    self.params['values'],
-                    self.params['extent'],
-                    self.params['pixel_size'],
-                    self.params['variogram_params']
-                )
-                log("ordinary_kriging returned OK")
-                log(f"  result keys: {result.keys() if result else 'None'}")
-            elif self.method == 'ml':
-                log("Calling ml_pattern_recognition...")
-                result = self.engine.ml_pattern_recognition(
-                    self.params['layers_data'],
-                    self.params['method']
-                )
-                log("ml_pattern_recognition returned OK")
-            else:
-                raise ValueError(f"Metodo sconosciuto: {self.method}")
-
-            if self._is_cancelled:
-                log("Cancelled after computation")
-                self.error.emit("Analysis cancelled")
-                return
-
-            log("About to emit finished signal...")
-            # Log success
-            QgsMessageLog.logMessage(
-                f"Analysis completed: {self.method}",
-                'GeoArchaeo', Qgis_Info
-            )
-
-            log("Emitting finished signal now...")
-            self.finished.emit(result)
-            log("Finished signal emitted OK")
-
+            self.result_ready.emit(result)
         except MemoryError:
-            log("MEMORY ERROR!")
-            error_msg = "Memoria insufficiente. Prova con una risoluzione maggiore."
-            QgsMessageLog.logMessage(error_msg, 'GeoArchaeo', Qgis_Critical)
-            self.error.emit(error_msg)
-
+            self.error.emit(tr2("Memoria insufficiente: aumenta la dimensione della cella.",
+                                "Out of memory: increase the cell size."))
+        except RuntimeError as e:
+            if 'cancelled' in str(e):
+                self.error.emit('cancelled')
+            else:
+                log(traceback.format_exc(), Qgis_Critical)
+                self.error.emit(str(e))
         except Exception as e:
-            log(f"EXCEPTION: {e}")
-            error_msg = f"Error: {str(e)}"
-            full_traceback = traceback.format_exc()
-            log(full_traceback)
-            QgsMessageLog.logMessage(
-                f"Analysis error: {full_traceback}",
-                'GeoArchaeo', Qgis_Critical
-            )
-            self.error.emit(error_msg)
+            log(traceback.format_exc(), Qgis_Critical)
+            self.error.emit(str(e))
+        finally:
+            gc.enable()
 
-        except:
-            # Catch absolutely everything including SystemExit, KeyboardInterrupt
-            error_msg = "Critical unhandled error"
-            exc_info = sys.exc_info()
-            if exc_info[0] is not None:
-                error_msg = f"Critical error: {exc_info[1]}"
-            QgsMessageLog.logMessage(error_msg, 'GeoArchaeo', Qgis_Critical)
-            self.error.emit(error_msg)
+
+class PlotPanel(QWidget):
+    """
+    Area grafico: QWebEngineView (Plotly interattivo) se disponibile, altrimenti
+    anteprima PNG statica con pulsante per aprire il grafico interattivo nel browser.
+    """
+
+    def __init__(self, parent=None, min_height=320):
+        super().__init__(parent)
+        self._html_path = None
+        self._pixmap = None
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        if WEBENGINE_AVAILABLE:
+            self.view = QWebEngineView()
+            self.view.setMinimumHeight(min_height)
+            layout.addWidget(self.view)
+            self.image_label = None
+        else:
+            self.view = None
+            self.scroll = QScrollArea()
+            self.scroll.setWidgetResizable(True)
+            self.scroll.setMinimumHeight(min_height)
+            self.image_label = QLabel()
+            self.image_label.setAlignment(Qt_AlignCenter)
+            self.image_label.setWordWrap(True)
+            self.image_label.setStyleSheet("QLabel { background-color: white; color: #616161; }")
+            self.scroll.setWidget(self.image_label)
+            layout.addWidget(self.scroll)
+
+        row = QHBoxLayout()
+        self.hint_label = QLabel()
+        self.hint_label.setStyleSheet(HINT_STYLE)
+        self.hint_label.setWordWrap(True)
+        row.addWidget(self.hint_label, 1)
+        self.browser_btn = QPushButton()
+        self.browser_btn.setEnabled(False)
+        self.browser_btn.clicked.connect(self.open_in_browser)
+        row.addWidget(self.browser_btn)
+        layout.addLayout(row)
+        self.retranslate()
+        self.clear()
+
+    def retranslate(self):
+        self.browser_btn.setText(tr('open_in_browser'))
+        if self._html_path is None:
+            self.hint_label.setText(tr('plot_waiting'))
+        elif not WEBENGINE_AVAILABLE:
+            self.hint_label.setText(tr('plot_static_hint'))
+
+    def clear(self):
+        self._html_path = None
+        self._pixmap = None
+        self.browser_btn.setEnabled(False)
+        self.hint_label.setText(tr('plot_waiting'))
+        if self.view is not None:
+            self.view.setHtml(f"<html><body style='font-family:sans-serif;color:#616161'>"
+                              f"<p>{html_lib.escape(tr('plot_waiting'))}</p></body></html>")
+        else:
+            self.image_label.setPixmap(QPixmap())
+            self.image_label.setText(tr('plot_waiting'))
+
+    def show_figure(self, fig, png_bytes=None, temp_dir=None):
+        """Mostra una figura Plotly (e, senza WebEngine, l'anteprima PNG)."""
+        handle = tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False,
+                                             dir=temp_dir, encoding='utf-8', prefix='geoarchaeo_plot_')
+        handle.close()
+        fig.write_html(handle.name, include_plotlyjs=True, full_html=True,
+                       default_width='100%', default_height='100%')
+        self._html_path = handle.name
+        self.browser_btn.setEnabled(True)
+        if self.view is not None:
+            self.view.setUrl(QUrl.fromLocalFile(handle.name))
+            self.hint_label.setText('')
+        else:
+            self.hint_label.setText(tr('plot_static_hint'))
+            if png_bytes:
+                pix = QPixmap()
+                pix.loadFromData(png_bytes)
+                self._pixmap = pix
+                self.image_label.setText('')
+                self._rescale()
+            else:
+                self._pixmap = None
+                self.image_label.setPixmap(QPixmap())
+                self.image_label.setText(tr('open_in_browser'))
+
+    def _rescale(self):
+        if self._pixmap is None or self.image_label is None:
+            return
+        width = max(200, self.scroll.viewport().width() - 4)
+        if self._pixmap.width() > width:
+            self.image_label.setPixmap(self._pixmap.scaledToWidth(width, Qt_SmoothTransformation))
+        else:
+            self.image_label.setPixmap(self._pixmap)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._rescale()
+
+    def open_in_browser(self):
+        if self._html_path and os.path.exists(self._html_path):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(self._html_path))
 
 
 class GeoArchaeoDockWidget(QDockWidget):
     """Widget principale del plugin"""
 
-    # Default path for example data
-    EXAMPLE_DATA_PATH = os.path.expanduser("~/Desktop/GeoArchaeo_TestData")
+    def __init__(self, iface=None, parent=None):
+        super().__init__("GeoArchaeo", parent)
+        self.setObjectName('GeoArchaeoDock')
+        self.iface = iface
+        self.plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.example_dir = os.path.join(self.plugin_dir, 'test_layers')
+        self.temp_dir = tempfile.mkdtemp(prefix='geoarchaeo_')
 
-    def __init__(self, parent=None):
-        super().__init__("GeoArchaeo Analysis", parent)
-
-        # Widget principale
-        widget = QWidget()
-        self.setWidget(widget)
-
-        # Layout principale
-        layout = QVBoxLayout()
-        widget.setLayout(layout)
-
-        # Toolbar con lingua e dati esempio
-        self._create_toolbar(layout)
-
-        # Tabs
-        self.tabs = QTabWidget()
-        layout.addWidget(self.tabs)
-
-        # Crea engine
-        from ..core.geostat_engine import GeostatEngine
         self.engine = GeostatEngine()
-
-        # Thread analisi
         self.analysis_thread = None
-
-        # Risultati correnti
         self.current_results = {}
+        self.current_figures = {}
+        self._tr_widgets = []      # (widget, setter, key)
+        self._tr_callbacks = []    # callables eseguiti al cambio lingua
+        self._project_connections = []
 
-        # Crea tabs
+        main = QWidget()
+        self.setWidget(main)
+        layout = QVBoxLayout(main)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(6)
+
+        self._create_toolbar(layout)
+        self._create_input_group(layout)
+
+        self.tabs = QTabWidget()
+        layout.addWidget(self.tabs, 1)
         self._create_data_tab()
         self._create_variogram_tab()
         self._create_kriging_tab()
@@ -216,2601 +323,1486 @@ class GeoArchaeoDockWidget(QDockWidget):
         self._create_sampling_tab()
         self._create_report_tab()
 
-        # Progress bar
+        # Progress bar + cancel
+        progress_row = QHBoxLayout()
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        layout.addWidget(self.progress_bar)
+        progress_row.addWidget(self.progress_bar, 1)
+        self.cancel_btn = self._reg(QPushButton(), 'cancel')
+        self.cancel_btn.setVisible(False)
+        self.cancel_btn.clicked.connect(self._cancel_analysis)
+        progress_row.addWidget(self.cancel_btn)
+        layout.addLayout(progress_row)
 
-        # Tab name to index mapping
-        self._tab_indices = {
-            'data': 0, 'dati': 0,
-            'variogram': 1, 'variogramma': 1,
-            'kriging': 2,
-            'ml': 3,
-            'sampling': 4, 'campionamento': 4,
-            'report': 5
-        }
+        self._tab_indices = {'data': 0, 'dati': 0, 'variogram': 1, 'variogramma': 1, 'kriging': 2,
+                             'ml': 3, 'sampling': 4, 'campionamento': 4, 'report': 5}
+
+        # Connessioni
+        self.layer_combo.layerChanged.connect(self._on_layer_changed)
+        self.field_combo.fieldChanged.connect(self._on_field_changed)
+        project = QgsProject.instance()
+        for signal in (project.layersAdded, project.layersRemoved):
+            signal.connect(self._update_ml_layers)
+            self._project_connections.append(signal)
+        self._on_layer_changed(self.layer_combo.currentLayer())
+
+    # ==================================================================
+    # Helpers UI
+    # ==================================================================
+    def _reg(self, widget, key, setter='setText'):
+        """Imposta un testo tradotto e registra il widget per il cambio lingua."""
+        getattr(widget, setter)(tr(key))
+        self._tr_widgets.append((widget, setter, key))
+        return widget
+
+    def _info_label(self, title_key, desc_key):
+        label = QLabel()
+        label.setWordWrap(True)
+        label.setStyleSheet(INFO_STYLE)
+
+        def update():
+            label.setText(tr(title_key) + "<br>" + tr(desc_key))
+        update()
+        self._tr_callbacks.append(update)
+        return label
+
+    def _result_label(self):
+        label = QLabel()
+        label.setWordWrap(True)
+        label.setStyleSheet(RESULT_STYLE)
+        label.setTextFormat(Qt_RichText)
+        label.setVisible(False)
+        return label
+
+    def _next_button(self, key, tab_name):
+        btn = self._reg(QPushButton(), key)
+        btn.setFlat(True)
+        btn.setStyleSheet("QPushButton { color: #1565C0; text-align: right; }")
+        btn.clicked.connect(lambda: self.switch_to_tab(tab_name))
+        return btn
+
+    def _make_tab(self, tab_key):
+        """Crea una scheda scrollabile e restituisce (layout_contenuto)."""
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setSpacing(6)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(content)
+        scroll.setFrameShape(QFrame_NoFrame)
+        index = self.tabs.addTab(scroll, tr(tab_key))
+        self._tr_callbacks.append(lambda i=index, k=tab_key: self.tabs.setTabText(i, tr(k)))
+        return layout
 
     def switch_to_tab(self, tab_name):
         """Switch to a specific tab by name"""
-        tab_name_lower = tab_name.lower()
-        if tab_name_lower in self._tab_indices:
-            self.tabs.setCurrentIndex(self._tab_indices[tab_name_lower])
+        name = str(tab_name).lower()
+        if name in self._tab_indices:
+            self.tabs.setCurrentIndex(self._tab_indices[name])
         else:
-            QgsMessageLog.logMessage(
-                f"Tab sconosciuto: {tab_name}",
-                'GeoArchaeo', Qgis_Warning
-            )
+            log(f"Unknown tab: {tab_name}", Qgis_Warning)
 
-    def generate_full_report(self):
-        """Generate full report - called from plugin menu"""
-        self.switch_to_tab('report')
-        # TODO: Could auto-trigger report generation here
+    def _notify(self, message, level=None, duration=6):
+        """Messaggio non bloccante nella barra di QGIS (fallback: log)."""
+        level = Qgis_Info if level is None else level
+        log(message, level)
+        if self.iface is not None:
+            try:
+                self.iface.messageBar().pushMessage("GeoArchaeo", message, level, duration)
+            except (AttributeError, RuntimeError, TypeError) as e:
+                log(f"message bar unavailable: {e}", Qgis_Warning)
 
+    def _warn(self, message):
+        QMessageBox.warning(self, tr('warning'), message)
+
+    def _error(self, message):
+        QMessageBox.critical(self, tr('error'), message)
+
+    # ==================================================================
+    # Intestazione
+    # ==================================================================
     def _create_toolbar(self, parent_layout):
-        """Create toolbar with language switcher and example data loader"""
-        toolbar_layout = QHBoxLayout()
-
-        # Load Examples button
-        self.load_examples_btn = QPushButton(tr('load_examples'))
+        row = QHBoxLayout()
+        self.load_examples_btn = self._reg(QPushButton(), 'load_examples')
         self.load_examples_btn.setStyleSheet(
             "QPushButton { background-color: #4CAF50; color: white; padding: 5px 10px; "
-            "border-radius: 3px; font-weight: bold; }"
-            "QPushButton:hover { background-color: #45a049; }"
-        )
-        self.load_examples_btn.clicked.connect(self._show_load_examples_dialog)
-        toolbar_layout.addWidget(self.load_examples_btn)
+            "border-radius: 3px; font-weight: bold; } QPushButton:hover { background-color: #45a049; }")
+        self.load_examples_btn.clicked.connect(self.show_load_examples_dialog)
+        row.addWidget(self.load_examples_btn)
 
-        # Tutorial button
-        self.tutorial_btn = QPushButton(tr('show_tutorial'))
+        self.tutorial_btn = self._reg(QPushButton(), 'show_tutorial')
         self.tutorial_btn.setStyleSheet(
             "QPushButton { background-color: #2196F3; color: white; padding: 5px 10px; "
-            "border-radius: 3px; }"
-            "QPushButton:hover { background-color: #1976D2; }"
-        )
+            "border-radius: 3px; } QPushButton:hover { background-color: #1976D2; }")
         self.tutorial_btn.clicked.connect(self._show_tutorial)
-        toolbar_layout.addWidget(self.tutorial_btn)
+        row.addWidget(self.tutorial_btn)
+        row.addStretch()
 
-        toolbar_layout.addStretch()
-
-        # Language selector
-        toolbar_layout.addWidget(QLabel(tr('language') + ":"))
+        self.language_label = QLabel()
+        self._tr_callbacks.append(lambda: self.language_label.setText(tr('language') + ":"))
+        self.language_label.setText(tr('language') + ":")
+        row.addWidget(self.language_label)
         self.lang_combo = QComboBox()
         self.lang_combo.addItem("Italiano", "it")
         self.lang_combo.addItem("English", "en")
-        # Set current language
-        current_lang = get_language()
-        index = 0 if current_lang == 'it' else 1
-        self.lang_combo.setCurrentIndex(index)
+        self.lang_combo.setCurrentIndex(0 if get_language() == 'it' else 1)
         self.lang_combo.currentIndexChanged.connect(self._change_language)
-        toolbar_layout.addWidget(self.lang_combo)
+        row.addWidget(self.lang_combo)
+        parent_layout.addLayout(row)
 
-        parent_layout.addLayout(toolbar_layout)
-
-    def _create_web_view(self):
-        """Create web view widget with fallback for systems without QtWebEngine"""
-        if WEBENGINE_AVAILABLE:
-            return QWebEngineView()
-        else:
-            # Fallback to QTextBrowser
-            browser = QTextBrowser()
-            browser.setOpenExternalLinks(True)
-            return browser
-
-    def _set_web_content(self, widget, html_content=None, url=None):
-        """Set content on web view widget (works with both QWebEngineView and QTextBrowser)"""
-        if WEBENGINE_AVAILABLE and isinstance(widget, QWebEngineView):
-            if url:
-                widget.setUrl(url)
-            elif html_content:
-                widget.setHtml(html_content)
-        else:
-            if html_content:
-                widget.setHtml(html_content)
-            elif url:
-                # QTextBrowser can't load URLs, show message
-                widget.setHtml(f"<p>Grafico salvato. <a href='{url.toString()}'>Apri nel browser</a></p>")
-
-    def _create_data_tab(self):
-        """Tab gestione dati"""
-        tab = QWidget()
-        layout = QVBoxLayout()
-
-        # Info box
-        self.data_info_label = QLabel(tr('data_title') + "<br>" + tr('data_desc'))
-        self.data_info_label.setWordWrap(True)
-        self.data_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.data_info_label)
-        
-        # Selezione layer
-        self.data_group = QGroupBox(tr('data_selection'))
-        group_layout = QVBoxLayout()
-
+    def _create_input_group(self, parent_layout):
+        self.input_group = self._reg(QGroupBox(), 'input_data', 'setTitle')
+        form = QFormLayout()
+        form.setContentsMargins(8, 4, 8, 4)
         self.layer_combo = QgsMapLayerComboBox()
-        self.layer_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
-        self.point_layer_label = QLabel(tr('point_layer'))
-        group_layout.addWidget(self.point_layer_label)
-        group_layout.addWidget(self.layer_combo)
-
+        self.layer_combo.setFilters(LayerFilter_Point)
+        self.point_layer_label = self._reg(QLabel(), 'point_layer')
+        form.addRow(self.point_layer_label, self.layer_combo)
         self.field_combo = QgsFieldComboBox()
-        self.field_combo.setFilters(QgsFieldProxyModel.Numeric)
-        self.value_field_label = QLabel(tr('value_field'))
-        group_layout.addWidget(self.value_field_label)
-        group_layout.addWidget(self.field_combo)
+        self.field_combo.setFilters(FieldFilter_Numeric)
+        self.value_field_label = self._reg(QLabel(), 'value_field')
+        form.addRow(self.value_field_label, self.field_combo)
+        self.layer_summary_label = QLabel()
+        self.layer_summary_label.setWordWrap(True)
+        self.layer_summary_label.setStyleSheet(HINT_STYLE)
+        form.addRow(self.layer_summary_label)
+        self.input_group.setLayout(form)
+        parent_layout.addWidget(self.input_group)
 
-        self.layer_combo.layerChanged.connect(self.field_combo.setLayer)
-
-        self.data_group.setLayout(group_layout)
-        layout.addWidget(self.data_group)
-
-        # Statistiche
-        self.stats_text = QTextEdit()
-        self.stats_text.setReadOnly(True)
-        self.stats_text.setMaximumHeight(200)
-        self.stats_label = QLabel(tr('statistics'))
-        layout.addWidget(self.stats_label)
-        layout.addWidget(self.stats_text)
-
-        # Pulsante analisi esplorativa
-        self.calc_stats_btn = QPushButton(tr('calc_statistics'))
+    # ==================================================================
+    # Schede
+    # ==================================================================
+    def _create_data_tab(self):
+        layout = self._make_tab('tab_data')
+        layout.addWidget(self._info_label('data_title', 'data_desc'))
+        self.calc_stats_btn = self._reg(QPushButton(), 'calc_statistics')
         self.calc_stats_btn.clicked.connect(self._run_eda)
         layout.addWidget(self.calc_stats_btn)
-        
+        self.stats_view = QTextBrowser()
+        self.stats_view.setOpenExternalLinks(False)
+        self.stats_view.setMinimumHeight(180)
+        self.stats_view.setMaximumHeight(320)
+        layout.addWidget(self.stats_view)
+        self.data_plot = PlotPanel(min_height=260)
+        layout.addWidget(self.data_plot)
+        layout.addWidget(self._next_button('next_variogram', 'variogram'))
         layout.addStretch()
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_data'))
-        
+
     def _create_variogram_tab(self):
-        """Tab variogramma"""
-        tab = QWidget()
-        layout = QVBoxLayout()
+        layout = self._make_tab('tab_variogram')
+        layout.addWidget(self._info_label('variogram_title', 'variogram_desc'))
 
-        # Info box
-        self.variogram_info_label = QLabel(tr('variogram_title') + "<br>" + tr('variogram_desc'))
-        self.variogram_info_label.setWordWrap(True)
-        self.variogram_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.variogram_info_label)
-        
-        # Parametri
-        self.variogram_params_group = QGroupBox(tr('variogram_params'))
-        params_layout = QVBoxLayout()
-
-        # Distanza massima
-        h_layout = QHBoxLayout()
-        self.max_dist_label = QLabel(tr('max_distance'))
-        h_layout.addWidget(self.max_dist_label)
-        self.max_dist_spin = QSpinBox()
-        self.max_dist_spin.setRange(10, 10000)
+        self.variogram_params_group = self._reg(QGroupBox(), 'variogram_params', 'setTitle')
+        form = QFormLayout()
+        dist_row = QHBoxLayout()
+        self.max_dist_spin = QDoubleSpinBox()
+        self.max_dist_spin.setDecimals(3)
+        self.max_dist_spin.setRange(0.001, 1e9)
         self.max_dist_spin.setValue(100)
-        self.max_dist_spin.setSuffix(" m")
-        h_layout.addWidget(self.max_dist_spin)
-        params_layout.addLayout(h_layout)
+        dist_row.addWidget(self.max_dist_spin, 1)
+        self.max_dist_auto_btn = self._reg(QPushButton(), 'auto')
+        self.max_dist_auto_btn.setMaximumWidth(60)
+        self.max_dist_auto_btn.clicked.connect(self._auto_max_distance)
+        dist_row.addWidget(self.max_dist_auto_btn)
+        self.max_dist_label = self._reg(QLabel(), 'max_distance')
+        self._tr_callbacks.append(lambda: self.max_dist_spin.setToolTip(tr('max_distance_tip')))
+        self.max_dist_spin.setToolTip(tr('max_distance_tip'))
+        form.addRow(self.max_dist_label, dist_row)
 
-        # Modello
-        h_layout = QHBoxLayout()
-        self.model_label = QLabel(tr('theoretical_model'))
-        h_layout.addWidget(self.model_label)
         self.model_combo = QComboBox()
-        self.model_combo.addItems(['spherical', 'exponential', 'gaussian', 'matern'])
-        h_layout.addWidget(self.model_combo)
-        params_layout.addLayout(h_layout)
+        self._fill_combo(self.model_combo, [(m, MODEL_LABEL_KEYS[m]) for m in VARIOGRAM_MODELS])
+        self.model_label = self._reg(QLabel(), 'theoretical_model')
+        form.addRow(self.model_label, self.model_combo)
 
-        # Parametri avanzati
-        self.advanced_group = QGroupBox(tr('advanced_params'))
-        advanced_layout = QVBoxLayout()
-
-        # Nugget
-        h_layout = QHBoxLayout()
-        self.nugget_label = QLabel(tr('nugget'))
-        h_layout.addWidget(self.nugget_label)
-        self.nugget_spin = QDoubleSpinBox()
-        self.nugget_spin.setRange(0, 1000)
-        self.nugget_spin.setValue(0)
-        self.nugget_spin.setSpecialValueText("Auto")
-        h_layout.addWidget(self.nugget_spin)
-        advanced_layout.addLayout(h_layout)
-
-        # Sill
-        h_layout = QHBoxLayout()
-        self.sill_label = QLabel(tr('sill'))
-        h_layout.addWidget(self.sill_label)
-        self.sill_spin = QDoubleSpinBox()
-        self.sill_spin.setRange(0, 10000)
-        self.sill_spin.setValue(0)
-        self.sill_spin.setSpecialValueText("Auto")
-        h_layout.addWidget(self.sill_spin)
-        advanced_layout.addLayout(h_layout)
-
-        # Range
-        h_layout = QHBoxLayout()
-        self.range_label = QLabel(tr('range'))
-        h_layout.addWidget(self.range_label)
-        self.range_spin = QDoubleSpinBox()
-        self.range_spin.setRange(0, 10000)
-        self.range_spin.setValue(0)
-        self.range_spin.setSpecialValueText("Auto")
-        h_layout.addWidget(self.range_spin)
-        advanced_layout.addLayout(h_layout)
-
-        self.advanced_group.setLayout(advanced_layout)
-        params_layout.addWidget(self.advanced_group)
-
-        # Anisotropia
-        self.anisotropy_check = QCheckBox(tr('anisotropy_check'))
-        params_layout.addWidget(self.anisotropy_check)
-        
-        self.variogram_params_group.setLayout(params_layout)
+        self.anisotropy_check = self._reg(QCheckBox(), 'anisotropy_check')
+        form.addRow(self.anisotropy_check)
+        self.variogram_params_group.setLayout(form)
         layout.addWidget(self.variogram_params_group)
 
-        # Pulsante calcolo
-        self.calc_variogram_btn = QPushButton(tr('calc_variogram'))
+        self.manual_group = self._reg(QGroupBox(), 'manual_params', 'setTitle')
+        self.manual_group.setCheckable(True)
+        self.manual_group.setChecked(False)
+        self._tr_callbacks.append(lambda: self.manual_group.setToolTip(tr('manual_params_tip')))
+        self.manual_group.setToolTip(tr('manual_params_tip'))
+        manual_form = QFormLayout()
+        self.nugget_spin = QDoubleSpinBox()
+        self.sill_spin = QDoubleSpinBox()
+        self.range_spin = QDoubleSpinBox()
+        for spin in (self.nugget_spin, self.sill_spin, self.range_spin):
+            spin.setDecimals(4)
+            spin.setRange(0, 1e12)
+            spin.setValue(0)
+            spin.setSpecialValueText(tr('auto'))
+            self._tr_callbacks.append(lambda s=spin: s.setSpecialValueText(tr('auto')))
+        self.nugget_label = self._reg(QLabel(), 'nugget')
+        self.sill_label = self._reg(QLabel(), 'sill')
+        self.range_label = self._reg(QLabel(), 'range')
+        manual_form.addRow(self.nugget_label, self.nugget_spin)
+        manual_form.addRow(self.sill_label, self.sill_spin)
+        manual_form.addRow(self.range_label, self.range_spin)
+        self.manual_group.setLayout(manual_form)
+        layout.addWidget(self.manual_group)
+
+        self.calc_variogram_btn = self._reg(QPushButton(), 'calc_variogram')
         self.calc_variogram_btn.clicked.connect(self._calculate_variogram)
         layout.addWidget(self.calc_variogram_btn)
 
-        # Visualizzazione Plotly
-        self.variogram_view = self._create_web_view()
-        self.variogram_view.setMinimumHeight(300)
-        self.variogram_view.setHtml("<h3>Variogram - Waiting...</h3>")
-        layout.addWidget(self.variogram_view)
-        
+        self.variogram_result_label = self._result_label()
+        layout.addWidget(self.variogram_result_label)
+        self.variogram_plot = PlotPanel()
+        layout.addWidget(self.variogram_plot)
+        layout.addWidget(self._next_button('next_kriging', 'kriging'))
         layout.addStretch()
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_variogram'))
-        
+
     def _create_kriging_tab(self):
-        """Tab kriging"""
-        tab = QWidget()
-        layout = QVBoxLayout()
+        layout = self._make_tab('tab_kriging')
+        layout.addWidget(self._info_label('kriging_title', 'kriging_desc'))
 
-        # Info box
-        self.kriging_info_label = QLabel(tr('kriging_title') + "<br>" + tr('kriging_desc'))
-        self.kriging_info_label.setWordWrap(True)
-        self.kriging_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.kriging_info_label)
-        
-        # Parametri kriging
-        self.kriging_params_group = QGroupBox(tr('kriging_params'))
-        params_layout = QVBoxLayout()
+        status_row = QHBoxLayout()
+        self.variogram_status_label = QLabel()
+        self.variogram_status_label.setWordWrap(True)
+        self.variogram_status_label.setStyleSheet(HINT_STYLE)
+        status_row.addWidget(self.variogram_status_label, 1)
+        self.goto_variogram_btn = self._reg(QPushButton(), 'goto_variogram')
+        self.goto_variogram_btn.setFlat(True)
+        self.goto_variogram_btn.setStyleSheet("QPushButton { color: #1565C0; }")
+        self.goto_variogram_btn.clicked.connect(lambda: self.switch_to_tab('variogram'))
+        status_row.addWidget(self.goto_variogram_btn)
+        layout.addLayout(status_row)
 
-        # Tipo kriging
-        h_layout = QHBoxLayout()
-        self.kriging_type_label = QLabel(tr('kriging_type'))
-        h_layout.addWidget(self.kriging_type_label)
-        self.kriging_type = QComboBox()
-        self.kriging_type.addItems(['Ordinary Kriging', 'Co-Kriging', 'Spatio-Temporal'])
-        h_layout.addWidget(self.kriging_type)
-        params_layout.addLayout(h_layout)
-
-        # Risoluzione
-        h_layout = QHBoxLayout()
-        self.resolution_label = QLabel(tr('grid_resolution'))
-        h_layout.addWidget(self.resolution_label)
+        self.kriging_params_group = self._reg(QGroupBox(), 'kriging_params', 'setTitle')
+        form = QFormLayout()
         self.resolution_spin = QDoubleSpinBox()
-        self.resolution_spin.setRange(0.1, 100)
+        self.resolution_spin.setDecimals(3)
+        self.resolution_spin.setRange(0.0001, 1e9)
         self.resolution_spin.setValue(5)
-        self.resolution_spin.setSuffix(" m")
-        h_layout.addWidget(self.resolution_spin)
-        params_layout.addLayout(h_layout)
-
-        # Usa variogramma calcolato
-        self.use_variogram = QCheckBox(tr('use_variogram'))
+        self.resolution_spin.valueChanged.connect(self._update_grid_info)
+        self.resolution_label = self._reg(QLabel(), 'grid_resolution')
+        form.addRow(self.resolution_label, self.resolution_spin)
+        self.grid_info_label = QLabel()
+        self.grid_info_label.setWordWrap(True)
+        self.grid_info_label.setStyleSheet(HINT_STYLE)
+        form.addRow(self.grid_info_label)
+        self.use_variogram = self._reg(QCheckBox(), 'use_variogram')
         self.use_variogram.setChecked(True)
-        params_layout.addWidget(self.use_variogram)
-
-        self.kriging_params_group.setLayout(params_layout)
+        self.use_variogram.toggled.connect(self._update_kriging_status)
+        form.addRow(self.use_variogram)
+        self.create_uncertainty = self._reg(QCheckBox(), 'create_uncertainty')
+        self.create_uncertainty.setChecked(True)
+        form.addRow(self.create_uncertainty)
+        self.kriging_params_group.setLayout(form)
         layout.addWidget(self.kriging_params_group)
 
-        # Pulsante esecuzione
-        self.run_kriging_btn = QPushButton(tr('run_kriging'))
+        self.run_kriging_btn = self._reg(QPushButton(), 'run_kriging')
         self.run_kriging_btn.clicked.connect(self._run_kriging)
         layout.addWidget(self.run_kriging_btn)
 
-        # Visualizzazione risultati
-        self.kriging_view = self._create_web_view()
-        self.kriging_view.setMinimumHeight(400)
-        self.kriging_view.setHtml("<h3>Kriging - Waiting...</h3>")
-        layout.addWidget(self.kriging_view)
-        
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_kriging'))
-        
+        self.kriging_result_label = self._result_label()
+        layout.addWidget(self.kriging_result_label)
+        self.kriging_plot = PlotPanel(min_height=420)
+        layout.addWidget(self.kriging_plot)
+        layout.addWidget(self._next_button('next_report', 'report'))
+        layout.addStretch()
+        self._update_kriging_status()
+
     def _create_ml_tab(self):
-        """Tab Machine Learning"""
-        tab = QWidget()
-        layout = QVBoxLayout()
+        layout = self._make_tab('tab_ml')
+        layout.addWidget(self._info_label('ml_title', 'ml_desc'))
 
-        # Info box
-        self.ml_info_label = QLabel(tr('ml_title') + "<br>" + tr('ml_desc'))
-        self.ml_info_label.setWordWrap(True)
-        self.ml_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.ml_info_label)
-        
-        # Selezione layer
-        self.ml_data_group = QGroupBox("ML Data")
+        self.ml_data_group = self._reg(QGroupBox(), 'ml_data', 'setTitle')
         group_layout = QVBoxLayout()
-
-        # Lista layer ML
-        self.ml_layers = QListWidget()
-        self.ml_layers.setSelectionMode(QListWidget.MultiSelection)
-        self._update_ml_layers()
-        self.ml_layers_label = QLabel(tr('ml_layers_select'))
+        self.ml_layers_label = self._reg(QLabel(), 'ml_layers_select')
         group_layout.addWidget(self.ml_layers_label)
+        self.ml_layers = QListWidget()
+        self.ml_layers.setSelectionMode(QListWidget_MultiSelection)
+        self.ml_layers.setMaximumHeight(110)
         group_layout.addWidget(self.ml_layers)
+        self._update_ml_layers()
 
-        # Aggiorna quando cambiano i layer
-        QgsProject.instance().layersAdded.connect(self._update_ml_layers)
-        QgsProject.instance().layersRemoved.connect(self._update_ml_layers)
-
-        # Metodo ML
-        h_layout = QHBoxLayout()
-        self.ml_method_label = QLabel(tr('ml_method'))
-        h_layout.addWidget(self.ml_method_label)
+        form = QFormLayout()
         self.ml_method = QComboBox()
-        self.ml_method.addItems([
-            'K-Means (clustering)',
-            'DBSCAN (density)',
-            'Random Forest (classification)',
-            'Isolation Forest (anomalies)'
-        ])
-        h_layout.addWidget(self.ml_method)
-        group_layout.addLayout(h_layout)
-
+        self._fill_combo(self.ml_method, ML_METHODS)
+        self.ml_method.currentIndexChanged.connect(
+            lambda i: self.ml_clusters_spin.setEnabled(self.ml_method.currentData() == 'kmeans'))
+        self.ml_method_label = self._reg(QLabel(), 'ml_method')
+        form.addRow(self.ml_method_label, self.ml_method)
+        self.ml_clusters_spin = QSpinBox()
+        self.ml_clusters_spin.setRange(0, 50)
+        self.ml_clusters_spin.setValue(0)
+        self.ml_clusters_spin.setSpecialValueText(tr('auto'))
+        self._tr_callbacks.append(lambda: self.ml_clusters_spin.setSpecialValueText(tr('auto')))
+        self.ml_clusters_label = self._reg(QLabel(), 'ml_n_clusters')
+        form.addRow(self.ml_clusters_label, self.ml_clusters_spin)
+        group_layout.addLayout(form)
+        self.ml_rf_hint = QLabel()
+        self.ml_rf_hint.setWordWrap(True)
+        self.ml_rf_hint.setStyleSheet(HINT_STYLE)
+        self._reg(self.ml_rf_hint, 'ml_rf_hint')
+        group_layout.addWidget(self.ml_rf_hint)
         self.ml_data_group.setLayout(group_layout)
         layout.addWidget(self.ml_data_group)
 
-        # Pulsante analisi
-        self.run_ml_btn = QPushButton(tr('run_ml'))
+        self.run_ml_btn = self._reg(QPushButton(), 'run_ml')
         self.run_ml_btn.clicked.connect(self._run_ml)
         layout.addWidget(self.run_ml_btn)
 
-        # Risultati
-        self.ml_view = self._create_web_view()
-        self.ml_view.setMinimumHeight(350)
-        self.ml_view.setHtml("<h3>Machine Learning - Waiting...</h3>")
-        layout.addWidget(self.ml_view)
-        
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_ml'))
-        
+        self.ml_result_label = self._result_label()
+        layout.addWidget(self.ml_result_label)
+        self.ml_plot = PlotPanel()
+        layout.addWidget(self.ml_plot)
+        layout.addStretch()
+
     def _create_sampling_tab(self):
-        """Tab design campionamento"""
-        tab = QWidget()
-        layout = QVBoxLayout()
+        layout = self._make_tab('tab_sampling')
+        layout.addWidget(self._info_label('sampling_title', 'sampling_desc'))
 
-        # Info box
-        self.sampling_info_label = QLabel(tr('sampling_title') + "<br>" + tr('sampling_desc'))
-        self.sampling_info_label.setWordWrap(True)
-        self.sampling_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.sampling_info_label)
-        
-        # Parametri
-        self.sampling_params_group = QGroupBox(tr('sampling_params'))
-        group_layout = QVBoxLayout()
-
-        # Punti esistenti
-        h_layout = QHBoxLayout()
-        self.existing_points_label = QLabel(tr('existing_points'))
-        h_layout.addWidget(self.existing_points_label)
-        self.existing_combo = QgsMapLayerComboBox()
-        self.existing_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
-        h_layout.addWidget(self.existing_combo)
-        group_layout.addLayout(h_layout)
-
-        # Area studio
-        h_layout = QHBoxLayout()
-        h_layout.addWidget(QLabel("Study area (optional):"))
+        self.sampling_params_group = self._reg(QGroupBox(), 'sampling_params', 'setTitle')
+        form = QFormLayout()
+        self.existing_points_label = QLabel()
+        self.existing_points_label.setWordWrap(True)
+        form.addRow(self.existing_points_label)
         self.boundary_combo = QgsMapLayerComboBox()
-        self.boundary_combo.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.boundary_combo.setFilters(LayerFilter_Polygon)
         self.boundary_combo.setAllowEmptyLayer(True)
-        h_layout.addWidget(self.boundary_combo)
-        group_layout.addLayout(h_layout)
-
-        # Numero punti
-        h_layout = QHBoxLayout()
-        self.new_points_label = QLabel(tr('new_points'))
-        h_layout.addWidget(self.new_points_label)
+        self.boundary_combo.setCurrentIndex(0)
+        self.study_area_label = self._reg(QLabel(), 'study_area')
+        form.addRow(self.study_area_label, self.boundary_combo)
         self.n_points_spin = QSpinBox()
-        self.n_points_spin.setRange(1, 100)
+        self.n_points_spin.setRange(1, 500)
         self.n_points_spin.setValue(10)
-        h_layout.addWidget(self.n_points_spin)
-        group_layout.addLayout(h_layout)
-
-        # Metodo
-        h_layout = QHBoxLayout()
-        self.sampling_method_label = QLabel(tr('sampling_method'))
-        h_layout.addWidget(self.sampling_method_label)
+        self.new_points_label = self._reg(QLabel(), 'new_points')
+        form.addRow(self.new_points_label, self.n_points_spin)
         self.sampling_combo = QComboBox()
-        self.sampling_combo.addItems([
-            'Random',
-            'Regular (grid)',
-            'Stratified',
-            'Maximin',
-            'LHS (Latin Hypercube)'
-        ])
-        h_layout.addWidget(self.sampling_combo)
-        group_layout.addLayout(h_layout)
-
-        self.sampling_params_group.setLayout(group_layout)
+        self._fill_combo(self.sampling_combo, [(k, lk) for k, lk, _ in SAMPLING_METHODS])
+        self.sampling_combo.currentIndexChanged.connect(self._update_sampling_desc)
+        self.sampling_method_label = self._reg(QLabel(), 'sampling_method')
+        form.addRow(self.sampling_method_label, self.sampling_combo)
+        self.sampling_desc_label = QLabel()
+        self.sampling_desc_label.setWordWrap(True)
+        self.sampling_desc_label.setStyleSheet(HINT_STYLE)
+        form.addRow(self.sampling_desc_label)
+        self._tr_callbacks.append(self._update_sampling_desc)
+        self._update_sampling_desc()
+        self.sampling_params_group.setLayout(form)
         layout.addWidget(self.sampling_params_group)
 
-        # Pulsante calcolo
-        self.calc_optimal_btn = QPushButton(tr('calc_optimal'))
+        self.calc_optimal_btn = self._reg(QPushButton(), 'calc_optimal')
         self.calc_optimal_btn.clicked.connect(self._run_sampling_design)
         layout.addWidget(self.calc_optimal_btn)
 
-        # Risultati
-        self.sampling_text = QTextEdit()
-        self.sampling_text.setReadOnly(True)
-        layout.addWidget(QLabel("Suggested new points:"))
+        self.sampling_result_label = self._result_label()
+        layout.addWidget(self.sampling_result_label)
+        self.sampling_text = QTextBrowser()
+        self.sampling_text.setMinimumHeight(160)
         layout.addWidget(self.sampling_text)
-        
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_sampling'))
-        
+        layout.addStretch()
+
     def _create_report_tab(self):
-        """Tab generazione report"""
-        tab = QWidget()
-        layout = QVBoxLayout()
-        
-        # Info box
-        self.report_info_label = QLabel(tr('report_title') + "<br>" + tr('report_desc'))
-        self.report_info_label.setWordWrap(True)
-        self.report_info_label.setStyleSheet("QLabel { background-color: #e3f2fd; color: #1a237e; padding: 10px; border-radius: 5px; }")
-        layout.addWidget(self.report_info_label)
-        
-        # Opzioni report
-        self.report_sections_group = QGroupBox(tr('report_sections'))
+        layout = self._make_tab('tab_report')
+        layout.addWidget(self._info_label('report_title', 'report_desc'))
+
+        self.report_sections_group = self._reg(QGroupBox(), 'report_sections', 'setTitle')
         group_layout = QVBoxLayout()
-
-        self.report_checks = {
-            'stats': QCheckBox('Descriptive Statistics'),
-            'variogram': QCheckBox('Variogram Analysis'),
-            'kriging': QCheckBox('Kriging Results'),
-            'ml': QCheckBox('ML Patterns'),
-            'sampling': QCheckBox('Sampling Recommendations')
-        }
-
-        for check in self.report_checks.values():
+        self.report_checks = {}
+        for key, label_key in REPORT_SECTIONS:
+            check = QCheckBox()
             check.setChecked(True)
+            self.report_checks[key] = check
             group_layout.addWidget(check)
-
         self.report_sections_group.setLayout(group_layout)
         layout.addWidget(self.report_sections_group)
+        self._tr_callbacks.append(self._update_report_availability)
+        self._update_report_availability()
 
-        # Pulsanti export
-        btn_layout = QHBoxLayout()
-
-        self.generate_html_btn = QPushButton(tr('generate_report'))
+        btn_row = QHBoxLayout()
+        self.generate_html_btn = self._reg(QPushButton(), 'generate_report')
         self.generate_html_btn.clicked.connect(lambda: self._generate_report('html'))
-        btn_layout.addWidget(self.generate_html_btn)
-
-        self.generate_pdf_btn = QPushButton("PDF Report")
+        btn_row.addWidget(self.generate_html_btn)
+        self.generate_pdf_btn = self._reg(QPushButton(), 'generate_pdf')
         self.generate_pdf_btn.clicked.connect(lambda: self._generate_report('pdf'))
-        btn_layout.addWidget(self.generate_pdf_btn)
+        btn_row.addWidget(self.generate_pdf_btn)
+        layout.addLayout(btn_row)
 
-        layout.addLayout(btn_layout)
-        
-        # Preview
-        self.report_view = self._create_web_view()
-        layout.addWidget(self.report_view)
-        
-        tab.setLayout(layout)
-        self.tabs.addTab(tab, tr('tab_report'))
-        
-    def _update_ml_layers(self):
-        """Aggiorna lista layer per ML"""
-        self.ml_layers.clear()
-        layers = QgsProject.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == 0:  # Vector layer
-                item = QListWidgetItem(layer.name())
-                item.setData(Qt_UserRole, layer)
-                self.ml_layers.addItem(item)
-                
-    def _run_eda(self):
-        """Esegue analisi esplorativa"""
+        self.report_hint = QLabel()
+        self.report_hint.setWordWrap(True)
+        self.report_hint.setStyleSheet(HINT_STYLE)
+        self._reg(self.report_hint, 'report_preview_hint')
+        layout.addWidget(self.report_hint)
+        self.report_view = QTextBrowser()
+        self.report_view.setMinimumHeight(300)
+        layout.addWidget(self.report_view, 1)
+
+    def _fill_combo(self, combo, items):
+        """Riempie una combo con (chiave_dato, chiave_traduzione) e la registra."""
+        def refill():
+            current = combo.currentData()
+            combo.blockSignals(True)
+            combo.clear()
+            for data, label_key in items:
+                combo.addItem(tr(label_key), data)
+            idx = combo.findData(current)
+            combo.setCurrentIndex(idx if idx >= 0 else 0)
+            combo.blockSignals(False)
+        refill()
+        self._tr_callbacks.append(refill)
+
+    # ==================================================================
+    # Layer / campo correnti
+    # ==================================================================
+    def _current_layer_field(self):
         layer = self.layer_combo.currentLayer()
         field = self.field_combo.currentField()
-        
-        if not layer or not field:
-            QMessageBox.warning(self, tr('warning'), tr('select_layer_field'))
-            return
-        
-        # Estrai valori
-        values = []
-        for feature in layer.getFeatures():
-            val = feature[field]
-            if val is not None and val != '' and str(val) not in ('NULL', 'None', ''):
-                try:
-                    values.append(float(val))
-                except (ValueError, TypeError):
-                    pass
-        
-        if not values:
-            QMessageBox.warning(self, tr('warning'), tr('no_values_found'))
-            return
-        
-        values = np.array(values)
-        
-        # Calcola statistiche
-        try:
-            from scipy import stats as scipy_stats
-            skewness = scipy_stats.skew(values)
-            kurtosis = scipy_stats.kurtosis(values)
-        except:
-            skewness = 0.0
-            kurtosis = 0.0
-            
-        stats_text = f"""
-Numero valori: {len(values)}
-Min: {np.min(values):.3f}
-Max: {np.max(values):.3f}
-Media: {np.mean(values):.3f}
-Mediana: {np.median(values):.3f}
-Dev. Standard: {np.std(values):.3f}
-Q1: {np.percentile(values, 25):.3f}
-Q3: {np.percentile(values, 75):.3f}
-Skewness: {skewness:.3f}
-Kurtosis: {kurtosis:.3f}
+        if layer is None or not field:
+            return None, None
+        return layer, field
 
-Interpretazione:
-- Skewness > 0: distribuzione asimmetrica a destra
-- Skewness < 0: distribuzione asimmetrica a sinistra
-- Kurtosis > 0: distribuzione più appuntita del normale
-- Kurtosis < 0: distribuzione più piatta del normale
-"""
-        self.stats_text.setText(stats_text)
-        
-    def _calculate_variogram(self):
-        """Calcola variogramma"""
-        layer = self.layer_combo.currentLayer()
-        field = self.field_combo.currentField()
-        
-        if not layer or not field:
-            QMessageBox.warning(self, tr('warning'), tr('select_layer_field'))
-            return
-        
-        # Estrai punti e valori
-        points = []
-        values = []
-        
-        for feature in layer.getFeatures():
-            val = feature[field]
-            if val is not None and str(val) not in ('NULL', 'None', ''):
-                geom = feature.geometry()
-                if geom and not geom.isEmpty():
-                    try:
-                        points.append([geom.centroid().asPoint().x(), geom.centroid().asPoint().y()])
-                        values.append(float(val))
-                    except (ValueError, TypeError):
-                        pass
-        
-        if len(points) < 5:
-            QMessageBox.warning(self, tr('warning'), tr('min_points'))
-            return
-        
-        # Prepara parametri
-        params = {
-            'points': np.array(points),
-            'values': np.array(values),
-            'max_dist': self.max_dist_spin.value(),
-            'model_type': self.model_combo.currentText()
-        }
-        
-        # Avvia analisi in thread
-        self.progress_bar.setVisible(True)
-        self.analysis_thread = AnalysisThread(self.engine, 'variogram', params)
-        self.analysis_thread.finished.connect(self._on_variogram_complete)
-        self.analysis_thread.error.connect(self._on_analysis_error)
-        self.analysis_thread.start()
-        
-    def _on_variogram_complete(self, result):
-        """Gestisce fine calcolo variogramma"""
-        self.progress_bar.setVisible(False)
-        self.current_results['variogram'] = result
-        
+    def _source_key(self):
+        layer, field = self._current_layer_field()
+        return (layer.id() if layer else None, field)
+
+    def _layer_units(self, layer):
+        crs = layer.crs() if layer else None
+        if crs is None or not crs.isValid():
+            return tr('unit_generic')
+        if crs.isGeographic():
+            return tr('unit_deg')
         try:
-            # Crea visualizzazione
-            fig = self.engine.create_interactive_variogram(result)
-            
-            # Salva HTML temporaneo
-            html_file = tempfile.NamedTemporaryFile(
-                mode='w', suffix='.html', delete=False,
-                dir=tempfile.gettempdir()
-            )
-            fig.write_html(html_file.name)
-            html_file.close()
-            
-            # Assicura che il file sia leggibile
-            os.chmod(html_file.name, 0o644)
-            
-            # Mostra in webview o apri nel browser
-            import webbrowser
-            if WEBENGINE_AVAILABLE:
-                try:
-                    url = QUrl.fromLocalFile(html_file.name)
-                    self.variogram_view.setUrl(url)
-                except Exception as e:
-                    with open(html_file.name, 'r') as f:
-                        self.variogram_view.setHtml(f.read())
+            return QgsUnitTypes.toAbbreviatedString(crs.mapUnits())
+        except Exception:
+            return tr('unit_m')
+
+    def _extract_points_values(self, layer, field=None):
+        """
+        Estrae coordinate e valori numerici validi (NULL e testo non numerico esclusi).
+        Restituisce (points (n,2), values (n,), n_features, n_missing).
+        """
+        points, values = [], []
+        n_total = n_missing = 0
+        request = QgsFeatureRequest()
+        if field:
+            request.setSubsetOfAttributes([field], layer.fields())
+        else:
+            request.setSubsetOfAttributes([])
+        for feature in layer.getFeatures(request):
+            n_total += 1
+            geom = feature.geometry()
+            if geom is None or geom.isEmpty():
+                continue
+            if field:
+                value = attribute_to_float(feature[field])
+                if value is None:
+                    n_missing += 1
+                    continue
             else:
-                # Senza WebEngine, mostra messaggio e apri nel browser
-                self.variogram_view.setHtml(
-                    "<h3>Variogramma calcolato!</h3>"
-                    "<p>Il grafico interattivo è stato aperto nel browser.</p>"
-                )
+                value = 0.0
+            point = geom.asMultiPoint()[0] if geom.isMultipart() else geom.asPoint()
+            points.append([point.x(), point.y()])
+            values.append(value)
+        return (np.array(points, dtype=float).reshape(-1, 2), np.array(values, dtype=float),
+                n_total, n_missing)
 
-            # Apri sempre nel browser per visualizzazione interattiva
-            webbrowser.open(f'file://{html_file.name}')
-            
-            # Mostra parametri stimati
-            model_params = result.get('model_params', {})
-            msg = f"Variogramma calcolato con successo!\n\n"
-            msg += f"Parametri stimati:\n"
-            msg += f"- Nugget: {model_params.get('nugget', 0):.3f}\n"
-            msg += f"- Sill: {model_params.get('sill', 0):.3f}\n"
-            msg += f"- Range: {model_params.get('range', 0):.1f} m\n"
-            msg += f"- RMSE fit: {result.get('rmse', 0):.3f}\n\n"
-            msg += f"Il grafico è stato aperto nel browser."
-            
-            QMessageBox.information(self, tr('completed'), msg)
-            
-        except Exception as e:
-            QgsMessageLog.logMessage(
-                f"Variogram visualization error: {str(e)}",
-                'GeoArchaeo', Qgis_Critical
-            )
-            QMessageBox.critical(self, tr('error'), tr_format('error_visualization', msg=str(e)))
-        
-    def _run_kriging(self):
-        """Esegue kriging"""
-        layer = self.layer_combo.currentLayer()
-        field = self.field_combo.currentField()
+    def _on_layer_changed(self, layer):
+        self.field_combo.setLayer(layer)
+        if layer is not None and is_point_layer(layer):
+            if layer.featureCount() > 0:
+                points, _, _, _ = self._extract_points_values(layer, None)
+                if len(points) >= 2:
+                    self.max_dist_spin.setValue(self.engine.suggest_max_distance(points))
+            self.resolution_spin.setValue(self.engine.suggest_pixel_size(layer.extent()))
+        self._on_field_changed(self.field_combo.currentField())
+        self._preselect_ml_layer(layer)
 
-        if not layer or not field:
-            QMessageBox.warning(self, tr('warning'), tr('select_layer_field'))
+    def _on_field_changed(self, field):
+        self._update_layer_summary()
+        self._update_grid_info()
+        self._update_kriging_status()
+        self._update_sampling_desc()
+
+    def _update_layer_summary(self):
+        layer, field = self._current_layer_field()
+        if layer is None:
+            if self.layer_combo.currentLayer() is None:
+                self.layer_summary_label.setText(tr('no_layer_selected'))
+            else:
+                self.layer_summary_label.setText(tr('no_numeric_field'))
+            self.layer_summary_label.setStyleSheet(WARN_STYLE)
+            self.existing_points_label.setText(tr_format('existing_points', layer='-'))
             return
-
-        # Estrai punti e valori
-        points = []
-        values = []
-
-        for feature in layer.getFeatures():
-            val = feature[field]
-            if val is not None and str(val) not in ('NULL', 'None', ''):
-                geom = feature.geometry()
-                if geom and not geom.isEmpty():
-                    try:
-                        fval = float(val)
-                        points.append([geom.centroid().asPoint().x(), geom.centroid().asPoint().y()])
-                        values.append(fval)
-                    except (ValueError, TypeError):
-                        continue
-
-        if len(points) < 5:
-            QMessageBox.warning(self, tr('warning'), tr('min_points'))
-            return
-
-        # Verifica dimensione griglia
+        points, values, n_total, n_missing = self._extract_points_values(layer, field)
         extent = layer.extent()
-        pixel_size = self.resolution_spin.value()
-        nx = int((extent.xMaximum() - extent.xMinimum()) / pixel_size)
-        ny = int((extent.yMaximum() - extent.yMinimum()) / pixel_size)
-        total_cells = nx * ny
+        unit = self._layer_units(layer)
+        text = tr_format('layer_summary', n=len(values), total=n_total, crs=layer.crs().authid() or '-',
+                         w=fmt(extent.width()), h=fmt(extent.height()), unit=unit)
+        style = HINT_STYLE
+        if layer.crs().isGeographic():
+            text += "<br>" + tr('geographic_crs_warning')
+            style = WARN_STYLE
+        self.layer_summary_label.setStyleSheet(style)
+        self.layer_summary_label.setText(text)
+        self.existing_points_label.setText(tr_format('existing_points', layer=layer.name()))
 
-        if total_cells > 10000:
-            reply = QMessageBox.question(
-                self, "Griglia grande",
-                f"La griglia avrà {nx}x{ny} = {total_cells} celle.\n"
-                f"Con {len(points)} punti, il calcolo potrebbe richiedere molto tempo.\n\n"
-                f"Suggerimento: aumenta la risoluzione (es. 2.0m invece di 1.0m).\n\n"
-                f"Vuoi continuare comunque?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
-            )
-            if reply == QMessageBox.No:
-                return
+    def _update_grid_info(self):
+        layer = self.layer_combo.currentLayer()
+        if layer is None:
+            self.grid_info_label.setText('')
+            return
+        try:
+            nx, ny, ps, capped = self.engine.grid_shape(layer.extent(), self.resolution_spin.value())
+        except ValueError:
+            self.grid_info_label.setText('')
+            return
+        text = tr_format('grid_info', nx=nx, ny=ny, cells=f"{nx * ny:,}")
+        if capped:
+            text += tr_format('grid_capped', ps=fmt(ps), side=MAX_GRID_SIDE)
+        self.grid_info_label.setText(text)
+        self.grid_info_label.setStyleSheet(WARN_STYLE if (capped or nx * ny > LARGE_GRID_CELLS) else HINT_STYLE)
 
-        # Prepara parametri
-        params = {
-            'points': np.array(points),
-            'values': np.array(values),
-            'extent': extent,
-            'pixel_size': pixel_size,
-            'variogram_params': self.current_results.get('variogram') if self.use_variogram.isChecked() else None
-        }
+    def _usable_variogram(self):
+        """Variogramma corrente se calcolato sullo stesso layer/campo, altrimenti None."""
+        vg = self.current_results.get('variogram')
+        if not vg or not self.use_variogram.isChecked():
+            return None
+        if tuple(vg.get('source', (None, None))) != self._source_key():
+            return None
+        return vg
 
-        # Avvia analisi
+    def _update_kriging_status(self):
+        vg = self.current_results.get('variogram')
+        layer = self.layer_combo.currentLayer()
+        unit = self._layer_units(layer) if layer else ''
+        if vg and tuple(vg.get('source', (None, None))) == self._source_key():
+            params = vg['model_params']
+            self.variogram_status_label.setText(tr_format(
+                'variogram_status_ok', model=tr(MODEL_LABEL_KEYS[vg['model_type']]).split(' (')[0],
+                range=fmt(params['range']), unit=unit))
+            self.use_variogram.setEnabled(True)
+        elif vg:
+            self.variogram_status_label.setText(tr('variogram_status_stale'))
+            self.use_variogram.setEnabled(False)
+        else:
+            self.variogram_status_label.setText(tr('variogram_status_none'))
+            self.use_variogram.setEnabled(False)
+
+    def _update_sampling_desc(self, *_):
+        key = self.sampling_combo.currentData()
+        for data, _, desc_key in SAMPLING_METHODS:
+            if data == key:
+                self.sampling_desc_label.setText(tr(desc_key))
+        layer = self.layer_combo.currentLayer()
+        self.existing_points_label.setText(tr_format('existing_points', layer=layer.name() if layer else '-'))
+
+    def _update_report_availability(self):
+        for key, label_key in REPORT_SECTIONS:
+            check = self.report_checks[key]
+            available = key in self.current_results
+            status = tr('available') if available else tr('not_available')
+            check.setText(f"{tr(label_key)} ({status})")
+            check.setEnabled(available)
+
+    def _check_crs(self, layer):
+        if layer.crs().isValid() and layer.crs().isGeographic():
+            return question_yes_no(self, tr('warning'), tr('geographic_crs_question'))
+        return True
+
+    def _require_data(self, min_points=MIN_POINTS):
+        """Layer, campo, punti e valori correnti; None se mancano."""
+        layer, field = self._current_layer_field()
+        if layer is None:
+            self._warn(tr('select_layer_field'))
+            return None
+        points, values, _, _ = self._extract_points_values(layer, field)
+        if len(points) < min_points:
+            self._warn(tr_format('min_points', n=min_points, found=len(points)))
+            return None
+        return layer, field, points, values
+
+    # ==================================================================
+    # Thread
+    # ==================================================================
+    def _is_busy(self):
+        if self.analysis_thread is not None and self.analysis_thread.isRunning():
+            self._warn(tr('analysis_running'))
+            return True
+        return False
+
+    def _start_analysis(self, method, params, on_done, determinate=False):
+        self.progress_bar.setRange(0, 100 if determinate else 0)
+        self.progress_bar.setValue(0)
         self.progress_bar.setVisible(True)
-        self.analysis_thread = AnalysisThread(self.engine, 'kriging', params)
-        self.analysis_thread.finished.connect(self._on_kriging_complete)
+        self.cancel_btn.setVisible(True)
+        self._set_buttons_enabled(False)
+        gc.collect()   # raccolta nel thread principale prima di avviare il worker
+        self.analysis_thread = AnalysisThread(self.engine, method, params)
+        self.analysis_thread.result_ready.connect(lambda result: self._finish_analysis(on_done, result))
         self.analysis_thread.error.connect(self._on_analysis_error)
+        self.analysis_thread.progress.connect(self.progress_bar.setValue)
         self.analysis_thread.start()
-        
-    def _on_kriging_complete(self, result):
-        """Gestisce fine kriging"""
-        import os
-        from datetime import datetime
 
-        log_file = os.path.expanduser("~/Desktop/geoarchaeo_kriging_log.txt")
-        def log(msg):
-            try:
-                with open(log_file, 'a') as f:
-                    f.write(f"[COMPLETE {datetime.now().strftime('%H:%M:%S.%f')}] {msg}\n")
-                    f.flush()
-            except:
-                pass
+    def _finish_analysis(self, on_done, result):
+        self._hide_progress()
+        try:
+            on_done(result)
+        except Exception as e:
+            log(traceback.format_exc(), Qgis_Critical)
+            self._error(tr_format('error_visualization', msg=str(e)))
 
-        log("_on_kriging_complete CALLED")
-        log(f"Result type: {type(result)}")
-        log(f"Result keys: {result.keys() if isinstance(result, dict) else 'N/A'}")
-
+    def _hide_progress(self):
         self.progress_bar.setVisible(False)
+        self.cancel_btn.setVisible(False)
+        self._set_buttons_enabled(True)
+
+    def _set_buttons_enabled(self, enabled):
+        for btn in (self.calc_variogram_btn, self.run_kriging_btn, self.run_ml_btn, self.calc_optimal_btn):
+            btn.setEnabled(enabled)
+
+    def _cancel_analysis(self):
+        if self.analysis_thread is not None:
+            self.analysis_thread.cancel()
+            self.cancel_btn.setEnabled(False)
+
+    def _on_analysis_error(self, error_msg):
+        self._hide_progress()
+        self.cancel_btn.setEnabled(True)
+        if error_msg == 'cancelled':
+            self._notify(tr('analysis_cancelled'), Qgis_Warning)
+            return
+        self._error(tr_format('error_analysis', msg=error_msg))
+
+    # ==================================================================
+    # 1. Dati
+    # ==================================================================
+    def _run_eda(self):
+        data = self._require_data(min_points=1)
+        if data is None:
+            return
+        layer, field, points, values = data
+        _, _, n_total, n_missing = self._extract_points_values(layer, field)
+        from scipy import stats as scipy_stats
+        std = float(np.std(values))
+        mean = float(np.mean(values))
+        skew = float(scipy_stats.skew(values)) if len(values) > 2 else 0.0
+        kurt = float(scipy_stats.kurtosis(values)) if len(values) > 3 else 0.0
+        outliers = int(np.sum(np.abs(values - mean) > 3 * std)) if std > 0 else 0
+        stats = {
+            'n': int(len(values)), 'missing': int(n_missing), 'min': float(values.min()), 'max': float(values.max()),
+            'mean': mean, 'median': float(np.median(values)), 'std': std,
+            'cv': (std / abs(mean)) if mean != 0 else float('nan'),
+            'q1': float(np.percentile(values, 25)), 'q3': float(np.percentile(values, 75)),
+            'skewness': skew, 'kurtosis': kurt, 'outliers': outliers,
+        }
+        self.current_results['stats'] = {
+            'layer': layer.name(), 'field': field, 'source': self._source_key(), 'stats': stats}
+        self.stats_view.setHtml(self._render_stats_html(stats))
+        try:
+            fig = self.engine.create_histogram(values, field)
+            self.current_figures['histogram'] = fig
+            png = None if WEBENGINE_AVAILABLE else self.engine.render_histogram_png(values, field)
+            self.data_plot.show_figure(fig, png, self.temp_dir)
+        except Exception as e:
+            log(f"Histogram error: {e}", Qgis_Warning)
+        self._update_report_availability()
+        self._notify(f"{tr('statistics')}: {layer.name()} / {field}", Qgis_Success, 3)
+
+    def _render_stats_html(self, stats):
+        rows = [('stat_n', stats['n']), ('stat_nulls', stats['missing']), ('stat_min', fmt(stats['min'])),
+                ('stat_max', fmt(stats['max'])), ('stat_mean', fmt(stats['mean'])),
+                ('stat_median', fmt(stats['median'])), ('stat_std', fmt(stats['std'])),
+                ('stat_cv', fmt(stats['cv'])), ('stat_q1', fmt(stats['q1'])), ('stat_q3', fmt(stats['q3'])),
+                ('stat_skew', fmt(stats['skewness'])), ('stat_kurt', fmt(stats['kurtosis']))]
+        table = "".join(f"<tr><td>{tr(k)}</td><td align='right'><b>{v}</b></td></tr>" for k, v in rows)
+        notes = []
+        if stats['skewness'] > 1:
+            notes.append(tr('interp_skew_right'))
+        elif stats['skewness'] < -1:
+            notes.append(tr('interp_skew_left'))
+        else:
+            notes.append(tr('interp_symmetric'))
+        if stats['outliers'] > 0:
+            notes.append(tr_format('interp_outliers', n=stats['outliers']))
+        notes_html = "".join(f"<li>{n}</li>" for n in notes)
+        return (f"<table cellpadding='3' style='border-collapse:collapse'>{table}</table>"
+                f"<ul>{notes_html}</ul>")
+
+    # ==================================================================
+    # 2. Variogramma
+    # ==================================================================
+    def _auto_max_distance(self):
+        layer = self.layer_combo.currentLayer()
+        if layer is None:
+            return
+        points, _, _, _ = self._extract_points_values(layer, None)
+        if len(points) >= 2:
+            self.max_dist_spin.setValue(self.engine.suggest_max_distance(points))
+
+    def _calculate_variogram(self):
+        if self._is_busy():
+            return
+        data = self._require_data()
+        if data is None:
+            return
+        layer, field, points, values = data
+        if not self._check_crs(layer):
+            return
+        fixed = {}
+        if self.manual_group.isChecked():
+            for key, spin in (('nugget', self.nugget_spin), ('sill', self.sill_spin), ('range', self.range_spin)):
+                if spin.value() > 0:
+                    fixed[key] = spin.value()
+        params = {
+            'points': points, 'values': values,
+            'max_dist': self.max_dist_spin.value(),
+            'model_type': self.model_combo.currentData(),
+            'check_anisotropy': self.anisotropy_check.isChecked(),
+            'fixed_params': fixed or None,
+            'source': self._source_key(), 'layer_name': layer.name(), 'field': field,
+            'unit': self._layer_units(layer),
+        }
+        self._start_analysis('variogram', params, self._on_variogram_complete)
+
+    def _on_variogram_complete(self, result):
+        p = self.analysis_thread.params
+        result['source'] = p['source']
+        result['layer_name'] = p['layer_name']
+        result['field'] = p['field']
+        result['unit'] = p['unit']
+        self.current_results['variogram'] = result
+        self.variogram_result_label.setText(self._render_variogram_summary(result))
+        self.variogram_result_label.setVisible(True)
+
+        fig = self.engine.create_interactive_variogram(result)
+        self.current_figures['variogram'] = fig
+        png = None if WEBENGINE_AVAILABLE else self.engine.render_variogram_png(result)
+        self.variogram_plot.show_figure(fig, png, self.temp_dir)
+
+        self._update_kriging_status()
+        self._update_report_availability()
+        self._notify(tr2("Variogramma calcolato", "Variogram calculated"), Qgis_Success, 3)
+
+    def _render_variogram_summary(self, result):
+        params = result['model_params']
+        unit = result.get('unit', '')
+        model = tr(MODEL_LABEL_KEYS[result['model_type']]).split(' (')[0]
+        lines = [tr_format('variogram_results', model=model, nugget=fmt(params['nugget']),
+                           sill=fmt(params['sill']), range=fmt(params['range']), unit=unit,
+                           rmse=fmt(params['rmse']))]
+        pairs = tr_format('variogram_pairs', pairs=f"{sum(result['n_pairs']):,}", lags=len(result['n_pairs']))
+        if result.get('n_points_used', 0) < result.get('n_points', 0):
+            pairs += tr_format('variogram_subsampled', used=result['n_points_used'], n=result['n_points'])
+        lines.append(pairs)
+        lines.append(tr_format('interp_range', range=fmt(params['range']), unit=unit))
+        pct = 100.0 * params['nugget'] / params['sill'] if params['sill'] > 0 else 0.0
+        key = 'interp_nugget_low' if pct < 25 else ('interp_nugget_mid' if pct < 60 else 'interp_nugget_high')
+        lines.append(tr_format(key, pct=f"{pct:.0f}"))
+        aniso = result.get('anisotropy')
+        if aniso:
+            if aniso.get('note'):
+                lines.append(tr('anisotropy_insufficient'))
+            elif aniso.get('is_anisotropic'):
+                lines.append(tr_format('anisotropy_result', ratio=f"{aniso['ratio']:.2f}", dir=aniso['major_direction']))
+            else:
+                lines.append(tr_format('anisotropy_none', ratio=f"{aniso['ratio']:.2f}"))
+        return "<br>".join(lines)
+
+    # ==================================================================
+    # 3. Kriging
+    # ==================================================================
+    def _run_kriging(self):
+        if self._is_busy():
+            return
+        data = self._require_data()
+        if data is None:
+            return
+        layer, field, points, values = data
+        if not self._check_crs(layer):
+            return
+        extent = QgsRectangle(layer.extent())
+        pixel_size = self.resolution_spin.value()
+        nx, ny, ps, capped = self.engine.grid_shape(extent, pixel_size)
+        if nx * ny > LARGE_GRID_CELLS:
+            if not question_yes_no(self, tr('warning'), tr_format('grid_large_question', cells=f"{nx * ny:,}")):
+                return
+        params = {
+            'points': points, 'values': values, 'extent': extent, 'pixel_size': pixel_size,
+            'variogram_params': self._usable_variogram(),
+            'source': self._source_key(), 'layer_name': layer.name(), 'field': field,
+            'crs': layer.crs(), 'unit': self._layer_units(layer),
+        }
+        self._start_analysis('kriging', params, self._on_kriging_complete, determinate=True)
+
+    def _on_kriging_complete(self, result):
+        p = self.analysis_thread.params
+        for key in ('source', 'layer_name', 'field', 'unit'):
+            result[key] = p[key]
+        result['points'] = p['points']
         self.current_results['kriging'] = result
 
         try:
-            log("Creating visualization...")
-            # Crea visualizzazione
-            try:
-                log("Calling create_interactive_kriging_map...")
-                fig = self.engine.create_interactive_kriging_map(
-                    result['x_grid'],
-                    result['y_grid'],
-                    result['predictions'],
-                    result['variances'],
-                    self.analysis_thread.params['points']
-                )
-
-                # Salva HTML temporaneo
-                html_file = tempfile.NamedTemporaryFile(
-                    mode='w', suffix='.html', delete=False,
-                    dir=tempfile.gettempdir()
-                )
-                fig.write_html(html_file.name)
-                html_file.close()
-
-                # Assicura che il file sia leggibile
-                os.chmod(html_file.name, 0o644)
-
-                # Mostra in webview o apri nel browser
-                import webbrowser
-                if WEBENGINE_AVAILABLE:
-                    try:
-                        url = QUrl.fromLocalFile(html_file.name)
-                        self.kriging_view.setUrl(url)
-                    except Exception:
-                        self.kriging_view.setHtml(
-                            "<h3>Kriging Complete!</h3>"
-                            "<p>Interactive graph opened in browser.</p>"
-                        )
-                else:
-                    self.kriging_view.setHtml(
-                        "<h3>Kriging Complete!</h3>"
-                        "<p>Interactive graph opened in browser.</p>"
-                    )
-
-                webbrowser.open(f'file://{html_file.name}')
-
-            except Exception as viz_error:
-                QgsMessageLog.logMessage(
-                    f"Kriging visualization error: {str(viz_error)}",
-                    'GeoArchaeo', Qgis_Warning
-                )
-
-            # Crea anche raster QGIS
-            self._create_kriging_raster(result)
-
-            # Show cross-validation metrics
-            cv_msg = "Kriging completed successfully!\n\n"
-            if 'cv_results' in result and result['cv_results']:
-                cv = result['cv_results']
-                cv_msg += "Cross-Validation Metrics:\n"
-                cv_msg += f"- RMSE: {cv.get('rmse', 0):.3f} (root mean squared error)\n"
-                cv_msg += f"- MAE: {cv.get('mae', 0):.3f} (mean absolute error)\n"
-                cv_msg += f"- ME: {cv.get('me', 0):.3f} (mean error - bias)\n"
-                cv_msg += f"- R²: {cv.get('r2', 0):.3f} (coefficiente determinazione)\n"
-                cv_msg += f"- Punti validi: {cv.get('n_valid', 0)}\n\n"
-
-            cv_msg += "Il grafico è stato aperto nel browser.\nUn raster è stato aggiunto alla mappa."
-
-            QMessageBox.information(self, tr('completed'), cv_msg)
-                
+            fig = self.engine.create_interactive_kriging_map(
+                result['x_grid'], result['y_grid'], result['predictions'], result['variances'], p['points'])
+            self.current_figures['kriging'] = fig
+            png = None
+            if not WEBENGINE_AVAILABLE:
+                png = self.engine.render_kriging_png(result['x_grid'], result['y_grid'],
+                                                     result['predictions'], result['variances'], p['points'])
+            self.kriging_plot.show_figure(fig, png, self.temp_dir)
         except Exception as e:
-            QgsMessageLog.logMessage(
-                f"Kriging visualization error: {str(e)}",
-                'GeoArchaeo', Qgis_Critical
-            )
-            QMessageBox.critical(self, tr('error'), tr_format('error_visualization', msg=str(e)))
-        
-    def _run_ml(self):
-        """Esegue analisi ML"""
-        # Raccogli layer selezionati
-        selected_layers = []
+            log(f"Kriging visualization error: {traceback.format_exc()}", Qgis_Warning)
+
+        names = self._create_kriging_rasters(result, p['crs'], p['field'])
+        self.kriging_result_label.setText(self._render_kriging_summary(result))
+        self.kriging_result_label.setVisible(True)
+        self._update_report_availability()
+        if names:
+            self._notify(tr_format('kriging_layers_added', names=", ".join(names)), Qgis_Success, 6)
+
+    def _render_kriging_summary(self, result):
+        ny, nx = result['predictions'].shape
+        vg = result['variogram']
+        unit = result.get('unit', '')
+        model = tr(MODEL_LABEL_KEYS.get(vg['model_type'], 'model_spherical')).split(' (')[0]
+        lines = [tr_format('kriging_results', n=result['n_points'], nx=nx, ny=ny, ps=fmt(result['pixel_size']),
+                           unit=unit, model=model, range=fmt(vg['model_params']['range']))]
+        if result.get('grid_capped'):
+            lines.append(tr_format('grid_capped', ps=fmt(result['pixel_size']), side=MAX_GRID_SIDE).strip(' ·'))
+        cv = result.get('cv_results')
+        if cv:
+            lines.append(f"<b>{tr_format('cv_title', n=cv['n_valid'])}</b>")
+            lines.append(f"{tr('cv_rmse')}: <b>{fmt(cv['rmse'])}</b> · {tr('cv_mae')}: <b>{fmt(cv['mae'])}</b>")
+            lines.append(f"{tr('cv_me')}: <b>{fmt(cv['me'])}</b> · {tr('cv_r2')}: <b>{fmt(cv['r2'])}</b>"
+                         + (f" · {tr('cv_msdr')}: <b>{fmt(cv['msdr'])}</b>" if cv.get('msdr') is not None else ''))
+            r2 = cv['r2']
+            lines.append(tr('interp_r2_good') if r2 >= 0.5 else (tr('interp_r2_mid') if r2 >= 0.2 else tr('interp_r2_low')))
+            if cv.get('msdr') is not None:
+                if cv['msdr'] > 1.5:
+                    lines.append(tr('interp_msdr_over'))
+                elif cv['msdr'] < 0.5:
+                    lines.append(tr('interp_msdr_under'))
+        else:
+            lines.append(tr('cv_none'))
+        return "<br>".join(lines)
+
+    def _create_kriging_rasters(self, result, crs, field):
+        """Crea i raster (predizione + incertezza) e li aggiunge al progetto."""
+        names = []
+        stamp = datetime.now().strftime('%H%M%S')
+        safe_field = "".join(c if c.isalnum() else '_' for c in str(field))
+        try:
+            name = tr_format('kriging_result_layer', field=safe_field)
+            path = os.path.join(self.temp_dir, f"kriging_{safe_field}_{stamp}.tif")
+            layer = self._write_raster(path, result['predictions'], result['x_grid'], result['y_grid'], crs, name)
+            if layer is not None:
+                self._apply_color_ramp(layer, result['predictions'],
+                                       [(49, 54, 149), (116, 173, 209), (255, 255, 191), (244, 109, 67), (165, 0, 38)])
+                QgsProject.instance().addMapLayer(layer)
+                names.append(name)
+            if self.create_uncertainty.isChecked() and result.get('variances') is not None:
+                std = np.sqrt(np.where(result['variances'] >= 0, result['variances'], np.nan))
+                name = tr_format('kriging_std_layer', field=safe_field)
+                path = os.path.join(self.temp_dir, f"kriging_{safe_field}_std_{stamp}.tif")
+                std_layer = self._write_raster(path, std, result['x_grid'], result['y_grid'], crs, name)
+                if std_layer is not None:
+                    self._apply_color_ramp(std_layer, std,
+                                           [(255, 255, 229), (254, 217, 118), (253, 141, 60), (189, 0, 38)])
+                    QgsProject.instance().addMapLayer(std_layer, False)
+                    root = QgsProject.instance().layerTreeRoot()
+                    node = root.insertLayer(0, std_layer)
+                    if node is not None:
+                        node.setItemVisibilityChecked(False)
+                    names.append(name)
+        except Exception as e:
+            log(f"Raster creation error: {traceback.format_exc()}", Qgis_Critical)
+            self._error(tr_format('error_visualization', msg=str(e)))
+        return names
+
+    def _write_raster(self, path, array, x_grid, y_grid, crs, name, nodata=-9999.0):
+        from osgeo import gdal, osr
+        array = np.asarray(array, dtype=float)
+        ny, nx = array.shape
+        psx = float(x_grid[1] - x_grid[0]) if len(x_grid) > 1 else 1.0
+        psy = float(y_grid[1] - y_grid[0]) if len(y_grid) > 1 else 1.0
+        data = np.flipud(np.where(np.isfinite(array), array, nodata)).astype(np.float32)
+        driver = gdal.GetDriverByName('GTiff')
+        dataset = driver.Create(path, nx, ny, 1, gdal.GDT_Float32, options=['COMPRESS=LZW'])
+        if dataset is None:
+            raise RuntimeError(f"Cannot create raster {path}")
+        dataset.SetGeoTransform([float(x_grid[0]) - psx / 2, psx, 0, float(y_grid[-1]) + psy / 2, 0, -psy])
+        if crs is not None and crs.isValid():
+            srs = osr.SpatialReference()
+            srs.ImportFromWkt(crs.toWkt())
+            dataset.SetProjection(srs.ExportToWkt())
+        band = dataset.GetRasterBand(1)
+        band.WriteArray(data)
+        band.SetNoDataValue(nodata)
+        band.FlushCache()
+        band = None
+        dataset = None
+        layer = QgsRasterLayer(path, name, 'gdal')
+        if not layer.isValid():
+            log(f"Invalid raster layer: {path}", Qgis_Critical)
+            return None
+        return layer
+
+    def _apply_color_ramp(self, raster_layer, array, rgb_stops):
+        try:
+            valid = np.asarray(array, dtype=float)
+            valid = valid[np.isfinite(valid)]
+            if len(valid) == 0:
+                return
+            vmin, vmax = float(valid.min()), float(valid.max())
+            if vmax <= vmin:
+                vmax = vmin + 1e-9
+            items = []
+            for i, rgb in enumerate(rgb_stops):
+                value = vmin + (vmax - vmin) * i / (len(rgb_stops) - 1)
+                items.append(QgsColorRampShader.ColorRampItem(value, QColor(*rgb), fmt(value)))
+            ramp = QgsColorRampShader()
+            ramp.setColorRampType(ColorRamp_Interpolated)
+            ramp.setColorRampItemList(items)
+            shader = QgsRasterShader()
+            shader.setRasterShaderFunction(ramp)
+            renderer = QgsSingleBandPseudoColorRenderer(raster_layer.dataProvider(), 1, shader)
+            raster_layer.setRenderer(renderer)
+            raster_layer.triggerRepaint()
+        except Exception as e:
+            log(f"Color style error: {e}", Qgis_Warning)
+
+    # ==================================================================
+    # 4. Machine learning
+    # ==================================================================
+    def _update_ml_layers(self, *_):
+        selected = {self.ml_layers.item(i).data(Qt_UserRole)
+                    for i in range(self.ml_layers.count()) if self.ml_layers.item(i).isSelected()}
+        self.ml_layers.clear()
+        for layer in QgsProject.instance().mapLayers().values():
+            if is_point_layer(layer):
+                item = QListWidgetItem(layer.name())
+                item.setData(Qt_UserRole, layer.id())
+                self.ml_layers.addItem(item)
+                if layer.id() in selected:
+                    item.setSelected(True)
+
+    def _preselect_ml_layer(self, layer):
+        if layer is None:
+            return
+        any_selected = any(self.ml_layers.item(i).isSelected() for i in range(self.ml_layers.count()))
+        if any_selected:
+            return
+        for i in range(self.ml_layers.count()):
+            if self.ml_layers.item(i).data(Qt_UserRole) == layer.id():
+                self.ml_layers.item(i).setSelected(True)
+
+    def _selected_ml_layers(self):
+        layers = []
         for i in range(self.ml_layers.count()):
             item = self.ml_layers.item(i)
             if item.isSelected():
-                layer = item.data(Qt_UserRole)
-                selected_layers.append(layer)
-        
-        if not selected_layers:
-            QMessageBox.warning(self, tr('warning'), tr('select_at_least_one_layer'))
+                layer = QgsProject.instance().mapLayer(item.data(Qt_UserRole))
+                if layer is not None:
+                    layers.append(layer)
+        return layers
+
+    def _run_ml(self):
+        if self._is_busy():
             return
-        
-        # Prepara dati
+        selected_layers = self._selected_ml_layers()
+        if not selected_layers:
+            self._warn(tr('select_at_least_one_layer'))
+            return
         layers_data = []
         for layer in selected_layers:
-            data = {
-                'name': layer.name(),
-                'points': [],
-                'features': []
-            }
-            
-            # Estrai punti e attributi numerici
-            numeric_fields = []
-            for field in layer.fields():
-                if field.isNumeric():
-                    numeric_fields.append(field.name())
-            
+            numeric_fields = [f.name() for f in layer.fields() if f.isNumeric()]
+            data = {'name': layer.name(), 'points': [], 'features': []}
             for feature in layer.getFeatures():
                 geom = feature.geometry()
-                if geom and not geom.isEmpty():
-                    centroid = geom.centroid().asPoint()
-                    data['points'].append([centroid.x(), centroid.y()])
-                    
-                    # Valori attributi
-                    feat_values = []
-                    for field_name in numeric_fields:
-                        val = feature[field_name]
-                        try:
-                            feat_values.append(float(val) if val is not None and str(val) not in ('NULL', 'None', '') else 0)
-                        except (ValueError, TypeError):
-                            feat_values.append(0)
-                    data['features'].append(feat_values)
-            
+                if geom is None or geom.isEmpty():
+                    continue
+                point = geom.asMultiPoint()[0] if geom.isMultipart() else geom.asPoint()
+                data['points'].append([point.x(), point.y()])
+                data['features'].append([attribute_to_float(feature[name]) for name in numeric_fields])
             if data['points']:
                 layers_data.append(data)
-        
         if not layers_data:
-            QMessageBox.warning(self, tr('warning'), tr('no_valid_data'))
+            self._warn(tr('no_valid_data'))
             return
-        
-        # Prepara parametri
-        method_map = {
-            # English keys
-            'K-Means (clustering)': 'kmeans',
-            'DBSCAN (density)': 'dbscan',
-            'Random Forest (classification)': 'random_forest',
-            'Isolation Forest (anomalies)': 'isolation_forest',
-            # Italian keys (for compatibility)
-            'K-Means (raggruppamento)': 'kmeans',
-            'DBSCAN (cluster densità)': 'dbscan',
-            'Random Forest (classificazione)': 'random_forest',
-            'Isolation Forest (anomalie)': 'isolation_forest'
-        }
-        
         params = {
             'layers_data': layers_data,
-            'method': method_map[self.ml_method.currentText()]
+            'method': self.ml_method.currentData(),
+            'n_clusters': self.ml_clusters_spin.value() or None,
+            'method_label': self.ml_method.currentText(),
+            'crs': selected_layers[0].crs(),
+            'layer_names': [l.name() for l in selected_layers],
         }
-        
-        # Avvia analisi
-        self.progress_bar.setVisible(True)
-        self.analysis_thread = AnalysisThread(self.engine, 'ml', params)
-        self.analysis_thread.finished.connect(self._on_ml_complete)
-        self.analysis_thread.error.connect(self._on_analysis_error)
-        self.analysis_thread.start()
-        
+        self._start_analysis('ml', params, self._on_ml_complete)
+
     def _on_ml_complete(self, result):
-        """Gestisce fine ML"""
-        self.progress_bar.setVisible(False)
+        p = self.analysis_thread.params
+        result['method_label'] = p['method_label']
+        result['layer_names'] = p['layer_names']
         self.current_results['ml'] = result
-        
-        try:
-            # Crea visualizzazione
-            method_name = self.ml_method.currentText()
-            fig = self.engine.create_ml_visualization(
-                result['features'],
-                result['labels'],
-                method_name
-            )
-            
-            # Salva HTML temporaneo
-            html_file = tempfile.NamedTemporaryFile(
-                mode='w', suffix='.html', delete=False,
-                dir=tempfile.gettempdir()
-            )
-            fig.write_html(html_file.name)
-            html_file.close()
-            
-            # Assicura che il file sia leggibile
-            os.chmod(html_file.name, 0o644)
-            
-            # Mostra in webview o apri nel browser
-            import webbrowser
-            if WEBENGINE_AVAILABLE:
-                try:
-                    url = QUrl.fromLocalFile(html_file.name)
-                    self.ml_view.setUrl(url)
-                except Exception as e:
-                    with open(html_file.name, 'r') as f:
-                        self.ml_view.setHtml(f.read())
+
+        fig = self.engine.create_ml_visualization(result['features'], result['labels'], p['method_label'],
+                                                  result.get('class_names'))
+        self.current_figures['ml'] = fig
+        png = None if WEBENGINE_AVAILABLE else self.engine.render_ml_png(
+            result['features'], result['labels'], p['method_label'], result.get('class_names'))
+        self.ml_plot.show_figure(fig, png, self.temp_dir)
+
+        name = self._create_ml_layer(result, p['crs'])
+        self.ml_result_label.setText(self._render_ml_summary(result))
+        self.ml_result_label.setVisible(True)
+        self._update_report_availability()
+        if name:
+            self._notify(tr_format('layer_created', name=name), Qgis_Success, 5)
+
+    def _cluster_names(self, result):
+        """Nome leggibile per ogni etichetta (gruppo / anomalia / isolati)."""
+        labels = np.asarray(result['labels'])
+        method = result.get('method', 'kmeans')
+        names = {}
+        for label in np.unique(labels):
+            label = int(label)
+            count = int(np.sum(labels == label))
+            if method == 'isolation_forest':
+                base = tr('anomaly_outlier') if label == 1 else tr('anomaly_normal')
+                names[label] = f"{base} (n={count})"
+            elif method == 'dbscan' and label == -1:
+                names[label] = f"{tr('noise_points')} (n={count})"
+            elif result.get('class_names') and label in result['class_names']:
+                names[label] = f"{result['class_names'][label]} (n={count})"
             else:
-                self.ml_view.setHtml(
-                    "<h3>Pattern Recognition Complete!</h3>"
-                    "<p>Interactive graph opened in browser.</p>"
-                )
+                names[label] = tr_format('cluster_with_count', letter=chr(ord('A') + label % 26), count=count)
+        return names
 
-            webbrowser.open(f'file://{html_file.name}')
+    def _render_ml_summary(self, result):
+        names = self._cluster_names(result)
+        lines = [tr_format('ml_results', method=result['method_label'], n=len(names),
+                           points=len(result['labels']))]
+        for label in sorted(names):
+            lines.append(names[label])
+        return "<br>".join(lines)
 
-            # Crea layer con i cluster
-            self._create_ml_layer(result)
-            
-            n_patterns = len(np.unique(result['labels']))
-            QMessageBox.information(self, tr('completed'),
-                f"Pattern recognition complete!\n\n"
-                f"{n_patterns} patterns/clusters found.\n"
-                f"Graph opened in browser.\n"
-                f"Vector layer created with clusters.")
-                
-        except Exception as e:
-            QgsMessageLog.logMessage(
-                f"ML visualization error: {str(e)}",
-                'GeoArchaeo', Qgis_Critical
-            )
-            QMessageBox.critical(self, tr('error'), tr_format('error_visualization', msg=str(e)))
-        
-    def _run_sampling_design(self):
-        """Calcola design campionamento ottimale"""
-        existing_layer = self.existing_combo.currentLayer()
-        boundary_layer = self.boundary_combo.currentLayer()
-        
-        if not existing_layer:
-            QMessageBox.warning(self, tr('warning'), tr('select_existing_points'))
-            return
-        
-        # Estrai punti esistenti
-        existing_points = []
-        for feature in existing_layer.getFeatures():
-            geom = feature.geometry()
-            if geom and not geom.isEmpty():
-                point = geom.centroid().asPoint()
-                existing_points.append([point.x(), point.y()])
-        
-        if not existing_points:
-            QMessageBox.warning(self, tr('warning'), tr('no_points_in_layer'))
-            return
-        
-        existing_points = np.array(existing_points)
-        
-        # Estrai boundary se fornito
-        boundary = None
-        if boundary_layer:
-            for feature in boundary_layer.getFeatures():
-                geom = feature.geometry()
-                if geom and not geom.isEmpty():
-                    boundary = geom
-                    break
-        
-        # Calcola nuovi punti
+    def _create_ml_layer(self, result, crs):
         try:
-            n_points = self.n_points_spin.value()
-            method = self.sampling_combo.currentText().split()[0].lower()
-            
-            new_points = self.engine.optimal_sampling_design(
-                existing_points, boundary, n_points, method
-            )
-            
-            # Show results
-            text = f"Calculated {len(new_points)} new points with method {method}\n\n"
-            text += "Suggested coordinates:\n"
-            for i, point in enumerate(new_points):
-                text += f"{i+1}. X: {point[0]:.2f}, Y: {point[1]:.2f}\n"
-            
-            self.sampling_text.setText(text)
-            self.current_results['sampling'] = new_points
-            
-            # Crea layer vettoriale per i nuovi punti
-            self._create_sampling_layer(new_points)
-            
-            QMessageBox.information(self, tr('completed'),
-                f"Sampling design complete!\n\n"
-                f"{len(new_points)} new points suggested.\n"
-                f"Created layer with yellow stars.")
-
-        except Exception as e:
-            QMessageBox.critical(self, tr('error'), str(e))
-
-    def _generate_report(self, format_type):
-        """Generate report"""
-        sections_to_include = []
-        for option, check in self.report_checks.items():
-            if check.isChecked():
-                sections_to_include.append(option)
-
-        if not sections_to_include:
-            QMessageBox.warning(self, tr('warning'), "Select at least one section")
-            return
-        
-        # Genera HTML report
-        html_content = self._build_report_html(sections_to_include)
-        
-        # Mostra preview
-        self.report_view.setHtml(html_content)
-        
-        # Salva file se richiesto
-        if format_type == 'html':
-            file_path, _ = QFileDialog.getSaveFileName(
-                self, "Salva Report HTML", "", "HTML Files (*.html)"
-            )
-            if file_path:
-                with open(file_path, 'w') as f:
-                    f.write(html_content)
-                QMessageBox.information(self, tr('completed'), f"Report saved to {file_path}")
-                
-        elif format_type == 'pdf':
-            self._export_pdf_report(html_content, sections_to_include)
-    
-    def _build_report_html(self, sections):
-        """Costruisce HTML del report"""
-        html = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>GeoArchaeo Report</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #2c3e50; }
-        h2 { color: #34495e; margin-top: 30px; }
-        .section { margin-bottom: 30px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #3498db; color: white; }
-        .timestamp { color: #7f8c8d; font-style: italic; }
-    </style>
-</head>
-<body>
-    <h1>GeoArchaeo Analysis Report</h1>
-    <p class="timestamp">Generated on: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + """</p>
-"""
-        
-        if 'Statistiche descrittive' in sections and 'stats' in self.current_results:
-            stats = self.current_results['stats']
-            html += f"""
-    <div class="section">
-        <h2>Statistiche Descrittive</h2>
-        <pre>{self.stats_text.toPlainText()}</pre>
-    </div>
-"""
-        
-        if 'Analisi variogramma' in sections and 'variogram' in self.current_results:
-            var_result = self.current_results['variogram']
-            params = var_result.get('model_params', {})
-            html += f"""
-    <div class="section">
-        <h2>Analisi Variogramma</h2>
-        <p>Modello: {var_result.get('model_type', 'N/A')}</p>
-        <p>Nugget: {params.get('nugget', 0):.3f}</p>
-        <p>Sill: {params.get('sill', 0):.3f}</p>
-        <p>Range: {params.get('range', 0):.1f} m</p>
-    </div>
-"""
-        
-        if 'Risultati kriging' in sections and 'kriging' in self.current_results:
-            kr_result = self.current_results['kriging']
-            html += f"""
-    <div class="section">
-        <h2>Risultati Kriging</h2>
-        <p>Risoluzione griglia: {self.resolution_spin.value()} m</p>
-        <p>Metodo: {self.kriging_type.currentText()}</p>
-"""
-            if 'cv_results' in kr_result:
-                cv = kr_result['cv_results']
-                html += f"""
-        <h3>Cross-Validation</h3>
-        <p>RMSE: {cv['rmse']:.3f}</p>
-        <p>MAE: {cv['mae']:.3f}</p>
-        <p>R²: {cv['r2']:.3f}</p>
-"""
-            html += "</div>"
-        
-        if 'Pattern ML' in sections and 'ml' in self.current_results:
-            ml_result = self.current_results['ml']
-            n_patterns = len(np.unique(ml_result['labels']))
-            html += f"""
-    <div class="section">
-        <h2>Pattern Recognition ML</h2>
-        <p>Metodo: {self.ml_method.currentText()}</p>
-        <p>Pattern identificati: {n_patterns}</p>
-    </div>
-"""
-        
-        if 'Raccomandazioni campionamento' in sections and 'sampling' in self.current_results:
-            n_points = len(self.current_results['sampling'])
-            html += f"""
-    <div class="section">
-        <h2>Raccomandazioni Campionamento</h2>
-        <p>Metodo: {self.sampling_combo.currentText()}</p>
-        <p>Nuovi punti suggeriti: {n_points}</p>
-    </div>
-"""
-        
-        html += """
-</body>
-</html>
-"""
-        return html
-    
-    def _export_pdf_report(self, html_content, sections):
-        """Esporta report in PDF"""
-        try:
-            # Prima prova con ReportLab se disponibile
-            try:
-                from reportlab.lib import colors
-                from reportlab.lib.pagesizes import letter, A4
-                from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-                from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-                from reportlab.lib.units import inch
-                
-                # Richiedi path di salvataggio
-                file_path, _ = QFileDialog.getSaveFileName(
-                    self, "Salva Report PDF", "", "PDF Files (*.pdf)"
-                )
-                
-                if not file_path:
-                    return
-                
-                # Crea documento PDF
-                doc = SimpleDocTemplate(file_path, pagesize=A4)
-                story = []
-                styles = getSampleStyleSheet()
-                
-                # Titolo
-                title_style = ParagraphStyle(
-                    'CustomTitle',
-                    parent=styles['Heading1'],
-                    fontSize=24,
-                    textColor=colors.HexColor('#2c3e50'),
-                    spaceAfter=30
-                )
-                story.append(Paragraph("GeoArchaeo Analysis Report", title_style))
-                story.append(Spacer(1, 0.2*inch))
-                
-                # Data
-                story.append(Paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Italic']))
-                story.append(Spacer(1, 0.5*inch))
-                
-                # Aggiungi sezioni
-                if 'Statistiche descrittive' in sections and 'stats' in self.current_results:
-                    story.append(Paragraph("Statistiche Descrittive", styles['Heading2']))
-                    stats_text = self.stats_text.toPlainText()
-                    for line in stats_text.split('\n'):
-                        if line.strip():
-                            story.append(Paragraph(line, styles['Normal']))
-                    story.append(Spacer(1, 0.3*inch))
-                
-                if 'Analisi variogramma' in sections and 'variogram' in self.current_results:
-                    story.append(Paragraph("Analisi Variogramma", styles['Heading2']))
-                    var_result = self.current_results['variogram']
-                    params = var_result.get('model_params', {})
-                    
-                    var_data = [
-                        ['Parametro', 'Valore'],
-                        ['Modello', var_result.get('model_type', 'N/A')],
-                        ['Nugget', f"{params.get('nugget', 0):.3f}"],
-                        ['Sill', f"{params.get('sill', 0):.3f}"],
-                        ['Range', f"{params.get('range', 0):.1f} m"]
-                    ]
-                    
-                    var_table = Table(var_data)
-                    var_table.setStyle(TableStyle([
-                        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#3498db')),
-                        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0,0), (-1,0), 12),
-                        ('BOTTOMPADDING', (0,0), (-1,0), 12),
-                        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
-                        ('GRID', (0,0), (-1,-1), 1, colors.black)
-                    ]))
-                    story.append(var_table)
-                    story.append(Spacer(1, 0.3*inch))
-                
-                if 'Risultati kriging' in sections and 'kriging' in self.current_results:
-                    story.append(Paragraph("Risultati Kriging", styles['Heading2']))
-                    kr_result = self.current_results['kriging']
-                    
-                    story.append(Paragraph(f"Risoluzione griglia: {self.resolution_spin.value()} m", styles['Normal']))
-                    story.append(Paragraph(f"Metodo: {self.kriging_type.currentText()}", styles['Normal']))
-                    
-                    if 'cv_results' in kr_result:
-                        cv = kr_result['cv_results']
-                        story.append(Spacer(1, 0.2*inch))
-                        story.append(Paragraph("Cross-Validation", styles['Heading3']))
-                        
-                        cv_data = [
-                            ['Metrica', 'Valore'],
-                            ['RMSE', f"{cv['rmse']:.3f}"],
-                            ['MAE', f"{cv['mae']:.3f}"],
-                            ['R²', f"{cv['r2']:.3f}"]
-                        ]
-                        
-                        cv_table = Table(cv_data)
-                        cv_table.setStyle(TableStyle([
-                            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#3498db')),
-                            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                            ('GRID', (0,0), (-1,-1), 1, colors.black)
-                        ]))
-                        story.append(cv_table)
-                    story.append(Spacer(1, 0.3*inch))
-                
-                if 'Pattern ML' in sections and 'ml' in self.current_results:
-                    story.append(Paragraph("Pattern Recognition ML", styles['Heading2']))
-                    ml_result = self.current_results['ml']
-                    n_patterns = len(np.unique(ml_result['labels']))
-                    
-                    story.append(Paragraph(f"Metodo: {self.ml_method.currentText()}", styles['Normal']))
-                    story.append(Paragraph(f"Pattern identificati: {n_patterns}", styles['Normal']))
-                    story.append(Spacer(1, 0.3*inch))
-                
-                if 'Raccomandazioni campionamento' in sections and 'sampling' in self.current_results:
-                    story.append(Paragraph("Raccomandazioni Campionamento", styles['Heading2']))
-                    n_points = len(self.current_results['sampling'])
-                    
-                    story.append(Paragraph(f"Metodo: {self.sampling_combo.currentText()}", styles['Normal']))
-                    story.append(Paragraph(f"Nuovi punti suggeriti: {n_points}", styles['Normal']))
-                    story.append(Spacer(1, 0.3*inch))
-                
-                # Genera PDF
-                doc.build(story)
-                QMessageBox.information(self, tr('completed'), f"PDF report saved to:\n{file_path}")
-                
-            except ImportError:
-                # Fallback: usa QPrinter se ReportLab non è disponibile
-                self._export_pdf_with_printer(html_content)
-                
-        except Exception as e:
-            QgsMessageLog.logMessage(
-                f"PDF export error: {str(e)}",
-                'GeoArchaeo', Qgis_Critical
-            )
-            # Fallback finale
-            self._export_pdf_with_printer(html_content)
-    
-    def _export_pdf_with_printer(self, html_content):
-        """Export PDF usando QPrinter come fallback"""
-        try:
-            from qgis.PyQt.QtPrintSupport import QPrinter
-            from qgis.PyQt.QtGui import QTextDocument
-            
-            file_path, _ = QFileDialog.getSaveFileName(
-                self, "Salva Report PDF", "", "PDF Files (*.pdf)"
-            )
-            
-            if not file_path:
-                return
-            
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageSize(QPrinter.A4)
-            printer.setOutputFormat(QPrinter.PdfFormat)
-            printer.setOutputFileName(file_path)
-            
-            doc = QTextDocument()
-            doc.setHtml(html_content)
-            doc.print_(printer)
-            
-            QMessageBox.information(self, tr('completed'), f"PDF report saved to:\n{file_path}")
-
-        except Exception as e:
-            QMessageBox.warning(self, tr('warning'),
-                f"Cannot create PDF.\n"
-                f"Use 'Save as HTML' and print from browser.\n"
-                f"Error: {str(e)}")
-    
-    def _on_analysis_error(self, error_msg):
-        """Handle analysis errors"""
-        self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, tr('error'), tr_format('error_analysis', msg=error_msg))
-        
-    def _create_kriging_raster(self, result):
-        """Crea raster QGIS dal risultato kriging"""
-        try:
-            # Estrai dati
-            predictions = result['predictions'].copy()  # Copia per non modificare originale
-            x_grid = result['x_grid']
-            y_grid = result['y_grid']
-
-            # Crea file GeoTIFF temporaneo
-            from osgeo import gdal, osr
-
-            temp_file = tempfile.NamedTemporaryFile(suffix='.tif', delete=False)
-            temp_file.close()
-
-            # Parametri raster
-            ny, nx = predictions.shape
-            # x_grid e y_grid sono array 1D, non 2D
-            pixel_size_x = float(x_grid[1] - x_grid[0]) if len(x_grid) > 1 else 1.0
-            pixel_size_y = float(y_grid[1] - y_grid[0]) if len(y_grid) > 1 else 1.0
-
-            # Sostituisci NaN con nodata value prima di scrivere
-            nodata_value = -9999.0
-            predictions = np.where(np.isnan(predictions), nodata_value, predictions)
-
-            # Inverti l'array lungo l'asse y (GDAL ha origine in alto a sinistra)
-            predictions = np.flipud(predictions)
-
-            # Crea raster GDAL
-            driver = gdal.GetDriverByName('GTiff')
-            dataset = driver.Create(temp_file.name, nx, ny, 1, gdal.GDT_Float32)
-
-            if dataset is None:
-                raise RuntimeError("Impossibile creare il file raster")
-
-            # Imposta georeferenziazione
-            geotransform = [
-                float(x_grid.min() - pixel_size_x/2),  # x origine
-                pixel_size_x,                           # pixel size x
-                0,                                      # rotazione x
-                float(y_grid.max() + pixel_size_y/2),  # y origine
-                0,                                      # rotazione y
-                -pixel_size_y                           # pixel size y (negativo)
-            ]
-            dataset.SetGeoTransform(geotransform)
-
-            # Imposta proiezione dal layer corrente
-            layer = self.layer_combo.currentLayer()
-            if layer and layer.crs():
-                srs = osr.SpatialReference()
-                srs.ImportFromWkt(layer.crs().toWkt())
-                dataset.SetProjection(srs.ExportToWkt())
-            else:
-                # Default UTM 33N
-                srs = osr.SpatialReference()
-                srs.ImportFromEPSG(32633)
-                dataset.SetProjection(srs.ExportToWkt())
-
-            # Scrivi dati (assicurati che sia float32)
-            band = dataset.GetRasterBand(1)
-            band.WriteArray(predictions.astype(np.float32))
-            band.SetNoDataValue(nodata_value)
-            band.FlushCache()
-
-            # Chiudi dataset esplicitamente
-            band = None
-            dataset = None
-
-            # Forza garbage collection per rilasciare risorse GDAL
-            import gc
-            gc.collect()
-
-            # Carica come layer QGIS
-            layer_name = tr('kriging_result_layer')
-            raster_layer = QgsRasterLayer(temp_file.name, layer_name, "gdal")
-
-            if raster_layer.isValid():
-                # Applica stile pseudocolor con rampa di colori
-                self._apply_kriging_color_style(raster_layer, result['predictions'])
-
-                QgsProject.instance().addMapLayer(raster_layer)
-                QgsMessageLog.logMessage(
-                    tr('raster_created'),
-                    'GeoArchaeo', Qgis_Info
-                )
-            else:
-                QgsMessageLog.logMessage(
-                    "Kriging raster load error",
-                    'GeoArchaeo', Qgis_Critical
-                )
-
-        except Exception as e:
-            import traceback
-            QgsMessageLog.logMessage(
-                f"Raster creation error: {str(e)}\n{traceback.format_exc()}",
-                'GeoArchaeo', Qgis_Critical
-            )
-
-    def _apply_kriging_color_style(self, raster_layer, predictions):
-        """Applica stile pseudocolor con rampa di colori al raster kriging"""
-        try:
-            from qgis.core import (QgsRasterShader, QgsColorRampShader,
-                                   QgsSingleBandPseudoColorRenderer)
-
-            # Calcola min/max escludendo nodata
-            valid_data = predictions[~np.isnan(predictions)]
-            if len(valid_data) == 0:
-                return
-
-            min_val = float(np.min(valid_data))
-            max_val = float(np.max(valid_data))
-
-            # Crea rampa di colori (tipo Spectral - da blu a rosso)
-            color_ramp_items = []
-            # 5 classi con interpolazione
-            colors = [
-                (min_val, QColor(49, 54, 149)),                                    # Blu scuro (basso)
-                (min_val + (max_val - min_val) * 0.25, QColor(116, 173, 209)),    # Blu chiaro
-                (min_val + (max_val - min_val) * 0.50, QColor(255, 255, 191)),    # Giallo (medio)
-                (min_val + (max_val - min_val) * 0.75, QColor(244, 109, 67)),     # Arancione
-                (max_val, QColor(165, 0, 38))                                      # Rosso scuro (alto)
-            ]
-
-            for value, color in colors:
-                item = QgsColorRampShader.ColorRampItem(value, color, f'{value:.2f}')
-                color_ramp_items.append(item)
-
-            # Crea shader
-            shader = QgsRasterShader()
-            color_ramp = QgsColorRampShader()
-            color_ramp.setColorRampType(QgsColorRampShader.Interpolated)
-            color_ramp.setColorRampItemList(color_ramp_items)
-            shader.setRasterShaderFunction(color_ramp)
-
-            # Applica renderer
-            renderer = QgsSingleBandPseudoColorRenderer(
-                raster_layer.dataProvider(),
-                1,  # banda 1
-                shader
-            )
-            raster_layer.setRenderer(renderer)
-
-            # Trigger refresh
-            raster_layer.triggerRepaint()
-
-        except Exception as e:
-            QgsMessageLog.logMessage(
-                f"Color style error: {str(e)}",
-                'GeoArchaeo', Qgis_Warning
-            )
-
-    def _create_sampling_layer(self, new_points):
-        """Create vector layer for suggested sampling points"""
-        try:
-            # Get CRS from current layer
-            current_layer = self.existing_combo.currentLayer()
-            if current_layer:
-                crs = current_layer.crs()
-            else:
-                crs = QgsCoordinateReferenceSystem('EPSG:4326')
-
-            # Create memory layer with translated name
-            layer_name = tr('sampling_points_layer')
+            method = result.get('method', 'kmeans')
+            is_anomaly = method == 'isolation_forest'
+            layer_name = tr('ml_anomalies_layer') if is_anomaly else tr('ml_clusters_layer')
             layer = QgsVectorLayer(f'Point?crs={crs.authid()}', layer_name, 'memory')
             provider = layer.dataProvider()
-
-            # Add fields
-            provider.addAttributes([
-                QgsField('point_id', QVariant_Int),
-                QgsField('x_coord', QVariant_Double),
-                QgsField('y_coord', QVariant_Double),
-                QgsField('type', QVariant_String)
-            ])
-            layer.updateFields()
-
-            # Add features
-            features = []
-            for i, point in enumerate(new_points):
-                feat = QgsFeature()
-                feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(point[0], point[1])))
-                feat.setAttributes([i+1, float(point[0]), float(point[1]), 'suggested'])
-                features.append(feat)
-
-            provider.addFeatures(features)
-
-            # Style for new points
-            symbol = QgsMarkerSymbol.createSimple({
-                'name': 'star',
-                'color': '#FFD700',
-                'size': '5',
-                'outline_style': 'solid',
-                'outline_width': '1',
-                'outline_color': '#FF0000'
-            })
-            layer.renderer().setSymbol(symbol)
-
-            # Add to project
-            QgsProject.instance().addMapLayer(layer)
-
-            QgsMessageLog.logMessage(
-                tr('layer_created'),
-                'GeoArchaeo', Qgis_Info
-            )
-            
-        except Exception as e:
-            QgsMessageLog.logMessage(
-                f"Sampling layer error: {str(e)}",
-                'GeoArchaeo', Qgis_Warning
-            )
-    
-    def _create_ml_layer(self, result):
-        """Crea layer vettoriale con i risultati ML - con attributi significativi"""
-        try:
-            # Ottieni il CRS dal primo layer selezionato
-            selected_layers = []
-            for i in range(self.ml_layers.count()):
-                item = self.ml_layers.item(i)
-                if item.isSelected():
-                    layer = item.data(Qt_UserRole)
-                    selected_layers.append(layer)
-                    break
-
-            if selected_layers and selected_layers[0]:
-                crs = selected_layers[0].crs()
-            else:
-                crs = QgsCoordinateReferenceSystem('EPSG:4326')
-
-            # Ottieni metodo ML usato
-            ml_method = self.ml_method.currentText().lower()
-            is_anomaly_detection = 'isolation' in ml_method or 'anomal' in ml_method
-            is_dbscan = 'dbscan' in ml_method
-
-            # Nome layer tradotto
-            layer_name = tr('ml_clusters_layer')
-
-            # Crea layer temporaneo
-            layer = QgsVectorLayer(f'Point?crs={crs.authid()}', layer_name, 'memory')
-            provider = layer.dataProvider()
-
-            # Aggiungi campi con nomi significativi
             provider.addAttributes([
                 QgsField('cluster_id', QVariant_Int),
                 QgsField('cluster_name', QVariant_String),
                 QgsField('cluster_size', QVariant_Int),
-                QgsField('description', QVariant_String),
+                QgsField('method', QVariant_String),
                 QgsField('x_coord', QVariant_Double),
-                QgsField('y_coord', QVariant_Double)
+                QgsField('y_coord', QVariant_Double),
             ])
             layer.updateFields()
-
-            coords = result['coordinates']
-            labels = result['labels']
-            unique_labels = np.unique(labels)
-
-            # Calcola statistiche per ogni cluster
-            cluster_info = {}
-            for label in unique_labels:
-                mask = labels == label
-                count = np.sum(mask)
-
-                # Genera nome e descrizione significativi
-                if is_anomaly_detection:
-                    if label == 0:
-                        name = tr('anomaly_normal')
-                        desc = tr('isolation_desc')
-                    else:
-                        name = tr('anomaly_outlier')
-                        desc = tr('isolation_desc')
-                elif is_dbscan and label == -1:
-                    name = tr('noise_points')
-                    desc = tr('dbscan_desc')
-                else:
-                    # Assegna lettera alfabetica (A, B, C, ...)
-                    letter_idx = label if label >= 0 else len(unique_labels) - 1
-                    letter = chr(ord('A') + (letter_idx % 26))
-                    name = tr_format('cluster_with_count', letter=letter, count=count)
-                    if is_dbscan:
-                        desc = tr('dbscan_desc')
-                    else:
-                        desc = tr('kmeans_desc')
-
-                cluster_info[label] = {
-                    'name': name,
-                    'count': count,
-                    'description': desc
-                }
-
-            # Aggiungi features con attributi completi
+            names = self._cluster_names(result)
+            labels = np.asarray(result['labels'])
+            sizes = {int(l): int(np.sum(labels == l)) for l in np.unique(labels)}
             features = []
-            for i, (x, y) in enumerate(coords):
-                label = int(labels[i])
-                info = cluster_info[label]
-
+            for (x, y), label in zip(result['coordinates'], labels):
+                label = int(label)
                 feat = QgsFeature()
-                feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
-                feat.setAttributes([
-                    label,
-                    info['name'],
-                    int(info['count']),
-                    info['description'],
-                    float(x),
-                    float(y)
-                ])
+                feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(x), float(y))))
+                feat.setAttributes([label, names[label], sizes[label], result.get('method_label', method),
+                                    float(x), float(y)])
                 features.append(feat)
-
             provider.addFeatures(features)
+            layer.updateExtents()
 
-            # Stile categorizzato con colori migliori e nomi significativi
+            palette = ['#E53935', '#43A047', '#1E88E5', '#FDD835', '#8E24AA',
+                       '#00ACC1', '#FB8C00', '#6D4C41', '#546E7A', '#D81B60']
             categories = []
-            # Palette colori più professionale
-            colors = ['#E53935', '#43A047', '#1E88E5', '#FDD835', '#8E24AA',
-                     '#00ACC1', '#FB8C00', '#6D4C41', '#546E7A', '#D81B60']
-
-            for i, label in enumerate(unique_labels):
-                info = cluster_info[label]
-
-                # Colore speciale per rumore/anomalie
-                if is_anomaly_detection and label == 1:
-                    color = '#E53935'  # Rosso per anomalie
-                elif is_dbscan and label == -1:
-                    color = '#9E9E9E'  # Grigio per rumore
+            for i, label in enumerate(sorted(names)):
+                if is_anomaly:
+                    color = '#E53935' if label == 1 else '#90CAF9'
+                elif label == -1:
+                    color = '#9E9E9E'
                 else:
-                    color = colors[i % len(colors)]
-
+                    color = palette[i % len(palette)]
                 symbol = QgsMarkerSymbol.createSimple({
-                    'name': 'circle',
-                    'color': color,
-                    'size': '4',
-                    'outline_style': 'solid',
-                    'outline_width': '0.5',
-                    'outline_color': 'black'
-                })
-
-                # Usa il nome descrittivo nella legenda
-                category = QgsRendererCategory(label, symbol, info['name'])
-                categories.append(category)
-
-            renderer = QgsCategorizedSymbolRenderer('cluster_id', categories)
-            layer.setRenderer(renderer)
-
-            # Aggiungi al progetto
+                    'name': 'circle', 'color': color, 'size': '3.5' if not (is_anomaly and label == 1) else '5',
+                    'outline_style': 'solid', 'outline_width': '0.4', 'outline_color': 'black'})
+                categories.append(QgsRendererCategory(label, symbol, names[label]))
+            layer.setRenderer(QgsCategorizedSymbolRenderer('cluster_id', categories))
             QgsProject.instance().addMapLayer(layer)
-
-            QgsMessageLog.logMessage(
-                tr('layer_created'),
-                'GeoArchaeo', Qgis_Info
-            )
-
+            return layer_name
         except Exception as e:
-            QgsMessageLog.logMessage(
-                f"ML layer error: {str(e)}",
-                'GeoArchaeo', Qgis_Warning
-            )
+            log(f"ML layer error: {traceback.format_exc()}", Qgis_Warning)
+            return None
 
-    # ==================== Language and Examples Methods ====================
+    # ==================================================================
+    # 5. Campionamento
+    # ==================================================================
+    def _run_sampling_design(self):
+        if self._is_busy():
+            return
+        layer = self.layer_combo.currentLayer()
+        if layer is None:
+            self._warn(tr('select_existing_points'))
+            return
+        existing_points, _, _, _ = self._extract_points_values(layer, None)
+        if len(existing_points) == 0:
+            self._warn(tr('no_points_in_layer'))
+            return
+        boundary = boundary_geometry(self.boundary_combo.currentLayer(), layer.crs())
+        params = {
+            'existing_points': existing_points, 'boundary': boundary,
+            'n_new': self.n_points_spin.value(), 'method': self.sampling_combo.currentData(),
+            'method_label': self.sampling_combo.currentText(),
+            'variogram_params': self._usable_variogram() if self.sampling_combo.currentData() == 'variance' else None,
+            'crs': layer.crs(), 'layer_name': layer.name(),
+        }
+        self._start_analysis('sampling', params, self._on_sampling_complete)
 
+    def _on_sampling_complete(self, new_points):
+        p = self.analysis_thread.params
+        new_points = np.asarray(new_points, dtype=float).reshape(-1, 2)
+        self.current_results['sampling'] = {
+            'points': new_points, 'method': p['method'], 'method_label': p['method_label'],
+            'layer_name': p['layer_name'], 'n': int(len(new_points)),
+        }
+        self.sampling_result_label.setText(tr_format('sampling_results', n=len(new_points), method=p['method_label']))
+        self.sampling_result_label.setVisible(True)
+        rows = "".join(f"<tr><td>{i + 1}</td><td>{x:.2f}</td><td>{y:.2f}</td></tr>"
+                       for i, (x, y) in enumerate(new_points))
+        self.sampling_text.setHtml(f"<p>{tr('suggested_points')}</p><table cellpadding='3'>"
+                                   f"<tr><th>#</th><th>X</th><th>Y</th></tr>{rows}</table>")
+        name = self._create_sampling_layer(new_points, p['crs'])
+        self._update_report_availability()
+        if name:
+            self._notify(tr_format('layer_created', name=name), Qgis_Success, 5)
+
+    def _create_sampling_layer(self, new_points, crs):
+        try:
+            layer_name = tr('sampling_points_layer')
+            layer = QgsVectorLayer(f'Point?crs={crs.authid()}', layer_name, 'memory')
+            provider = layer.dataProvider()
+            provider.addAttributes([
+                QgsField('point_id', QVariant_Int), QgsField('x_coord', QVariant_Double),
+                QgsField('y_coord', QVariant_Double), QgsField('type', QVariant_String)])
+            layer.updateFields()
+            features = []
+            for i, (x, y) in enumerate(new_points):
+                feat = QgsFeature()
+                feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(x), float(y))))
+                feat.setAttributes([i + 1, float(x), float(y), 'suggested'])
+                features.append(feat)
+            provider.addFeatures(features)
+            layer.updateExtents()
+            symbol = QgsMarkerSymbol.createSimple({
+                'name': 'star', 'color': '#FFD700', 'size': '5',
+                'outline_style': 'solid', 'outline_width': '0.6', 'outline_color': '#D32F2F'})
+            layer.renderer().setSymbol(symbol)
+            QgsProject.instance().addMapLayer(layer)
+            return layer_name
+        except Exception:
+            log(f"Sampling layer error: {traceback.format_exc()}", Qgis_Warning)
+            return None
+
+    # ==================================================================
+    # 6. Report
+    # ==================================================================
+    def generate_full_report(self):
+        """Called from the plugin toolbar: go to the Report tab and save the HTML report."""
+        self.switch_to_tab('report')
+        self._generate_report('html')
+
+    def _generate_report(self, format_type):
+        sections = [key for key, check in self.report_checks.items()
+                    if check.isChecked() and key in self.current_results]
+        if not any(key in self.current_results for key, _ in REPORT_SECTIONS):
+            self._warn(tr('report_nothing'))
+            return
+        if not sections:
+            self._warn(tr('report_no_sections'))
+            return
+        self.report_view.setHtml(self.build_report_html(sections, embed_plots=False))
+        if format_type == 'html':
+            file_path, _ = QFileDialog.getSaveFileName(self, tr('save_report_html'), 'geoarchaeo_report.html',
+                                                       "HTML (*.html)")
+            if not file_path:
+                return
+            with open(file_path, 'w', encoding='utf-8') as handle:
+                handle.write(self.build_report_html(sections, embed_plots=True))
+            self._notify(tr_format('report_saved', path=file_path), Qgis_Success, 8)
+            QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
+        elif format_type == 'pdf':
+            self._export_pdf_report(self.build_report_html(sections, embed_plots=False))
+
+    def _html_table(self, rows, header=None):
+        head = ''
+        if header:
+            head = "<tr>" + "".join(f"<th>{html_lib.escape(str(h))}</th>" for h in header) + "</tr>"
+        body = "".join("<tr>" + "".join(f"<td>{html_lib.escape(str(c))}</td>" for c in row) + "</tr>" for row in rows)
+        return f"<table>{head}{body}</table>"
+
+    def build_report_html(self, sections, embed_plots=True):
+        """Costruisce il report HTML; con embed_plots include i grafici Plotly."""
+        parts = [f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>GeoArchaeo Report</title>
+<style>
+ body {{ font-family: Arial, sans-serif; margin: 24px; color: #222; max-width: 1000px; }}
+ h1 {{ color: #2c3e50; }} h2 {{ color: #34495e; margin-top: 32px; border-bottom: 1px solid #ccc; }}
+ table {{ border-collapse: collapse; margin: 10px 0; }} th, td {{ border: 1px solid #ddd; padding: 6px 10px; text-align: left; }}
+ th {{ background-color: #3498db; color: white; }} .meta {{ color: #7f8c8d; font-style: italic; }}
+ .note {{ background: #f1f8e9; padding: 8px; border-left: 4px solid #7cb342; }}
+ .plot {{ margin: 12px 0; height: 520px; }}
+</style></head><body>
+<h1>GeoArchaeo – Report</h1>
+<p class="meta">{tr('report_generated')}: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>"""]
+        first_plot = [True]
+
+        def plot_html(key):
+            fig = self.current_figures.get(key)
+            if fig is None or not embed_plots:
+                return ''
+            html = fig.to_html(full_html=False, include_plotlyjs=first_plot[0],
+                               default_width='100%', default_height='500px')
+            first_plot[0] = False
+            return f"<div class='plot'>{html}</div>"
+
+        if 'stats' in sections:
+            s = self.current_results['stats']
+            st = s['stats']
+            parts.append(f"<h2>{tr('section_stats')}</h2><p>{tr('report_layer')}: <b>{html_lib.escape(s['layer'])}</b> · "
+                         f"{tr('report_field')}: <b>{html_lib.escape(s['field'])}</b></p>")
+            parts.append(self._render_stats_html(st).replace("<table cellpadding='3' style='border-collapse:collapse'>", "<table>"))
+            parts.append(plot_html('histogram'))
+
+        if 'variogram' in sections:
+            v = self.current_results['variogram']
+            mp = v['model_params']
+            parts.append(f"<h2>{tr('section_variogram')}</h2><p>{tr('report_layer')}: <b>{html_lib.escape(v['layer_name'])}</b> · "
+                         f"{tr('report_field')}: <b>{html_lib.escape(v['field'])}</b></p>")
+            rows = [(tr('theoretical_model').rstrip(':'), tr(MODEL_LABEL_KEYS[v['model_type']])),
+                    ('Nugget', fmt(mp['nugget'])), ('Sill', fmt(mp['sill'])),
+                    ('Range', f"{fmt(mp['range'])} {v.get('unit', '')}"), ('RMSE', fmt(mp['rmse'])),
+                    (tr('max_distance').rstrip(':'), f"{fmt(v['max_distance'])} {v.get('unit', '')}")]
+            parts.append(self._html_table(rows, [tr('report_parameter'), tr('report_value')]))
+            parts.append(f"<p class='note'>{self._render_variogram_summary(v)}</p>")
+            parts.append(plot_html('variogram'))
+
+        if 'kriging' in sections:
+            k = self.current_results['kriging']
+            ny, nx = k['predictions'].shape
+            parts.append(f"<h2>{tr('section_kriging')}</h2><p>{tr('report_layer')}: <b>{html_lib.escape(k['layer_name'])}</b> · "
+                         f"{tr('report_field')}: <b>{html_lib.escape(k['field'])}</b></p>")
+            rows = [(tr('report_method'), 'Ordinary Kriging'),
+                    (tr('grid_resolution').rstrip(':'), f"{fmt(k['pixel_size'])} {k.get('unit', '')}"),
+                    (tr('grid_info').split(':')[0], f"{nx} × {ny}")]
+            cv = k.get('cv_results')
+            if cv:
+                rows += [(tr('cv_rmse'), fmt(cv['rmse'])), (tr('cv_mae'), fmt(cv['mae'])),
+                         (tr('cv_me'), fmt(cv['me'])), (tr('cv_r2'), fmt(cv['r2']))]
+                if cv.get('msdr') is not None:
+                    rows.append((tr('cv_msdr'), fmt(cv['msdr'])))
+            parts.append(self._html_table(rows, [tr('report_parameter'), tr('report_value')]))
+            parts.append(f"<p class='note'>{self._render_kriging_summary(k)}</p>")
+            parts.append(plot_html('kriging'))
+
+        if 'ml' in sections:
+            m = self.current_results['ml']
+            names = self._cluster_names(m)
+            parts.append(f"<h2>{tr('section_ml')}</h2><p>{tr('report_layer')}: <b>"
+                         f"{html_lib.escape(', '.join(m.get('layer_names', [])))}</b></p>")
+            parts.append(self._html_table([(names[l],) for l in sorted(names)], [m['method_label']]))
+            parts.append(plot_html('ml'))
+
+        if 'sampling' in sections:
+            s = self.current_results['sampling']
+            parts.append(f"<h2>{tr('section_sampling')}</h2><p>{tr('report_method')}: <b>{html_lib.escape(s['method_label'])}</b> · "
+                         f"{tr('report_layer')}: <b>{html_lib.escape(s['layer_name'])}</b></p>")
+            parts.append(self._html_table([(i + 1, f"{x:.2f}", f"{y:.2f}") for i, (x, y) in enumerate(s['points'])],
+                                          ['#', 'X', 'Y']))
+
+        parts.append("</body></html>")
+        return "\n".join(parts)
+
+    def _export_pdf_report(self, html_content):
+        try:
+            from qgis.PyQt.QtGui import QTextDocument
+            file_path, _ = QFileDialog.getSaveFileName(self, tr('save_report_pdf'), 'geoarchaeo_report.pdf',
+                                                       "PDF (*.pdf)")
+            if not file_path:
+                return
+            doc = QTextDocument()
+            doc.setHtml(html_content)
+            print_document(doc, pdf_printer(file_path))
+            self._notify(tr_format('report_saved', path=file_path), Qgis_Success, 8)
+        except Exception as e:
+            log(f"PDF export error: {traceback.format_exc()}", Qgis_Critical)
+            self._warn(tr_format('report_pdf_error', msg=str(e)))
+
+    # ==================================================================
+    # Lingua, esempi, tutorial
+    # ==================================================================
     def _change_language(self, index):
-        """Change the interface language"""
-        lang = self.lang_combo.itemData(index)
-        set_language(lang)
+        set_language(self.lang_combo.itemData(index))
+        self._retranslate()
+        self._notify(tr('language_changed'), Qgis_Info, 3)
 
-        # Update toolbar button texts
-        self.load_examples_btn.setText(tr('load_examples'))
-        self.tutorial_btn.setText(tr('show_tutorial'))
+    def _retranslate(self):
+        for widget, setter, key in self._tr_widgets:
+            getattr(widget, setter)(tr(key))
+        for callback in self._tr_callbacks:
+            try:
+                callback()
+            except Exception as e:
+                log(f"retranslate: {e}", Qgis_Warning)
+        for panel in (self.data_plot, self.variogram_plot, self.kriging_plot, self.ml_plot):
+            panel.retranslate()
+        self._update_layer_summary()
+        self._update_grid_info()
+        self._update_kriging_status()
+        if 'stats' in self.current_results:
+            self.stats_view.setHtml(self._render_stats_html(self.current_results['stats']['stats']))
+        if 'variogram' in self.current_results:
+            self.variogram_result_label.setText(self._render_variogram_summary(self.current_results['variogram']))
+        if 'kriging' in self.current_results:
+            self.kriging_result_label.setText(self._render_kriging_summary(self.current_results['kriging']))
+        if 'ml' in self.current_results:
+            self.ml_result_label.setText(self._render_ml_summary(self.current_results['ml']))
 
-        # Update tab titles
-        self.tabs.setTabText(0, tr('tab_data'))
-        self.tabs.setTabText(1, tr('tab_variogram'))
-        self.tabs.setTabText(2, tr('tab_kriging'))
-        self.tabs.setTabText(3, tr('tab_ml'))
-        self.tabs.setTabText(4, tr('tab_sampling'))
-        self.tabs.setTabText(5, tr('tab_report'))
+    def _example_files(self, directory):
+        """Dataset di esempio: GeoPackage/GeoJSON e CSV x/y senza versione vettoriale."""
+        if not os.path.isdir(directory):
+            return []
+        names = sorted(os.listdir(directory))
+        stems_vector = {os.path.splitext(n)[0] for n in names if n.lower().endswith(('.gpkg', '.geojson'))}
+        files = []
+        for name in names:
+            stem, ext = os.path.splitext(name)
+            ext = ext.lower()
+            if ext in ('.gpkg', '.geojson') or (ext == '.csv' and stem not in stems_vector):
+                files.append(os.path.join(directory, name))
+        return files
 
-        # Update info labels
-        if hasattr(self, 'data_info_label'):
-            self.data_info_label.setText(tr('data_title') + "<br>" + tr('data_desc'))
-        if hasattr(self, 'variogram_info_label'):
-            self.variogram_info_label.setText(tr('variogram_title') + "<br>" + tr('variogram_desc'))
-        if hasattr(self, 'kriging_info_label'):
-            self.kriging_info_label.setText(tr('kriging_title') + "<br>" + tr('kriging_desc'))
-        if hasattr(self, 'ml_info_label'):
-            self.ml_info_label.setText(tr('ml_title') + "<br>" + tr('ml_desc'))
-        if hasattr(self, 'sampling_info_label'):
-            self.sampling_info_label.setText(tr('sampling_title') + "<br>" + tr('sampling_desc'))
-        if hasattr(self, 'report_info_label'):
-            self.report_info_label.setText(tr('report_title') + "<br>" + tr('report_desc'))
-
-        # Update Data tab labels
-        if hasattr(self, 'data_group'):
-            self.data_group.setTitle(tr('data_selection'))
-        if hasattr(self, 'point_layer_label'):
-            self.point_layer_label.setText(tr('point_layer'))
-        if hasattr(self, 'value_field_label'):
-            self.value_field_label.setText(tr('value_field'))
-        if hasattr(self, 'stats_label'):
-            self.stats_label.setText(tr('statistics'))
-        if hasattr(self, 'calc_stats_btn'):
-            self.calc_stats_btn.setText(tr('calc_statistics'))
-
-        # Update Variogram tab labels
-        if hasattr(self, 'variogram_params_group'):
-            self.variogram_params_group.setTitle(tr('variogram_params'))
-        if hasattr(self, 'max_dist_label'):
-            self.max_dist_label.setText(tr('max_distance'))
-        if hasattr(self, 'model_label'):
-            self.model_label.setText(tr('theoretical_model'))
-        if hasattr(self, 'advanced_group'):
-            self.advanced_group.setTitle(tr('advanced_params'))
-        if hasattr(self, 'nugget_label'):
-            self.nugget_label.setText(tr('nugget'))
-        if hasattr(self, 'sill_label'):
-            self.sill_label.setText(tr('sill'))
-        if hasattr(self, 'range_label'):
-            self.range_label.setText(tr('range'))
-        if hasattr(self, 'anisotropy_check'):
-            self.anisotropy_check.setText(tr('anisotropy_check'))
-        if hasattr(self, 'calc_variogram_btn'):
-            self.calc_variogram_btn.setText(tr('calc_variogram'))
-
-        # Update Kriging tab labels
-        if hasattr(self, 'kriging_params_group'):
-            self.kriging_params_group.setTitle(tr('kriging_params'))
-        if hasattr(self, 'kriging_type_label'):
-            self.kriging_type_label.setText(tr('kriging_type'))
-        if hasattr(self, 'resolution_label'):
-            self.resolution_label.setText(tr('grid_resolution'))
-        if hasattr(self, 'use_variogram'):
-            self.use_variogram.setText(tr('use_variogram'))
-        if hasattr(self, 'run_kriging_btn'):
-            self.run_kriging_btn.setText(tr('run_kriging'))
-
-        # Update ML tab labels
-        if hasattr(self, 'ml_layers_label'):
-            self.ml_layers_label.setText(tr('ml_layers_select'))
-        if hasattr(self, 'ml_method_label'):
-            self.ml_method_label.setText(tr('ml_method'))
-        if hasattr(self, 'run_ml_btn'):
-            self.run_ml_btn.setText(tr('run_ml'))
-
-        # Update Sampling tab labels
-        if hasattr(self, 'sampling_params_group'):
-            self.sampling_params_group.setTitle(tr('sampling_params'))
-        if hasattr(self, 'existing_points_label'):
-            self.existing_points_label.setText(tr('existing_points'))
-        if hasattr(self, 'new_points_label'):
-            self.new_points_label.setText(tr('new_points'))
-        if hasattr(self, 'sampling_method_label'):
-            self.sampling_method_label.setText(tr('sampling_method'))
-        if hasattr(self, 'calc_optimal_btn'):
-            self.calc_optimal_btn.setText(tr('calc_optimal'))
-
-        # Update Report tab labels
-        if hasattr(self, 'report_sections_group'):
-            self.report_sections_group.setTitle(tr('report_sections'))
-        if hasattr(self, 'generate_html_btn'):
-            self.generate_html_btn.setText(tr('generate_report'))
-
-        # Show confirmation
-        if lang == 'en':
-            QMessageBox.information(self, "Language Changed", "Interface language changed to English.")
-        else:
-            QMessageBox.information(self, "Lingua Cambiata", "Lingua dell'interfaccia cambiata in Italiano.")
-
-    def _show_load_examples_dialog(self):
-        """Show dialog to load example datasets"""
+    def show_load_examples_dialog(self):
+        """Dialogo per aggiungere i dataset di esempio inclusi nel plugin."""
         dialog = QDialog(self)
         dialog.setWindowTitle(tr('examples_title'))
-        dialog.setMinimumWidth(450)
+        dialog.setMinimumWidth(480)
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(QLabel(tr('examples_desc')))
 
-        layout = QVBoxLayout()
+        checks_box = QVBoxLayout()
+        layout.addLayout(checks_box)
+        path_row = QHBoxLayout()
+        path_row.addWidget(QLabel(tr('examples_path')))
+        path_label = QLabel(self.example_dir)
+        path_label.setWordWrap(True)
+        path_row.addWidget(path_label, 1)
+        browse_btn = QPushButton(tr('browse'))
+        path_row.addWidget(browse_btn)
+        layout.addLayout(path_row)
 
-        # Description
-        desc_label = QLabel(tr('examples_desc'))
-        desc_label.setStyleSheet("QLabel { color: #333; padding: 5px; }")
-        layout.addWidget(desc_label)
+        checks = []
 
-        # Checkboxes for each dataset
-        self.example_checks = {}
+        def fill(directory):
+            for cb in checks:
+                checks_box.removeWidget(cb)
+                cb.deleteLater()
+            checks.clear()
+            files = self._example_files(directory)
+            if not files:
+                cb = QCheckBox(tr_format('examples_none', path=directory))
+                cb.setEnabled(False)
+                checks_box.addWidget(cb)
+                checks.append(cb)
+                return
+            for path in files:
+                stem, ext = os.path.splitext(os.path.basename(path))
+                label = tr(stem) if stem in TRANSLATIONS else stem
+                cb = QCheckBox(f"{label}  [{ext[1:].upper()}]")
+                cb.setChecked(ext.lower() != '.csv')
+                cb.setProperty('path', path)
+                checks_box.addWidget(cb)
+                checks.append(cb)
 
-        datasets = [
-            ('villa_ceramica', 'villa_ceramica.gpkg', tr('villa_ceramica')),
-            ('geofisica', 'geofisica_survey.gpkg', tr('geofisica')),
-            ('soil_samples', 'soil_samples.gpkg', tr('soil_samples')),
-            ('necropoli', 'necropoli.gpkg', tr('necropoli')),
-        ]
+        def browse():
+            directory = QFileDialog.getExistingDirectory(dialog, tr('select_examples_dir'), self.example_dir)
+            if directory:
+                self.example_dir = directory
+                path_label.setText(directory)
+                fill(directory)
 
-        for key, filename, label in datasets:
-            cb = QCheckBox(label)
-            cb.setChecked(True)
-            cb.setProperty('filename', filename)
-            self.example_checks[key] = cb
-            layout.addWidget(cb)
+        browse_btn.clicked.connect(browse)
+        fill(self.example_dir)
 
-        # Path selector
-        path_layout = QHBoxLayout()
-        path_layout.addWidget(QLabel("Path:"))
-        self.example_path_edit = QLabel(self.EXAMPLE_DATA_PATH)
-        self.example_path_edit.setStyleSheet(
-            "QLabel { background-color: #f5f5f5; color: #333; padding: 5px; border: 1px solid #ccc; }"
-        )
-        path_layout.addWidget(self.example_path_edit, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox_Ok | QDialogButtonBox_Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if exec_dialog(dialog):
+            paths = [cb.property('path') for cb in checks if cb.isEnabled() and cb.isChecked()]
+            self.load_example_files(paths)
 
-        browse_btn = QPushButton("...")
-        browse_btn.setMaximumWidth(40)
-        browse_btn.clicked.connect(self._browse_example_path)
-        path_layout.addWidget(browse_btn)
-        layout.addLayout(path_layout)
-
-        # Buttons
-        button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        )
-        button_box.accepted.connect(lambda: self._load_selected_examples(dialog))
-        button_box.rejected.connect(dialog.reject)
-        layout.addWidget(button_box)
-
-        dialog.setLayout(layout)
-        dialog.exec_()
-
-    def _browse_example_path(self):
-        """Browse for example data directory"""
-        path = QFileDialog.getExistingDirectory(
-            self,
-            "Select Example Data Directory",
-            self.EXAMPLE_DATA_PATH
-        )
-        if path:
-            self.EXAMPLE_DATA_PATH = path
-            self.example_path_edit.setText(path)
-
-    def _load_selected_examples(self, dialog):
-        """Load selected example datasets"""
-        loaded_count = 0
-        errors = []
-
-        for key, checkbox in self.example_checks.items():
-            if checkbox.isChecked():
-                filename = checkbox.property('filename')
-                filepath = os.path.join(self.EXAMPLE_DATA_PATH, filename)
-
-                if os.path.exists(filepath):
-                    try:
-                        # Load the layer
-                        layer_name = os.path.splitext(filename)[0]
-                        layer = QgsVectorLayer(filepath, layer_name, "ogr")
-
-                        if layer.isValid():
-                            QgsProject.instance().addMapLayer(layer)
-                            loaded_count += 1
-                            QgsMessageLog.logMessage(
-                                f"Loaded: {filename}",
-                                'GeoArchaeo', Qgis_Info
-                            )
-                        else:
-                            errors.append(f"{filename}: invalid layer")
-                    except Exception as e:
-                        errors.append(f"{filename}: {str(e)}")
+    def load_example_files(self, paths):
+        loaded, errors = [], []
+        for path in paths:
+            stem, ext = os.path.splitext(os.path.basename(path))
+            try:
+                if ext.lower() == '.csv':
+                    uri = f"file:///{path}?delimiter=,&xField=x&yField=y&crs=EPSG:32633&detectTypes=yes"
+                    layer = QgsVectorLayer(uri, stem, 'delimitedtext')
                 else:
-                    errors.append(f"{filename}: file not found")
-
-        dialog.accept()
-
-        # Show result
-        if loaded_count > 0:
-            msg = f"Loaded {loaded_count} layer(s) successfully."
-            if errors:
-                msg += f"\n\nErrors:\n" + "\n".join(errors)
-            QMessageBox.information(self, tr('completed'), msg)
-        elif errors:
-            QMessageBox.warning(self, tr('error'), "\n".join(errors))
+                    layer = QgsVectorLayer(path, stem, 'ogr')
+                if layer.isValid():
+                    QgsProject.instance().addMapLayer(layer)
+                    loaded.append(layer)
+                else:
+                    errors.append(f"{os.path.basename(path)}: invalid layer")
+            except Exception as e:
+                errors.append(f"{os.path.basename(path)}: {e}")
+        if loaded:
+            self._update_ml_layers()
+            for layer in loaded:
+                if is_point_layer(layer):
+                    self.layer_combo.setLayer(layer)
+                    break
+            self._notify(tr_format('examples_loaded', n=len(loaded)), Qgis_Success, 5)
+        if errors:
+            self._warn(tr_format('examples_errors', errors="\n".join(errors)))
+        return loaded
 
     def _show_tutorial(self):
-        """Show the tutorial in a dialog or browser"""
-        lang = get_language()
-
-        # Tutorial content
-        tutorial_html = self._get_tutorial_html(lang)
-
-        # Create dialog
         dialog = QDialog(self)
         dialog.setWindowTitle("GeoArchaeo Tutorial")
-        dialog.setMinimumSize(700, 500)
-
-        layout = QVBoxLayout()
-
-        # Use QTextBrowser for the tutorial
+        dialog.setMinimumSize(760, 560)
+        layout = QVBoxLayout(dialog)
         browser = QTextBrowser()
         browser.setOpenExternalLinks(True)
-        browser.setHtml(tutorial_html)
+        browser.setHtml(get_tutorial_html(get_language()))
         layout.addWidget(browser)
-
-        # Open in browser button
-        btn_layout = QHBoxLayout()
-        open_browser_btn = QPushButton("Open in Browser / Apri nel Browser")
-        open_browser_btn.clicked.connect(lambda: self._open_tutorial_in_browser(lang))
-        btn_layout.addWidget(open_browser_btn)
-
-        close_btn = QPushButton("Close / Chiudi")
+        row = QHBoxLayout()
+        open_btn = QPushButton(tr('open_in_browser'))
+        open_btn.clicked.connect(lambda: self._open_tutorial_in_browser(get_language()))
+        row.addWidget(open_btn)
+        close_btn = QPushButton(tr2("Chiudi", "Close"))
         close_btn.clicked.connect(dialog.accept)
-        btn_layout.addWidget(close_btn)
-
-        layout.addLayout(btn_layout)
-        dialog.setLayout(layout)
-        dialog.exec_()
+        row.addWidget(close_btn)
+        layout.addLayout(row)
+        exec_dialog(dialog)
 
     def _open_tutorial_in_browser(self, lang):
-        """Open tutorial in web browser"""
-        tutorial_html = self._get_tutorial_html(lang)
-
-        # Save to temp file
-        temp_file = tempfile.NamedTemporaryFile(
-            mode='w', suffix='.html', delete=False,
-            dir=tempfile.gettempdir(), encoding='utf-8'
-        )
-        temp_file.write(tutorial_html)
-        temp_file.close()
-
-        import webbrowser
-        webbrowser.open(f'file://{temp_file.name}')
-
-    def _get_tutorial_html(self, lang='it'):
-        """Get tutorial HTML content"""
-        if lang == 'en':
-            return self._get_tutorial_html_en()
-        else:
-            return self._get_tutorial_html_it()
-
-    def _get_tutorial_html_it(self):
-        """Tutorial in Italian - Comprehensive version"""
-        return '''<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Tutorial GeoArchaeo - Guida Completa</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 950px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333333; background-color: #ffffff; }
-        h1 { color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
-        h2 { color: #388E3C; margin-top: 30px; border-bottom: 1px solid #388E3C; padding-bottom: 5px; }
-        h3 { color: #F57C00; }
-        h4 { color: #7B1FA2; }
-        p, li, td { color: #333333; }
-        a { color: #1976D2; }
-        code { background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; color: #c7254e; }
-        pre { background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; color: #333333; }
-        .tip { background-color: #E3F2FD; border-left: 4px solid #1976D2; padding: 10px; margin: 10px 0; color: #1a237e; }
-        .warning { background-color: #FFF3E0; border-left: 4px solid #F57C00; padding: 10px; margin: 10px 0; color: #e65100; }
-        .theory { background-color: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 10px; margin: 10px 0; color: #4a148c; }
-        table { border-collapse: collapse; width: 100%; margin: 15px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #1976D2; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .formula { font-family: serif; font-style: italic; background-color: #fff9c4; padding: 5px 10px; display: inline-block; margin: 5px 0; color: #333333; }
-    </style>
-</head>
-<body>
-    <h1>🏛️ Tutorial GeoArchaeo - Guida Completa</h1>
-    <p><em>Analisi Geostatistica per la Ricerca Archeologica</em></p>
-
-    <h2>📚 Indice</h2>
-    <ol>
-        <li><a href="#teoria">Fondamenti Teorici</a></li>
-        <li><a href="#variogramma">Il Variogramma</a></li>
-        <li><a href="#kriging">Tipi di Kriging</a></li>
-        <li><a href="#ml">Machine Learning</a></li>
-        <li><a href="#esercizi">Esercizi Pratici</a></li>
-    </ol>
-
-    <h2 id="teoria">1. Fondamenti Teorici</h2>
-
-    <h3>Cos'è la Geostatistica?</h3>
-    <p>La geostatistica è una branca della statistica che si occupa di fenomeni spazialmente correlati.
-    Il principio fondamentale è la <strong>Prima Legge della Geografia di Tobler</strong>:</p>
-    <div class="theory">
-        <em>"Tutto è correlato con tutto, ma le cose vicine sono più correlate delle cose lontane."</em>
-    </div>
-
-    <h3>Perché usarla in Archeologia?</h3>
-    <ul>
-        <li><strong>Distribuzione manufatti</strong>: I frammenti ceramici non sono distribuiti casualmente</li>
-        <li><strong>Anomalie geofisiche</strong>: Strutture sepolte creano pattern spaziali</li>
-        <li><strong>Composizione suoli</strong>: Attività antropiche lasciano firme chimiche spazialmente correlate</li>
-    </ul>
-
-    <h2 id="variogramma">2. Il Variogramma</h2>
-
-    <h3>Cos'è il Variogramma?</h3>
-    <p>Il variogramma (o semivariogramma) misura come la <strong>variabilità</strong> tra coppie di punti
-    cambia al crescere della <strong>distanza</strong>. È lo strumento fondamentale per capire
-    la struttura spaziale dei dati.</p>
-
-    <div class="formula">γ(h) = ½ × E[(Z(x) - Z(x+h))²]</div>
-
-    <h3>Parametri del Variogramma</h3>
-    <table>
-        <tr>
-            <th>Parametro</th>
-            <th>Significato</th>
-            <th>Interpretazione Archeologica</th>
-        </tr>
-        <tr>
-            <td><strong>Nugget (C₀)</strong></td>
-            <td>Variabilità a distanza zero</td>
-            <td>Errore di misura + variabilità micro-scala (es. disturbo post-deposizionale)</td>
-        </tr>
-        <tr>
-            <td><strong>Sill (C + C₀)</strong></td>
-            <td>Varianza totale asintotica</td>
-            <td>Massima variabilità raggiunta</td>
-        </tr>
-        <tr>
-            <td><strong>Range (a)</strong></td>
-            <td>Distanza di correlazione</td>
-            <td>Dimensione tipica delle "unità funzionali" (es. stanze, aree attività)</td>
-        </tr>
-    </table>
-
-    <h3>Modelli Teorici di Variogramma</h3>
-
-    <h4>🔵 Modello Sferico (Spherical)</h4>
-    <p><strong>Quando usarlo:</strong> È il modello più comune in archeologia. Ideale quando la correlazione
-    spaziale diminuisce gradualmente fino a un punto (range) oltre il quale i dati sono indipendenti.</p>
-    <ul>
-        <li>✅ Distribuzione ceramica in aree di scavo</li>
-        <li>✅ Densità di manufatti</li>
-        <li>✅ Dati con confini spaziali ben definiti</li>
-    </ul>
-
-    <h4>🟢 Modello Esponenziale (Exponential)</h4>
-    <p><strong>Quando usarlo:</strong> Quando la correlazione diminuisce rapidamente vicino all'origine
-    e poi più lentamente. Il range effettivo è raggiunto asintoticamente (mai completamente).</p>
-    <ul>
-        <li>✅ Diffusione di elementi chimici nel suolo</li>
-        <li>✅ Processi con decadimento continuo</li>
-        <li>✅ Quando non c'è un limite netto di correlazione</li>
-    </ul>
-
-    <h4>🟡 Modello Gaussiano (Gaussian)</h4>
-    <p><strong>Quando usarlo:</strong> Per fenomeni molto "lisci" con transizioni graduali.
-    La curva è parabolica all'origine (derivata zero).</p>
-    <ul>
-        <li>✅ Superfici topografiche</li>
-        <li>✅ Dati molto regolari senza variabilità locale</li>
-        <li>⚠️ Può causare instabilità numerica - usare con cautela</li>
-    </ul>
-
-    <h4>🟣 Modello Matérn</h4>
-    <p><strong>Quando usarlo:</strong> Modello flessibile che include sferico, esponenziale e gaussiano
-    come casi speciali. Ha un parametro (ν) che controlla la "rugosità".</p>
-    <ul>
-        <li>✅ Quando altri modelli non fittano bene</li>
-        <li>✅ Per analisi avanzate con controllo fine della smoothness</li>
-    </ul>
-
-    <div class="tip">
-        <strong>💡 Regola pratica:</strong> Inizia sempre con il modello <code>spherical</code>.
-        Se il fit non è buono, prova <code>exponential</code>. Usa <code>gaussian</code> solo per dati molto regolari.
-    </div>
-
-    <h2 id="kriging">3. Tipi di Kriging</h2>
-
-    <h3>Cos'è il Kriging?</h3>
-    <p>Il Kriging è un metodo di interpolazione che produce la <strong>Best Linear Unbiased Prediction (BLUP)</strong>.
-    A differenza di altri interpolatori, il kriging:</p>
-    <ul>
-        <li>Usa la struttura spaziale (variogramma) per pesare i punti vicini</li>
-        <li>Fornisce una stima dell'<strong>incertezza</strong> per ogni predizione</li>
-        <li>È ottimale nel senso dei minimi quadrati</li>
-    </ul>
-
-    <h3>Ordinary Kriging (Kriging Ordinario)</h3>
-    <p><strong>Il più usato.</strong> Assume che la media sia costante ma sconosciuta nell'area di studio.</p>
-
-    <table>
-        <tr><th>Pro</th><th>Contro</th></tr>
-        <tr>
-            <td>Semplice da usare</td>
-            <td>Assume stazionarietà (media costante)</td>
-        </tr>
-        <tr>
-            <td>Robusto</td>
-            <td>Non può includere variabili ausiliarie</td>
-        </tr>
-        <tr>
-            <td>Ben compreso teoricamente</td>
-            <td>Può avere problemi ai bordi</td>
-        </tr>
-    </table>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ Distribuzione manufatti in aree omogenee</li>
-        <li>✅ Prima analisi esplorativa</li>
-        <li>✅ Quando hai solo una variabile da interpolare</li>
-    </ul>
-
-    <h3>Co-Kriging</h3>
-    <p>Usa <strong>variabili ausiliarie correlate</strong> per migliorare la stima della variabile principale.</p>
-
-    <p><strong>Esempio archeologico:</strong> Interpolare la densità di ceramica usando anche
-    i dati di suscettività magnetica (correlata con attività di combustione).</p>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ Hai variabili correlate (es. GPR + magnetometria)</li>
-        <li>✅ La variabile ausiliaria ha più punti di campionamento</li>
-        <li>✅ Vuoi migliorare la precisione delle stime</li>
-    </ul>
-
-    <h3>Kriging Spazio-Temporale</h3>
-    <p>Estende il kriging alla dimensione temporale, permettendo di modellare
-    come i pattern spaziali cambiano nel tempo.</p>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ Dati da più fasi cronologiche</li>
-        <li>✅ Monitoraggio di siti nel tempo</li>
-        <li>✅ Analisi di processi deposizionali</li>
-    </ul>
-
-    <h2 id="ml">4. Machine Learning per Pattern Recognition</h2>
-
-    <h3>K-Means Clustering</h3>
-    <p>Raggruppa i dati in <strong>K cluster</strong> basandosi sulla distanza dal centroide.</p>
-
-    <table>
-        <tr><th>Pro</th><th>Contro</th></tr>
-        <tr>
-            <td>Semplice e veloce</td>
-            <td>Devi specificare K a priori</td>
-        </tr>
-        <tr>
-            <td>Funziona bene con cluster sferici</td>
-            <td>Sensibile agli outlier</td>
-        </tr>
-        <tr>
-            <td>Scalabile</td>
-            <td>Assume cluster di dimensioni simili</td>
-        </tr>
-    </table>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ Classificazione di aree funzionali</li>
-        <li>✅ Quando sai quanti gruppi aspettarti</li>
-        <li>✅ Dati con cluster ben separati</li>
-    </ul>
-
-    <h3>DBSCAN (Density-Based Spatial Clustering)</h3>
-    <p>Trova cluster basati sulla <strong>densità</strong> dei punti. Non richiede di specificare
-    il numero di cluster.</p>
-
-    <table>
-        <tr><th>Pro</th><th>Contro</th></tr>
-        <tr>
-            <td>Trova automaticamente il numero di cluster</td>
-            <td>Sensibile ai parametri eps e min_samples</td>
-        </tr>
-        <tr>
-            <td>Può trovare cluster di forma arbitraria</td>
-            <td>Difficile con densità variabile</td>
-        </tr>
-        <tr>
-            <td>Identifica outlier (noise = -1)</td>
-            <td>Non funziona bene in alta dimensionalità</td>
-        </tr>
-    </table>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ <strong>Necropoli</strong>: gruppi familiari con sepolture ravvicinate</li>
-        <li>✅ Pattern spaziali con forma irregolare</li>
-        <li>✅ Quando vuoi identificare anche gli outlier</li>
-    </ul>
-
-    <h3>Isolation Forest (Anomaly Detection)</h3>
-    <p>Identifica <strong>anomalie</strong> isolando i punti che sono "diversi" dalla maggioranza.</p>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ <strong>Geofisica</strong>: trovare anomalie (muri, fosse, forni)</li>
-        <li>✅ Identificare punti con valori insoliti</li>
-        <li>✅ Quality control dei dati</li>
-    </ul>
-
-    <h3>Random Forest</h3>
-    <p>Ensemble di alberi decisionali per <strong>classificazione</strong> e <strong>regressione</strong>.</p>
-
-    <p><strong>Quando usarlo:</strong></p>
-    <ul>
-        <li>✅ Classificare tipi di depositi</li>
-        <li>✅ Predire categorie da variabili multiple</li>
-        <li>✅ Quando hai dati di training etichettati</li>
-    </ul>
-
-    <h2 id="esercizi">5. Esercizi Pratici</h2>
-
-    <h3>Esercizio 1: Distribuzione Ceramica (Kriging)</h3>
-    <ol>
-        <li>Carica <code>villa_ceramica.gpkg</code></li>
-        <li>Tab Dati → Seleziona <code>ceramic_count</code> → Calcola Statistiche</li>
-        <li>Tab Variogramma → Distanza 25m, Modello <code>spherical</code></li>
-        <li>Tab Kriging → Risoluzione 2.0m → Esegui</li>
-    </ol>
-
-    <h3>Esercizio 2: Anomalie Geofisiche (Isolation Forest)</h3>
-    <ol>
-        <li>Carica <code>geofisica_survey.gpkg</code></li>
-        <li>Tab ML → Seleziona il layer → Metodo <code>Isolation Forest</code></li>
-        <li>Le anomalie (strutture) saranno evidenziate</li>
-    </ol>
-
-    <h3>Esercizio 3: Gruppi Familiari Necropoli (DBSCAN)</h3>
-    <ol>
-        <li>Carica <code>necropoli.gpkg</code></li>
-        <li>Tab ML → Metodo <code>DBSCAN</code></li>
-        <li>I cluster rappresentano probabili gruppi familiari</li>
-    </ol>
-
-    <h2>Tabella Riassuntiva: Quale Metodo Usare?</h2>
-    <table>
-        <tr>
-            <th>Obiettivo</th>
-            <th>Metodo</th>
-            <th>Esempio</th>
-        </tr>
-        <tr>
-            <td>Creare mappa continua da punti</td>
-            <td>Ordinary Kriging</td>
-            <td>Densità ceramica</td>
-        </tr>
-        <tr>
-            <td>Migliorare stima con dati ausiliari</td>
-            <td>Co-Kriging</td>
-            <td>Ceramica + magnetometria</td>
-        </tr>
-        <tr>
-            <td>Trovare anomalie</td>
-            <td>Isolation Forest</td>
-            <td>Strutture in dati geofisici</td>
-        </tr>
-        <tr>
-            <td>Raggruppare per densità</td>
-            <td>DBSCAN</td>
-            <td>Gruppi familiari in necropoli</td>
-        </tr>
-        <tr>
-            <td>Classificare in N gruppi</td>
-            <td>K-Means</td>
-            <td>Aree funzionali</td>
-        </tr>
-    </table>
-
-    <div class="warning">
-        <strong>⚠️ Risoluzione Problemi:</strong><br>
-        • <strong>Kriging lento?</strong> Aumenta la risoluzione (es. 2-5m)<br>
-        • <strong>DBSCAN tutto -1?</strong> I parametri eps sono auto-calcolati, ma prova K-Means<br>
-        • <strong>R² basso?</strong> I dati potrebbero non avere correlazione spaziale
-    </div>
-
-    <hr>
-    <p><strong>Autore:</strong> Enzo Cocca | <strong>Email:</strong> enzo.ccc@gmail.com</p>
-    <p><strong>Repository:</strong> <a href="https://github.com/enzococca/geoarchaeo">github.com/enzococca/geoarchaeo</a></p>
-</body>
-</html>'''
-
-    def _get_tutorial_html_en(self):
-        """Tutorial in English - Comprehensive version"""
-        return '''<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>GeoArchaeo Tutorial - Complete Guide</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 950px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333333; background-color: #ffffff; }
-        h1 { color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
-        h2 { color: #388E3C; margin-top: 30px; border-bottom: 1px solid #388E3C; padding-bottom: 5px; }
-        h3 { color: #F57C00; }
-        h4 { color: #7B1FA2; }
-        p, li, td { color: #333333; }
-        a { color: #1976D2; }
-        code { background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; color: #c7254e; }
-        pre { background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; color: #333333; }
-        .tip { background-color: #E3F2FD; border-left: 4px solid #1976D2; padding: 10px; margin: 10px 0; color: #1a237e; }
-        .warning { background-color: #FFF3E0; border-left: 4px solid #F57C00; padding: 10px; margin: 10px 0; color: #e65100; }
-        .theory { background-color: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 10px; margin: 10px 0; color: #4a148c; }
-        table { border-collapse: collapse; width: 100%; margin: 15px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #1976D2; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .formula { font-family: serif; font-style: italic; background-color: #fff9c4; padding: 5px 10px; display: inline-block; margin: 5px 0; color: #333333; }
-    </style>
-</head>
-<body>
-    <h1>🏛️ GeoArchaeo Tutorial - Complete Guide</h1>
-    <p><em>Geostatistical Analysis for Archaeological Research</em></p>
-
-    <h2>📚 Table of Contents</h2>
-    <ol>
-        <li><a href="#theory">Theoretical Foundations</a></li>
-        <li><a href="#variogram">The Variogram</a></li>
-        <li><a href="#kriging">Kriging Types</a></li>
-        <li><a href="#ml">Machine Learning</a></li>
-        <li><a href="#exercises">Practical Exercises</a></li>
-    </ol>
-
-    <h2 id="theory">1. Theoretical Foundations</h2>
-
-    <h3>What is Geostatistics?</h3>
-    <p>Geostatistics is a branch of statistics dealing with spatially correlated phenomena.
-    The fundamental principle is <strong>Tobler's First Law of Geography</strong>:</p>
-    <div class="theory">
-        <em>"Everything is related to everything else, but near things are more related than distant things."</em>
-    </div>
-
-    <h3>Why Use It in Archaeology?</h3>
-    <ul>
-        <li><strong>Artifact distribution</strong>: Ceramic fragments are not randomly distributed</li>
-        <li><strong>Geophysical anomalies</strong>: Buried structures create spatial patterns</li>
-        <li><strong>Soil composition</strong>: Anthropic activities leave spatially correlated chemical signatures</li>
-    </ul>
-
-    <h2 id="variogram">2. The Variogram</h2>
-
-    <h3>What is a Variogram?</h3>
-    <p>The variogram (or semivariogram) measures how <strong>variability</strong> between pairs of points
-    changes as <strong>distance</strong> increases. It is the fundamental tool for understanding
-    the spatial structure of data.</p>
-
-    <div class="formula">γ(h) = ½ × E[(Z(x) - Z(x+h))²]</div>
-
-    <h3>Variogram Parameters</h3>
-    <table>
-        <tr>
-            <th>Parameter</th>
-            <th>Meaning</th>
-            <th>Archaeological Interpretation</th>
-        </tr>
-        <tr>
-            <td><strong>Nugget (C₀)</strong></td>
-            <td>Variability at zero distance</td>
-            <td>Measurement error + micro-scale variability (e.g., post-depositional disturbance)</td>
-        </tr>
-        <tr>
-            <td><strong>Sill (C + C₀)</strong></td>
-            <td>Asymptotic total variance</td>
-            <td>Maximum variability reached</td>
-        </tr>
-        <tr>
-            <td><strong>Range (a)</strong></td>
-            <td>Correlation distance</td>
-            <td>Typical size of "functional units" (e.g., rooms, activity areas)</td>
-        </tr>
-    </table>
-
-    <h3>Theoretical Variogram Models</h3>
-
-    <h4>🔵 Spherical Model</h4>
-    <p><strong>When to use:</strong> The most common model in archaeology. Ideal when spatial correlation
-    gradually decreases to a point (range) beyond which data are independent.</p>
-    <ul>
-        <li>✅ Ceramic distribution in excavation areas</li>
-        <li>✅ Artifact density</li>
-        <li>✅ Data with well-defined spatial boundaries</li>
-    </ul>
-
-    <h4>🟢 Exponential Model</h4>
-    <p><strong>When to use:</strong> When correlation decreases rapidly near the origin
-    and then more slowly. The effective range is reached asymptotically (never completely).</p>
-    <ul>
-        <li>✅ Diffusion of chemical elements in soil</li>
-        <li>✅ Processes with continuous decay</li>
-        <li>✅ When there is no sharp correlation limit</li>
-    </ul>
-
-    <h4>🟡 Gaussian Model</h4>
-    <p><strong>When to use:</strong> For very "smooth" phenomena with gradual transitions.
-    The curve is parabolic at the origin (zero derivative).</p>
-    <ul>
-        <li>✅ Topographic surfaces</li>
-        <li>✅ Very regular data without local variability</li>
-        <li>⚠️ Can cause numerical instability - use with caution</li>
-    </ul>
-
-    <h4>🟣 Matérn Model</h4>
-    <p><strong>When to use:</strong> Flexible model that includes spherical, exponential, and Gaussian
-    as special cases. Has a parameter (ν) that controls "roughness".</p>
-    <ul>
-        <li>✅ When other models don't fit well</li>
-        <li>✅ For advanced analyses with fine smoothness control</li>
-    </ul>
-
-    <div class="tip">
-        <strong>💡 Rule of thumb:</strong> Always start with the <code>spherical</code> model.
-        If the fit is poor, try <code>exponential</code>. Use <code>gaussian</code> only for very regular data.
-    </div>
-
-    <h2 id="kriging">3. Kriging Types</h2>
-
-    <h3>What is Kriging?</h3>
-    <p>Kriging is an interpolation method that produces the <strong>Best Linear Unbiased Prediction (BLUP)</strong>.
-    Unlike other interpolators, kriging:</p>
-    <ul>
-        <li>Uses spatial structure (variogram) to weight nearby points</li>
-        <li>Provides an <strong>uncertainty</strong> estimate for each prediction</li>
-        <li>Is optimal in the least squares sense</li>
-    </ul>
-
-    <h3>Ordinary Kriging</h3>
-    <p><strong>Most commonly used.</strong> Assumes the mean is constant but unknown in the study area.</p>
-
-    <table>
-        <tr><th>Pros</th><th>Cons</th></tr>
-        <tr>
-            <td>Simple to use</td>
-            <td>Assumes stationarity (constant mean)</td>
-        </tr>
-        <tr>
-            <td>Robust</td>
-            <td>Cannot include auxiliary variables</td>
-        </tr>
-        <tr>
-            <td>Well understood theoretically</td>
-            <td>May have edge effects</td>
-        </tr>
-    </table>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ Artifact distribution in homogeneous areas</li>
-        <li>✅ First exploratory analysis</li>
-        <li>✅ When you only have one variable to interpolate</li>
-    </ul>
-
-    <h3>Co-Kriging</h3>
-    <p>Uses <strong>correlated auxiliary variables</strong> to improve estimation of the primary variable.</p>
-
-    <p><strong>Archaeological example:</strong> Interpolating ceramic density using also
-    magnetic susceptibility data (correlated with combustion activities).</p>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ You have correlated variables (e.g., GPR + magnetometry)</li>
-        <li>✅ The auxiliary variable has more sampling points</li>
-        <li>✅ You want to improve estimate precision</li>
-    </ul>
-
-    <h3>Spatio-Temporal Kriging</h3>
-    <p>Extends kriging to the temporal dimension, allowing modeling of
-    how spatial patterns change over time.</p>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ Data from multiple chronological phases</li>
-        <li>✅ Site monitoring over time</li>
-        <li>✅ Analysis of depositional processes</li>
-    </ul>
-
-    <h2 id="ml">4. Machine Learning for Pattern Recognition</h2>
-
-    <h3>K-Means Clustering</h3>
-    <p>Groups data into <strong>K clusters</strong> based on distance from centroid.</p>
-
-    <table>
-        <tr><th>Pros</th><th>Cons</th></tr>
-        <tr>
-            <td>Simple and fast</td>
-            <td>Must specify K beforehand</td>
-        </tr>
-        <tr>
-            <td>Works well with spherical clusters</td>
-            <td>Sensitive to outliers</td>
-        </tr>
-        <tr>
-            <td>Scalable</td>
-            <td>Assumes similar-sized clusters</td>
-        </tr>
-    </table>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ Classification of functional areas</li>
-        <li>✅ When you know how many groups to expect</li>
-        <li>✅ Data with well-separated clusters</li>
-    </ul>
-
-    <h3>DBSCAN (Density-Based Spatial Clustering)</h3>
-    <p>Finds clusters based on point <strong>density</strong>. Does not require specifying
-    the number of clusters.</p>
-
-    <table>
-        <tr><th>Pros</th><th>Cons</th></tr>
-        <tr>
-            <td>Automatically finds number of clusters</td>
-            <td>Sensitive to eps and min_samples parameters</td>
-        </tr>
-        <tr>
-            <td>Can find arbitrarily shaped clusters</td>
-            <td>Difficult with variable density</td>
-        </tr>
-        <tr>
-            <td>Identifies outliers (noise = -1)</td>
-            <td>Doesn't work well in high dimensionality</td>
-        </tr>
-    </table>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ <strong>Necropolises</strong>: family groups with nearby burials</li>
-        <li>✅ Spatial patterns with irregular shape</li>
-        <li>✅ When you also want to identify outliers</li>
-    </ul>
-
-    <h3>Isolation Forest (Anomaly Detection)</h3>
-    <p>Identifies <strong>anomalies</strong> by isolating points that are "different" from the majority.</p>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ <strong>Geophysics</strong>: finding anomalies (walls, pits, kilns)</li>
-        <li>✅ Identifying points with unusual values</li>
-        <li>✅ Data quality control</li>
-    </ul>
-
-    <h3>Random Forest</h3>
-    <p>Ensemble of decision trees for <strong>classification</strong> and <strong>regression</strong>.</p>
-
-    <p><strong>When to use:</strong></p>
-    <ul>
-        <li>✅ Classifying deposit types</li>
-        <li>✅ Predicting categories from multiple variables</li>
-        <li>✅ When you have labeled training data</li>
-    </ul>
-
-    <h2 id="exercises">5. Practical Exercises</h2>
-
-    <h3>Exercise 1: Ceramic Distribution (Kriging)</h3>
-    <ol>
-        <li>Load <code>villa_ceramica.gpkg</code></li>
-        <li>Data Tab → Select <code>ceramic_count</code> → Calculate Statistics</li>
-        <li>Variogram Tab → Distance 25m, Model <code>spherical</code></li>
-        <li>Kriging Tab → Resolution 2.0m → Run</li>
-    </ol>
-
-    <h3>Exercise 2: Geophysical Anomalies (Isolation Forest)</h3>
-    <ol>
-        <li>Load <code>geofisica_survey.gpkg</code></li>
-        <li>ML Tab → Select the layer → Method <code>Isolation Forest</code></li>
-        <li>Anomalies (structures) will be highlighted</li>
-    </ol>
-
-    <h3>Exercise 3: Necropolis Family Groups (DBSCAN)</h3>
-    <ol>
-        <li>Load <code>necropoli.gpkg</code></li>
-        <li>ML Tab → Method <code>DBSCAN</code></li>
-        <li>Clusters represent probable family groups</li>
-    </ol>
-
-    <h2>Summary Table: Which Method to Use?</h2>
-    <table>
-        <tr>
-            <th>Goal</th>
-            <th>Method</th>
-            <th>Example</th>
-        </tr>
-        <tr>
-            <td>Create continuous map from points</td>
-            <td>Ordinary Kriging</td>
-            <td>Ceramic density</td>
-        </tr>
-        <tr>
-            <td>Improve estimate with auxiliary data</td>
-            <td>Co-Kriging</td>
-            <td>Ceramics + magnetometry</td>
-        </tr>
-        <tr>
-            <td>Find anomalies</td>
-            <td>Isolation Forest</td>
-            <td>Structures in geophysical data</td>
-        </tr>
-        <tr>
-            <td>Group by density</td>
-            <td>DBSCAN</td>
-            <td>Family groups in necropolis</td>
-        </tr>
-        <tr>
-            <td>Classify into N groups</td>
-            <td>K-Means</td>
-            <td>Functional areas</td>
-        </tr>
-    </table>
-
-    <div class="warning">
-        <strong>⚠️ Troubleshooting:</strong><br>
-        • <strong>Kriging slow?</strong> Increase resolution (e.g., 2-5m)<br>
-        • <strong>DBSCAN all -1?</strong> Parameters are auto-calculated, but try K-Means<br>
-        • <strong>Low R²?</strong> Data may not have spatial correlation
-    </div>
-
-    <hr>
-    <p><strong>Author:</strong> Enzo Cocca | <strong>Email:</strong> enzo.ccc@gmail.com</p>
-    <p><strong>Repository:</strong> <a href="https://github.com/enzococca/geoarchaeo">github.com/enzococca/geoarchaeo</a></p>
-</body>
-</html>'''
+        path = os.path.join(self.temp_dir, f'geoarchaeo_tutorial_{lang}.html')
+        with open(path, 'w', encoding='utf-8') as handle:
+            handle.write(get_tutorial_html(lang))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+
+    # ==================================================================
+    # Pulizia
+    # ==================================================================
+    def cleanup(self):
+        """Chiamato dal plugin allo scaricamento."""
+        for signal in self._project_connections:
+            try:
+                signal.disconnect(self._update_ml_layers)
+            except (TypeError, RuntimeError):
+                continue    # gia' disconnesso
+        self._project_connections = []
+        if self.analysis_thread is not None and self.analysis_thread.isRunning():
+            self.analysis_thread.cancel()
+            self.analysis_thread.wait(5000)

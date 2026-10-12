@@ -36,77 +36,77 @@
 </head>
 <body>
     <h1>GeoArchaeo - Analisi Geostatistica per l'Archeologia</h1>
-    
+
     <div class="info-box">
-        <strong>GeoArchaeo</strong> è un plugin QGIS per l'analisi geostatistica avanzata di dati archeologici,
-        con supporto per GPR, magnetometria, analisi del terreno e pattern recognition.
+        <strong>GeoArchaeo</strong> è un plugin QGIS per l'analisi geostatistica di dati archeologici puntuali:
+        statistiche, variogramma, kriging con mappa dell'incertezza, pattern recognition e pianificazione
+        di nuovi campionamenti. Per la teoria e gli esercizi usa il pulsante <strong>Tutorial</strong> nel pannello.
     </div>
 
-    <h2>Funzionalità Principali</h2>
+    <h2>Come funziona il pannello</h2>
+    <p>In alto scegli <strong>una volta sola</strong> il layer di punti e il campo numerico: tutte le schede lavorano
+    su questa selezione. Sotto, un riepilogo mostra quanti punti validi ci sono, il CRS e l'estensione.
+    Le schede seguono l'ordine di lavoro consigliato; ogni scheda conserva i propri risultati e il grafico.</p>
 
-    <h3>1. Analisi Variogramma</h3>
-    <p>Calcola la struttura spaziale dei tuoi dati archeologici.</p>
+    <h3>1. Dati</h3>
     <div class="example">
-        <strong>Cosa fa:</strong> Analizza come i valori cambiano con la distanza<br>
-        <strong>Risultato:</strong> Grafico che mostra la correlazione spaziale<br>
-        <strong>Uso:</strong> Carica un layer di punti → Seleziona il campo da analizzare → Esegui
+        <strong>Cosa fa:</strong> statistiche descrittive, istogramma e note di interpretazione (asimmetria, valori anomali)<br>
+        <strong>Perché:</strong> capire la distribuzione prima di interpolare (dati molto asimmetrici → valutare una trasformazione)
     </div>
 
-    <h3>2. Kriging (Interpolazione)</h3>
-    <p>Crea mappe continue dai tuoi punti di campionamento.</p>
+    <h3>2. Variogramma</h3>
     <div class="example">
-        <strong>Cosa fa:</strong> Interpola valori tra i punti misurati<br>
-        <strong>Risultato:</strong> Raster con valori stimati su tutta l'area<br>
-        <strong>Parametri:</strong>
-        <ul>
-            <li><strong>Nugget:</strong> Variabilità a distanza zero (errore di misura)</li>
-            <li><strong>Sill:</strong> Varianza massima raggiunta</li>
-            <li><strong>Range:</strong> Distanza di correlazione</li>
-        </ul>
+        <strong>Cosa fa:</strong> misura come la differenza tra i valori cresce con la distanza e adatta un modello (sferico, esponenziale, gaussiano, Matérn)<br>
+        <strong>Parametri:</strong> distanza massima (pulsante <em>Auto</em> = 1/3 della diagonale), modello, eventuale verifica dell'anisotropia; i parametri manuali sono opzionali<br>
+        <strong>Risultato:</strong> Nugget, Sill, Range e qualità del fit, con una lettura in parole
     </div>
 
-    <h3>3. Machine Learning</h3>
-    <p>Identifica pattern e anomalie nei dati archeologici.</p>
+    <h3>3. Kriging</h3>
     <div class="example">
-        <strong>Metodi disponibili:</strong>
-        <ul>
-            <li><strong>K-Means:</strong> Raggruppa siti simili</li>
-            <li><strong>DBSCAN:</strong> Trova cluster di forma irregolare</li>
-            <li><strong>Random Forest:</strong> Classifica siti (richiede training)</li>
-            <li><strong>Isolation Forest:</strong> Identifica anomalie</li>
-        </ul>
+        <strong>Cosa fa:</strong> interpola i valori su una griglia e produce due raster: la stima e la sua incertezza (deviazione standard)<br>
+        <strong>Prima di partire:</strong> la scheda mostra quante celle avrà la griglia (max 500 per lato) e se il variogramma calcolato è utilizzabile<br>
+        <strong>Dopo:</strong> cross-validation leave-one-out (RMSE, MAE, ME, R², MSDR) con interpretazione
     </div>
 
-    <h3>4. Campionamento Ottimale</h3>
-    <p>Suggerisce dove effettuare nuovi campionamenti.</p>
+    <h3>4. Pattern (ML)</h3>
     <div class="example">
-        <strong>Cosa fa:</strong> Calcola posizioni ottimali per nuove misure<br>
-        <strong>Risultato:</strong> Layer con punti suggeriti (stelle)<br>
-        <strong>Metodi:</strong> Maximin, Riduzione varianza, Stratificato
+        <strong>Metodi:</strong> K-Means (gruppi, numero scelto o automatico), DBSCAN (gruppi per densità + punti isolati), Isolation Forest (anomalie)<br>
+        <strong>Risultato:</strong> layer di punti con etichetta e legenda per gruppo; Random Forest supervisionato è in Processing
     </div>
 
-    <h2>Workflow Tipico</h2>
-    <ol>
-        <li><strong>Carica i dati:</strong> Usa "Carica Layer di Test" per esempi</li>
-        <li><strong>Esplora i pattern:</strong> Usa il variogramma per capire la struttura spaziale</li>
-        <li><strong>Interpola:</strong> Crea raster con Kriging</li>
-        <li><strong>Analizza:</strong> Usa ML per trovare pattern o anomalie</li>
-        <li><strong>Pianifica:</strong> Usa il campionamento ottimale per nuove misure</li>
-    </ol>
+    <h3>5. Campionamento</h3>
+    <div class="example">
+        <strong>Cosa fa:</strong> propone dove campionare/scavare in futuro, dentro un'area di studio opzionale<br>
+        <strong>Criteri:</strong> copertura (maximin), riduzione dell'incertezza (varianza di kriging), griglia stratificata, adattivo<br>
+        <strong>Risultato:</strong> layer con i punti proposti (stelle gialle) e tabella delle coordinate
+    </div>
+
+    <h3>6. Report</h3>
+    <div class="example">
+        <strong>Cosa fa:</strong> riunisce in un HTML (o PDF) statistiche, parametri, cross-validation e grafici interattivi delle analisi eseguite<br>
+        <strong>Nota:</strong> ogni sezione indica se è disponibile o non ancora calcolata
+    </div>
+
+    <h2>Processing Toolbox</h2>
+    <p>Nel gruppo <strong>GeoArchaeo</strong> della Toolbox trovi anche: Co-Kriging (regressione sui dati secondari +
+    kriging dei residui), kriging spazio-temporale, analisi composizionale (CLR/ILR/ALR), batch kriging per dataset
+    grandi, pattern recognition con Random Forest supervisionato e il design di campionamento. Tutti gli algoritmi
+    sono utilizzabili nei modelli grafici e da Python.</p>
 
     <h2>Tips</h2>
     <ul>
-        <li>Per dataset grandi (&gt;1000 punti), usa il Batch Kriging dal Processing</li>
-        <li>Il Co-Kriging è utile quando hai GPR + Magnetometria</li>
-        <li>L'analisi composizionale è ideale per dati del terreno (sabbia/limo/argilla)</li>
-        <li>Salva sempre i parametri del variogramma per riutilizzarli</li>
+        <li>Usa sempre un CRS proiettato in metri (es. UTM): con coordinate geografiche il pannello ti avvisa</li>
+        <li>Per aree grandi aumenta la dimensione della cella: il numero di celle è indicato prima di avviare</li>
+        <li>Il pulsante "Carica dati di esempio" aggiunge i dataset inclusi nel plugin (cartella <code>test_layers</code>)</li>
+        <li>Senza QtWebEngine il grafico è un'anteprima statica: "Apri grafico interattivo nel browser" apre la versione Plotly</li>
     </ul>
 
     <h2>Risoluzione Problemi</h2>
     <div class="info-box">
-        <strong>Il raster non appare?</strong> Verifica che ci siano abbastanza punti nell'area<br>
-        <strong>Errore nel kriging?</strong> Controlla che il campo selezionato contenga valori numerici<br>
-        <strong>ML non funziona?</strong> Assicurati di avere almeno 2 layer caricati
+        <strong>Nessun campo nella tendina?</strong> Il campo è di tipo testo: convertilo in numero con il Calcolatore di campi<br>
+        <strong>Il kriging è lento?</strong> Aumenta la dimensione della cella o riduci il numero di punti<br>
+        <strong>R² basso?</strong> I dati hanno poca correlazione spaziale: la mappa è indicativa, guarda il raster dell'incertezza<br>
+        <strong>DBSCAN mette tutto in "isolati"?</strong> Prova K-Means
     </div>
 </body>
 </html>

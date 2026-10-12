@@ -57,6 +57,10 @@ Questa cartella contiene layer di test per il plugin GeoArchaeo. I dati sono sim
 
 ## Caricamento in QGIS
 
+### Metodo 0: dal plugin (consigliato)
+Pulsante **Carica dati di esempio** nel pannello GeoArchaeo (o nella toolbar): elenca i file di questa
+cartella e li aggiunge al progetto. I GeoPackage hanno già i campi numerici tipizzati.
+
 ### Metodo 1: File CSV
 1. Menu `Layer → Aggiungi Layer → Aggiungi layer testo delimitato`
 2. Seleziona il file CSV
@@ -75,31 +79,24 @@ Questa cartella contiene layer di test per il plugin GeoArchaeo. I dati sono sim
 ### Test 1: Analisi Ceramica Scavo
 1. Carica `unita_scavo_ceramica`
 2. Apri pannello GeoArchaeo
-3. Tab Variogramma:
-   - Layer: unita_scavo_ceramica
-   - Campo: ceramica_tot
-   - Calcola variogramma
-4. Tab Kriging:
-   - Usa parametri dal variogramma
-   - Risoluzione: 5m
-   - Esegui interpolazione
+3. In alto nel pannello: layer `unita_scavo_ceramica`, campo `ceramica_tot`
+4. Scheda Variogramma → Calcola variogramma
+5. Scheda Kriging:
+   - "Usa il variogramma calcolato" attivo
+   - Cella: 1 m
+   - Esegui kriging (vengono creati raster di stima e di incertezza)
 
 ### Test 2: Pattern Recognition Survey
 1. Carica `ricognizione_survey`
-2. Tab Machine Learning:
-   - Algoritmo: DBSCAN
-   - Features: densita_mq, visibilita
-   - Identifica clusters
+2. Scheda Pattern (ML):
+   - Metodo: DBSCAN (usa coordinate + tutti i campi numerici)
+   - Avvia pattern recognition
 
 ### Test 3: Anomalie Magnetometriche
 1. Carica `magnetometria_grid`
-2. Tab Kriging:
-   - Campo: mag_nT
-   - Modello: Gaussiano
-   - Risoluzione: 0.5m
-3. Tab Machine Learning:
-   - Algoritmo: Isolation Forest
-   - Rileva anomalie
+2. In alto: campo `mag_nT`; scheda Variogramma → modello Gaussiano → Calcola
+3. Scheda Kriging → cella 0.5 m → Esegui kriging
+4. Scheda Pattern (ML) → Isolation Forest → Avvia (le anomalie finiscono nel layer `Anomalie_ML`)
 
 ## Note Tecniche
 
