@@ -1193,7 +1193,7 @@ def export_pdf(graph, narrative, path, *, figures: Optional[Dict[str, bytes]] = 
     from reportlab.platypus import (Image, KeepTogether, PageBreak, Paragraph,
                                     SimpleDocTemplate, Spacer)
     from s3dgraphy.narrative.bake import bake_narrative
-    from s3dgraphy.nodes.narrative_node import UNVALIDATED_NOTICE
+    from s3dgraphy.nodes.narrative_node import UNVALIDATED_MARK, UNVALIDATED_NOTICE
 
     lingua = _prompt_lang(lang)
     clean_author_placeholders(graph)
@@ -1216,6 +1216,8 @@ def export_pdf(graph, narrative, path, *, figures: Optional[Dict[str, bytes]] = 
                                      textColor=colors.HexColor("#333333"), spaceAfter=10),
         "nota": ParagraphStyle("n", fontName=corsivo, fontSize=9, leading=12,
                                textColor=colors.HexColor("#777777"), spaceAfter=4),
+        "avviso_blocco": ParagraphStyle("ab", fontName=corsivo, fontSize=9, leading=12,
+                                        textColor=colors.HexColor("#8a2d00"), spaceAfter=2),
     }
 
     def _t(key, **kw):
@@ -1245,10 +1247,12 @@ def export_pdf(graph, narrative, path, *, figures: Optional[Dict[str, bytes]] = 
         for blocco in capitolo.blocks:
             tipo = getattr(blocco, "kind", "")
             if tipo == "prose":
-                testo = blocco.plain_text
                 if getattr(blocco, "unendorsed", False):
-                    testo = UNVALIDATED_NOTICE + " " + testo
-                storia.append(_p(testo, "corpo"))
+                    # Su una riga sua, in corsivo, senza il simbolo ⚠ che
+                    # Cambria non ha: attaccato alla prima frase si leggeva male.
+                    storia.append(_p(UNVALIDATED_NOTICE.replace(UNVALIDATED_MARK, "").strip(),
+                                     "avviso_blocco"))
+                storia.append(_p(blocco.plain_text, "corpo"))
             elif tipo == "image" and getattr(blocco, "image", None) is not None \
                     and blocco.image.resolved:
                 try:
