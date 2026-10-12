@@ -384,7 +384,7 @@ Se l'esportazione in em.json non trova EMStudio, **propone di installarlo lì pe
 
 ### Vedere la matrice dentro QGIS
 
-Dal menu **pyArchInit → Extended Matrix → Vedi la matrice…** la matrice di un sito si disegna in un **pannello agganciato a destra** della finestra di QGIS. Non serve EMStudio, non serve un nodo StratiGraph, non serve accedere a niente e non serve internet: pyArchInit esporta l'em.json del sito in una cartella temporanea e lo disegna.
+Dal menu **pyArchInit → Extended Matrix → Vedi la matrice…** la matrice di un sito si disegna in un **pannello agganciato a destra** della finestra di QGIS. Non serve EMStudio, non serve un nodo StratiGraph, non serve accedere a niente e non serve internet: pyArchInit esporta l'em.json del sito in `pyarchinit_EM_folder` — lo stesso file di «Esporta sito in em.json…» e di EMStudio — e lo disegna. Dalla 5.13.106-alpha il riquadro a destra ha due schede, **Unità** e **Narrativa**: la seconda fa scrivere a un'AI la storia del sito (vedi il Tutorial 36, §10).
 
 Cosa aspettarsi:
 

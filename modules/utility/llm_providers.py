@@ -16,6 +16,7 @@ scripts can also use it.
 
 import json
 import os
+import re
 import socket
 from .pyarchinit_home import legacy_pyarchinit_home, pyarchinit_home_bin
 from dataclasses import dataclass, field
@@ -38,49 +39,96 @@ PROVIDER_DEFAULTS = {
         "base_url": "https://api.openai.com/v1",
         "needs_api_key": True,
         "is_local": False,
+        # Quello che /v1/models elencava il 2026-10-12 (chat/completions),
+        # dal più nuovo; i «-pro» non rispondono in chat/completions e gli
+        # snapshot datati non servono. Con la chiave l'elenco vero arriva
+        # dal fornitore (``discover_models``): questo è il ripiego.
         "default_models": [
+            "gpt-6.1-sol",
+            "gpt-6-sol",
+            "gpt-6-luna",
+            "gpt-6-astra",
+            "gpt-5.6-sol",
+            "gpt-5.6-luna",
+            "gpt-5.6-terra",
             "gpt-5.5",
-            "gpt-5.5-2026-04-23",
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
+            "gpt-5.2",
+            "gpt-5.1",
             "gpt-5",
             "gpt-5-mini",
             "gpt-5-nano",
             "gpt-4.1",
+            "gpt-4.1-mini",
             "gpt-4o",
             "gpt-4o-mini",
-            "gpt-4-turbo",
-            "gpt-4",
-            "gpt-3.5-turbo",
+            "o3",
+            "o4-mini",
         ],
         "vision_models": [
+            "gpt-6.1-sol",
+            "gpt-6-sol",
+            "gpt-6-luna",
+            "gpt-6-astra",
+            "gpt-5.6-sol",
+            "gpt-5.6-luna",
+            "gpt-5.6-terra",
             "gpt-5.5",
-            "gpt-5.5-2026-04-23",
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
+            "gpt-5.2",
+            "gpt-5.1",
             "gpt-5",
             "gpt-5-mini",
+            "gpt-5-nano",
             "gpt-4.1",
+            "gpt-4.1-mini",
             "gpt-4o",
-            "gpt-4-turbo",
+            "gpt-4o-mini",
+            "o3",
+            "o4-mini",
         ],
     },
     LLMProvider.ANTHROPIC: {
         "base_url": "https://api.anthropic.com",
         "needs_api_key": True,
         "is_local": False,
+        # Quello che /v1/models elencava il 2026-10-12, dal più capace e
+        # recente; i claude-3-5 non ci sono più. Tutti vedono le immagini.
         "default_models": [
+            "claude-fable-5-1",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+            "claude-haiku-5-5",
+            "claude-opus-5",
+            "claude-sonnet-5",
+            "claude-fable-5",
+            "claude-opus-4-8",
             "claude-opus-4-7",
             "claude-sonnet-4-6",
-            "claude-haiku-4-5",
-            "claude-opus-4-5-20251021",
+            "claude-opus-4-6",
+            "claude-opus-4-5-20251101",
             "claude-sonnet-4-5-20250929",
-            "claude-3-5-sonnet-20241022",
-            "claude-3-5-haiku-20241022",
+            "claude-haiku-4-5-20251001",
         ],
         "vision_models": [
+            "claude-fable-5-1",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+            "claude-haiku-5-5",
+            "claude-opus-5",
+            "claude-sonnet-5",
+            "claude-fable-5",
+            "claude-opus-4-8",
             "claude-opus-4-7",
             "claude-sonnet-4-6",
-            "claude-haiku-4-5",
-            "claude-opus-4-5-20251021",
+            "claude-opus-4-6",
+            "claude-opus-4-5-20251101",
             "claude-sonnet-4-5-20250929",
-            "claude-3-5-sonnet-20241022",
+            "claude-haiku-4-5-20251001",
         ],
     },
     LLMProvider.OLLAMA: {
@@ -103,17 +151,95 @@ PROVIDER_DEFAULTS = {
 # OpenAI families that reject `max_tokens` and require `max_completion_tokens`
 # instead — the GPT-5 family and o-series reasoning models. Match by prefix so
 # dated snapshots (e.g. "gpt-5.5-2026-04-23") are caught too.
-OPENAI_MAX_COMPLETION_TOKENS_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+OPENAI_MAX_COMPLETION_TOKENS_PREFIXES = ("gpt-5", "gpt-6", "o1", "o3", "o4")
 
 
 def _openai_token_param(model: str) -> str:
-    """Return the right token-limit parameter name for an OpenAI model."""
+    """Return the right token-limit parameter name for an OpenAI model.
+
+    Dalla famiglia GPT-5 in poi (e per gli o-series) vale
+    ``max_completion_tokens``: si legge il numero di famiglia, così anche
+    GPT-7 sarà giusto senza toccare l'elenco.
+    """
     m = (model or "").lower()
-    return (
-        "max_completion_tokens"
-        if any(m.startswith(p) for p in OPENAI_MAX_COMPLETION_TOKENS_PREFIXES)
-        else "max_tokens"
-    )
+    famiglia = re.match(r"^gpt-(\d+)", m)
+    if famiglia and int(famiglia.group(1)) >= 5:
+        return "max_completion_tokens"
+    if re.match(r"^o\d", m):
+        return "max_completion_tokens"
+    return "max_tokens"
+
+
+#: Pezzi di nome che dicono «non è un modello da chat/completions»: audio,
+#: immagini, realtime, trascrizione, ricerca, codex, i «-pro» (solo
+#: Responses API), i «chat-latest» (alias mobili).
+_OPENAI_NOT_CHAT = ("audio", "image", "realtime", "transcribe", "tts", "search",
+                    "codex", "live", "whisper", "instruct", "deep-research",
+                    "chat-latest", "-pro")
+_DATED_SNAPSHOT = re.compile(r"-\d{4}-\d{2}-\d{2}$")
+
+
+def openai_is_chat_model(model_id: str) -> bool:
+    """Un modello che risponde su chat/completions, senza snapshot datati."""
+    low = str(model_id or "").lower()
+    if not re.match(r"^(gpt-\d|o\d)", low):
+        return False
+    if _DATED_SNAPSHOT.search(low):
+        return False
+    return not any(t in low for t in _OPENAI_NOT_CHAT)
+
+
+def _openai_family_key(model_id: str):
+    """(famiglia, versione) per ordinare dal più nuovo: gpt-6.1 > gpt-6 >
+    gpt-5.5 > … > o4 > o3."""
+    low = str(model_id).lower()
+    m = re.match(r"^gpt-(\d+(?:\.\d+)?)", low)
+    if m:
+        return (1, float(m.group(1)))
+    m = re.match(r"^o(\d+)", low)
+    if m:
+        return (0, float(m.group(1)))
+    return (-1, 0.0)
+
+
+def cloud_vision_capable(provider: "LLMProvider", model_id: str) -> bool:
+    """Se un modello cloud legge le immagini, dal nome: serve per gli
+    elenchi che arrivano dal fornitore e non stanno in ``vision_models``."""
+    low = str(model_id or "").lower()
+    if provider == LLMProvider.ANTHROPIC:
+        return low.startswith("claude-") and not low.startswith(("claude-2", "claude-instant"))
+    if provider == LLMProvider.OPENAI:
+        if low in ("o1-mini", "o3-mini") or low.startswith(("gpt-3", "gpt-4-0", "gpt-4-1")):
+            return False
+        if low == "gpt-4":
+            return False
+        return bool(re.match(r"^(gpt-4o|gpt-4\.1|gpt-4-turbo|gpt-5|gpt-6|gpt-\d{2}|o1|o3|o4)", low))
+    return False
+
+
+_ANTHROPIC_MODELS_URL = "https://api.anthropic.com/v1/models?limit=100"
+
+
+def _anthropic_models(api_key: str, timeout: float) -> List[str]:
+    req = Request(_ANTHROPIC_MODELS_URL,
+                  headers={"x-api-key": api_key, "anthropic-version": "2023-06-01"})
+    with urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    righe = [(str(m.get("created_at") or ""), str(m.get("id")))
+             for m in data.get("data", []) if m.get("id")]
+    righe.sort(reverse=True)
+    return [mid for _quando, mid in righe]
+
+
+def _openai_chat_models(api_key: str, base_url: str, timeout: float) -> List[str]:
+    req = Request(base_url.rstrip("/") + "/models",
+                  headers={"Authorization": "Bearer " + api_key})
+    with urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    ids = sorted({str(m.get("id")) for m in data.get("data", [])
+                  if m.get("id") and openai_is_chat_model(m.get("id"))})
+    ids.sort(key=_openai_family_key, reverse=True)       # stabile: a parità resta l'alfabetico
+    return ids
 
 
 VISION_MODEL_HINTS = (
@@ -189,13 +315,15 @@ class LLMProviderManager:
           400 "No models loaded" error.
         - **Ollama**: returns all installed models (Ollama lazy-loads on
           first use, so any installed model is usable).
-        - **OpenAI / Anthropic**: returns a curated default list (the cloud
-          ``/models`` endpoints either require auth or report hundreds of
-          irrelevant entries).
+        - **OpenAI / Anthropic**: con la chiave, l'elenco vero del fornitore
+          dal più nuovo (per OpenAI solo i modelli da chat: niente audio,
+          immagini, realtime, «-pro», snapshot datati), seguito dai
+          predefiniti che mancano (gli alias restano). Senza chiave o senza
+          rete, i predefiniti (2026-10-12).
         """
         defaults = PROVIDER_DEFAULTS[provider]
         if not defaults["is_local"]:
-            return list(defaults["default_models"])
+            return LLMProviderManager._discover_cloud_models(provider, timeout)
 
         base_url = defaults["base_url"].rstrip("/")
 
@@ -243,6 +371,24 @@ class LLMProviderManager:
                 pass
 
         return []
+
+    @staticmethod
+    def _discover_cloud_models(provider: LLMProvider, timeout: float = 3.0) -> List[str]:
+        curati = list(PROVIDER_DEFAULTS[provider]["default_models"])
+        chiave = LLMProviderManager.get_api_key(provider)
+        if not chiave:
+            return curati
+        try:
+            if provider == LLMProvider.ANTHROPIC:
+                trovati = _anthropic_models(chiave, timeout)
+            else:
+                trovati = _openai_chat_models(
+                    chiave, PROVIDER_DEFAULTS[provider]["base_url"], timeout)
+        except Exception:                           # noqa: BLE001 — rete, chiave, formato
+            return curati
+        if not trovati:
+            return curati
+        return trovati + [m for m in curati if m not in trovati]
 
     @staticmethod
     def discover_embedding_models(provider: LLMProvider, timeout: float = 3.0) -> List[str]:
@@ -440,7 +586,7 @@ class LLMProviderManager:
         defaults = PROVIDER_DEFAULTS[provider]
         if not defaults["is_local"]:
             allow = set(defaults["vision_models"])
-            return [m for m in models if m in allow]
+            return [m for m in models if m in allow or cloud_vision_capable(provider, m)]
         return [m for m in models if any(h in m.lower() for h in VISION_MODEL_HINTS)]
 
     @staticmethod

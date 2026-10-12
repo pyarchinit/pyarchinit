@@ -465,6 +465,245 @@ Algunas decisiones del dibujo de la matrix pueden parecer extrañas, pero no son
 
 ---
 
+## 10. Narrativa con IA
+
+A partir de la versión **5.13.106-alpha**, el panel de la matriz dentro de QGIS (§2.2, «Vedi la matrice») tiene dos pestañas en la columna de la derecha: **Units** (*Unità*; Unidades) —la ficha de la unidad elegida, el zoom a la geometría y los medios, como antes— y **Narrative** (*Narrativa*), nueva. La pestaña Narrative hace que una IA escriba la **historia del sitio**, un capítulo por época, y después te permite leerla, hacer que una persona la valide y exportarla a HTML o DOCX. Lee y escribe **el mismo em.json** que abre EMStudio, en el formato de la biblioteca s3dgraphy: la narrativa que ves aquí es la que EMStudio muestra en su pestaña *Narrative*.
+
+> **Sin ajustes nuevos.** La pestaña no tiene una ventana de configuración propia: usa la IA que ya has configurado en otro lugar de pyArchInit (§10.2).
+
+> **La IA escribe borradores, no textos definitivos.** Cada párrafo escrito por el modelo sigue siendo un «AI draft» (borrador de IA) hasta que una persona lo valida (§10.6), y en los documentos exportados lleva la marca ⚠.
+
+Los nombres de las pestañas y de los botones de la pestaña Narrative existen en italiano y en inglés: **están en italiano si QGIS está en italiano, en inglés con cualquier otro idioma**. Aquí se dan siempre los dos. Las entradas de menú y las ventanas de diálogo del plugin (como «Vedi la matrice…» o los tres botones de §10.9) están, en cambio, solo en italiano; la traducción al español se da entre paréntesis.
+
+### 10.1 Abrir la pestaña Narrative
+
+1. Abre el menú **Plugins → pyArchInit - Archaeological GIS Tools** y elige la entrada **Extended Matrix → Vedi la matrice…** (Ver la matriz).
+2. Elige el **sitio**.
+3. Si el sitio tiene **sondeos** (*saggi*), pyArchInit pregunta «Il sito ha N saggi. Come divido il file?» (El sitio tiene N sondeos. ¿Cómo divido el archivo?) con dos respuestas: «Un grafo per ogni saggio (…)» (un grafo por sondeo), la opción de partida, o «Un grafo solo per tutto il sito» (un solo grafo para todo el sitio). Es la misma elección de §2.2.1 y de la entrada «Esporta sito in em.json…»: las dos entradas escriben el **mismo archivo**, con la misma forma.
+4. pyArchInit exporta el sitio desde la base de datos a `<home>/pyarchinit_EM_folder/<sitio>.em.json` —`<home>` es `~/pyarchinit_5`, o la carpeta indicada por la variable de entorno `PYARCHINIT_HOME`— y abre el panel **«Matrice — `<sitio>`»**, acoplado a la derecha de la ventana de QGIS. El nombre del archivo es el del sitio, con los caracteres especiales sustituidos por «_» (por ejemplo, «Scavo 1» se convierte en `Scavo_1.em.json`).
+5. En la columna de la derecha del panel, haz clic en la pestaña **Narrative**.
+
+<!-- IMMAGINE: Captura del menú Plugins → pyArchInit - Archaeological GIS Tools con la entrada «Extended Matrix → Vedi la matrice…» -->
+![Menú Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
+*Figura 1: La entrada «Extended Matrix → Vedi la matrice…» en el menú del plugin*
+
+<!-- IMMAGINE: Captura de la pregunta sobre los sondeos con las dos respuestas -->
+![Pregunta sobre los sondeos](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
+*Figura 2: La pregunta sobre los sondeos: un grafo por sondeo o un solo grafo*
+
+<!-- IMMAGINE: Captura del panel de la matriz acoplado a la derecha, con las pestañas Units y Narrative -->
+![Panel con dos pestañas](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
+*Figura 3: El panel de la matriz con las pestañas Units y Narrative*
+
+El archivo es **uno por sitio y permanece en el disco**: ya no está en una carpeta temporal. Es el archivo que abre EMStudio y es allí donde se escribe la narrativa. Cada vez que eliges «Vedi la matrice…» el sitio se **exporta de nuevo desde la base de datos** y el archivo se reescribe; la narrativa que ya contiene se conserva (§10.8).
+
+A la pestaña se llega también desde otros dos lugares:
+
+- desde la entrada **Extended Matrix → Esporta sito in em.json…** (Exportar sitio a em.json), que al final ofrece el botón «Narrativa con l'AI» (§10.9);
+- desde el botón **Vedi la matrice** de la ventana «Esporta Extended Matrix» de la ficha UE (§2.2): abre el mismo panel sobre el archivo que acabas de exportar, en la carpeta que elegiste.
+
+### 10.2 Qué IA se utiliza
+
+En la parte superior de la pestaña Narrative una línea indica qué IA va a usar: **«Model: `<model>` (`<where it comes from>`)»**, seguida del recordatorio sobre EMStudio. Si no encuentra ninguna, escribe **«No AI configured: set it in the US form → AI report (or in the AI database query).»** (no hay ninguna IA configurada: configúrala en la ficha UE → Informe IA, o en la consulta de base de datos con IA) y los botones **Generate with AI** (Generar con IA) y **Regenerate chapter** (Regenerar capítulo) quedan deshabilitados.
+
+La pestaña lee los ajustes de IA **ya guardados** por las demás ventanas de pyArchInit, en este orden, y usa **el primero** que tiene un modelo y —para los proveedores en red— la clave API:
+
+| # | Dónde se configura | Cómo la llama la pestaña (en / it) |
+|---|--------------------|-------------------------------------|
+| 1 | Ficha UE, botón «Report» → ventana «Generatore di Report» (Generador de informes), grupo «Provider AI» | AI report of the US form / Relazione AI della scheda US |
+| 2 | Ficha UE, botón «Query AI Database» | AI database query / Interrogazione AI del database |
+| 3 | Ventana palimpsestr, botón «Report AI (analisi descrittiva)…», selector «Provider AI» | Palimpsest report / Relazione Palimpsest |
+| 4 | Ventana «Generazione SQL con AI» (texto a SQL: véase el tutorial 30) | Text to SQL / Testo in SQL |
+
+Los proveedores son los de los selectores «Provider AI»: **OpenAI** y **Anthropic (Claude)** en red, con la clave API escrita en el campo «API key»; **Ollama** y **LM Studio** en tu propio ordenador, sin clave. El selector guarda tu elección en cuanto la cambias. Si quieres otro modelo, cámbialo en la ventana que la pestaña indica entre paréntesis (o en una que aparezca antes en la lista). La pestaña vuelve a leer los ajustes **cuando se abre el panel**: tras cambiarlos, abre de nuevo la matriz.
+
+### 10.3 La pestaña Narrative
+
+```
+┌─ Units ─┬─ Narrative ────────────────────────────────────────────┐
+│ Model: <model> (<where it comes from>) · If EMStudio has the     │
+│ file open, close it first: the last writer wins.                 │
+├──────────────────────────────────────────────────────────────────┤
+│ Presentation — to be written                                     │
+│ Early 15th century — AI draft                                    │
+│ 15th century — endorsed                                          │
+│ Modern age — AI draft, truncated                                 │
+├──────────────────────────────────────────────────────────────────┤
+│ The text of the chosen chapter, units quoted by name.            │
+├──────────────────────────────────────────────────────────────────┤
+│ Chapter 3 of 9 · 15th century  *                                 │
+│ [Generate with AI]  [Regenerate chapter]  [Endorse…]             │
+│ [Prepare the chapters]  [Export…]  [Open in EMStudio]  [Cancel]* │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+\* La línea de progreso y el botón «Cancel» (Cancelar) solo se ven mientras la IA escribe. En este diagrama las filas de la lista son las del sitio de ejemplo.
+
+<!-- IMMAGINE: Captura de la pestaña Narrative con la lista de capítulos, el texto del capítulo elegido y los seis botones -->
+![Pestaña Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
+*Figura 4: La pestaña Narrative*
+
+De arriba abajo:
+
+- **la línea de estado**: el modelo en uso (§10.2) y el recordatorio *«If EMStudio has the file open, close it first: the last writer wins.»* (si EMStudio tiene el archivo abierto, ciérralo antes: gana el último que escribe);
+- **la lista de capítulos**, una fila por capítulo: *Título — estado*. Con la exportación por sondeos (§2.2.1) cada sondeo tiene su propia narrativa y cada fila va precedida del nombre del sondeo entre corchetes, por ejemplo `[Saggio A] 15th century — AI draft`;
+- **el texto del capítulo elegido**: la prosa, con las unidades citadas por su nombre. Si el capítulo todavía no tiene prosa, ves su marcador de posición «[to be written: …]»;
+- **la línea de progreso**, solo durante la generación: «Chapter 3 of 9 · 15th century»;
+- **los botones**, en dos filas.
+
+El resultado de cada operación aparece en la barra de mensajes de QGIS, con el título «Narrative».
+
+Cuando el archivo **todavía no tiene narrativa**, la lista está vacía y un texto dice: *«No narrative in the file: “Prepare the chapters” builds the outline (N chapters over epochs and activities), “Generate with AI” writes it.»* (no hay narrativa en el archivo: “Prepare the chapters” crea el esquema, con N capítulos entre épocas y actividades; “Generate with AI” la escribe).
+
+#### Los estados de un capítulo
+
+| Estado (en / it) | Qué significa |
+|------------------|---------------|
+| **to be written** / da scrivere | El capítulo solo tiene el marcador «[to be written: …]». |
+| **AI draft** / bozza AI | Hay prosa escrita por el modelo que ninguna persona ha validado. Basta un párrafo: si el capítulo tiene aunque sea un solo párrafo sin validar, este es su estado, aunque haya otra prosa. |
+| **endorsed** / convalidato | Toda la prosa de la IA ha sido validada por una persona. |
+| **written** / scritto | Prosa escrita por una persona (en EMStudio). |
+| **truncated** / troncato | Se añade al estado (por ejemplo «AI draft, truncated»): el modelo se detuvo porque alcanzó el límite de longitud y el texto termina a medias. |
+
+#### Los botones
+
+| Botón (en) | En italiano | Qué hace |
+|------------|-------------|----------|
+| **Generate with AI** | Genera con l'AI | Escribe, **de uno en uno**, todos los capítulos de época (y de actividad) que todavía están «to be written»; los ya escritos no se tocan. Si todavía no hay narrativa, crea primero el esquema. Muestra el progreso y el botón **Cancel**. Habilitado solo con un archivo abierto y una IA configurada. |
+| **Regenerate chapter** | Rigenera capitolo | Reescribe **el capítulo elegido** en la lista (con varios sondeos, solo el del sondeo elegido): el borrador de IA sin validar se sustituye —pero solo cuando el modelo ha respondido: si la llamada falla, el borrador anterior se queda— y los bloques ya validados se mantienen. Se habilita cuando eliges un capítulo de época o de actividad y hay una IA configurada; para «Presentation» y «Where it is» permanece deshabilitado. |
+| **Endorse…** | Convalida… | Abre un menú con «This chapter» y «All chapters», y luego pregunta quién valida (§10.6). Habilitado cuando hay una narrativa. |
+| **Prepare the chapters** | Prepara i capitoli | Crea **solo el esquema** de los capítulos, sin IA: funciona aunque no haya ninguna IA configurada, para poder escribir a mano en EMStudio. No toca la prosa ya escrita y añade los capítulos de las épocas nuevas. Resultado: «Chapters prepared: N.» (Capítulos preparados: N). |
+| **Export…** | Esporta… | Guarda la narrativa en HTML o DOCX (§10.7). Habilitado cuando hay una narrativa. |
+| **Open in EMStudio** | Apri in EMStudio | Abre el em.json en EMStudio. Si EMStudio no está, la barra de mensajes remite a la entrada de menú **Extended Matrix → Installa EMStudio…** (Instalar EMStudio). |
+| **Cancel** | Annulla | Aparece solo durante la generación: la IA se detiene **después del capítulo en curso** y lo que se ha escrito se guarda. |
+
+Durante la generación todos los botones están deshabilitados salvo **Cancel**.
+
+### 10.4 Qué escribe la IA
+
+**Qué capítulos.** El esquema es el de la biblioteca s3dgraphy (la plantilla «site_story»):
+
+- **Presentation** (Presentación) y **Where it is** (Dónde está) son capítulos canónicos: se quedan como marcadores «[to be written: …]» para escribirlos a mano en EMStudio, porque en el grafo no hay nada a partir de lo cual escribirlos sin inventar. «Where it is» existe solo si el grafo lleva una posición geográfica. La IA no los genera.
+- **Un capítulo por época** (periodo/fase) que tenga unidades, de la más antigua a la más reciente. El título es el nombre de la época, es decir, la «Datazione estesa» (Datación Extendida) de la periodización; si falta, sale un nombre genérico como «Period 8 Phase 1»: rellénala en la Ficha de Periodización para obtener títulos legibles. Una unidad aparece en el capítulo de la época en que nace y en los de las épocas en que sobrevive.
+- **Un capítulo por actividad**, si el grafo contiene grupos de actividad. Un sitio exportado desde la base de datos normalmente no los tiene —el campo Actividad de la ficha UE viaja como propiedad de la unidad— y entonces los capítulos son los de época.
+
+**Qué recibe el modelo.** Para cada capítulo, un *briefing* con, por cada unidad: nombre, tipo y descripción; los campos rellenados de la ficha UE (definición estratigráfica e interpretativa, interpretación, periodo y fase, datación, actividad, estructura, sondeo, ambiente, sector, área); las épocas; **las relaciones estratigráficas** con las demás unidades (cubre, corta, rellena, se apoya, igual a…), con sus nombres; y, si las hay, las fuentes documentales vinculadas. Las unidades se enumeran **de la más antigua a la más reciente**, siguiendo las relaciones. Por encima de **80 unidades** por capítulo, el briefing se recorta a las primeras 80. Tiene además un tope de longitud (unos 25.000 caracteres): pasado ese límite, se acortan los textos largos de las fichas, se eliminan las relaciones repetidas y las cadenas de evidencias y, si aún no basta, se omiten las unidades más recientes. En ambos casos se informa al modelo de cuántas unidades faltan.
+
+**Las reglas.** El modelo recibe las cinco reglas de la biblioteca: escribir solo lo que el contexto respalda (nada de fechas, materiales, funciones o eventos inventados); mantener la incertidumbre (una unidad virtual es una hipótesis, no un hecho); no citar fuentes que no estén; escribir prosa continua, sin listas ni títulos; decir abiertamente cuándo el contexto es demasiado pobre. Pide de uno a tres párrafos.
+
+**El idioma.** La prosa está en el **idioma de la narrativa**, que se fija cuando se crea el esquema por primera vez: **italiano si en ese momento QGIS está en italiano, inglés con cualquier otro idioma** (el modelo recibe sus instrucciones solo en esos dos idiomas). Una narrativa ya creada conserva su idioma aunque después cambies el de QGIS. Lo mismo vale para los títulos de los capítulos canónicos y para los marcadores.
+
+**Cómo se guarda.** En el formato de la biblioteca, el mismo que lee EMStudio: un nodo de narrativa (`NarrativeNode`) que contiene los capítulos; cada párrafo escrito por el modelo es un bloque «AI draft» atribuido al **autor de IA** de ese modelo; el **prompt** utilizado se registra como un extractor vinculado a las fuentes, de modo que se puede rastrear qué se pidió. Las unidades citadas en el texto son **menciones** (`[[name]]`): en el archivo permanecen vinculadas al nodo de la unidad, y en la pestaña y en las exportaciones aparecen con su nombre. Una mención que no corresponde a ninguna unidad del grafo se reduce a simples palabras, sin corchetes.
+
+**Costes y tiempos.** Se llama al modelo **una vez por capítulo**. Con un proveedor en red cada llamada tiene un coste y un tiempo de espera (en las pruebas con un modelo en red, unas decenas de segundos por capítulo: un sitio con una decena de épocas tarda unos minutos); con Ollama o LM Studio no se paga nada, pero los tiempos dependen de tu ordenador.
+
+### 10.5 Paso a paso
+
+1. Abre la matriz del sitio (§10.1) y haz clic en la pestaña **Narrative**. Comprueba arriba **qué modelo** va a usar.
+2. **Cierra EMStudio** si tiene el archivo abierto: pyArchInit y EMStudio escriben el mismo archivo, y gana el último que escribe.
+3. Opcional: haz clic en **Prepare the chapters** para ver el esquema, sin IA.
+4. Haz clic en **Generate with AI**. Observa el progreso («Chapter 3 of 9 · …»); puedes seguir usando QGIS. Al final la barra de mensajes dice, por ejemplo, *«7 chapters generated, 1 failed: Modern age — …»* (7 capítulos generados, 1 fallido), con *«(cancelled)»* si has cancelado, y la lista se recarga: los capítulos escritos están en «AI draft».
+5. **Lee**: elige un capítulo tras otro y lee el texto bajo la lista. Contrástalo con la estratigrafía: es un borrador construido a partir de los datos de la ficha UE.
+6. Si un capítulo no te convence, elige su fila y haz clic en **Regenerate chapter**. El nuevo borrador **sustituye** al anterior sin validar: si quieres conservar la versión anterior, expórtala antes. Si un capítulo está «truncated», regenéralo **antes** de validarlo.
+7. Cuando un capítulo está bien, haz clic en **Endorse…** (§10.6).
+8. Con **Export…** exporta a HTML o DOCX (§10.7); con **Open in EMStudio** ábrelo en EMStudio para escribir a mano «Presentation» y «Where it is» y pulir el resto.
+9. Más adelante puedes volver a abrir la matriz: la narrativa se conserva (§10.8).
+
+<!-- IMMAGINE: Captura de la generación en curso: la línea de progreso «Chapter 3 of 9 · …» y el botón Cancel -->
+![Generación en curso](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
+*Figura 5: Generación en curso, con la línea de progreso y el botón Cancel*
+
+Un capítulo que falla no detiene a los demás: el resumen dice cuáles. Para reintentar basta con volver a hacer clic en **Generate with AI**, que escribe solo los capítulos todavía «to be written».
+
+### 10.6 Validar: quién firma
+
+Validar significa que una **persona** asume la responsabilidad del texto escrito por el modelo. Nunca ocurre por sí solo: ni al generar, ni al guardar.
+
+1. Haz clic en **Endorse…** (Validar…). Se abre un pequeño menú: **«This chapter»** (Este capítulo) —habilitado solo si el capítulo elegido es un «AI draft»— o **«All chapters»** (Todos los capítulos), es decir, todos los borradores de IA aún sin validar, en todos los grafos del archivo.
+2. Una ventana pregunta **«Who endorses? Pick an author or type a new name.»** (¿Quién valida? Elige un autor o escribe un nombre nuevo). La lista contiene los **autores humanos que ya están en el grafo** —las personas nombradas en la ficha UE como compilador (*schedatore*), director UE y responsable UE— y puedes escribir un nombre nuevo, que se convierte en un nuevo autor del grafo (con varios sondeos, en todos los grafos que tengan borradores por firmar).
+3. La barra de mensajes dice **«N blocks endorsed by `<name>`.»** (N bloques validados por la persona elegida), o «Nothing to endorse.» (Nada que validar). El archivo se guarda.
+
+<!-- IMMAGINE: Captura del menú Endorse… («This chapter» / «All chapters») y de la ventana para elegir el autor -->
+![Validar](images/36_extended_matrix_s3dgraphy/06_convalida.png)
+*Figura 6: Validar: el menú y la elección del autor*
+
+Los bloques pasan de «AI draft» a «endorsed». En el documento exportado la persona aparece entre los responsables («a cura di», a cargo de) y el modelo como asistente («con l'assistenza di», con la asistencia de), y los párrafos validados ya no llevan la marca ⚠. Regenerar no borra los bloques validados: una firma es un acto y no se pierde al reescribir.
+
+### 10.7 Exportar a HTML o DOCX
+
+Haz clic en **Export…**: se abre la ventana para guardar, con dos formatos, «HTML page (\*.html)» (página HTML) y «Word document (\*.docx)» (documento Word). El nombre propuesto es `<sitio>_narrativa.html`, en la carpeta del em.json; si escribes tú la extensión (`.html` o `.docx`), prevalece esa; si no, decide el formato elegido. Con la exportación por sondeos se escribe **un archivo por sondeo**, añadiendo el nombre del sondeo al nombre elegido. La barra de mensajes lo confirma: «Narrative exported to `<path>`» (narrativa exportada, con la ruta del archivo).
+
+El documento contiene:
+
+- el título de la narrativa (por ejemplo «Scavo archeologico — the story of the site»; en español, «la historia del sitio»), los responsables («a cura di») y el modelo como asistente («con l'assistenza di»);
+- para cada capítulo, la prosa, con las unidades citadas por su nombre, y la lista de las unidades del capítulo;
+- al final, la sección **Fonti** (fuentes): los documentos en los que se apoya el relato y la entrada «Prompt», que remite al prompt registrado en el archivo.
+
+Algunas cosas que conviene saber:
+
+- **los borradores sin validar entran**, cada uno precedido de «⚠︎ non validato da una persona» (no validado por una persona), y el encabezado indica cuántos bloques están en este estado. Para un documento sin marcas, valida primero (§10.6);
+- **entran todos los capítulos**, incluso los que todavía están «to be written»: su marcador «[to be written: …]» permanece en el texto;
+- las figuras que un autor ha previsto en EMStudio (por ejemplo la matriz de una época) no las dibuja la exportación de pyArchInit: en el documento queda un marcador;
+- el HTML es un único archivo autocontenido; el DOCX se abre con Word o LibreOffice y requiere el paquete `python-docx`, uno de los requisitos del plugin.
+
+<!-- IMMAGINE: Captura del documento HTML exportado: un capítulo con un borrador precedido de «⚠︎ non validato da una persona» -->
+![Documento HTML exportado](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
+*Figura 7: El documento HTML exportado, con un borrador sin validar marcado*
+
+### 10.8 Volver a exportar el sitio: la narrativa se conserva
+
+Volver a exportar el sitio desde la base de datos —con **Vedi la matrice…**, con **Esporta sito in em.json…** o con la ventana «Esporta Extended Matrix» de la ficha UE— **conserva la narrativa** que ya está en el archivo de destino: prosa, validaciones, autor de IA y prompts. Las épocas que han aparecido entretanto reciben un capítulo «to be written». Un aviso lo dice: **«Narrative kept from the previous file (N chapters).»** (Narrativa conservada del archivo anterior, N capítulos). Lo ves en la barra de mensajes con «Vedi la matrice…», en el resumen de la ventana «Esporta Extended Matrix» y, con «Esporta sito in em.json…», en los detalles de la ventana final.
+
+Las **demás modificaciones** hechas al archivo en EMStudio —posiciones de los nodos, descripciones reescritas— **no sobreviven**, como antes: el archivo se regenera desde la base de datos. Solo se conserva la narrativa.
+
+Antes de reescribir un archivo que contiene una narrativa, pyArchInit hace una **copia de seguridad** al lado: `<sitio>.em.json.bak` (cada nueva exportación sustituye la copia anterior).
+
+Si cambias la forma del archivo —pasando de «Un grafo per ogni saggio» a «Un grafo solo per tutto il sito», o al revés— los grafos cambian de nombre y la narrativa **no puede pasar** al archivo nuevo. Un aviso lo dice: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»* (la narrativa del archivo anterior —grafos: …— no pasó al archivo nuevo —grafos: …—: la forma del archivo ha cambiado; copia de seguridad en …). El texto no se pierde: está en la copia `.bak`, que, sin embargo, se sustituye en la próxima reexportación de un archivo que contenga una narrativa: guárdala en un lugar seguro. Para recuperarlo, cambia el nombre de la copia a `.em.json` y vuelve a exportar con la elección de antes.
+
+Si el archivo anterior no se puede leer (por ejemplo, un archivo que quedó a medias), la exportación continúa igualmente: el archivo ilegible se **renombra** como `<sitio>.em.json.broken` y un aviso dice *«The previous file cannot be read (…): its narrative, if any, was not kept.»* (el archivo anterior no se puede leer: su narrativa, si la había, no se conservó).
+
+> **La narrativa no está en la base de datos de pyArchInit: vive solo en el em.json.** Una copia de seguridad de la base de datos no la copia. Copia de vez en cuando la carpeta `pyarchinit_EM_folder`.
+
+### 10.9 Desde la entrada «Esporta sito in em.json…»
+
+La entrada **Extended Matrix → Esporta sito in em.json…** hace la misma pregunta sobre los sondeos y escribe el mismo archivo `<sitio>.em.json` en `pyarchinit_EM_folder`. Al final muestra «Esportato `<percorso>`» (Exportado), con los recuentos de nodos, aristas y avisos (el texto de los avisos está en los detalles de la ventana), y **tres botones**:
+
+| Botón | Qué hace |
+|-------|----------|
+| **Apri in EMStudio** (Abrir en EMStudio) | Abre el archivo en EMStudio; si no está instalado, ofrece instalarlo. |
+| **Narrativa con l'AI** (Narrativa con IA) | Aparece **solo si hay una IA configurada** (§10.2): abre el panel de la matriz ya en la pestaña Narrative. |
+| **Chiudi** (Cerrar) | Cierra la ventana. |
+
+<!-- IMMAGINE: Captura de la ventana final de «Esporta sito in em.json…» con los tres botones -->
+![Exportar sitio a em.json: tres botones](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
+*Figura 8: La ventana final de «Esporta sito in em.json…»*
+
+### 10.10 Advertencias
+
+- **Cierra EMStudio antes de generar o validar.** Si EMStudio tiene el archivo abierto, gana el último que escribe. Con varios sondeos, EMStudio muestra un grafo a la vez (nota de §2.2.1): la pestaña Narrative los muestra todos.
+- **Una IA escribe solo a partir de lo que encuentra en el grafo, y puede equivocarse.** Las reglas la frenan, no la hacen infalible: lee cada capítulo antes de validarlo.
+- **Con un proveedor en red, los datos salen de tu ordenador.** El briefing de cada capítulo (nombres, definiciones, descripciones y relaciones de las unidades) se envía al servicio elegido; con Ollama o LM Studio se queda en local.
+- **El archivo se escribe al final.** La generación guarda cuando termina, incluso si la has cancelado: no cierres QGIS mientras la IA escribe. El guardado es seguro: el archivo se escribe al lado, se vuelve a leer y solo entonces sustituye al verdadero; si algo sale mal, **el archivo anterior se queda como estaba**.
+- **No vuelvas a abrir la matriz mientras la IA escribe.** La pestaña se queda en el archivo anterior y avisa: *«Generation in progress: wait for it to finish, or press Cancel, before changing file.»* (generación en curso: espera a que termine, o pulsa Cancel, antes de cambiar de archivo).
+- **El texto se edita en EMStudio**, no en pyArchInit.
+- La narrativa y los nodos que la sostienen (autor de IA, prompts) **no aparecen en el dibujo de la matriz**.
+
+### 10.11 Resolución de problemas
+
+| Mensaje (en / it) | Causa | Solución |
+|-------------------|-------|----------|
+| «No AI configured…» / «Nessuna AI impostata…» | Ninguna de las cuatro ventanas de §10.2 tiene un modelo (ni, para OpenAI y Anthropic, la clave API). | Configura proveedor y modelo —y la clave— en una de esas ventanas y luego **vuelve a abrir la matriz**: la pestaña vuelve a leer los ajustes solo cuando se abre. Incluso sin IA puedes preparar los capítulos, validar, exportar y abrir EMStudio. |
+| «No narrative in the file…» / «Nessuna narrativa nel file…» | El archivo todavía no tiene narrativa (es normal la primera vez). | Haz clic en **Prepare the chapters** (esquema) o en **Generate with AI** (esquema y prosa). El número N cuenta los capítulos de época y de actividad que tendrá el esquema (una época sin unidades no tiene ninguno); el mensaje «Chapters prepared» cuenta también «Presentation» y, si existe, «Where it is». |
+| «EMStudio is not installed…» / «EMStudio non risulta installato…» | No se encontró el programa en el ordenador. | Usa la entrada de menú **Extended Matrix → Installa EMStudio…** (tiene este nombre con cualquier idioma de QGIS). |
+| «truncated» / «troncato» junto al estado | El modelo se detuvo en el límite de longitud y el texto termina a medias. | Antes de validar, usa **Regenerate chapter**; si se repite, termina el capítulo en EMStudio. |
+| «N chapters generated, M failed: `<title>` — `<reason>`» / «N capitoli generati, M falliti: …» | El proveedor rechazó la petición (clave no válida, cuota, modelo no disponible) o el servidor local no responde. «the model wrote nothing» (el modelo no escribió nada) significa que la respuesta estaba vacía. | Elimina la causa y haz clic de nuevo en **Generate with AI**: escribe solo los capítulos que han quedado «to be written». |
+| «The previous file cannot be read (…)» / «Il file precedente non si legge (…)» | En la reexportación, el archivo existente no era un em.json legible. | La exportación continuó: el archivo ilegible se conservó al lado del nuevo como `….broken`, y la narrativa que contenía, si la había, no pasó al archivo nuevo. Si la necesitas, recupérala de ese archivo o de una copia de seguridad. |
+| «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Has cambiado la forma del archivo (un grafo por sondeo ↔ un solo grafo): los grafos tienen nombres distintos y la narrativa no puede pasar. | El archivo anterior está en la copia `.bak`: cambia su nombre a `.em.json` y vuelve a exportar con la elección de antes. |
+| «Could not write … The previous file is intact.» / «Non sono riuscito a scrivere … Il file precedente è intatto.» | Falló el guardado (disco lleno, archivo bloqueado, permisos). | Soluciona el problema y repite: los capítulos generados en esa sesión no se habían guardado. |
+| «DocX export needs python-docx — install the extra: …» (siempre en inglés) | El paquete `python-docx` no está instalado en el Python de QGIS: solo hace falta para el DOCX. | Instala `python-docx` (es uno de los requisitos del plugin) o exporta a HTML, que no necesita nada. |
+
+---
+
 ## Referencias
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

@@ -232,7 +232,7 @@ When the em.json export cannot find EMStudio, it **offers to install it there an
 
 ### Seeing the matrix inside QGIS
 
-From the **pyArchInit → Extended Matrix → Vedi la matrice…** (See the matrix) menu entry a site's matrix is drawn in a **panel docked on the right** of the QGIS window. No EMStudio, no StratiGraph node, no login and no internet: pyArchInit exports the site's em.json into a temporary folder and draws it.
+From the **pyArchInit → Extended Matrix → Vedi la matrice…** (See the matrix) menu entry a site's matrix is drawn in a **panel docked on the right** of the QGIS window. No EMStudio, no StratiGraph node, no login and no internet: pyArchInit exports the site's em.json to `pyarchinit_EM_folder` — the same file as the **Esporta sito in em.json…** entry and EMStudio — and draws it. Since 5.13.106-alpha the right-hand column has two tabs, **Units** and **Narrative**: the second has an AI write the story of the site (see Tutorial 36, §10).
 
 What to expect:
 

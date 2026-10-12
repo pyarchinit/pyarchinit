@@ -369,7 +369,7 @@ Findet der em.json-Export EMStudio nicht, **schlägt er die Installation gleich 
 
 ### Die Matrix innerhalb von QGIS ansehen
 
-Über den Menüpunkt **pyArchInit → Extended Matrix → Vedi la matrice…** (Die Matrix ansehen) wird die Matrix einer Stätte in einem **rechts angedockten Panel** des QGIS-Fensters gezeichnet. Kein EMStudio, kein StratiGraph-Knoten, keine Anmeldung und kein Internet: pyArchInit exportiert die em.json der Stätte in einen temporären Ordner und zeichnet sie.
+Über den Menüpunkt **pyArchInit → Extended Matrix → Vedi la matrice…** (Die Matrix ansehen) wird die Matrix einer Stätte in einem **rechts angedockten Panel** des QGIS-Fensters gezeichnet. Kein EMStudio, kein StratiGraph-Knoten, keine Anmeldung und kein Internet: pyArchInit exportiert die em.json der Stätte nach `pyarchinit_EM_folder` — dieselbe Datei wie die des Eintrags **Esporta sito in em.json…** und die von EMStudio — und zeichnet sie. Seit 5.13.106-alpha hat die rechte Spalte zwei Tabs, **Units** und **Narrative**: Der zweite lässt eine KI die Geschichte der Stätte schreiben (siehe Tutorial 36, §10).
 
 Was zu erwarten ist:
 

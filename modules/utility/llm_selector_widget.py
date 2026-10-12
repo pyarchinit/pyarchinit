@@ -219,10 +219,15 @@ class LLMSelectorWidget(QWidget):
                 models = LLMProviderManager.filter_vision_models(provider, models)
             self._populate_models(models, saved_model)
             self.status_label.setText("")
-            return
-
-        # Local: discover async
-        self.status_label.setText("Ricerca modelli installati...")
+            # Con la chiave, l'elenco vero del fornitore arriva in sottofondo
+            # (2026-10-12): i modelli nuovi compaiono senza aspettare una
+            # release; i predefiniti sono già nella tendina intanto.
+            if not LLMProviderManager.get_api_key(provider):
+                return
+            self.status_label.setText("Aggiorno l'elenco dei modelli dal fornitore…")
+        else:
+            # Local: discover async
+            self.status_label.setText("Ricerca modelli installati...")
         if self._discovery_thread and self._discovery_thread.isRunning():
             self._discovery_thread.quit()
             self._discovery_thread.wait(100)
@@ -237,6 +242,11 @@ class LLMSelectorWidget(QWidget):
         provider = self.provider_combo.currentData()
         if self.vision_only and provider is not None:
             models = LLMProviderManager.filter_vision_models(provider, models)
+        if not models and provider is not None and not PROVIDER_DEFAULTS[provider]["is_local"]:
+            # Fornitore cloud senza risposta: i predefiniti restano nella
+            # tendina, si dice solo il perché.
+            self.status_label.setText(err or "")
+            return
         if err:
             self.status_label.setText(err)
         elif not models:

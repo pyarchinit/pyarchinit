@@ -321,7 +321,7 @@ Si l'exportació a em.json no troba EMStudio, **proposa instal·lar-lo a l'insta
 
 ### Veure la matriu dins el QGIS
 
-Des del menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Veure la matriu) la matriu d'un lloc es dibuixa en un **panell acoblat a la dreta** de la finestra del QGIS. No cal EMStudio, ni un node StratiGraph, ni iniciar sessió, ni internet: pyArchInit exporta l'em.json del lloc a una carpeta temporal i el dibuixa.
+Des del menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Veure la matriu) la matriu d'un lloc es dibuixa en un **panell acoblat a la dreta** de la finestra del QGIS. No cal EMStudio, ni un node StratiGraph, ni iniciar sessió, ni internet: pyArchInit exporta l'em.json del lloc a `pyarchinit_EM_folder` — el mateix fitxer de l'entrada **Esporta sito in em.json…** i d'EMStudio — i el dibuixa. Des de la 5.13.106-alpha, la columna de la dreta té dues pestanyes, **Units** i **Narrative**: la segona fa que una IA escrigui la història del lloc (vegeu el Tutorial 36, §10).
 
 Què esperar:
 
