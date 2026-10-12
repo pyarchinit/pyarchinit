@@ -421,7 +421,6 @@ Im selben Bereich **"Verifica rapporti"** (Beziehungsprüfung — ein Reiter des
 
 ### 8.1 Was sie erkennt
 
-@@OLDFIG@@
 Der Baum im Bereich gruppiert die Probleme nach Art. Neben den Beziehungsgruppen erscheinen vier neue Gruppen:
 
 | Gruppe | Was gemeldet wird | Behandlung |
@@ -508,14 +507,14 @@ Den Tab erreichen Sie auch an zwei weiteren Stellen:
 
 ### 10.2 Welche KI verwendet wird
 
-Oben im Tab Narrative sagt eine Zeile, welche KI er verwenden wird: **«Model: `<model>` (`<where it comes from>`)»**, gefolgt vom Hinweis zu EMStudio. Findet er keine, steht dort **«No AI configured: set it in the US form → AI report (or in the AI database query).»**, und die Schaltflächen **Generate with AI** (Mit KI generieren) und **Regenerate chapter** (Kapitel neu generieren) bleiben deaktiviert.
+Oben im Tab Narrative sagt eine Zeile, welche KI er verwenden wird: **«Model: `<model>` (`<where it comes from>`)»**, gefolgt vom Hinweis zu EMStudio. Findet er keine, steht dort **«No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.»**, und die Schaltflächen **Generate with AI** (Mit KI generieren) und **Regenerate chapter** (Kapitel neu generieren) bleiben deaktiviert.
 
 Der Tab liest die KI-Einstellungen, die die anderen pyArchInit-Fenster **bereits gespeichert** haben, in dieser Reihenfolge und verwendet die **erste**, die ein Modell hat und — bei Online-Providern — den API-Key:
 
 | # | Wo sie eingestellt wird | Wie der Tab sie nennt (en / it) |
 |---|-------------------------|----------------------------------|
-| 1 | SE-Formular, Schaltfläche «Report» → Fenster «Generatore di Report» (Report-Generator), Gruppe «Provider AI» | AI report of the US form / Relazione AI della scheda US |
-| 2 | SE-Formular, Schaltfläche «Query AI Database» | AI database query / Interrogazione AI del database |
+| 1 | SE-Formular, Schaltfläche «Report» → Fenster «Generatore di Report» (Report-Generator), Gruppe «Provider AI» | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | SE-Formular, Schaltfläche «Query AI Database» | Query AI Database / Query AI Database |
 | 3 | Fenster palimpsestr, Schaltfläche «Report AI (analisi descrittiva)…», Auswahlfeld «Provider AI» | Palimpsest report / Relazione Palimpsest |
 | 4 | Fenster «Generazione SQL con AI» (Text-zu-SQL: siehe Tutorial 30) | Text to SQL / Testo in SQL |
 

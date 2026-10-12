@@ -505,14 +505,14 @@ Vous pouvez aussi accéder à l'onglet depuis deux autres endroits :
 
 ### 10.2 Quelle IA est utilisée
 
-En haut de l'onglet Narrative, une ligne dit quelle IA il utilisera : **« Model: `<model>` (`<where it comes from>`) »**, suivie du rappel concernant EMStudio. S'il n'en trouve aucune, il écrit **« No AI configured: set it in the US form → AI report (or in the AI database query). »** (c'est-à-dire : aucune IA n'est configurée ; réglez-la dans la fiche US → Rapport IA, ou dans l'interrogation IA de la base de données) et les boutons **Generate with AI** (Générer avec l'IA) et **Regenerate chapter** (Régénérer le chapitre) restent désactivés.
+En haut de l'onglet Narrative, une ligne dit quelle IA il utilisera : **« Model: `<model>` (`<where it comes from>`) »**, suivie du rappel concernant EMStudio. S'il n'en trouve aucune, il écrit **« No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”. »** (c'est-à-dire : aucune IA n'est configurée ; réglez-la dans la fiche US avec le bouton « Report » (Provider AI) ou avec « Query AI Database ») et les boutons **Generate with AI** (Générer avec l'IA) et **Regenerate chapter** (Régénérer le chapitre) restent désactivés.
 
 L'onglet lit les paramètres de l'IA **déjà enregistrés** par les autres fenêtres de pyArchInit, dans cet ordre, et utilise **le premier** qui a un modèle et — pour les fournisseurs en ligne — la clé API :
 
 | # | Où elle est configurée | Comment l'onglet l'appelle (en / it) |
 |---|------------------------|----------------------------------|
-| 1 | Fiche US, bouton « Report » → fenêtre « Generatore di Report » (Générateur de rapports), groupe « Provider AI » | AI report of the US form / Relazione AI della scheda US |
-| 2 | Fiche US, bouton « Query AI Database » | AI database query / Interrogazione AI del database |
+| 1 | Fiche US, bouton « Report » → fenêtre « Generatore di Report » (Générateur de rapports), groupe « Provider AI » | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | Fiche US, bouton « Query AI Database » | Query AI Database / Query AI Database |
 | 3 | Fenêtre palimpsestr, bouton « Report AI (analisi descrittiva)… », sélecteur « Provider AI » | Palimpsest report / Relazione Palimpsest |
 | 4 | Fenêtre « Generazione SQL con AI » (texte vers SQL : voir le tutoriel 30) | Text to SQL / Testo in SQL |
 

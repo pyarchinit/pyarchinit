@@ -503,14 +503,14 @@ python scripts/import_yed_graphml.py /path/to/file.graphml \
 
 ### 10.2 أي ذكاء اصطناعي يُستخدم
 
-في أعلى علامة التبويب Narrative سطر يبيّن أي ذكاء اصطناعي ستستخدمه: **«Model: `<model>` (`<where it comes from>`)»**، يليه التذكير بشأن EMStudio. وإن لم تجد أي ذكاء اصطناعي مُهيَّأ فهي تكتب **«No AI configured: set it in the US form → AI report (or in the AI database query).»** (لا ذكاء اصطناعي مُهيَّأ: هيِّئه في بطاقة US ← تقرير الذكاء الاصطناعي، أو في استعلام الذكاء الاصطناعي لقاعدة البيانات)، ويبقى الزران **Generate with AI** و**Regenerate chapter** معطَّلين.
+في أعلى علامة التبويب Narrative سطر يبيّن أي ذكاء اصطناعي ستستخدمه: **«Model: `<model>` (`<where it comes from>`)»**، يليه التذكير بشأن EMStudio. وإن لم تجد أي ذكاء اصطناعي مُهيَّأ فهي تكتب **«No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.»** (لا ذكاء اصطناعي مُهيَّأ: هيِّئه في بطاقة US ← تقرير الذكاء الاصطناعي، أو في استعلام الذكاء الاصطناعي لقاعدة البيانات)، ويبقى الزران **Generate with AI** و**Regenerate chapter** معطَّلين.
 
 تقرأ علامة التبويب إعدادات الذكاء الاصطناعي **المحفوظة بالفعل** من نوافذ pyArchInit الأخرى، بهذا الترتيب، وتستخدم **أول** إعداد فيه نموذج، وفيه كذلك — بالنسبة للمزوِّدين عبر الشبكة — مفتاح API:
 
 | # | أين يُهيَّأ | كيف تسمّيه علامة التبويب (en / it) |
 |---|-------------|-------------------------------------|
-| 1 | بطاقة US، زر «Report» ← نافذة «Generatore di Report» (مُولِّد التقارير)، مجموعة «Provider AI» | AI report of the US form / Relazione AI della scheda US |
-| 2 | بطاقة US، زر «Query AI Database» | AI database query / Interrogazione AI del database |
+| 1 | بطاقة US، زر «Report» ← نافذة «Generatore di Report» (مُولِّد التقارير)، مجموعة «Provider AI» | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | بطاقة US، زر «Query AI Database» | Query AI Database / Query AI Database |
 | 3 | واجهة palimpsestr، زر «Report AI (analisi descrittiva)…» (تقرير الذكاء الاصطناعي - تحليل وصفي)، محدِّد «Provider AI» | Palimpsest report / Relazione Palimpsest |
 | 4 | نافذة «Generazione SQL con AI» (تحويل النص إلى SQL: انظر الدرس 30) | Text to SQL / Testo in SQL |
 

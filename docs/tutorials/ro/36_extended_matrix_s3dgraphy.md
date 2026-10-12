@@ -503,14 +503,14 @@ La filă se ajunge și din alte două locuri:
 
 ### 10.2 Ce AI este folosit
 
-În partea de sus a filei Narrative, o linie spune ce AI va folosi: **„Model: `<model>` (`<where it comes from>`)”**, urmată de reamintirea despre EMStudio. Dacă nu găsește niciunul, scrie **„No AI configured: set it in the US form → AI report (or in the AI database query).”** (niciun AI configurat: configurează-l în fișa US → raportul AI sau în interogarea AI a bazei de date), iar butoanele **Generate with AI** și **Regenerate chapter** rămân dezactivate.
+În partea de sus a filei Narrative, o linie spune ce AI va folosi: **„Model: `<model>` (`<where it comes from>`)”**, urmată de reamintirea despre EMStudio. Dacă nu găsește niciunul, scrie **„No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.”** (niciun AI configurat: configurează-l în fișa US cu butonul „Report” (Provider AI) sau cu „Query AI Database”), iar butoanele **Generate with AI** și **Regenerate chapter** rămân dezactivate.
 
 Fila citește setările AI **deja salvate** de celelalte ferestre ale pyArchInit, în această ordine, și o folosește pe **prima** care are un model și — pentru furnizorii online — cheia API:
 
 | # | Unde se setează | Cum o numește fila (en / it) |
 |---|-----------------|------------------------------|
-| 1 | Fișa US, butonul „Report” → fereastra „Generatore di Report” (Generator de rapoarte), grupul „Provider AI” | AI report of the US form / Relazione AI della scheda US |
-| 2 | Fișa US, butonul „Query AI Database” | AI database query / Interrogazione AI del database |
+| 1 | Fișa US, butonul „Report” → fereastra „Generatore di Report” (Generator de rapoarte), grupul „Provider AI” | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | Fișa US, butonul „Query AI Database” | Query AI Database / Query AI Database |
 | 3 | Fereastra palimpsestr, butonul „Report AI (analisi descrittiva)…”, selectorul „Provider AI” | Palimpsest report / Relazione Palimpsest |
 | 4 | Fereastra „Generazione SQL con AI” (text în SQL: vezi tutorialul 30) | Text to SQL / Testo in SQL |
 

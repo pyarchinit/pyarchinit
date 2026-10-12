@@ -68,7 +68,7 @@ def test_llm_config_legge_gli_scope_in_ordine_e_scarta_quelle_inutilizzabili():
     locale = {"text2sql": _Cfg(model="llama", key="", needs_key=False)}
     assert en.llm_config(load=lambda s: locale.get(s))[1] == "text2sql"
     assert en.llm_config(load=lambda s: None) is None
-    assert "Relazione AI" in en.scope_label("us_report", "it")
+    assert "Report" in en.scope_label("us_report", "it")
     assert "report" in en.scope_label("us_report", "en").lower()
     assert "rag" in en.describe_config(_Cfg(model="rag"), "rag_query", "it")
 
@@ -313,7 +313,9 @@ def test_autori_umani_convalida_ed_export(tmp_path):
     with pytest.raises(Exception):
         en.endorse(g, n, "AI.m")                             # un modello non convalida
     html = en.export_file(g, n, "html", tmp_path / "v.html")
-    assert "Bozza di epoch_1_1" in Path(html).read_text(encoding="utf-8")
+    pagina = Path(html).read_text(encoding="utf-8")
+    assert "Bozza di epoch_1_1" in pagina
+    assert "nosurname" not in pagina and "Anna Bianchi" in pagina   # niente segnaposto della libreria
     docx = en.export_file(g, n, "docx", tmp_path / "v.docx")
     assert Path(docx).stat().st_size > 1000
     with pytest.raises(ValueError):

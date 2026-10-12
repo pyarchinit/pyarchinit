@@ -134,7 +134,7 @@ def test_la_scheda_elenca_i_capitoli_con_gli_stati_e_spegne_l_ai_se_manca(qgs, t
     assert w.findChild(QPushButton, "convalida").isEnabled()
     assert w.findChild(QPushButton, "esporta").isEnabled()
     assert w.findChild(QPushButton, "prepara").isEnabled()
-    assert "Relazione AI" in w.findChild(QLabel, "stato").text()
+    assert "Report" in w.findChild(QLabel, "stato").text()
 
 
 def test_la_scheda_con_l_ai_impostata_accende_genera_e_rigenera(qgs, tmp_path, monkeypatch):

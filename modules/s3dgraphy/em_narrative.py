@@ -26,10 +26,12 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 SCOPES = ("us_report", "rag_query", "palimpsest_report", "text2sql")
 
 _SCOPE_LABELS = {
-    "us_report": {"it": "Relazione AI della scheda US",
-                  "en": "AI report of the US form"},
-    "rag_query": {"it": "Interrogazione AI del database",
-                  "en": "AI database query"},
+    # I nomi veri dei bottoni: nella scheda US «Report» apre il «Generatore
+    # di Report» (gruppo «Provider AI»), e «Query AI Database» l'interrogazione.
+    "us_report": {"it": "Generatore di Report della scheda US",
+                  "en": "Report generator of the US form"},
+    "rag_query": {"it": "Query AI Database",
+                  "en": "Query AI Database"},
     "palimpsest_report": {"it": "Relazione Palimpsest",
                           "en": "Palimpsest report"},
     "text2sql": {"it": "Testo in SQL", "en": "Text to SQL"},
@@ -696,6 +698,7 @@ def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
         if troncato:
             chapter.blocks[-1].options["truncated"] = True
         drop_placeholders(chapter)
+        clean_author_placeholders(graph)
         try:
             from s3dgraphy.language import stamp_born_nodes
             stamp_born_nodes(graph, prima)
@@ -773,7 +776,8 @@ def _slug(testo: str) -> str:
 
 def add_author(graph, name: str) -> str:
     """L'autore umano con quel nome, creato se manca. Stesso schema di id
-    dell'esportazione (``author::<nome>``)."""
+    dell'esportazione (``author::<nome>``). Senza il cognome segnaposto
+    della libreria («nosurname»), che gli export stampavano."""
     from s3dgraphy.nodes.author_node import AuthorNode
     nome = str(name or "").strip()
     if not nome:
@@ -783,8 +787,33 @@ def add_author(graph, name: str) -> str:
             return node_id
     node_id = "author::" + _slug(nome)
     if graph.find_node_by_id(node_id) is None:
-        graph.add_node(AuthorNode(node_id, name=nome))
+        graph.add_node(AuthorNode(node_id, name=nome, surname=""))
     return node_id
+
+
+#: I segnaposto che la libreria mette a un autore senza cognome o ORCID.
+_AUTHOR_PLACEHOLDERS = {"surname": "nosurname", "orcid": "noorcid"}
+
+
+def clean_author_placeholders(graph) -> int:
+    """Toglie «nosurname» (e «noorcid») dagli autori: gli export scrivevano
+    «a cura di nosurname, Mario Rossi» e «con l'assistenza di nosurname,
+    claude-…» (agente dei tutorial, 2026-10-12). Quanti autori puliti."""
+    from s3dgraphy.nodes.author_node import AuthorNode
+    puliti = 0
+    for n in getattr(graph, "nodes", None) or []:
+        if not isinstance(n, AuthorNode):
+            continue
+        toccato = False
+        for campo, segnaposto in _AUTHOR_PLACEHOLDERS.items():
+            if (getattr(n, "data", None) or {}).get(campo) == segnaposto:
+                n.data[campo] = ""
+                toccato = True
+            if getattr(n, campo, None) == segnaposto:
+                setattr(n, campo, "")
+                toccato = True
+        puliti += int(toccato)
+    return puliti
 
 
 def endorse(graph, narrative, author_id: str, anchor: Optional[str] = None) -> int:
@@ -812,6 +841,7 @@ def export_file(graph, narrative, fmt: str, path) -> str:
     from s3dgraphy.api import export_narrative
     if fmt not in EXPORT_FORMATS:
         raise ValueError("fmt must be one of %s" % (EXPORT_FORMATS,))
+    clean_author_placeholders(graph)
     esito = export_narrative(graph, narrative.node_id, fmt, include_unvalidated=True)
     payload = esito["payload"]
     percorso = str(path)

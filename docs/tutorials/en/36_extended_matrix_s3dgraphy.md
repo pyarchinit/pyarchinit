@@ -417,7 +417,6 @@ In the same **"Verifica rapporti"** panel (Check relationships — a tab of the 
 
 ### 8.1 What it detects
 
-@@OLDFIG@@
 The tree in the panel groups the problems by kind. Alongside the relationship groups there are four new ones:
 
 | Group | What it reports | How it is handled |
@@ -504,14 +503,14 @@ You can also reach the tab from two other places:
 
 ### 10.2 Which AI is used
 
-At the top of the Narrative tab a line says which AI it will use: **"Model: `<model>` (`<where it comes from>`)"**, followed by the reminder about EMStudio. If it finds none, it says **"No AI configured: set it in the US form → AI report (or in the AI database query)."** and the **Generate with AI** and **Regenerate chapter** buttons stay off.
+At the top of the Narrative tab a line says which AI it will use: **"Model: `<model>` (`<where it comes from>`)"**, followed by the reminder about EMStudio. If it finds none, it says **"No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”."** and the **Generate with AI** and **Regenerate chapter** buttons stay off.
 
 The tab reads the AI settings **already saved** by the other pyArchInit windows, in this order, and uses the **first** one that has a model and — for network providers — the API key:
 
 | # | Where it is set | What the tab calls it (en / it) |
 |---|-----------------|----------------------------------|
-| 1 | US form, "Report" button → "Generatore di Report" window (Report generator), "Provider AI" group | AI report of the US form / Relazione AI della scheda US |
-| 2 | US form, "Query AI Database" button | AI database query / Interrogazione AI del database |
+| 1 | US form, "Report" button → "Generatore di Report" window (Report generator), "Provider AI" group | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | US form, "Query AI Database" button | Query AI Database / Query AI Database |
 | 3 | palimpsestr window, "Report AI (analisi descrittiva)…" button, "Provider AI" selector | Palimpsest report / Relazione Palimpsest |
 | 4 | "Generazione SQL con AI" window (text to SQL: see tutorial 30) | Text to SQL / Testo in SQL |
 

@@ -504,14 +504,14 @@ A la pestaña se llega también desde otros dos lugares:
 
 ### 10.2 Qué IA se utiliza
 
-En la parte superior de la pestaña Narrative una línea indica qué IA va a usar: **«Model: `<model>` (`<where it comes from>`)»**, seguida del recordatorio sobre EMStudio. Si no encuentra ninguna, escribe **«No AI configured: set it in the US form → AI report (or in the AI database query).»** (no hay ninguna IA configurada: configúrala en la ficha UE → Informe IA, o en la consulta de base de datos con IA) y los botones **Generate with AI** (Generar con IA) y **Regenerate chapter** (Regenerar capítulo) quedan deshabilitados.
+En la parte superior de la pestaña Narrative una línea indica qué IA va a usar: **«Model: `<model>` (`<where it comes from>`)»**, seguida del recordatorio sobre EMStudio. Si no encuentra ninguna, escribe **«No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.»** (no hay ninguna IA configurada: configúrala en la ficha UE con el botón «Report» (Provider AI) o con «Query AI Database») y los botones **Generate with AI** (Generar con IA) y **Regenerate chapter** (Regenerar capítulo) quedan deshabilitados.
 
 La pestaña lee los ajustes de IA **ya guardados** por las demás ventanas de pyArchInit, en este orden, y usa **el primero** que tiene un modelo y —para los proveedores en red— la clave API:
 
 | # | Dónde se configura | Cómo la llama la pestaña (en / it) |
 |---|--------------------|-------------------------------------|
-| 1 | Ficha UE, botón «Report» → ventana «Generatore di Report» (Generador de informes), grupo «Provider AI» | AI report of the US form / Relazione AI della scheda US |
-| 2 | Ficha UE, botón «Query AI Database» | AI database query / Interrogazione AI del database |
+| 1 | Ficha UE, botón «Report» → ventana «Generatore di Report» (Generador de informes), grupo «Provider AI» | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | Ficha UE, botón «Query AI Database» | Query AI Database / Query AI Database |
 | 3 | Ventana palimpsestr, botón «Report AI (analisi descrittiva)…», selector «Provider AI» | Palimpsest report / Relazione Palimpsest |
 | 4 | Ventana «Generazione SQL con AI» (texto a SQL: véase el tutorial 30) | Text to SQL / Testo in SQL |
 

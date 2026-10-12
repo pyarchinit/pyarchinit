@@ -30,10 +30,10 @@ def _lang() -> str:
 _L = {
     "tab": {"it": "Narrativa", "en": "Narrative"},
     "tab_units": {"it": "Unità", "en": "Units"},
-    "no_ai": {"it": "Nessuna AI impostata: impostala nella scheda US → Relazione AI "
-                    "(o nell'interrogazione AI del database).",
-              "en": "No AI configured: set it in the US form → AI report "
-                    "(or in the AI database query)."},
+    "no_ai": {"it": "Nessuna AI impostata: impostala nella scheda US con «Report» "
+                    "(Provider AI) o con «Query AI Database».",
+              "en": "No AI configured: set it in the US form with “Report” "
+                    "(AI provider) or with “Query AI Database”."},
     "empty": {"it": "Nessuna narrativa nel file: «Prepara i capitoli» crea lo scheletro "
                     "({n} capitoli fra epoche e attività), «Genera con l'AI» lo scrive.",
               "en": "No narrative in the file: “Prepare the chapters” builds the outline "
@@ -59,7 +59,7 @@ _L = {
     "emstudio_missing": {"it": "EMStudio non risulta installato: menu Extended Matrix → "
                                "Installa EMStudio…",
                          "en": "EMStudio is not installed: menu Extended Matrix → "
-                               "Install EMStudio…"},
+                               "«Installa EMStudio…»"},
     "prepared": {"it": "Capitoli preparati: {n}.", "en": "Chapters prepared: {n}."},
     "title": {"it": "Narrativa", "en": "Narrative"},
     "busy": {"it": "Generazione in corso: aspetta che finisca, o premi Annulla, prima di "

@@ -503,14 +503,14 @@ També pots arribar a la pestanya des de dos altres punts:
 
 ### 10.2 Quina IA es fa servir
 
-A dalt de tot de la pestanya **Narrative**, una línia diu quina IA farà servir: **«Model: `<model>` (`<where it comes from>`)»**, seguida del recordatori sobre EMStudio. Si no en troba cap, diu **«No AI configured: set it in the US form → AI report (or in the AI database query).»** (cap IA configurada: configura-la a la fitxa US → informe d'IA, o a la consulta d'IA de la base de dades) i els botons **Generate with AI** (Genera amb IA) i **Regenerate chapter** (Regenera el capítol) queden desactivats.
+A dalt de tot de la pestanya **Narrative**, una línia diu quina IA farà servir: **«Model: `<model>` (`<where it comes from>`)»**, seguida del recordatori sobre EMStudio. Si no en troba cap, diu **«No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.»** (cap IA configurada: configura-la a la fitxa US → informe d'IA, o a la consulta d'IA de la base de dades) i els botons **Generate with AI** (Genera amb IA) i **Regenerate chapter** (Regenera el capítol) queden desactivats.
 
 La pestanya llegeix la configuració d'IA **ja desada** per les altres finestres de pyArchInit, per aquest ordre, i fa servir la **primera** que té un model i —per als proveïdors en línia— la clau API:
 
 | # | On es configura | Com l'anomena la pestanya (en / it) |
 |---|-----------------|--------------------------------------|
-| 1 | Fitxa US, botó «Report» → finestra «Generatore di Report» (generador d'informes), grup «Provider AI» | AI report of the US form / Relazione AI della scheda US |
-| 2 | Fitxa US, botó «Query AI Database» | AI database query / Interrogazione AI del database |
+| 1 | Fitxa US, botó «Report» → finestra «Generatore di Report» (generador d'informes), grup «Provider AI» | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | Fitxa US, botó «Query AI Database» | Query AI Database / Query AI Database |
 | 3 | Finestra palimpsestr, botó «Report AI (analisi descrittiva)…», selector «Provider AI» | Palimpsest report / Relazione Palimpsest |
 | 4 | Finestra «Generazione SQL con AI» (text a SQL: vegeu el tutorial 30) | Text to SQL / Testo in SQL |
 

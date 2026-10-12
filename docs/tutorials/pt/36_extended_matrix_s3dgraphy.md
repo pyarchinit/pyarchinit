@@ -503,14 +503,14 @@ Também pode chegar ao separador por outros dois caminhos:
 
 ### 10.2 Que IA é utilizada
 
-Em cima, no separador Narrative, uma linha diz que IA vai usar: **«Model: `<model>` (`<where it comes from>`)»**, seguida do lembrete sobre o EMStudio. Se o separador não encontrar nenhuma, escreve **«No AI configured: set it in the US form → AI report (or in the AI database query).»** (ou seja, nenhuma IA configurada: configure-a na ficha UE → relatório de IA, ou na consulta à base de dados com IA) e os botões **Generate with AI** (Gerar com IA) e **Regenerate chapter** (Regenerar capítulo) ficam desativados.
+Em cima, no separador Narrative, uma linha diz que IA vai usar: **«Model: `<model>` (`<where it comes from>`)»**, seguida do lembrete sobre o EMStudio. Se o separador não encontrar nenhuma, escreve **«No AI configured: set it in the US form with “Report” (AI provider) or with “Query AI Database”.»** (ou seja, nenhuma IA configurada: configure-a na ficha UE → relatório de IA, ou na consulta à base de dados com IA) e os botões **Generate with AI** (Gerar com IA) e **Regenerate chapter** (Regenerar capítulo) ficam desativados.
 
 O separador lê as definições de IA **já guardadas** pelas outras janelas do pyArchInit, por esta ordem, e usa a **primeira** que tiver um modelo e — para os fornecedores remotos — a chave API:
 
 | # | Onde se define | Como o separador lhe chama (en / it) |
 |---|----------------|---------------------------------------|
-| 1 | Ficha UE, botão «Report» → janela «Generatore di Report» (Gerador de relatórios), grupo «Provider AI» | AI report of the US form / Relazione AI della scheda US |
-| 2 | Ficha UE, botão «Query AI Database» | AI database query / Interrogazione AI del database |
+| 1 | Ficha UE, botão «Report» → janela «Generatore di Report» (Gerador de relatórios), grupo «Provider AI» | Report generator of the US form / Generatore di Report della scheda US |
+| 2 | Ficha UE, botão «Query AI Database» | Query AI Database / Query AI Database |
 | 3 | Janela palimpsestr, botão «Report AI (analisi descrittiva)…», seletor «Provider AI» | Palimpsest report / Relazione Palimpsest |
 | 4 | Janela «Generazione SQL con AI» (texto para SQL: ver o tutorial 30) | Text to SQL / Testo in SQL |
 
