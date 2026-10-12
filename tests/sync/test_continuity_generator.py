@@ -468,8 +468,9 @@ def test_the_name_still_wins_when_both_exist():
 
 
 def test_on_the_example_database_the_hand_made_con500_is_updated_not_doubled(tmp_path):
-    """Sul demo, col salto di fase acceso: la USM 12 (2/3 → 2/4) ha già la
-    CON 500 scritta a mano con `> 12`. Dopo «Genera continuità» le CON del
+    """Sul demo, col salto di fase acceso: la USM 12 (2/3 → 2/2: nasce nel
+    XV secolo e arriva alla prima metà del XVI) ha già la CON 500 scritta
+    a mano con `> 12`. Dopo «Genera continuità» le CON del
     sito sono **una**, è la 500, con l'arco della madre e l'etichetta
     canonica; e la 12 la nomina **una volta sola**."""
     import ast
@@ -492,7 +493,7 @@ def test_on_the_example_database_the_hand_made_con500_is_updated_not_doubled(tmp
     assert len(righe) == 1, righe
     us, pi, fi, pf, ff, rapporti = righe[0]
     assert us == "500"
-    assert (pi, fi, pf, ff) == ("2", "3", "2", "4")
+    assert (pi, fi, pf, ff) == ("2", "3", "2", "2")
     assert [r[1] for r in ast.literal_eval(rapporti)] == ["12"]
     madre = con.execute("select rapporti from us_table where sito=? and us='12' "
                         "and unita_tipo='USM'", (sito,)).fetchone()[0]

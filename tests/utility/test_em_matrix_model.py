@@ -254,3 +254,55 @@ def test_a_relation_that_arrives_twice_is_drawn_once():
     }})
     conteggio = [(r.source, r.kind, r.target) for r in model.relations]
     assert conteggio == [("a", "is_after", "x")], conteggio
+
+
+# ---------------------------------------------------------------------------
+# Il rombo della continuità sta nella fascia dove l'unità FINISCE
+# ---------------------------------------------------------------------------
+# «Il simbolo di continuità non serve se sta nello stesso periodo della US:
+# la continuità indica fino a che periodo l'unità esiste» (Enzo, 12 ottobre
+# 2026). Il modello dava a ogni nodo la fascia del primo periodo
+# (`has_first_epoch`), e il rombo finiva accanto alla sua unità, muto. Un
+# nodo di continuità va nella fascia **più recente** fra quelle in cui
+# l'unità vive — `survive_in_epoch` — che per dati sani è il periodo
+# finale. L'unità, invece, resta nella fascia in cui nasce.
+
+def _grafo_con_epoche():
+    return {"graphs": {"S": {"nodes": [
+        {"id": "e_vecchia", "node_type": "EpochNode", "name": "XV secolo",
+         "data": {"start_time": 1451, "end_time": 1499}},
+        {"id": "e_nuova", "node_type": "EpochNode", "name": "XVI secolo",
+         "data": {"start_time": 1500, "end_time": 1549}},
+        {"id": "u12", "node_type": "US", "name": "1.USM12",
+         "data": {"us": "12", "unita_tipo": "USM"}},
+        {"id": "c12", "node_type": "BR", "name": "1.CON12",
+         "data": {"us": "CON_12", "unita_tipo": "CON"}},
+    ], "edges": [
+        {"source": "u12", "target": "e_vecchia", "type": "has_first_epoch"},
+        {"source": "u12", "target": "e_nuova", "type": "survive_in_epoch"},
+        {"source": "c12", "target": "e_vecchia", "type": "has_first_epoch"},
+        {"source": "c12", "target": "e_nuova", "type": "survive_in_epoch"},
+        {"source": "c12", "target": "u12", "type": "is_after"},
+    ]}}}
+
+
+def test_the_continuity_node_takes_the_most_recent_epoch_it_lives_in():
+    model = read_em_json(_grafo_con_epoche())
+    per_id = {u.node_id: u for u in model.units}
+    assert per_id["c12"].epoch_id == "e_nuova"
+
+
+def test_the_unit_itself_stays_in_the_epoch_where_it_is_born():
+    model = read_em_json(_grafo_con_epoche())
+    per_id = {u.node_id: u for u in model.units}
+    assert per_id["u12"].epoch_id == "e_vecchia"
+
+
+def test_a_continuity_node_without_survivals_keeps_its_first_epoch():
+    grafo = _grafo_con_epoche()
+    grafo["graphs"]["S"]["edges"] = [
+        e for e in grafo["graphs"]["S"]["edges"]
+        if not (e["source"] == "c12" and e["type"] == "survive_in_epoch")]
+    model = read_em_json(grafo)
+    per_id = {u.node_id: u for u in model.units}
+    assert per_id["c12"].epoch_id == "e_vecchia"

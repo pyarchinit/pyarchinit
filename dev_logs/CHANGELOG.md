@@ -5,6 +5,28 @@
 
 ---
 
+## [fix] - 2026-10-12 — Il rombo della continuità sta nella fascia dove l'unità finisce — 5.13.98-alpha
+
+> Branch `Stratigraph_00001`. Suite **1820 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The continuity diamond sits in the band where the unit ends.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«il simbolo di continuità non serve se sta nello stesso periodo della US: la continuità indica fino a che periodo l'unità esiste»** (Enzo). Il modello della matrice dava a ogni nodo la fascia del **primo** periodo (`has_first_epoch`), continuità compresa: il rombo finiva accanto alla sua unità, muto. Ora un nodo di continuità va nella fascia **più recente** fra quelle in cui l'unità vive (`survive_in_epoch`), che per dati sani è il periodo finale; l'unità resta nella fascia in cui nasce, e la linea fra le due dice per quanto sopravvive. Un nodo di continuità senza sopravvivenze tiene la fascia di nascita.
+- 🇬🇧 **EN**: **«the continuity symbol is useless in the same period as the US: continuity says until which period the unit exists».** The model gave every node the band of its **first** epoch, continuity included. A continuity node now takes the **most recent** epoch it survives in — the final period, for sane data — while the unit stays where it is born.
+
+#### Il database di esempio / The example database
+- 🇮🇹 **IT**: la **USM 12 era rovesciata**: `2/3 → 2/4`, cioè nasceva nel XV secolo (1451–1499) e finiva nella prima metà del XV (1422–1450), **prima** di nascere — nella periodizzazione del demo i numeri crescono verso il passato. Ora `2/3 → 2/2`: nasce nel XV secolo e arriva alla prima metà del XVI (1500–1549). Stesso ritocco alla `CON 500` (`2/1 → 2/1`, stantia) che ora porta l'arco della madre, `2/3 → 2/2`, e la **datazione** della sua fase iniziale («XV secolo», «15th century», «Siglo XV»…) invece di quella del 1550–1599: la verifica cronologica contava un `datazione_mismatch` per sito. In tutte e dieci le lingue; le etichette `>`/`<` scritte a mano restano. Checkpoint del WAL dentro il `.sqlite` (`integrity_check: ok`).
+- 🇬🇧 **EN**: **USM 12 was inverted**: `2/3 → 2/4` ended before it began (in the demo's periodization numbers grow towards the past). Now `2/3 → 2/2`; the hand-made `CON 500` carries the same span. All ten languages.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: sul demo, dopo «Genera continuità» (creati 0, aggiornati 1): la `CON500` sta nella fascia **«Prima metà del XVI secolo»**, la USM 12 nel **«XV secolo»**, stessa colonna, linea dritta di due punti fra le due fasce. Un rombo solo.
+- 🇬🇧 **EN**: on the demo: `CON500` in the «first half of the 16th century» band, USM 12 in the «15th century» band, same column, a straight two-point line between them. One diamond.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: tre prove sul modello: il nodo di continuità prende l'epoca più recente in cui vive; l'unità resta dove nasce; senza sopravvivenze resta la prima epoca. Aggiornata la prova di ieri sul database di esempio (`2/3 → 2/2`).
+- 🇬🇧 **EN**: three model checks; yesterday's example-database check updated.
+
+---
+
 ## [fix] - 2026-10-12 — La continuità è una per unità: una CON scritta a mano si adotta, non si raddoppia — 5.13.97-alpha
 
 > Branch `Stratigraph_00001`. Suite **1817 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Continuity is one per unit: a hand-made CON is adopted, not doubled.

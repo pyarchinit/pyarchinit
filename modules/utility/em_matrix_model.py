@@ -61,6 +61,12 @@ USM_BORDER = "#7A4B1D"
 #: L'arco che dice in quale epoca è nata l'unità.
 FIRST_EPOCH_KIND = "has_first_epoch"
 
+#: L'arco che dice in quali altre epoche l'unità vive ancora.
+SURVIVE_EPOCH_KIND = "survive_in_epoch"
+
+#: Il tipo del nodo di continuità nel file delle regole.
+CONTINUITY_TYPE = "BR"
+
 #: I nostri ``node_type`` contro le sigle di em_visual_rules.json.
 _STYLE_ALIASES = {
     "document": "DOC", "extractor": "EXT", "combiner": "COMB",
@@ -334,6 +340,7 @@ def read_em_json(source) -> MatrixModel:
             unita_grezze[chiave] = dict(n, id=chiave, data=dati)
 
     prima_epoca: Dict[str, str] = {}
+    sopravvive: Dict[str, List[str]] = {}
     relazioni: List[Relation] = []
     # Lo stesso rapporto può arrivare più volte. Nell'esportazione divisa
     # per saggi i nodi **condivisi** — epoche, documenti, e le catene dei
@@ -355,6 +362,8 @@ def read_em_json(source) -> MatrixModel:
             continue
         if k == FIRST_EPOCH_KIND and t in id_epoche:
             prima_epoca.setdefault(s, t)
+        elif k == SURVIVE_EPOCH_KIND and t in id_epoche:
+            sopravvive.setdefault(s, []).append(t)
         elif k in STRATIGRAPHIC_KINDS and s in unita_grezze and t in unita_grezze:
             if (s, k, t) in rapporti_visti:
                 continue
@@ -376,11 +385,28 @@ def read_em_json(source) -> MatrixModel:
             "scheda e nessun rapporto li tocca (%s)."
             % (len(scartati), ", ".join(
                 sorted(str(n.get("name") or n.get("id")) for n in scartati)[:5])))
+    # La fascia di un nodo è quella in cui nasce — tranne la continuità.
+    # «La continuità indica fino a che periodo l'unità esiste» (Enzo, 12
+    # ottobre 2026): il rombo va nella fascia **più recente** fra quelle
+    # in cui l'unità vive, che per dati sani è il periodo finale. Nella
+    # fascia di nascita, accanto alla sua unità, non diceva niente.
+    epoca_di = {e.node_id: e for e in epoche}
+
+    def fascia(i, n):
+        prima = prima_epoca.get(i)
+        if str(n.get("node_type") or "") != CONTINUITY_TYPE:
+            return prima
+        candidate = [epoca_di[x] for x in ([prima] if prima else [])
+                     + sopravvive.get(i, []) if x in epoca_di]
+        if not candidate:
+            return prima
+        return max(candidate, key=lambda e: (e.start, e.end)).node_id
+
     unita = [
         Unit(node_id=i,
              label=str(n.get("name") or i),
              node_type=str(n.get("node_type") or ""),
-             epoch_id=prima_epoca.get(i),
+             epoch_id=fascia(i, n),
              description=str(n.get("description") or ""),
              data=dict(n.get("data") or {}))
         for i, n in unita_grezze.items()
