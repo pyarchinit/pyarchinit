@@ -317,3 +317,173 @@ def overview(container, lang: Optional[str] = None) -> List[ChapterView]:
                     status=chapter_status(cap), text=chapter_text(cap, nomi),
                     can_generate=can_generate(graph, cap), truncated=troncato))
     return viste
+
+
+# ---------------------------------------------------------------------------
+# Il briefing per il modello
+# ---------------------------------------------------------------------------
+
+def _label(graph, node_id: str) -> str:
+    nodo = graph.find_node_by_id(node_id)
+    return str(getattr(nodo, "name", "") or node_id) if nodo is not None else str(node_id)
+
+
+def oldest_first(graph, ids: Sequence[str]) -> list:
+    """Le unità date, dalla più antica alla più recente, secondo gli archi
+    stratigrafici fra loro (chi copre, taglia, riempie o è dopo è più
+    recente). A parità resta l'ordine dato; un ciclo non ferma niente."""
+    scelte = list(dict.fromkeys(ids))
+    dentro = set(scelte)
+    sotto_di: Dict[str, List[str]] = {i: [] for i in scelte}      # id → chi gli sta sotto
+    for e in getattr(graph, "edges", None) or []:
+        if (e.edge_type in YOUNGER_FIRST_KINDS and e.edge_source in dentro
+                and e.edge_target in dentro and e.edge_source != e.edge_target):
+            sotto_di[e.edge_source].append(e.edge_target)
+    ordine: list = []
+    visti: set = set()
+    in_corso: set = set()
+
+    def visita(uid):
+        if uid in visti or uid in in_corso:
+            return
+        in_corso.add(uid)
+        for sotto in sotto_di[uid]:                 # prima chi sta sotto
+            visita(sotto)
+        in_corso.discard(uid)
+        visti.add(uid)
+        ordine.append(uid)
+
+    for uid in scelte:
+        visita(uid)
+    return ordine
+
+
+def _relations_of(graph, uid: str) -> List[Dict[str, str]]:
+    out = []
+    for e in getattr(graph, "edges", None) or []:
+        if e.edge_type not in YOUNGER_FIRST_KINDS + SYMMETRIC_KINDS:
+            continue
+        if uid not in (e.edge_source, e.edge_target):
+            continue
+        out.append({"kind": e.edge_type,
+                    "subject": _label(graph, e.edge_source), "subject_id": e.edge_source,
+                    "object": _label(graph, e.edge_target), "object_id": e.edge_target})
+    return out
+
+
+def _dedup(voci: list) -> list:
+    viste, out = set(), []
+    for v in voci:
+        chiave = json.dumps(v, sort_keys=True, default=str)
+        if chiave not in viste:
+            viste.add(chiave)
+            out.append(v)
+    return out
+
+
+def briefing(graph, anchor_id: str) -> Dict[str, Any]:
+    """Il contesto della libreria, arricchito di quello che la libreria non
+    porta e che fa la storia: i campi della scheda, i rapporti fra le
+    unità, l'ordine dalla più antica."""
+    from s3dgraphy.api import build_narrative_generation_context
+    ctx = build_narrative_generation_context(graph, anchor_id)
+    per_id = {a["id"]: a for a in ctx["actions"]}
+    azioni = []
+    for uid in oldest_first(graph, list(per_id)):
+        a = dict(per_id[uid])
+        nodo = graph.find_node_by_id(uid)
+        dati = getattr(nodo, "data", None) or {}
+        a["details"] = {en_: str(dati[it_]).strip() for it_, en_ in DETAIL_FIELDS
+                        if str(dati.get(it_) or "").strip()}
+        a["epochs"] = _dedup(a.get("epochs") or [])
+        a["relations"] = _relations_of(graph, uid)
+        azioni.append(a)
+    omesse = max(0, len(azioni) - MAX_ACTIONS)
+    return {**ctx, "actions": azioni[:MAX_ACTIONS], "order": "oldest_first",
+            "omitted_actions": omesse}
+
+
+_SYSTEM = {
+    "it": ("Sei un archeologo che scrive la storia di un sito a partire dalla sua "
+           "matrice stratigrafica. Scrivi in italiano, in prosa continua, da uno a "
+           "tre paragrafi, per un lettore che non ha la matrice davanti. Le unità "
+           "sono elencate dalla più antica alla più recente: racconta la sequenza "
+           "in quell'ordine, usando i rapporti stratigrafici forniti. Quando nomini "
+           "un'unità scrivi [[id]] con l'id esatto che ti è dato (non il nome). "
+           "Regole:"),
+    "en": ("You are an archaeologist writing the story of a site from its "
+           "stratigraphic matrix. Write in English, continuous prose, one to three "
+           "paragraphs, for a reader who is not holding the matrix. The units are "
+           "listed from the oldest to the most recent: tell the sequence in that "
+           "order, using the stratigraphic relations given. When you name a unit "
+           "write [[id]] with the exact id you were given (not the name). Rules:"),
+}
+
+_USER_HEAD = {
+    "it": "Capitolo «{title}» ({kind}). Unità dalla più antica alla più recente{omitted}. Contesto in JSON:\n",
+    "en": "Chapter “{title}” ({kind}). Units from the oldest to the most recent{omitted}. Context as JSON:\n",
+}
+_OMITTED = {"it": " ({n} unità omesse per brevità)", "en": " ({n} units omitted for brevity)"}
+_KIND = {"epoch": {"it": "epoca", "en": "epoch"}, "activity": {"it": "attività", "en": "activity"}}
+
+
+def _prompt_lang(lang: Optional[str]) -> str:
+    lingua = _lang(lang)
+    return lingua if lingua in _SYSTEM else "en"
+
+
+def _kind_word(brief, lang: str) -> str:
+    voce = _KIND.get(brief.get("anchor_kind") or "epoch", _KIND["epoch"])
+    return voce.get(lang, voce["en"])
+
+
+def _system_text(brief, lang: str) -> str:
+    testa = _SYSTEM.get(lang, _SYSTEM["en"])
+    regole = "\n".join("- " + str(c) for c in brief.get("constraints") or [])
+    return testa + "\n" + regole
+
+
+def messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str, str]]:
+    """I due messaggi per il modello: le istruzioni e il briefing in JSON."""
+    lingua = _prompt_lang(lang)
+    omesse = brief.get("omitted_actions") or 0
+    testa = _USER_HEAD[lingua].format(
+        title=(brief.get("activity") or {}).get("name") or "",
+        kind=_kind_word(brief, lingua),
+        omitted=_OMITTED[lingua].format(n=omesse) if omesse else "")
+    corpo = {k: brief[k] for k in ("activity", "actions", "epochs", "sources") if k in brief}
+    return [{"role": "system", "content": _system_text(brief, lingua)},
+            {"role": "user", "content": testa + json.dumps(corpo, ensure_ascii=False)}]
+
+
+def prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
+    """Quello che si registra nell'estrattore del prompt: le istruzioni e
+    l'intestazione del capitolo con gli id delle unità — non il JSON intero,
+    che gonfierebbe l'em.json a ogni capitolo."""
+    lingua = _prompt_lang(lang)
+    voce = _M["prompt_context"]
+    testa = voce.get(lingua, voce["en"]).format(
+        title=(brief.get("activity") or {}).get("name") or "",
+        kind=_kind_word(brief, lingua),
+        ids=", ".join(a["id"] for a in brief.get("actions") or []))
+    return _system_text(brief, lingua) + "\n\n" + testa
+
+
+def normalize_mentions(text: str, graph) -> str:
+    """``[[x]]``: con ``x`` id del grafo resta; con ``x`` nome di un nodo
+    diventa l'id; altrimenti restano le parole senza parentesi, così
+    un'invenzione del modello non diventa una citazione che non risolve."""
+    from s3dgraphy.nodes.narrative_node import MENTION_PATTERN
+    nodi = getattr(graph, "nodes", None) or []
+    ids = {n.node_id for n in nodi}
+    per_nome = {str(getattr(n, "name", "") or "").strip().lower(): n.node_id
+                for n in nodi if str(getattr(n, "name", "") or "").strip()}
+
+    def _swap(m):
+        ref = m.group(1).strip()
+        if ref in ids:
+            return "[[%s]]" % ref
+        trovato = per_nome.get(ref.lower())
+        return "[[%s]]" % trovato if trovato else ref
+
+    return MENTION_PATTERN.sub(_swap, str(text or ""))

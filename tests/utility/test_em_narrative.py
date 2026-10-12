@@ -141,3 +141,58 @@ def test_overview_elenca_i_capitoli_con_stato_e_grafo():
     assert [v.status for v in viste] == ["empty", "empty", "empty"]
     assert [v.can_generate for v in viste] == [False, True, True]
     assert en.overview(container_of(grafo_di_prova()), "it") == []
+
+
+# ---------------------------------------------------------------------------
+# Task 2: briefing, messaggi, prompt registrato, menzioni
+# ---------------------------------------------------------------------------
+
+def test_briefing_porta_campi_della_scheda_rapporti_e_ordine_dalla_piu_antica():
+    g = grafo_di_prova()
+    b = en.briefing(g, "epoch_1_1")
+    assert [a["id"] for a in b["actions"]] == ["u3", "u2"]        # u2 copre u3: u3 è più antica
+    u2 = b["actions"][1]
+    assert u2["details"]["unit_type"] == "USM"
+    assert u2["details"]["interpretive_definition"] == "muro perimetrale"
+    assert len(u2["epochs"]) == 1                                   # doppioni tolti
+    assert {"kind": "overlies", "subject": "1.US2", "subject_id": "u2",
+            "object": "1.US3", "object_id": "u3"} in u2["relations"]
+    assert {"kind": "overlies", "subject": "1.US1", "subject_id": "u1",
+            "object": "1.US2", "object_id": "u2"} in u2["relations"]   # anche con unità fuori capitolo
+    assert b["order"] == "oldest_first" and b["omitted_actions"] == 0
+    assert b["anchor_kind"] == "epoch" and b["constraints"]
+
+
+def test_briefing_si_taglia_oltre_max_actions(monkeypatch):
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    g = grafo_di_prova()
+    for i in range(10, 20):
+        n = StratigraphicUnit("u%d" % i, "1.US%d" % i)
+        n.data = {"us": str(i)}
+        g.add_node(n)
+        g.add_edge("u%d_fe" % i, "u%d" % i, "epoch_1_1", "has_first_epoch")
+    monkeypatch.setattr(en, "MAX_ACTIONS", 4)
+    b = en.briefing(g, "epoch_1_1")
+    assert len(b["actions"]) == 4 and b["omitted_actions"] == 8
+    json.dumps(b)                                                  # resta serializzabile
+
+
+def test_messaggi_nella_lingua_con_vincoli_e_regola_delle_menzioni():
+    g = grafo_di_prova()
+    b = en.briefing(g, "epoch_1_1")
+    it = en.messages(b, "it")
+    assert [m["role"] for m in it] == ["system", "user"]
+    assert "italiano" in it[0]["content"].lower()
+    assert "[[" in it[0]["content"] and "id" in it[0]["content"]
+    assert b["constraints"][0] in it[0]["content"]
+    assert "Età romana" in it[1]["content"] and '"u3"' in it[1]["content"]
+    en_ = en.messages(b, "en")
+    assert "english" in en_[0]["content"].lower()
+    record = en.prompt_record(b, "it")
+    assert "u3, u2" in record and '"details"' not in record       # il JSON intero non va nel file
+
+
+def test_normalize_mentions_tiene_gli_id_traduce_i_nomi_toglie_il_resto():
+    g = grafo_di_prova()
+    testo = "Sopra [[u3]] sta [[1.US2]] e poi [[ 1.us1 ]]; [[zz]] non esiste."
+    assert en.normalize_mentions(testo, g) == "Sopra [[u3]] sta [[u2]] e poi [[u1]]; zz non esiste."
