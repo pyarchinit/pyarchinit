@@ -1,0 +1,404 @@
+"""La scheda «Narrativa» del pannello della matrice (2026-10-12).
+
+Qt sta qui; la logica sta in ``em_narrative`` (puro) e il lato grafo
+nella libreria. La scheda legge e scrive **lo stesso em.json** che il
+pannello disegna e che EMStudio apre: niente copie.
+
+Spec: docs/superpowers/specs/2026-10-12-narrativa-ai-design.md
+"""
+from __future__ import annotations
+
+import os
+from typing import List, Optional
+
+from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.PyQt.QtWidgets import (QFileDialog, QHBoxLayout, QInputDialog, QLabel,
+                                 QListWidget, QListWidgetItem, QMenu, QPushButton,
+                                 QTextBrowser, QVBoxLayout, QWidget)
+
+from . import em_narrative as en
+
+
+def _lang() -> str:
+    try:
+        from qgis.core import QgsSettings
+        return (QgsSettings().value("locale/userLocale", "it", type=str) or "it")[:2]
+    except Exception:                               # noqa: BLE001
+        return "it"
+
+
+_L = {
+    "tab": {"it": "Narrativa", "en": "Narrative"},
+    "tab_units": {"it": "Unità", "en": "Units"},
+    "no_ai": {"it": "Nessuna AI impostata: impostala nella scheda US → Relazione AI "
+                    "(o nell'interrogazione AI del database).",
+              "en": "No AI configured: set it in the US form → AI report "
+                    "(or in the AI database query)."},
+    "empty": {"it": "Nessuna narrativa nel file: «Prepara i capitoli» crea lo scheletro "
+                    "({n} capitoli fra epoche e attività), «Genera con l'AI» lo scrive.",
+              "en": "No narrative in the file: “Prepare the chapters” builds the outline "
+                    "({n} chapters over epochs and activities), “Generate with AI” writes it."},
+    "generate": {"it": "Genera con l'AI", "en": "Generate with AI"},
+    "regenerate": {"it": "Rigenera capitolo", "en": "Regenerate chapter"},
+    "endorse": {"it": "Convalida…", "en": "Endorse…"},
+    "endorse_chapter": {"it": "Questo capitolo", "en": "This chapter"},
+    "endorse_all": {"it": "Tutti i capitoli", "en": "All chapters"},
+    "prepare": {"it": "Prepara i capitoli", "en": "Prepare the chapters"},
+    "export": {"it": "Esporta…", "en": "Export…"},
+    "emstudio": {"it": "Apri in EMStudio", "en": "Open in EMStudio"},
+    "cancel": {"it": "Annulla", "en": "Cancel"},
+    "progress": {"it": "Capitolo {i} di {n} · {title}", "en": "Chapter {i} of {n} · {title}"},
+    "starting": {"it": "Avvio…", "en": "Starting…"},
+    "who": {"it": "Chi convalida? Scegli un autore o scrivi un nome nuovo.",
+            "en": "Who endorses? Pick an author or type a new name."},
+    "endorsed": {"it": "{n} blocchi convalidati da {who}.", "en": "{n} blocks endorsed by {who}."},
+    "nothing_to_endorse": {"it": "Niente da convalidare.", "en": "Nothing to endorse."},
+    "export_filter": {"it": "Pagina HTML (*.html);;Documento Word (*.docx)",
+                      "en": "HTML page (*.html);;Word document (*.docx)"},
+    "exported": {"it": "Narrativa esportata in {path}", "en": "Narrative exported to {path}"},
+    "emstudio_missing": {"it": "EMStudio non risulta installato: menu Extended Matrix → "
+                               "Installa EMStudio…",
+                         "en": "EMStudio is not installed: menu Extended Matrix → "
+                               "Install EMStudio…"},
+    "prepared": {"it": "Capitoli preparati: {n}.", "en": "Chapters prepared: {n}."},
+    "title": {"it": "Narrativa", "en": "Narrative"},
+    "close_emstudio": {"it": "Se EMStudio ha il file aperto, chiudilo prima: chi scrive "
+                             "per ultimo vince.",
+                       "en": "If EMStudio has the file open, close it first: the last "
+                             "writer wins."},
+}
+
+
+def _t(key: str, **kw) -> str:
+    voce = _L[key]
+    return voce.get(_lang(), voce["en"]).format(**kw)
+
+
+def _exec(menu, pos):
+    """``exec`` in Qt6, ``exec_`` in Qt5."""
+    fn = getattr(menu, "exec", None) or getattr(menu, "exec_")
+    return fn(pos)
+
+
+class NarrativeThread(QThread):
+    """Genera fuori dal filo dell'interfaccia e salva alla fine."""
+
+    progress = pyqtSignal(int, int, str)
+    finished_ok = pyqtSignal(bool, str)
+
+    def __init__(self, path, cfg, lang, anchors=None, parent=None):
+        super().__init__(parent)
+        self._path, self._cfg, self._lang = str(path), cfg, lang
+        self._anchors = list(anchors) if anchors is not None else None
+        self._stop = False
+
+    def cancel(self):
+        self._stop = True
+
+    def _chat(self, messages):
+        from ..utility.llm_providers import LLMProviderManager
+        meta = {}
+        testo = "".join(LLMProviderManager.stream_chat(
+            self._cfg, messages, max_tokens=en.MAX_TOKENS, meta=meta))
+        return testo, bool(meta.get("truncated"))
+
+    def run(self):                                  # noqa: D401
+        try:
+            contenitore, _ = en.load_project(self._path)
+            rapporto = en.generate(
+                contenitore, chat=self._chat, model=str(getattr(self._cfg, "model", "")),
+                lang=self._lang, anchors=self._anchors,
+                progress=lambda i, n, t: self.progress.emit(i, n, t),
+                cancelled=lambda: self._stop)
+            if rapporto.outcomes:
+                en.save_project(contenitore, self._path)
+            self.finished_ok.emit(rapporto.failed == 0 and not rapporto.cancelled,
+                                  rapporto.summary(self._lang))
+        except Exception as e:                      # noqa: BLE001
+            self.finished_ok.emit(False, str(e))
+
+
+class _State:
+    def __init__(self):
+        self.path: Optional[str] = None
+        self.views: List[en.ChapterView] = []
+        self.thread: Optional[NarrativeThread] = None
+        self.config = None
+
+
+_AZIONI = ("genera", "rigenera", "convalida", "prepara", "esporta", "emstudio")
+
+
+def build_tab(parent, iface) -> QWidget:
+    """La scheda, vuota: ``show_file`` la punta su un em.json."""
+    en.set_language(_lang())
+    w = QWidget(parent)
+    w.setObjectName("narrativa")
+    stato = _State()
+    w._stato = stato                                # noqa: SLF001 (vive col widget)
+    colonna = QVBoxLayout(w)
+    colonna.setContentsMargins(0, 0, 0, 0)
+
+    etichetta_stato = QLabel("", w)
+    etichetta_stato.setObjectName("stato")
+    etichetta_stato.setWordWrap(True)
+    colonna.addWidget(etichetta_stato)
+
+    vuoto = QLabel("", w)
+    vuoto.setObjectName("vuoto")
+    vuoto.setWordWrap(True)
+    vuoto.setVisible(False)
+    colonna.addWidget(vuoto)
+
+    capitoli = QListWidget(w)
+    capitoli.setObjectName("capitoli")
+    colonna.addWidget(capitoli, 2)
+
+    testo = QTextBrowser(w)
+    testo.setObjectName("testo")
+    colonna.addWidget(testo, 3)
+
+    avanzamento = QLabel("", w)
+    avanzamento.setObjectName("avanzamento")
+    avanzamento.setVisible(False)
+    colonna.addWidget(avanzamento)
+
+    bottoni = {}
+    riga1, riga2 = QHBoxLayout(), QHBoxLayout()
+    for nome, chiave, riga in (("genera", "generate", riga1), ("rigenera", "regenerate", riga1),
+                               ("convalida", "endorse", riga1), ("prepara", "prepare", riga2),
+                               ("esporta", "export", riga2), ("emstudio", "emstudio", riga2),
+                               ("annulla", "cancel", riga2)):
+        b = QPushButton(_t(chiave), w)
+        b.setObjectName(nome)
+        riga.addWidget(b)
+        bottoni[nome] = b
+    bottoni["annulla"].setVisible(False)
+    colonna.addLayout(riga1)
+    colonna.addLayout(riga2)
+
+    def _barra(livello, messaggio):
+        try:
+            barra = iface.messageBar()
+            (barra.pushInfo if livello == "info" else barra.pushWarning)(_t("title"), messaggio)
+        except Exception:                           # noqa: BLE001
+            pass
+
+    def _scelta() -> Optional[en.ChapterView]:
+        i = capitoli.currentRow()
+        return stato.views[i] if 0 <= i < len(stato.views) else None
+
+    def _mostra_scelta():
+        v = _scelta()
+        testo.setPlainText(v.text if v else "")
+        bottoni["rigenera"].setEnabled(bool(v and v.can_generate and stato.config is not None
+                                            and stato.thread is None))
+
+    def _aggiorna_bottoni():
+        ha_file = stato.path is not None
+        ha_narrativa = bool(stato.views)
+        ha_ai = stato.config is not None
+        occupato = stato.thread is not None
+        for nome, acceso in (("genera", ha_file and ha_ai),
+                             ("prepara", ha_file),
+                             ("convalida", ha_narrativa),
+                             ("esporta", ha_narrativa),
+                             ("emstudio", ha_file)):
+            bottoni[nome].setEnabled(bool(acceso) and not occupato)
+        bottoni["annulla"].setVisible(occupato)
+        avanzamento.setVisible(occupato)
+        _mostra_scelta()
+
+    def _ricarica():
+        capitoli.clear()
+        stato.views = []
+        vuoto.setVisible(False)
+        if not stato.path:
+            _aggiorna_bottoni()
+            return
+        try:
+            contenitore, _ = en.load_project(stato.path)
+        except en.NarrativeError as e:
+            etichetta_stato.setText(str(e))
+            stato.path = None
+            _aggiorna_bottoni()
+            return
+        stato.views = en.overview(contenitore, _lang())
+        grafi = getattr(contenitore, "graphs", {}) or {}
+        piu_grafi = len(grafi) > 1
+        for v in stato.views:
+            parola = en.status_word(v.status, _lang())
+            if v.truncated:
+                parola += ", " + en.msg("truncated")
+            prefisso = "[%s] " % str(v.graph_id).split("|")[-1] if piu_grafi else ""
+            capitoli.addItem(QListWidgetItem("%s%s — %s" % (prefisso, v.title, parola)))
+        if not stato.views:
+            from s3dgraphy.nodes.epoch_node import EpochNode
+            from s3dgraphy.nodes.group_node import ActivityNodeGroup
+            quanti = sum(1 for g in grafi.values() for n in g.nodes
+                         if isinstance(n, (EpochNode, ActivityNodeGroup)))
+            vuoto.setText(_t("empty", n=quanti))
+            vuoto.setVisible(True)
+        _aggiorna_bottoni()
+
+    def _avvia(anchors=None):
+        if stato.thread is not None or stato.config is None or not stato.path:
+            return
+        cfg, _scope = stato.config
+        t = NarrativeThread(stato.path, cfg, _lang(), anchors=anchors, parent=w)
+        stato.thread = t
+
+        def _progresso(i, n, titolo):
+            avanzamento.setText(_t("progress", i=i, n=n, title=titolo))
+
+        def _fine(ok, messaggio):
+            stato.thread = None
+            _ricarica()
+            _barra("info" if ok else "warn", messaggio)
+        t.progress.connect(_progresso)
+        t.finished_ok.connect(_fine)
+        avanzamento.setText(_t("starting"))
+        _aggiorna_bottoni()
+        t.start()
+
+    def _genera():
+        _avvia(None)
+
+    def _rigenera():
+        v = _scelta()
+        if v is not None and v.can_generate:
+            _avvia([v.anchor])
+
+    def _annulla():
+        if stato.thread is not None:
+            stato.thread.cancel()
+
+    def _prepara():
+        if not stato.path:
+            return
+        try:
+            contenitore, _ = en.load_project(stato.path)
+            n = 0
+            for g in contenitore.graphs.values():
+                n += len(en.scaffold(g, _lang()).chapters)
+            en.save_project(contenitore, stato.path)
+        except Exception as e:                      # noqa: BLE001
+            _barra("warn", str(e))
+            return
+        _ricarica()
+        _barra("info", _t("prepared", n=n))
+
+    def _convalida():
+        v = _scelta()
+        menu = QMenu(w)
+        azione_capitolo = menu.addAction(_t("endorse_chapter"))
+        azione_capitolo.setEnabled(v is not None and v.status == "ai_draft")
+        azione_tutti = menu.addAction(_t("endorse_all"))
+        scelta = _exec(menu, bottoni["convalida"].mapToGlobal(
+            bottoni["convalida"].rect().bottomLeft()))
+        if scelta is None:
+            return
+        solo_capitolo = scelta is azione_capitolo
+        try:
+            contenitore, _ = en.load_project(stato.path)
+        except en.NarrativeError as e:
+            _barra("warn", str(e))
+            return
+        grafi = list(contenitore.graphs.items())
+        autori = []
+        for _gid, g in grafi:
+            autori.extend(a for a in en.human_authors(g) if a not in autori)
+        nomi = [nome for _id, nome in autori]
+        nome, ok = QInputDialog.getItem(w, _t("endorse"), _t("who"), nomi, 0, True)
+        if not ok or not str(nome).strip():
+            return
+        firmati = 0
+        for gid, g in grafi:
+            narrativa = en.narrative_of(g)
+            if narrativa is None:
+                continue
+            if solo_capitolo and v is not None and v.graph_id != gid:
+                continue
+            autore = en.add_author(g, str(nome))
+            try:
+                firmati += en.endorse(g, narrativa, autore,
+                                      anchor=v.anchor if solo_capitolo else None)
+            except Exception as e:                  # noqa: BLE001
+                _barra("warn", str(e))
+                return
+        if not firmati:
+            _barra("info", _t("nothing_to_endorse"))
+            return
+        try:
+            en.save_project(contenitore, stato.path)
+        except en.NarrativeError as e:
+            _barra("warn", str(e))
+            return
+        _ricarica()
+        _barra("info", _t("endorsed", n=firmati, who=nome))
+
+    def _esporta():
+        if not stato.path:
+            return
+        base = stato.path
+        for estensione in (".em.json", ".json"):
+            if base.lower().endswith(estensione):
+                base = base[:-len(estensione)]
+                break
+        percorso, filtro = QFileDialog.getSaveFileName(
+            w, _t("export"), base + "_narrativa.html", _t("export_filter"))
+        if not percorso:
+            return
+        fmt = "docx" if percorso.lower().endswith(".docx") or "docx" in str(filtro) else "html"
+        if not percorso.lower().endswith("." + fmt):
+            percorso += "." + fmt
+        try:
+            contenitore, _ = en.load_project(stato.path)
+            scritti = []
+            for gid, g in contenitore.graphs.items():
+                narrativa = en.narrative_of(g)
+                if narrativa is None:
+                    continue
+                destinazione = percorso
+                if len(contenitore.graphs) > 1:
+                    radice, est = os.path.splitext(percorso)
+                    destinazione = "%s_%s%s" % (radice, str(gid).split("|")[-1], est)
+                scritti.append(en.export_file(g, narrativa, fmt, destinazione))
+        except Exception as e:                      # noqa: BLE001
+            _barra("warn", str(e))
+            return
+        _barra("info", _t("exported", path=", ".join(scritti)))
+
+    def _emstudio():
+        if not stato.path:
+            return
+        from . import em_export
+        if not em_export.open_in_emstudio(stato.path):
+            _barra("warn", _t("emstudio_missing"))
+
+    capitoli.currentRowChanged.connect(lambda _i: _mostra_scelta())
+    bottoni["genera"].clicked.connect(_genera)
+    bottoni["rigenera"].clicked.connect(_rigenera)
+    bottoni["convalida"].clicked.connect(_convalida)
+    bottoni["prepara"].clicked.connect(_prepara)
+    bottoni["esporta"].clicked.connect(_esporta)
+    bottoni["emstudio"].clicked.connect(_emstudio)
+    bottoni["annulla"].clicked.connect(_annulla)
+    w._ricarica = _ricarica                         # noqa: SLF001
+    _aggiorna_bottoni()
+    return w
+
+
+def show_file(widget, path) -> None:
+    """Punta la scheda sul file e la ricarica (anche a ogni riapertura
+    del pannello su un altro sito)."""
+    stato: _State = widget._stato                   # noqa: SLF001
+    stato.path = str(path) if path else None
+    stato.config = en.llm_config()
+    etichetta = widget.findChild(QLabel, "stato")
+    if stato.config is None:
+        etichetta.setText(_t("no_ai"))
+    else:
+        cfg, scope = stato.config
+        etichetta.setText(en.describe_config(cfg, scope, _lang()) + " · " + _t("close_emstudio"))
+    widget._ricarica()                              # noqa: SLF001

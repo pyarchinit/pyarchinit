@@ -234,18 +234,21 @@ def _fill_media(lista, etichetta, node_id, con_anteprime: bool) -> int:
     return len(media)
 
 
-def open_in_panel(iface, em_json_path, title: str = "", conn_str=None) -> bool:
+def open_in_panel(iface, em_json_path, title: str = "", conn_str=None,
+                  tab=None) -> bool:
     """Apre (o riusa) il pannello sulla matrice del file. False se non si può.
 
     ``conn_str`` è la connessione del progetto: serve per i media e per lo
     zoom sulla geometria. Senza, il pannello disegna la matrice e mostra
-    la scheda che sta nel file, e nient'altro.
+    la scheda che sta nel file, e nient'altro. ``tab="narrativa"`` porta
+    davanti la scheda della narrativa (2026-10-12).
     """
     try:
         from qgis.PyQt.QtCore import QSize, Qt
         from qgis.PyQt.QtWidgets import (QDockWidget, QHBoxLayout, QLabel,
                                          QListWidget, QPushButton, QSplitter,
-                                         QTextBrowser, QVBoxLayout, QWidget)
+                                         QTabWidget, QTextBrowser, QVBoxLayout,
+                                         QWidget)
 
         from ..utility.em_matrix_layout import layout
         from ..utility.em_matrix_model import read_em_json
@@ -333,12 +336,21 @@ def open_in_panel(iface, em_json_path, title: str = "", conn_str=None) -> bool:
             # Il suggerimento di dimensione di un QTextBrowser è generoso:
             # senza misure esplicite il divisore gli dava due terzi e la
             # matrice restava una colonnina (visto nello screenshot).
-            destra.setMinimumWidth(240)
-            destra.setMaximumWidth(380)
+            # La colonna di destra ha due schede (2026-10-12): l'unità
+            # scelta e la narrativa. Le misure stanno sul contenitore
+            # delle schede, che è quello che il divisore vede.
+            from . import em_narrative_tab
+            schede = QTabWidget(contenitore)
+            schede.setObjectName("schede")
+            schede.addTab(destra, em_narrative_tab._t("tab_units"))
+            schede.addTab(em_narrative_tab.build_tab(schede, iface),
+                          em_narrative_tab._t("tab"))
+            schede.setMinimumWidth(240)
+            schede.setMaximumWidth(420)
 
             divisore = QSplitter(Qt.Orientation.Horizontal, contenitore)
             divisore.addWidget(vista)
-            divisore.addWidget(destra)
+            divisore.addWidget(schede)
             divisore.setStretchFactor(0, 5)
             divisore.setStretchFactor(1, 0)
             divisore.setSizes([1000, 300])
@@ -406,6 +418,16 @@ def open_in_panel(iface, em_json_path, title: str = "", conn_str=None) -> bool:
                     widget.setVisible(False)
 
         vista.show_layout(impaginato)
+        # La scheda Narrativa guarda sempre il file appena disegnato, anche
+        # quando il pannello si riusa su un altro sito.
+        from . import em_narrative_tab
+        contenuto = dock.widget()
+        scheda_narrativa = contenuto.findChild(QWidget, "narrativa")
+        if scheda_narrativa is not None:
+            em_narrative_tab.show_file(scheda_narrativa, em_json_path)
+        schede = contenuto.findChild(QTabWidget, "schede")
+        if schede is not None:
+            schede.setCurrentIndex(1 if tab == "narrativa" else 0)
         if conteggi is not None:
             testo = ("%d unità · %d epoche · %d rapporti"
                      % (len(model.units), len(model.epochs),
