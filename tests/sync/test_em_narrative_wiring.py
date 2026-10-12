@@ -235,3 +235,46 @@ def test_dopo_l_esportazione_si_puo_aprire_la_narrativa():
     esporta = _corpo("_run_em_export")
     assert "llm_config(" in esporta and 'tab="narrativa"' in esporta
     assert "open_in_emstudio" in esporta and "Narrativa con l'AI" in esporta
+
+
+# ---------------------------------------------------------------------------
+# Il pannello intero, in offscreen: la scheda Narrativa c'è e segue il file
+# ---------------------------------------------------------------------------
+
+def test_open_in_panel_costruisce_la_scheda_narrativa_e_la_porta_davanti(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QListWidget, QMainWindow, QTabWidget, QWidget
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.s3dgraphy import em_narrative_tab as tab
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+
+    class _IfaceConDock(_Iface):
+        def __init__(self):
+            super().__init__()
+            self._win = QMainWindow()
+
+        def mainWindow(self):
+            return self._win
+
+        def addDockWidget(self, area, dock):
+            self._win.addDockWidget(area, dock)
+
+        def removeDockWidget(self, dock):
+            self._win.removeDockWidget(dock)
+
+    iface = _IfaceConDock()
+    percorso = _file_con_narrativa(tmp_path)
+    assert panel.open_in_panel(iface, percorso, "Matrice — Villa", tab="narrativa")
+    dock = iface.mainWindow().findChild(QWidget, panel.PANEL_OBJECT_NAME)
+    schede = dock.findChild(QTabWidget, "schede")
+    assert schede is not None and schede.count() == 2 and schede.currentIndex() == 1
+    assert dock.findChild(QListWidget, "capitoli").count() == 3
+
+    # Riaperto su un altro file: la scheda segue, e senza `tab` resta su «Unità».
+    from s3dgraphy.container import container_of
+    from modules.s3dgraphy import em_narrative as en
+    altro = tmp_path / "altro.em.json"
+    en.save_project(container_of(_grafo()), altro)
+    assert panel.open_in_panel(iface, altro, "Matrice — Altro")
+    assert dock.findChild(QListWidget, "capitoli").count() == 0
+    assert schede.currentIndex() == 0
+    panel.close_panel(iface)

@@ -5,6 +5,44 @@
 
 ---
 
+## [feat] - 2026-10-12 — Narrativa con l'AI nel pannello della matrice — 5.13.106-alpha
+
+> Branch `Stratigraph_00001`. Suite **2010 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The AI narrative in the matrix panel, like EMStudio's Narrative tab.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **«dato che l'AI c'è, perché non inseriamo anche la narrativa come fa EMStudio?»** (Enzo). Il pannello della matrice ha ora due schede a destra: **Unità** (quella di prima) e **Narrativa**. La scheda legge e scrive **lo stesso em.json** che EMStudio apre, nel formato della libreria s3dgraphy 1.6.0.dev45 (`NarrativeNode`, blocchi «bozza AI» attribuiti all'`AuthorAINode` del modello, prompt registrato come `ExtractorNode` collegato alle fonti): EMStudio mostra la stessa narrativa nella sua scheda Narrative. Bottoni: **Genera con l'AI** (i capitoli vuoti, uno per epoca e uno per attività, in un thread con avanzamento e Annulla), **Rigenera capitolo**, **Convalida…** (questo capitolo / tutti, con un autore umano del grafo o un nome nuovo), **Prepara i capitoli** (solo scheletro, senza AI), **Esporta…** (HTML o DOCX, bozze segnate ⚠), **Apri in EMStudio**. «Presentazione» e «Dove si trova» restano segnaposto per l'autore.
+- 🇬🇧 **EN**: the matrix panel gets a **Narrative** tab beside **Units**. It reads and writes the same em.json EMStudio opens, in the s3dgraphy 1.6.0.dev45 format (NarrativeNode, AI-draft blocks attributed to the model's author node, the prompt registered as an extractor): EMStudio shows the same narrative. Buttons: Generate with AI (one chapter per epoch and per activity, threaded, cancellable), Regenerate chapter, Endorse… (with a human author), Prepare the chapters (outline only), Export… (HTML/DOCX), Open in EMStudio.
+- 🇮🇹 **IT**: **nessuna impostazione AI nuova**: `em_narrative.llm_config` legge la configurazione già salvata, nell'ordine Relazione AI della scheda US (`us_report`), interrogazione AI del database (`rag_query`), Palimpsest, Testo in SQL; vale la prima con modello e chiave, e la scheda dice quale usa.
+- 🇬🇧 **EN**: no new AI settings: the first usable saved configuration (US report, RAG query, Palimpsest, text-to-SQL) is used and named in the tab.
+- 🇮🇹 **IT**: il **briefing** per il modello è quello della libreria (`build_narrative_generation_context`) **arricchito** di quello che la libreria non porta e che fa la storia: i campi della scheda (definizioni, interpretazione, periodo/fase, datazione, attività, struttura, saggio, ambiente), i **rapporti stratigrafici** con nomi, e le unità **dalla più antica alla più recente** (`oldest_first` sugli archi copre/taglia/riempie/si appoggia/è dopo); oltre 80 unità si taglia e lo dice. Il modello cita le unità per nome (`[[1.US38]]`) e `normalize_mentions` le riporta all'id: negli export compaiono i nomi.
+- 🇬🇧 **EN**: the library briefing is enriched with record fields, the stratigraphic relations and an oldest-first order; units are cited by name and normalised to ids.
+- 🇮🇹 **IT**: **misurato** sul sito di prova con Claude Opus 4.7 (impostazioni dell'interrogazione AI): capitolo «XV secolo», 23 unità, 27,3 s, 3397 caratteri, prosa buona e tutte le menzioni risolte — ma **troncato** a 1800 token perché ogni menzione uuid costa 25 token; dopo la correzione (menzioni per nome, briefing senza uuid, 4000 token) un capitolo di 6 unità in 13,0 s, 2112 caratteri, non troncato. Il prompt pesa da 6 a 29 KB a seconda delle unità.
+- 🇬🇧 **EN**: measured with Claude Opus 4.7: 23-unit chapter in 27 s (truncated at 1800 tokens by uuid mentions); after the fix (mentions by name, no uuids in the briefing, 4000 tokens) a 6-unit chapter in 13 s, not truncated.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **«Vedi la matrice»** esporta in `<home>/pyarchinit_EM_folder/<sito>.em.json` — lo stesso file di «Esporta sito in em.json…» e di EMStudio — invece che in una cartella temporanea, e fa la stessa domanda sui saggi (`_ask_split`, condivisa). **«Esporta sito in em.json…»** chiude con tre bottoni: Apri in EMStudio, **Narrativa con l'AI** (solo se un'AI è impostata: apre il pannello sulla scheda Narrativa), Chiudi.
+- 🇬🇧 **EN**: "View the matrix" writes the persistent file in `pyarchinit_EM_folder` (same file as the export and EMStudio) and shares the trench-split question; the export dialog ends with three buttons, including "Narrative with AI".
+- 🇮🇹 **IT**: **la narrativa sopravvive alla riesportazione** dal database: `export_site(..., keep_narrative=True)` porta nel grafo nuovo la narrativa del file precedente con autori, estrattori dei prompt, convalide e archi, poi `build_narrative(existing=)` dà un capitolo alle epoche nuove; avviso «Narrativa conservata dal file precedente (N capitoli)». Un file precedente illeggibile non ferma l'esportazione: lo dice.
+- 🇬🇧 **EN**: the narrative survives re-export from the database (carry-over of the narrative, its authors, prompt extractors, endorsements and edges; new epochs get a chapter).
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **riesportare un sito a saggi finiva ogni volta in un file nuovo col suffisso** (`Scavo_8a420a29.em.json`): i grafi si chiamano «sito|saggio» e `_claim_path` confrontava il nome secco. Ora riconosce il prefisso; un file illeggibile con il nome del sito si riscrive invece di spostarsi.
+- 🇬🇧 **EN**: re-exporting a site with trenches landed on a new suffixed file every time (graph ids are "site|trench"); fixed, and an unreadable file with the site's name is overwritten.
+- 🇮🇹 **IT**: **le chiavi API rimaste nella casa precedente** (`~/pyarchinit/bin`, prima del cambio di casa del 2026-06-27) non si trovavano: con Claude e GPT impostati nel profilo la narrativa diceva «Nessuna AI impostata». `get_api_key` guarda prima la casa attuale, poi la precedente; salvarne una nuova scrive nell'attuale, che vince.
+- 🇬🇧 **EN**: API key files left in the previous data home were not found; they are read from there until a new one is saved.
+- 🇮🇹 **IT**: i nodi che reggono la narrativa (`narrative`, `author_ai`, estrattori `EXT.prompt.*`) non entrano nel disegno della matrice né nei suoi avvisi: con `extracted_from` fra i tipi disegnati, il prompt sarebbe comparso come paradato appeso ai documenti.
+- 🇬🇧 **EN**: narrative support nodes stay out of the matrix drawing and its warnings.
+
+#### Docs / Tutorial
+- 🇮🇹 **IT**: tutorial **36** in dieci lingue: sezione nuova «Narrativa con l'AI» (da dove si apre, da dove legge l'AI, che cosa genera e che cosa no, stati e convalida, export, EMStudio, il file in `pyarchinit_EM_folder`, chiudere EMStudio prima di generare). Spec e piano in `docs/superpowers/specs/2026-10-12-narrativa-ai-design.md` e `docs/superpowers/plans/2026-10-12-narrativa-ai.md`. La matrice interattiva (B dello stesso brainstorming) è rinviata per decisione di Enzo.
+- 🇬🇧 **EN**: tutorial 36 in ten languages gets the "Narrative with AI" section; spec and plan committed; the interactive matrix is deferred.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: 32 prove nuove: modulo puro con modello finto (scope dell'AI, scheletro una volta sola e lingua rispettata, segnaposto e stati, briefing con campi/rapporti/ordine/taglio, messaggi it/en senza uuid, menzioni normalizzate, bozza attribuita con prompt e fonti, troncato segnato, rigenerazione che tiene i convalidati, `generate` che continua dopo un errore e si ferma se annullato, autori e convalida, export HTML/DOCX, salvataggio atomico, carry-over, nodi di supporto), scheda in offscreen (elenco e stati, bottoni accesi/spenti con e senza AI, file vuoto, Prepara i capitoli, file illeggibile), plugin letto dal sorgente (cartella persistente, domanda condivisa, tre bottoni), DB di prova (narrativa conservata alla riesportazione, file rotto, per saggi e stesso file), chiavi nella casa vecchia.
+- 🇬🇧 **EN**: 32 new checks across the pure module, the offscreen tab, the plugin source, the sample database and the key fallback.
+
+---
+
 ## [fix] - 2026-10-12 — SAM: segmenti riempiti sul layer temporaneo, sessione di modifica rispettata, timeout vero, lingua ovunque; tutorial 14, 26 e 33 in dieci lingue — 5.13.105-alpha
 
 > Branch `Stratigraph_00001`. Suite **1978 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / SAM: filled segments on the temporary layer, edit session respected, a real timeout, language everywhere; tutorials 14, 26 and 33 in ten languages.
