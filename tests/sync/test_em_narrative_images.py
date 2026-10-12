@@ -132,7 +132,8 @@ def test_gli_export_portano_le_figure_e_il_pdf_e_stampabile(scavo, tmp_path):
     assert cap.title in testo and "una struttura" in testo and nome_u1 in testo
     assert sum(len(page.get_images()) for page in doc) >= 1
     assert "nosurname" not in testo
-    assert "non validato da una persona" in testo.lower() and "\u26a0" not in testo   # l'avviso su una riga sua, senza il simbolo che Cambria non ha
+    assert "non validato da una persona" in testo.lower() and "\u26a0" not in testo
+    assert "Attenzione: 1 paragrafi" in testo                          # l'avviso in testa, col conteggio della libreria   # l'avviso su una riga sua, senza il simbolo che Cambria non ha
 
 
 def test_il_testo_della_scheda_mostra_le_anteprime_dopo_la_prima_menzione():

@@ -457,14 +457,17 @@ def test_la_scheda_tiene_la_connessione_e_esporta_il_pdf_con_le_figure(qgs, tmp_
         return str(path)
     monkeypatch.setattr(en, "figures_for", finte_figure)
     monkeypatch.setattr(en, "export_pdf", finto_pdf)
+    proposte = []
     monkeypatch.setattr(tab.QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(tmp_path / "out"), "PDF stampabile (*.pdf)")))
+                        staticmethod(lambda w_, titolo, proposto, filtro: proposte.append(proposto)
+                                     or (str(tmp_path / "out"), "PDF stampabile (*.pdf)")))
     monkeypatch.setattr(tab, "_bases", lambda: (str(tmp_path), str(tmp_path)))
     w.findChild(QListWidget, "capitoli").setCurrentRow(1)
     w.findChild(QPushButton, "esporta").click()
     assert chiamate["fig"] == "sqlite:///finto.sqlite"
     assert chiamate["pdf"] == (str(tmp_path / "out.pdf"), {"us:u2": b"\x89PNG"})
     assert iface.messageBar().messaggi[-1][0] == "info"
+    assert proposte and not proposte[0].lower().endswith((".html", ".docx", ".pdf"))   # decide il filtro
 
 
 def test_il_pannello_passa_la_connessione_alla_scheda():

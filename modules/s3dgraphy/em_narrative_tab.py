@@ -449,8 +449,10 @@ def build_tab(parent, iface) -> QWidget:
             if base.lower().endswith(estensione):
                 base = base[:-len(estensione)]
                 break
+        # Il nome proposto è senza estensione: così decide il filtro scelto
+        # (con «.html» proposto, «PDF stampabile» scriveva un HTML).
         percorso, filtro = QFileDialog.getSaveFileName(
-            w, _t("export"), base + "_narrativa.html", _t("export_filter"))
+            w, _t("export"), base + "_narrativa", _t("export_filter"))
         if not percorso:
             return
         percorso, fmt = export_target(percorso, filtro)

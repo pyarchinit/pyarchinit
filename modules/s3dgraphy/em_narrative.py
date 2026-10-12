@@ -1238,8 +1238,11 @@ def export_pdf(graph, narrative, path, *, figures: Optional[Dict[str, bytes]] = 
         storia.append(_p("%s %s" % (_t("by"), ", ".join(baked.responsible)), "sotto"))
     if baked.assisting:
         storia.append(_p("%s %s" % (_t("assist"), ", ".join(baked.assisting)), "sotto"))
-    if getattr(baked, "unvalidated", 0):
-        storia.append(_p(_t("unvalidated", n=baked.unvalidated), "avviso"))
+    # `pending_validation` è il nome della libreria (dev45); `unvalidated`
+    # non esisteva e l'avviso non usciva mai (agente dei tutorial, 2026-10-12).
+    in_sospeso = int(getattr(baked, "pending_validation", 0) or getattr(baked, "unvalidated", 0) or 0)
+    if in_sospeso:
+        storia.append(_p(_t("unvalidated", n=in_sospeso), "avviso"))
     storia.append(Spacer(1, 8))
 
     for capitolo in baked.chapters:
