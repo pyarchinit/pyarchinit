@@ -471,3 +471,22 @@ def test_il_pannello_passa_la_connessione_alla_scheda():
     src = PANEL.read_text(encoding="utf-8")
     assert "show_file(scheda_narrativa, em_json_path, conn_str)" in src
     assert "def resize_base" in src
+
+
+def test_mostra_sulla_mappa_e_spento_mentre_si_genera(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QListWidget, QPushButton, QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from modules.s3dgraphy import em_matrix_panel as panel
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    monkeypatch.setattr(panel, "can_highlight", lambda ids: True)
+    radice = QWidget()
+    w = tab.build_tab(radice, _Iface())
+    tab.show_file(w, _file_con_narrativa(tmp_path))
+    elenco = w.findChild(QListWidget, "capitoli")
+    elenco.setCurrentRow(1)
+    assert w.findChild(QPushButton, "mappa").isEnabled()
+    w._stato.thread = _ThreadFinto()
+    elenco.setCurrentRow(2)
+    elenco.setCurrentRow(1)
+    assert not w.findChild(QPushButton, "mappa").isEnabled()
+    w._stato.thread = None

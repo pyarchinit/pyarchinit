@@ -185,8 +185,12 @@ _MSG = {
                       "caricati: {names}.",
                 "en": "None of the {total} units is drawn in the loaded layers: "
                       "{names}."},
+    "nothing_one": {"it": "L'unità {names} non risulta disegnata nei layer caricati.",
+                    "en": "Unit {names} is not drawn in the loaded layers."},
     "done": {"it": "Evidenziate {n} unità su {total} in «{layer}» ({k} {geom}).",
              "en": "Highlighted {n} of {total} units in “{layer}” ({k} {geom})."},
+    "done_one": {"it": "Evidenziata l'unità {names} in «{layer}» ({k} {geom}).",
+                 "en": "Highlighted unit {names} in “{layer}” ({k} {geom})."},
     "geom_one": {"it": "geometria", "en": "geometry"},
     "geom_many": {"it": "geometrie", "en": "geometries"},
     "missing": {"it": "Non disegnate: {names}.", "en": "Not drawn: {names}."},
@@ -247,6 +251,8 @@ def zoom_to_units(iface, units, connection=None, *, layers=None,
     if not per_layer:
         if not qualche_layer:
             return 0, _m("no_layers", lang)
+        if len(validi) == 1:
+            return 0, _m("nothing_one", lang, names=_names(mancanti))
         return 0, _m("nothing", lang, total=len(validi), names=_names(mancanti))
 
     canvas = iface.mapCanvas()
@@ -277,8 +283,13 @@ def zoom_to_units(iface, units, connection=None, *, layers=None,
     except Exception:                               # noqa: BLE001
         pass
     quante_geom = sum(len(v[1]) for v in per_layer.values())
-    frase = _m("done", lang, n=trovate, total=len(validi), layer=nome, k=quante_geom,
-               geom=_m("geom_one" if quante_geom == 1 else "geom_many", lang))
+    geom = _m("geom_one" if quante_geom == 1 else "geom_many", lang)
+    if len(validi) == 1:
+        frase = _m("done_one", lang, names=str(getattr(validi[0], "label", "") or validi[0].node_id),
+                   layer=nome, k=quante_geom, geom=geom)
+    else:
+        frase = _m("done", lang, n=trovate, total=len(validi), layer=nome, k=quante_geom,
+                   geom=geom)
     if mancanti:
         frase += " " + _m("missing", lang, names=_names(mancanti))
     return trovate, frase

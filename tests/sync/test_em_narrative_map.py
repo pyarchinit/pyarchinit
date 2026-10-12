@@ -189,3 +189,18 @@ def test_il_pannello_evidenzia_dagli_id_dei_nodi(monkeypatch):
     assert panel.can_highlight(["u2", "d1", "zz"]) and not panel.can_highlight(["d1", "zz"])
     assert panel.highlight(object(), ["u2", "d1", "zz"]) == (1, "ok")
     assert visti == [["u2"]]
+
+
+def test_le_frasi_vanno_al_singolare_con_una_unita_sola():
+    from modules.utility.em_matrix_map import zoom_to_units
+    layer = _layer_con_due_us()
+    una = [_unit("u2", "1.US2", sito="Scavo", area="1", us="2", unita_tipo="US")]
+    quante, frase = zoom_to_units(_Iface(), una, layers=[layer], margin=0.0)
+    assert quante == 1 and frase.startswith("Evidenziata l'unità 1.US2")
+    quante, frase = zoom_to_units(_Iface(), una, layers=[layer], margin=0.0, lang="en")
+    assert frase.startswith("Highlighted unit 1.US2")
+    nove = [_unit("u9", "1.US9", sito="Scavo", area="1", us="9", unita_tipo="US")]
+    quante, frase = zoom_to_units(_Iface(), nove, layers=[layer])
+    assert quante == 0 and frase == "L'unità 1.US9 non risulta disegnata nei layer caricati."
+    quante, frase = zoom_to_units(_Iface(), nove, layers=[layer], lang="en")
+    assert frase == "Unit 1.US9 is not drawn in the loaded layers."

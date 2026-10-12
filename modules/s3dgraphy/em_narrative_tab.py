@@ -291,7 +291,9 @@ def build_tab(parent, iface) -> QWidget:
         bottoni["rigenera"].setEnabled(bool(v and v.can_generate and stato.config is not None
                                             and stato.thread is None))
         ids = list(v.unit_ids) if v else []
-        bottoni["mappa"].setEnabled(bool(ids) and not _running(stato)
+        # `stato.thread is None` come Rigenera: `_running` dice ancora no
+        # prima di `start()` (agente dei tutorial, 2026-10-12).
+        bottoni["mappa"].setEnabled(bool(ids) and stato.thread is None
                                     and _pannello().can_highlight(ids))
 
     def _aggiorna_bottoni():
