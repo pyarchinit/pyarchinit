@@ -466,7 +466,7 @@ Algumas escolhas do desenho da matrix podem parecer estranhas, mas não são err
 
 ## 10. Narrativa com IA
 
-A partir da versão **5.13.106-alpha**, o painel da matriz dentro do QGIS (§2.2, «Vedi la matrice») tem dois separadores na coluna da direita: **Units** (*Unità*) — a ficha da unidade escolhida, o zoom sobre a geometria e os media, como antes — e **Narrative** (*Narrativa*), que é novo. O separador Narrative pede a uma IA que escreva a **história do sítio**, um capítulo por época, e depois permite lê-la, fazê-la validar por uma pessoa e exportá-la para HTML ou DOCX. Lê e escreve **o mesmo em.json** que o EMStudio abre, no formato da biblioteca s3dgraphy: a narrativa que vê aqui é a que o EMStudio mostra no seu separador *Narrative*.
+A partir da versão **5.13.106-alpha**, o painel da matriz dentro do QGIS (§2.2, «Vedi la matrice») tem dois separadores na coluna da direita: **Units** (*Unità*) — a ficha da unidade escolhida, o zoom sobre a geometria e os media, como antes — e **Narrative** (*Narrativa*), que é novo. O separador Narrative pede a uma IA que escreva a **história do sítio**, um capítulo por época, e depois permite lê-la, fazê-la validar por uma pessoa e exportá-la para HTML, DOCX ou PDF. Lê e escreve **o mesmo em.json** que o EMStudio abre, no formato da biblioteca s3dgraphy: a narrativa que vê aqui é a que o EMStudio mostra no seu separador *Narrative*.
 
 > **Sem definições novas.** O separador não tem uma janela de configuração própria: usa a IA que já configurou noutro ponto do pyArchInit (§10.2).
 
@@ -519,26 +519,26 @@ Os fornecedores são os dos seletores «Provider AI»: **OpenAI** e **Anthropic 
 ### 10.3 O separador Narrative
 
 ```
-┌─ Units ─┬─ Narrative ────────────────────────────────────────────┐
-│ Model: <model> (<where it comes from>) · If EMStudio has the     │
-│ file open, close it first: the last writer wins.                 │
-├──────────────────────────────────────────────────────────────────┤
-│ Presentation — to be written                                     │
-│ Early 15th century — AI draft                                    │
-│ 15th century — endorsed                                          │
-│ Modern age — AI draft, truncated                                 │
-├──────────────────────────────────────────────────────────────────┤
-│ The text of the chosen chapter, units quoted by name.            │
-├──────────────────────────────────────────────────────────────────┤
-│ Chapter 3 of 9 · 15th century  *                                 │
-│ [Generate with AI]  [Regenerate chapter]  [Endorse…]             │
-│ [Prepare the chapters]  [Export…]  [Open in EMStudio]  [Cancel]* │
-└──────────────────────────────────────────────────────────────────┘
+┌─ Units ─┬─ Narrative ───────────────────────────────────────────────────────────────┐
+│ Model: <model> (<where it comes from>) · If EMStudio has the                        │
+│ file open, close it first: the last writer wins.                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Presentation — to be written                                                        │
+│ Early 15th century — AI draft                                                       │
+│ 15th century — endorsed                                                             │
+│ Modern age — AI draft, truncated                                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ The text of the chosen chapter, units quoted by name.                               │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Chapter 3 of 9 · 15th century  *                                                    │
+│ [Generate with AI]  [Regenerate chapter]  [Endorse…]                                │
+│ [Prepare the chapters]  [Show on the map]  [Export…]  [Open in EMStudio]  [Cancel]* │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 \* A linha de progresso e o botão «Cancel» (Cancelar) só se veem enquanto a IA está a escrever. Neste diagrama, as linhas da lista são as do sítio de exemplo.
 
-<!-- IMMAGINE: Captura de ecrã do separador Narrative com a lista de capítulos, o texto do capítulo escolhido e os seis botões -->
+<!-- IMMAGINE: Captura de ecrã do separador Narrative com a lista de capítulos, o texto do capítulo escolhido e os sete botões -->
 ![Separador Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
 *Figura 4: O separador Narrative*
 
@@ -546,7 +546,7 @@ De cima para baixo:
 
 - **a linha de estado**: o modelo em uso (§10.2) e o lembrete *«If EMStudio has the file open, close it first: the last writer wins.»* (se o EMStudio tiver o ficheiro aberto, feche-o primeiro: prevalece quem escrever por último);
 - **a lista de capítulos**, uma linha por capítulo: *Título — estado*. Com a exportação por sondagens (§2.2.1), cada sondagem tem a sua narrativa e cada linha é precedida do nome da sondagem entre parênteses retos, por exemplo `[Saggio A] 15th century — AI draft`;
-- **o texto do capítulo escolhido**: a prosa, com as unidades citadas pelo nome. Se o capítulo ainda não tiver prosa, vê o respetivo marcador de posição «[to be written: …]»;
+- **o texto do capítulo escolhido**: a prosa, com as unidades citadas pelo nome — os nomes são **hiperligações**: um clique mostra a unidade no mapa (§10.10); sob o parágrafo em que uma unidade é nomeada pela primeira vez aparecem até duas fotos suas (§10.11). Se o capítulo ainda não tiver prosa, vê o respetivo marcador de posição «[to be written: …]»;
 - **a linha de progresso**, só durante a geração: «Chapter 3 of 9 · 15th century» (capítulo 3 de 9 · século XV);
 - **os botões**, em duas linhas.
 
@@ -572,7 +572,8 @@ Quando o ficheiro **ainda não tem narrativa**, a lista fica vazia e um texto di
 | **Regenerate chapter** | Rigenera capitolo | Reescreve **o capítulo escolhido** na lista (com várias sondagens, só o da sondagem escolhida): o rascunho da IA não validado é substituído — mas só depois de o modelo ter respondido: se a chamada falhar, o rascunho anterior permanece — e os blocos já validados mantêm-se. Ativa-se quando se escolhe um capítulo de época ou de atividade e há uma IA configurada; para «Presentation» (Apresentação) e «Where it is» (Onde se encontra) fica desativado. |
 | **Endorse…** | Convalida… | Abre um menu com «This chapter» e «All chapters» e depois pergunta quem valida (§10.6). Ativo quando há uma narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Cria **apenas o esquema** dos capítulos, sem IA: serve mesmo que não haja nenhuma IA configurada, para escrever à mão no EMStudio. Não toca na prosa já escrita e acrescenta os capítulos das épocas novas. Resultado: «Chapters prepared: N.» (capítulos preparados: N). |
-| **Export…** | Esporta… | Guarda a narrativa em HTML ou DOCX (§10.7). Ativo quando há uma narrativa. |
+| **Show on the map** | Mostra sulla mappa | Seleciona e enquadra no mapa, **todas em conjunto**, as unidades de que fala o capítulo escolhido (§10.10): as citadas na prosa ou, se o capítulo ainda não estiver escrito, todas as da sua faixa. Ativo apenas se pelo menos uma das unidades de que fala o capítulo escolhido for uma linha da ficha UE. |
+| **Export…** | Esporta… | Guarda a narrativa em HTML, DOCX ou PDF para impressão (§10.7), com as fotos das unidades citadas quando as há (§10.11). Ativo quando há uma narrativa. |
 | **Open in EMStudio** | Apri in EMStudio | Abre o em.json no EMStudio. Se o EMStudio não for encontrado, a barra de mensagens remete para a entrada de menu **Extended Matrix → Installa EMStudio…** (Instalar o EMStudio). |
 | **Cancel** | Annulla | Aparece apenas durante a geração: a IA interrompe-se **depois do capítulo em curso** e o que foi escrito é guardado. |
 
@@ -602,10 +603,10 @@ Durante a geração, todos os botões ficam desativados, exceto **Cancel**.
 2. **Feche o EMStudio** se tiver o ficheiro aberto: o pyArchInit e o EMStudio escrevem o mesmo ficheiro, e prevalece quem escrever por último.
 3. Opcional: clique em **Prepare the chapters** para ver o esquema, sem IA.
 4. Clique em **Generate with AI**. Acompanhe o progresso («Chapter 3 of 9 · …»); pode continuar a usar o QGIS. No fim, a barra de mensagens diz, por exemplo, *«7 chapters generated, 1 failed: Modern age — …»* (7 capítulos gerados, 1 falhou) — com *«(cancelled)»* se cancelou — e a lista volta a carregar-se: os capítulos escritos ficam «AI draft».
-5. **Leia**: escolha um capítulo após o outro e leia o texto por baixo da lista. Confronte-o com a estratigrafia: é um rascunho construído a partir dos dados da ficha UE.
+5. **Leia**: escolha um capítulo após o outro e leia o texto por baixo da lista. Confronte-o com a estratigrafia: é um rascunho construído a partir dos dados da ficha UE. Para ver onde estão as unidades de que fala, clique nos respetivos nomes ou use **Show on the map** (Mostrar no mapa; §10.10).
 6. Se um capítulo não convencer, escolha a sua linha e clique em **Regenerate chapter**. O novo rascunho **substitui** o anterior não validado: se quiser conservar a versão anterior, exporte-a primeiro. Se um capítulo estiver «truncated», regenere-o **antes** de validar.
 7. Quando um capítulo estiver certo, clique em **Endorse…** (§10.6).
-8. Clique em **Export…** para exportar para HTML ou DOCX (§10.7), ou em **Open in EMStudio** para escrever à mão «Presentation» e «Where it is» e refinar o resto.
+8. Clique em **Export…** para exportar para HTML, DOCX ou PDF (§10.7), ou em **Open in EMStudio** para escrever à mão «Presentation» e «Where it is» e refinar o resto.
 9. Mais tarde pode abrir a matriz de novo: a narrativa mantém-se (§10.8).
 
 <!-- IMMAGINE: Captura de ecrã da geração em curso: a linha de progresso «Chapter 3 of 9 · …» e o botão Cancel -->
@@ -628,22 +629,23 @@ Validar quer dizer que uma **pessoa** assume a responsabilidade pelo texto que o
 
 Os blocos passam de «AI draft» a «endorsed». No documento exportado, a pessoa aparece entre os responsáveis («a cura di», editado por) e o modelo como assistente («con l'assistenza di», com a assistência de), e os parágrafos validados deixam de levar a marca ⚠. Regenerar não apaga os blocos validados: uma assinatura é um ato e não se perde ao reescrever.
 
-### 10.7 Exportar para HTML ou DOCX
+### 10.7 Exportar para HTML, DOCX ou PDF
 
-Clique em **Export…**: abre-se a janela para guardar o ficheiro, com dois formatos, «HTML page (\*.html)» e «Word document (\*.docx)» (página HTML e documento Word). O nome sugerido é `<sítio>_narrativa.html`, na pasta do em.json; se escrever a extensão (`.html` ou `.docx`), esta prevalece; caso contrário, decide o formato escolhido. Com a exportação por sondagens é escrito **um ficheiro por sondagem**, acrescentando o nome da sondagem ao nome escolhido. A barra de mensagens confirma: «Narrative exported to `<path>`» (narrativa exportada para o caminho do ficheiro).
+Clique em **Export…**: abre-se a janela para guardar o ficheiro, com três formatos: «HTML page» (página HTML; `.html`), «Word document» (documento Word; `.docx`) e «Printable PDF» (PDF para impressão; `.pdf`). O nome sugerido é `<sítio>_narrativa`, sem extensão, na pasta do em.json: a extensão é acrescentada pelo formato escolhido no filtro da janela; uma extensão escrita à mão (`.html`, `.docx` ou `.pdf`) prevalece sobre o filtro. Com a exportação por sondagens é escrito **um ficheiro por sondagem**, acrescentando o nome da sondagem ao nome escolhido. A barra de mensagens confirma: «Narrative exported to `<path>`» (narrativa exportada para o caminho do ficheiro).
 
 O documento contém:
 
 - o título da narrativa (por exemplo «Scavo archeologico — the story of the site», em português «Escavação arqueológica — a história do sítio»), os responsáveis («a cura di») e o modelo como assistente («con l'assistenza di»);
-- para cada capítulo, a prosa, com as unidades citadas pelo seu nome, e a lista das unidades do capítulo;
+- para cada capítulo, primeiro a prosa, com as unidades citadas pelo seu nome, e depois a lista das unidades do capítulo; para as unidades citadas que têm fotos, uma faixa de fotos ocupa o lugar da sua linha (§10.11);
 - no fim, a secção **Fonti** (fontes): os documentos em que a história assenta e a entrada «Prompt», que remete para o prompt registado no ficheiro.
 
 Algumas coisas que convém saber:
 
 - **os rascunhos não validados entram**, cada um precedido de «⚠︎ non validato da una persona» (não validado por uma pessoa), e o cabeçalho diz quantos blocos estão neste estado. Para um documento sem marcas, valide primeiro (§10.6);
 - **entram todos os capítulos**, mesmo os que ainda estão «to be written»: o respetivo marcador de posição «[to be written: …]» fica no texto;
+- a prosa fica **no início** do capítulo, antes da lista das unidades; numa narrativa escrita com uma versão anterior pode ainda estar no fim, e põe-se no sítio certo exportando de novo o sítio (§10.8) ou com **Prepare the chapters** (Preparar os capítulos);
 - as figuras que um autor previu no EMStudio (por exemplo a matriz de uma época) não são desenhadas pela exportação do pyArchInit: no documento fica um marcador de posição;
-- o HTML é um único ficheiro, que não depende de outros; o DOCX abre-se com o Word ou o LibreOffice e requer o pacote `python-docx`, um dos requisitos do plugin.
+- o HTML é um único ficheiro, que não depende de outros (as fotos também vão incorporadas); o DOCX abre-se com o Word ou o LibreOffice e requer o pacote `python-docx`, e o PDF a biblioteca ReportLab (§10.11): ambos estão entre os requisitos do plugin.
 
 <!-- IMMAGINE: Captura de ecrã do documento HTML exportado: um capítulo com um rascunho precedido de «⚠︎ non validato da una persona» -->
 ![Documento HTML exportado](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
@@ -677,7 +679,40 @@ A entrada **Extended Matrix → Esporta sito in em.json…** faz a mesma pergunt
 ![Exportar sítio para em.json: três botões](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
 *Figura 8: A janela final de «Esporta sito in em.json…»*
 
-### 10.10 Avisos
+### 10.10 As unidades no mapa
+
+A partir da versão **5.13.108-alpha**, o separador Narrative leva para o **mapa do QGIS** as unidades de que fala um capítulo, de duas maneiras:
+
+- **Uma só unidade: clique no seu nome.** No texto do capítulo escolhido, os nomes das unidades citadas são **hiperligações**: um clique seleciona essa unidade na camada UE carregada e enquadra o mapa nela, com um lampejo. Não abre nada.
+- **Todas juntas: «Show on the map»** (*Mostra sulla mappa*; Mostrar no mapa), na segunda linha de botões, entre «Prepare the chapters» (Preparar os capítulos) e «Export…» (Exportar…). Seleciona e enquadra em conjunto todas as unidades de que fala o capítulo escolhido: as citadas na prosa ou, se a prosa não citar nenhuma (por exemplo, porque o capítulo ainda não está escrito), todas as unidades da sua faixa (a época). A seleção é uma só por camada — substitui a que havia — e o enquadramento abrange todas as geometrias encontradas, que piscam.
+
+<!-- IMMAGINE: Captura de ecrã do QGIS com as unidades do capítulo selecionadas no mapa e, em cima, a barra de mensagens «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
+![As unidades do capítulo no mapa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
+*Figura 9: As unidades de que fala um capítulo, selecionadas no mapa, e a barra de mensagens*
+
+É preciso que uma camada com as geometrias das UE já esteja carregada no projeto, por exemplo a **vista US** do pyArchInit: o separador procura-a entre as camadas carregadas, como o botão «Zoom sulla geometria» (Zoom na geometria) do separador Units (tutorial 01), reconhecendo as unidades pelos campos `sito`, `area` e `us`. **O projeto não é modificado**: não se acrescenta nenhuma camada, mudam apenas a seleção e o enquadramento do mapa.
+
+A barra de mensagens («Narrative») diz o que foi encontrado, por exemplo «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» (5 de 6 unidades realçadas em «US view», 7 geometrias; não desenhadas: 1.US9). O nome entre aspas é o da camada onde as unidades foram encontradas, tal como aparece no painel de camadas do QGIS; uma unidade pode ter mais do que uma geometria, pelo que as geometrias podem ser mais do que as unidades. Só se procuram as unidades que são linhas da ficha UE: um documento ou um nó de continuidade não tem geometria e não entra na contagem. Se as unidades não desenhadas forem mais de cinco, os nomes ficam pelas cinco primeiras, seguidas de «…» e do total.
+
+Um clique num nome que não seja uma linha da ficha UE não encontra nada, e a barra de mensagens di-lo. Se nenhuma camada carregada tiver os campos para reconhecer as unidades, a mensagem di-lo: carregue a vista US (§10.13).
+
+### 10.11 As fotos das unidades e o PDF
+
+A partir da versão **5.13.108-alpha**, a narrativa mostra também as **fotos** das unidades de que fala — no texto do separador e nas exportações — e pode ainda ser guardada como **PDF para impressão**.
+
+**No texto do capítulo.** Sob o parágrafo em que uma unidade é nomeada pela primeira vez aparecem **até duas miniaturas** dos seus media: são as mesmas do separador Units, lidas da pasta das miniaturas do projeto, e por baixo, em letra pequena, estão o nome da unidade e os nomes dos media. Se a unidade for nomeada de novo no mesmo capítulo, as fotos não se repetem.
+
+**Nas exportações.** Nos três formatos, para cada unidade citada na prosa que tem imagens no disco, uma **faixa com uma ou duas fotos lado a lado** ocupa o lugar da linha de texto da unidade, com o nome da unidade como legenda: usa-se a cópia reduzida, se existir, e, se não, a miniatura. As unidades não citadas na prosa ficam como uma linha de texto. As fotos vão incorporadas no ficheiro: o HTML e o DOCX são escritos pela biblioteca s3dgraphy, o PDF pelo pyArchInit.
+
+**O PDF para impressão.** É um documento A4 que o pyArchInit escreve com o ReportLab, no tipo de letra Cambria como os outros PDF do plugin (se o ficheiro do tipo de letra não estiver na pasta `bin` do pyArchInit, usa Helvetica). Contém o título, os responsáveis («edited by») e o modelo como assistente («with the assistance of»); no início, se houver rascunhos não validados, aparece também um aviso com o respetivo número; depois todos os capítulos, como nos outros formatos, cada um com a sua prosa — as unidades citadas escritas pelo nome, e antes de cada parágrafo não validado uma linha «non validato da una persona» (não validado por uma pessoa), sem o sinal ⚠ — seguida das fotos com a respetiva legenda e das outras unidades em letra pequena; no fim, as fontes. No rodapé estão «Generated by pyArchInit on …» (gerado pelo pyArchInit em …) com a data e o número da página.
+
+<!-- IMMAGINE: Capturas de ecrã lado a lado: o texto de um capítulo com as miniaturas sob a primeira menção de uma unidade e uma página do PDF para impressão com a faixa de fotos e a legenda -->
+![Fotos das unidades no texto e no PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
+*Figura 10: As fotos das unidades no texto do capítulo e numa página do PDF*
+
+**O que é preciso.** As fotos não estão no em.json: lêem-se da base de dados e das pastas do projeto. É preciso, por isso, a base de dados ligada (a matriz aberta a partir do projeto), os caminhos **Thumbnail path** e **Image resize** definidos na configuração (tutorial 01) e os ficheiros no disco; para o texto basta a pasta das miniaturas. As imagens num armazenamento remoto não se usam. Se faltar algo, não há nenhuma mensagem: as fotos simplesmente não aparecem, e a exportação resulta na mesma (§10.13).
+
+### 10.12 Avisos
 
 - **Feche o EMStudio antes de gerar ou validar.** Se o EMStudio tiver o ficheiro aberto, prevalece quem escrever por último. Com várias sondagens, o EMStudio mostra um grafo de cada vez (nota na §2.2.1): o separador Narrative mostra-os todos.
 - **Uma IA escreve apenas a partir do que encontra no grafo, e pode enganar-se.** As regras mantêm-na sob controlo, mas não a tornam infalível: leia cada capítulo antes de o validar.
@@ -687,7 +722,7 @@ A entrada **Extended Matrix → Esporta sito in em.json…** faz a mesma pergunt
 - **O texto edita-se no EMStudio**, não no pyArchInit.
 - A narrativa e os nós que a sustentam (autor de IA, prompts) **não aparecem no desenho da matriz**.
 
-### 10.11 Resolução de problemas
+### 10.13 Resolução de problemas
 
 | Mensagem (en / it) | Causa | Solução |
 |--------------------|-------|---------|
@@ -700,6 +735,8 @@ A entrada **Extended Matrix → Esporta sito in em.json…** faz a mesma pergunt
 | "The previous file's narrative (graphs: …) did not travel into the new file…" / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Mudou a forma do ficheiro (um grafo por sondagem ↔ um único grafo): os grafos têm nomes diferentes e a narrativa não pode passar. | O ficheiro anterior está na cópia `.bak`: renomeie-a para `.em.json` e exporte de novo com a escolha anterior. |
 | "Could not write … The previous file is intact." / «Non sono riuscito a scrivere … Il file precedente è intatto.» | A gravação falhou (disco cheio, ficheiro bloqueado, permissões). | Corrija e repita: os capítulos gerados nessa sessão não tinham sido guardados. |
 | "DocX export needs python-docx — install the extra: …" (sempre em inglês) | O pacote `python-docx` não está instalado no Python do QGIS: só é necessário para o DOCX. | Instale `python-docx` (é um dos requisitos do plugin) ou exporte para HTML, que não precisa de nada. |
+| "None of the loaded layers has the fields to recognise the units…" / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | O projeto aberto não tem nenhuma camada com os campos `sito`, `area` e `us` das unidades (por exemplo, a vista US do pyArchInit): o separador procura apenas entre as camadas já carregadas. | **Carregue a vista US** do pyArchInit (ou uma camada com os mesmos campos) no projeto e clique de novo no nome ou em **Show on the map** (Mostrar no mapa). O separador não acrescenta camadas por si só. |
+| Nenhuma mensagem: as fotos não aparecem no texto do capítulo nem nas exportações | As fotos lêem-se da base de dados do projeto e das suas pastas, e falta algo: a base de dados não está ligada (a matriz foi aberta sem ela), o caminho **Thumbnail path** não existe neste computador ou é um armazenamento remoto, os ficheiros não estão no disco, ou a unidade não é uma linha da ficha UE ou não tem media. | Veja o separador **Units**: se aí a unidade mostrar as suas miniaturas, vai encontrá-las também aqui. Caso contrário, abra a matriz a partir do projeto, verifique **Thumbnail path** e **Image resize** na configuração (tutorial 01) e se os ficheiros estão no computador: as imagens num armazenamento remoto não entram. A exportação resulta na mesma, sem fotos. |
 
 ---
 

@@ -467,7 +467,7 @@ Algunas decisiones del dibujo de la matrix pueden parecer extrañas, pero no son
 
 ## 10. Narrativa con IA
 
-A partir de la versión **5.13.106-alpha**, el panel de la matriz dentro de QGIS (§2.2, «Vedi la matrice») tiene dos pestañas en la columna de la derecha: **Units** (*Unità*; Unidades) —la ficha de la unidad elegida, el zoom a la geometría y los medios, como antes— y **Narrative** (*Narrativa*), nueva. La pestaña Narrative hace que una IA escriba la **historia del sitio**, un capítulo por época, y después te permite leerla, hacer que una persona la valide y exportarla a HTML o DOCX. Lee y escribe **el mismo em.json** que abre EMStudio, en el formato de la biblioteca s3dgraphy: la narrativa que ves aquí es la que EMStudio muestra en su pestaña *Narrative*.
+A partir de la versión **5.13.106-alpha**, el panel de la matriz dentro de QGIS (§2.2, «Vedi la matrice») tiene dos pestañas en la columna de la derecha: **Units** (*Unità*; Unidades) —la ficha de la unidad elegida, el zoom a la geometría y los medios, como antes— y **Narrative** (*Narrativa*), nueva. La pestaña Narrative hace que una IA escriba la **historia del sitio**, un capítulo por época, y después te permite leerla, hacer que una persona la valide y exportarla a HTML, DOCX o PDF. Lee y escribe **el mismo em.json** que abre EMStudio, en el formato de la biblioteca s3dgraphy: la narrativa que ves aquí es la que EMStudio muestra en su pestaña *Narrative*.
 
 > **Sin ajustes nuevos.** La pestaña no tiene una ventana de configuración propia: usa la IA que ya has configurado en otro lugar de pyArchInit (§10.2).
 
@@ -520,26 +520,26 @@ Los proveedores son los de los selectores «Provider AI»: **OpenAI** y **Anthro
 ### 10.3 La pestaña Narrative
 
 ```
-┌─ Units ─┬─ Narrative ────────────────────────────────────────────┐
-│ Model: <model> (<where it comes from>) · If EMStudio has the     │
-│ file open, close it first: the last writer wins.                 │
-├──────────────────────────────────────────────────────────────────┤
-│ Presentation — to be written                                     │
-│ Early 15th century — AI draft                                    │
-│ 15th century — endorsed                                          │
-│ Modern age — AI draft, truncated                                 │
-├──────────────────────────────────────────────────────────────────┤
-│ The text of the chosen chapter, units quoted by name.            │
-├──────────────────────────────────────────────────────────────────┤
-│ Chapter 3 of 9 · 15th century  *                                 │
-│ [Generate with AI]  [Regenerate chapter]  [Endorse…]             │
-│ [Prepare the chapters]  [Export…]  [Open in EMStudio]  [Cancel]* │
-└──────────────────────────────────────────────────────────────────┘
+┌─ Units ─┬─ Narrative ───────────────────────────────────────────────────────────────┐
+│ Model: <model> (<where it comes from>) · If EMStudio has the                        │
+│ file open, close it first: the last writer wins.                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Presentation — to be written                                                        │
+│ Early 15th century — AI draft                                                       │
+│ 15th century — endorsed                                                             │
+│ Modern age — AI draft, truncated                                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ The text of the chosen chapter, units quoted by name.                               │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Chapter 3 of 9 · 15th century  *                                                    │
+│ [Generate with AI]  [Regenerate chapter]  [Endorse…]                                │
+│ [Prepare the chapters]  [Show on the map]  [Export…]  [Open in EMStudio]  [Cancel]* │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 \* La línea de progreso y el botón «Cancel» (Cancelar) solo se ven mientras la IA escribe. En este diagrama las filas de la lista son las del sitio de ejemplo.
 
-<!-- IMMAGINE: Captura de la pestaña Narrative con la lista de capítulos, el texto del capítulo elegido y los seis botones -->
+<!-- IMMAGINE: Captura de la pestaña Narrative con la lista de capítulos, el texto del capítulo elegido y los siete botones -->
 ![Pestaña Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
 *Figura 4: La pestaña Narrative*
 
@@ -547,7 +547,7 @@ De arriba abajo:
 
 - **la línea de estado**: el modelo en uso (§10.2) y el recordatorio *«If EMStudio has the file open, close it first: the last writer wins.»* (si EMStudio tiene el archivo abierto, ciérralo antes: gana el último que escribe);
 - **la lista de capítulos**, una fila por capítulo: *Título — estado*. Con la exportación por sondeos (§2.2.1) cada sondeo tiene su propia narrativa y cada fila va precedida del nombre del sondeo entre corchetes, por ejemplo `[Saggio A] 15th century — AI draft`;
-- **el texto del capítulo elegido**: la prosa, con las unidades citadas por su nombre. Si el capítulo todavía no tiene prosa, ves su marcador de posición «[to be written: …]»;
+- **el texto del capítulo elegido**: la prosa, con las unidades citadas por su nombre; los nombres son **enlaces**: un clic muestra la unidad en el mapa (§10.10); bajo el párrafo en el que una unidad se nombra por primera vez aparecen hasta dos fotos suyas (§10.11). Si el capítulo todavía no tiene prosa, ves su marcador de posición «[to be written: …]»;
 - **la línea de progreso**, solo durante la generación: «Chapter 3 of 9 · 15th century»;
 - **los botones**, en dos filas.
 
@@ -573,7 +573,8 @@ Cuando el archivo **todavía no tiene narrativa**, la lista está vacía y un te
 | **Regenerate chapter** | Rigenera capitolo | Reescribe **el capítulo elegido** en la lista (con varios sondeos, solo el del sondeo elegido): el borrador de IA sin validar se sustituye —pero solo cuando el modelo ha respondido: si la llamada falla, el borrador anterior se queda— y los bloques ya validados se mantienen. Se habilita cuando eliges un capítulo de época o de actividad y hay una IA configurada; para «Presentation» y «Where it is» permanece deshabilitado. |
 | **Endorse…** | Convalida… | Abre un menú con «This chapter» y «All chapters», y luego pregunta quién valida (§10.6). Habilitado cuando hay una narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Crea **solo el esquema** de los capítulos, sin IA: funciona aunque no haya ninguna IA configurada, para poder escribir a mano en EMStudio. No toca la prosa ya escrita y añade los capítulos de las épocas nuevas. Resultado: «Chapters prepared: N.» (Capítulos preparados: N). |
-| **Export…** | Esporta… | Guarda la narrativa en HTML o DOCX (§10.7). Habilitado cuando hay una narrativa. |
+| **Show on the map** | Mostra sulla mappa | Selecciona y encuadra en el mapa, **todas juntas**, las unidades de las que habla el capítulo elegido (§10.10): las citadas en la prosa o, si el capítulo todavía no está escrito, todas las de su banda. Habilitado solo si al menos una de las unidades de las que habla el capítulo elegido es una fila de la ficha UE. |
+| **Export…** | Esporta… | Guarda la narrativa en HTML, DOCX o PDF imprimible (§10.7), con las fotos de las unidades citadas cuando las hay (§10.11). Habilitado cuando hay una narrativa. |
 | **Open in EMStudio** | Apri in EMStudio | Abre el em.json en EMStudio. Si EMStudio no está, la barra de mensajes remite a la entrada de menú **Extended Matrix → Installa EMStudio…** (Instalar EMStudio). |
 | **Cancel** | Annulla | Aparece solo durante la generación: la IA se detiene **después del capítulo en curso** y lo que se ha escrito se guarda. |
 
@@ -603,10 +604,10 @@ Durante la generación todos los botones están deshabilitados salvo **Cancel**.
 2. **Cierra EMStudio** si tiene el archivo abierto: pyArchInit y EMStudio escriben el mismo archivo, y gana el último que escribe.
 3. Opcional: haz clic en **Prepare the chapters** para ver el esquema, sin IA.
 4. Haz clic en **Generate with AI**. Observa el progreso («Chapter 3 of 9 · …»); puedes seguir usando QGIS. Al final la barra de mensajes dice, por ejemplo, *«7 chapters generated, 1 failed: Modern age — …»* (7 capítulos generados, 1 fallido), con *«(cancelled)»* si has cancelado, y la lista se recarga: los capítulos escritos están en «AI draft».
-5. **Lee**: elige un capítulo tras otro y lee el texto bajo la lista. Contrástalo con la estratigrafía: es un borrador construido a partir de los datos de la ficha UE.
+5. **Lee**: elige un capítulo tras otro y lee el texto bajo la lista. Contrástalo con la estratigrafía: es un borrador construido a partir de los datos de la ficha UE. Para ver dónde están las unidades de las que habla, haz clic en sus nombres o usa **Show on the map** (Mostrar en el mapa; §10.10).
 6. Si un capítulo no te convence, elige su fila y haz clic en **Regenerate chapter**. El nuevo borrador **sustituye** al anterior sin validar: si quieres conservar la versión anterior, expórtala antes. Si un capítulo está «truncated», regenéralo **antes** de validarlo.
 7. Cuando un capítulo está bien, haz clic en **Endorse…** (§10.6).
-8. Con **Export…** exporta a HTML o DOCX (§10.7); con **Open in EMStudio** ábrelo en EMStudio para escribir a mano «Presentation» y «Where it is» y pulir el resto.
+8. Con **Export…** exporta a HTML, DOCX o PDF (§10.7); con **Open in EMStudio** ábrelo en EMStudio para escribir a mano «Presentation» y «Where it is» y pulir el resto.
 9. Más adelante puedes volver a abrir la matriz: la narrativa se conserva (§10.8).
 
 <!-- IMMAGINE: Captura de la generación en curso: la línea de progreso «Chapter 3 of 9 · …» y el botón Cancel -->
@@ -629,22 +630,23 @@ Validar significa que una **persona** asume la responsabilidad del texto escrito
 
 Los bloques pasan de «AI draft» a «endorsed». En el documento exportado la persona aparece entre los responsables («a cura di», a cargo de) y el modelo como asistente («con l'assistenza di», con la asistencia de), y los párrafos validados ya no llevan la marca ⚠. Regenerar no borra los bloques validados: una firma es un acto y no se pierde al reescribir.
 
-### 10.7 Exportar a HTML o DOCX
+### 10.7 Exportar a HTML, DOCX o PDF
 
-Haz clic en **Export…**: se abre la ventana para guardar, con dos formatos, «HTML page (\*.html)» (página HTML) y «Word document (\*.docx)» (documento Word). El nombre propuesto es `<sitio>_narrativa.html`, en la carpeta del em.json; si escribes tú la extensión (`.html` o `.docx`), prevalece esa; si no, decide el formato elegido. Con la exportación por sondeos se escribe **un archivo por sondeo**, añadiendo el nombre del sondeo al nombre elegido. La barra de mensajes lo confirma: «Narrative exported to `<path>`» (narrativa exportada, con la ruta del archivo).
+Haz clic en **Export…**: se abre la ventana para guardar, con tres formatos: «HTML page» (página HTML; `.html`), «Word document» (documento Word; `.docx`) y «Printable PDF» (PDF imprimible; `.pdf`). El nombre propuesto es `<sitio>_narrativa`, sin extensión, en la carpeta del em.json: la extensión la pone el formato elegido en el filtro de la ventana; una extensión escrita a mano (`.html`, `.docx` o `.pdf`) prevalece sobre el filtro. Con la exportación por sondeos se escribe **un archivo por sondeo**, añadiendo el nombre del sondeo al nombre elegido. La barra de mensajes lo confirma: «Narrative exported to `<path>`» (narrativa exportada, con la ruta del archivo).
 
 El documento contiene:
 
 - el título de la narrativa (por ejemplo «Scavo archeologico — the story of the site»; en español, «la historia del sitio»), los responsables («a cura di») y el modelo como asistente («con l'assistenza di»);
-- para cada capítulo, la prosa, con las unidades citadas por su nombre, y la lista de las unidades del capítulo;
+- para cada capítulo, primero la prosa, con las unidades citadas por su nombre, y después la lista de las unidades del capítulo; para las unidades citadas que tienen fotos, una tira de fotos ocupa el lugar de su línea (§10.11);
 - al final, la sección **Fonti** (fuentes): los documentos en los que se apoya el relato y la entrada «Prompt», que remite al prompt registrado en el archivo.
 
 Algunas cosas que conviene saber:
 
 - **los borradores sin validar entran**, cada uno precedido de «⚠︎ non validato da una persona» (no validado por una persona), y el encabezado indica cuántos bloques están en este estado. Para un documento sin marcas, valida primero (§10.6);
 - **entran todos los capítulos**, incluso los que todavía están «to be written»: su marcador «[to be written: …]» permanece en el texto;
+- la prosa va **al principio** del capítulo, antes de la lista de las unidades; en una narrativa escrita con una versión anterior puede estar todavía al final, y se coloca en su sitio volviendo a exportar el sitio (§10.8) o con **Prepare the chapters** (Preparar los capítulos);
 - las figuras que un autor ha previsto en EMStudio (por ejemplo la matriz de una época) no las dibuja la exportación de pyArchInit: en el documento queda un marcador;
-- el HTML es un único archivo autocontenido; el DOCX se abre con Word o LibreOffice y requiere el paquete `python-docx`, uno de los requisitos del plugin.
+- el HTML es un único archivo autocontenido (las fotos también van incorporadas); el DOCX se abre con Word o LibreOffice y requiere el paquete `python-docx`, y el PDF la biblioteca ReportLab (§10.11): ambos están entre los requisitos del plugin.
 
 <!-- IMMAGINE: Captura del documento HTML exportado: un capítulo con un borrador precedido de «⚠︎ non validato da una persona» -->
 ![Documento HTML exportado](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
@@ -678,7 +680,40 @@ La entrada **Extended Matrix → Esporta sito in em.json…** hace la misma preg
 ![Exportar sitio a em.json: tres botones](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
 *Figura 8: La ventana final de «Esporta sito in em.json…»*
 
-### 10.10 Advertencias
+### 10.10 Las unidades en el mapa
+
+A partir de la versión **5.13.108-alpha**, la pestaña Narrative lleva al **mapa de QGIS** las unidades de las que habla un capítulo, de dos maneras:
+
+- **Una sola unidad: haz clic en su nombre.** En el texto del capítulo elegido, los nombres de las unidades citadas son **enlaces**: un clic selecciona esa unidad en la capa UE cargada y encuadra el mapa sobre ella, con un parpadeo. No abre nada.
+- **Todas juntas: «Show on the map»** (*Mostra sulla mappa*; Mostrar en el mapa), en la segunda fila de botones, entre «Prepare the chapters» (Preparar los capítulos) y «Export…» (Exportar…). Selecciona y encuadra a la vez todas las unidades de las que habla el capítulo elegido: las citadas en la prosa o, si la prosa no cita ninguna (por ejemplo, porque el capítulo todavía no está escrito), todas las unidades de su banda (la época). La selección es una sola por capa —sustituye a la que había— y el encuadre abarca todas las geometrías encontradas, que parpadean.
+
+<!-- IMMAGINE: Captura de QGIS con las unidades del capítulo seleccionadas en el mapa y, arriba, la barra de mensajes «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
+![Las unidades del capítulo en el mapa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
+*Figura 9: Las unidades de las que habla un capítulo, seleccionadas en el mapa, y la barra de mensajes*
+
+Hace falta que una capa con las geometrías de las UE esté ya cargada en el proyecto, por ejemplo la **vista US** de pyArchInit: la pestaña la busca entre las capas cargadas, como el botón «Zoom sulla geometria» (Zoom a la geometría) de la pestaña Units (tutorial 01), reconociendo las unidades por los campos `sito`, `area` y `us`. **El proyecto no se modifica**: no se añade ninguna capa, solo cambian la selección y el encuadre del mapa.
+
+La barra de mensajes («Narrative») dice qué se ha encontrado, por ejemplo «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» (5 de 6 unidades resaltadas en «US view», 7 geometrías; no dibujadas: 1.US9). El nombre entre comillas es el de la capa donde se han encontrado las unidades, tal como aparece en el panel de capas de QGIS; una unidad puede tener más de una geometría, así que las geometrías pueden ser más que las unidades. Solo se buscan las unidades que son filas de la ficha UE: un documento o un nodo de continuidad no tiene geometría y no entra en el recuento. Si las unidades no dibujadas son más de cinco, los nombres se detienen en las cinco primeras, seguidas de «…» y el total.
+
+Un clic en un nombre que no es una fila de la ficha UE no encuentra nada, y la barra de mensajes lo dice. Si ninguna capa cargada lleva los campos para reconocer las unidades, el mensaje lo dice: carga la vista US (§10.13).
+
+### 10.11 Las fotos de las unidades y el PDF
+
+A partir de la versión **5.13.108-alpha**, la narrativa muestra también las **fotos** de las unidades de las que habla —en el texto de la pestaña y en las exportaciones— y se puede guardar además como **PDF imprimible**.
+
+**En el texto del capítulo.** Bajo el párrafo en el que una unidad se nombra por primera vez aparecen **hasta dos miniaturas** de sus medios: son las mismas de la pestaña Units, leídas de la carpeta de miniaturas del proyecto, y debajo, en letra pequeña, están el nombre de la unidad y los nombres de los medios. Si la unidad se vuelve a nombrar en el mismo capítulo, las fotos no se repiten.
+
+**En las exportaciones.** En los tres formatos, para cada unidad citada en la prosa que tiene imágenes en el disco, una **tira con una o dos fotos juntas** ocupa el lugar de la línea de texto de la unidad, con el nombre de la unidad como pie de foto: se usa la copia reducida si existe y, si no, la miniatura. Las unidades no citadas en la prosa se quedan como una línea de texto. Las fotos van incorporadas al archivo: el HTML y el DOCX los escribe la biblioteca s3dgraphy; el PDF, pyArchInit.
+
+**El PDF imprimible.** Es un documento A4 que pyArchInit escribe con ReportLab, con la fuente Cambria como los otros PDF del plugin (si el archivo de la fuente no está en la carpeta `bin` de pyArchInit, usa Helvetica). Contiene el título, los responsables («edited by») y el modelo como asistente («with the assistance of»); arriba, si hay borradores sin validar, aparece además un aviso con su número; después todos los capítulos, como en los otros formatos, cada uno con su prosa —las unidades citadas escritas por su nombre, y delante de cada párrafo sin validar una línea «non validato da una persona» (no validado por una persona), sin el signo ⚠— seguida de las fotos con su pie y de las demás unidades en letra pequeña; al final, las fuentes. En el pie de página están «Generated by pyArchInit on …» (generado por pyArchInit el …) con la fecha y el número de página.
+
+<!-- IMMAGINE: Capturas de pantalla juntas: el texto de un capítulo con las miniaturas bajo la primera mención de una unidad y una página del PDF imprimible con la tira de fotos y su pie -->
+![Fotos de las unidades en el texto y en el PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
+*Figura 10: Las fotos de las unidades en el texto del capítulo y en una página del PDF*
+
+**Qué hace falta.** Las fotos no están en el em.json: se leen de la base de datos y de las carpetas del proyecto. Hacen falta, pues, la base de datos vinculada (la matriz abierta desde el proyecto), las rutas **Thumbnail path** e **Image resize** fijadas en la configuración (tutorial 01) y los archivos en el disco; para el texto basta la carpeta de miniaturas. Las imágenes en un almacén remoto no se usan. Si falta algo no hay ningún mensaje: las fotos simplemente no aparecen y la exportación funciona igualmente (§10.13).
+
+### 10.12 Advertencias
 
 - **Cierra EMStudio antes de generar o validar.** Si EMStudio tiene el archivo abierto, gana el último que escribe. Con varios sondeos, EMStudio muestra un grafo a la vez (nota de §2.2.1): la pestaña Narrative los muestra todos.
 - **Una IA escribe solo a partir de lo que encuentra en el grafo, y puede equivocarse.** Las reglas la frenan, no la hacen infalible: lee cada capítulo antes de validarlo.
@@ -688,7 +723,7 @@ La entrada **Extended Matrix → Esporta sito in em.json…** hace la misma preg
 - **El texto se edita en EMStudio**, no en pyArchInit.
 - La narrativa y los nodos que la sostienen (autor de IA, prompts) **no aparecen en el dibujo de la matriz**.
 
-### 10.11 Resolución de problemas
+### 10.13 Resolución de problemas
 
 | Mensaje (en / it) | Causa | Solución |
 |-------------------|-------|----------|
@@ -701,6 +736,8 @@ La entrada **Extended Matrix → Esporta sito in em.json…** hace la misma preg
 | «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Has cambiado la forma del archivo (un grafo por sondeo ↔ un solo grafo): los grafos tienen nombres distintos y la narrativa no puede pasar. | El archivo anterior está en la copia `.bak`: cambia su nombre a `.em.json` y vuelve a exportar con la elección de antes. |
 | «Could not write … The previous file is intact.» / «Non sono riuscito a scrivere … Il file precedente è intatto.» | Falló el guardado (disco lleno, archivo bloqueado, permisos). | Soluciona el problema y repite: los capítulos generados en esa sesión no se habían guardado. |
 | «DocX export needs python-docx — install the extra: …» (siempre en inglés) | El paquete `python-docx` no está instalado en el Python de QGIS: solo hace falta para el DOCX. | Instala `python-docx` (es uno de los requisitos del plugin) o exporta a HTML, que no necesita nada. |
+| «None of the loaded layers has the fields to recognise the units…» / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | El proyecto abierto no tiene ninguna capa con los campos `sito`, `area` y `us` de las unidades (por ejemplo, la vista US de pyArchInit): la pestaña busca solo entre las capas ya cargadas. | **Carga la vista US** de pyArchInit (o una capa con los mismos campos) en el proyecto y vuelve a hacer clic en el nombre o en **Show on the map** (Mostrar en el mapa). La pestaña no añade capas por sí sola. |
+| Ningún mensaje: las fotos no aparecen en el texto del capítulo ni en las exportaciones | Las fotos se leen de la base de datos del proyecto y de sus carpetas, y falta algo: la base de datos no está vinculada (la matriz se abrió sin ella), la ruta **Thumbnail path** no existe en este ordenador o es un almacén remoto, los archivos no están en el disco, o la unidad no es una fila de la ficha UE o no tiene medios. | Mira la pestaña **Units**: si allí la unidad muestra sus miniaturas, las encontrarás también aquí. Si no, abre la matriz desde el proyecto, comprueba **Thumbnail path** e **Image resize** en la configuración (tutorial 01) y que los archivos estén en el ordenador: las imágenes en un almacén remoto no entran. La exportación funciona igualmente, sin fotos. |
 
 ---
 

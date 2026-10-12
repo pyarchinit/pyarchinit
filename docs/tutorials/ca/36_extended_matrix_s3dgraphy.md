@@ -466,7 +466,7 @@ Algunes decisions del dibuix de la matriu poden semblar estranyes, però no són
 
 ## 10. Narrativa amb la IA
 
-A partir de la versió **5.13.106-alpha**, el panell de la matriu dins del QGIS (§2.2, «Vedi la matrice») té dues pestanyes a la columna de la dreta: **Units** (*Unità*) —els detalls de la unitat triada, el zoom sobre la geometria i els mèdia, com abans— i **Narrative** (*Narrativa*), que és nova. La pestanya **Narrative** fa que una IA escrigui la **història del lloc**, un capítol per època, i després et permet llegir-la, fer-la validar per una persona i exportar-la a HTML o DOCX. Llegeix i escriu **el mateix em.json** que obre EMStudio, en el format de la biblioteca s3dgraphy: la narrativa que veus aquí és la que EMStudio mostra a la seva pestanya *Narrative*.
+A partir de la versió **5.13.106-alpha**, el panell de la matriu dins del QGIS (§2.2, «Vedi la matrice») té dues pestanyes a la columna de la dreta: **Units** (*Unità*) —els detalls de la unitat triada, el zoom sobre la geometria i els mèdia, com abans— i **Narrative** (*Narrativa*), que és nova. La pestanya **Narrative** fa que una IA escrigui la **història del lloc**, un capítol per època, i després et permet llegir-la, fer-la validar per una persona i exportar-la a HTML, DOCX o PDF. Llegeix i escriu **el mateix em.json** que obre EMStudio, en el format de la biblioteca s3dgraphy: la narrativa que veus aquí és la que EMStudio mostra a la seva pestanya *Narrative*.
 
 > **Cap configuració nova.** La pestanya no té cap finestra de configuració pròpia: fa servir la IA que ja has configurat en una altra part de pyArchInit (§10.2).
 
@@ -519,26 +519,26 @@ Els proveïdors són els dels selectors «Provider AI» (proveïdor d'IA): **Ope
 ### 10.3 La pestanya Narrative
 
 ```
-┌─ Units ─┬─ Narrative ────────────────────────────────────────────┐
-│ Model: <model> (<where it comes from>) · If EMStudio has the     │
-│ file open, close it first: the last writer wins.                 │
-├──────────────────────────────────────────────────────────────────┤
-│ Presentation — to be written                                     │
-│ Early 15th century — AI draft                                    │
-│ 15th century — endorsed                                          │
-│ Modern age — AI draft, truncated                                 │
-├──────────────────────────────────────────────────────────────────┤
-│ The text of the chosen chapter, units quoted by name.            │
-├──────────────────────────────────────────────────────────────────┤
-│ Chapter 3 of 9 · 15th century  *                                 │
-│ [Generate with AI]  [Regenerate chapter]  [Endorse…]             │
-│ [Prepare the chapters]  [Export…]  [Open in EMStudio]  [Cancel]* │
-└──────────────────────────────────────────────────────────────────┘
+┌─ Units ─┬─ Narrative ───────────────────────────────────────────────────────────────┐
+│ Model: <model> (<where it comes from>) · If EMStudio has the                        │
+│ file open, close it first: the last writer wins.                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Presentation — to be written                                                        │
+│ Early 15th century — AI draft                                                       │
+│ 15th century — endorsed                                                             │
+│ Modern age — AI draft, truncated                                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ The text of the chosen chapter, units quoted by name.                               │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ Chapter 3 of 9 · 15th century  *                                                    │
+│ [Generate with AI]  [Regenerate chapter]  [Endorse…]                                │
+│ [Prepare the chapters]  [Show on the map]  [Export…]  [Open in EMStudio]  [Cancel]* │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 \* La línia de progrés i el botó «Cancel» (Cancel·la) només es veuen mentre la IA està escrivint. En aquest diagrama les files de la llista són les del lloc d'exemple.
 
-<!-- IMMAGINE: Captura de pantalla de la pestanya Narrative amb la llista de capítols, el text del capítol triat i els sis botons -->
+<!-- IMMAGINE: Captura de pantalla de la pestanya Narrative amb la llista de capítols, el text del capítol triat i els set botons -->
 ![Pestanya Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
 *Figura 4: La pestanya Narrative*
 
@@ -546,7 +546,7 @@ De dalt a baix:
 
 - **la línia d'estat**: el model en ús (§10.2) i el recordatori *«If EMStudio has the file open, close it first: the last writer wins.»* (si EMStudio té el fitxer obert, tanca'l abans: guanya qui escriu l'últim);
 - **la llista de capítols**, una fila per capítol: *Títol — estat*. Amb l'exportació per sondeigs (§2.2.1) cada sondeig té la seva pròpia narrativa i cada fila va precedida del nom del sondeig entre claudàtors, per exemple `[Saggio A] 15th century — AI draft`;
-- **el text del capítol triat**: la prosa, amb les unitats citades pel nom. Si el capítol encara no té prosa, hi veus el seu marcador de posició «[to be written: …]»;
+- **el text del capítol triat**: la prosa, amb les unitats citades pel nom; els noms són **enllaços**: un clic mostra la unitat al mapa (§10.10); sota el paràgraf en què una unitat es nomena per primera vegada apareixen fins a dues fotos seves (§10.11). Si el capítol encara no té prosa, hi veus el seu marcador de posició «[to be written: …]»;
 - **la línia de progrés**, només durant la generació: «Chapter 3 of 9 · 15th century»;
 - **els botons**, en dues files.
 
@@ -572,7 +572,8 @@ Quan el fitxer **encara no té narrativa**, la llista és buida i un text diu: *
 | **Regenerate chapter** | Rigenera capitolo | Reescriu **el capítol triat** a la llista (amb diversos sondeigs, només el del sondeig triat): l'esborrany d'IA no validat es substitueix —però només quan el model ha respost: si la crida falla, l'esborrany d'abans es queda— i els blocs ja validats es conserven. S'activa quan tries un capítol d'època o d'activitat i hi ha una IA configurada; per a «Presentation» i «Where it is» continua desactivat. |
 | **Endorse…** | Convalida… | Obre un menú amb «This chapter» i «All chapters» (aquest capítol, tots els capítols) i després pregunta qui valida (§10.6). Activat quan hi ha una narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Crea **només l'esquema** dels capítols, sense IA: funciona encara que no hi hagi cap IA configurada, perquè puguis escriure a mà a EMStudio. No toca la prosa ja escrita i afegeix els capítols de les èpoques noves. Resultat: «Chapters prepared: N.» |
-| **Export…** | Esporta… | Desa la narrativa en HTML o DOCX (§10.7). Activat quan hi ha una narrativa. |
+| **Show on the map** | Mostra sulla mappa | Selecciona i enquadra al mapa, **totes alhora**, les unitats de què parla el capítol triat (§10.10): les citades a la prosa o, si el capítol encara no està escrit, totes les de la seva banda. Activat només si almenys una de les unitats de què parla el capítol triat és una fila de la fitxa US. |
+| **Export…** | Esporta… | Desa la narrativa en HTML, DOCX o PDF imprimible (§10.7), amb les fotos de les unitats citades quan n'hi ha (§10.11). Activat quan hi ha una narrativa. |
 | **Open in EMStudio** | Apri in EMStudio | Obre l'em.json a EMStudio. Si EMStudio no hi és, la barra de missatges indica l'entrada de menú **Extended Matrix → Installa EMStudio…** (Instal·la EMStudio). |
 | **Cancel** | Annulla | Només apareix durant la generació: la IA s'atura **després del capítol en curs** i el que s'ha escrit es desa. |
 
@@ -602,10 +603,10 @@ Durant la generació tots els botons estan desactivats excepte **Cancel**.
 2. **Tanca EMStudio** si té el fitxer obert: pyArchInit i EMStudio escriuen el mateix fitxer, i guanya qui escriu l'últim.
 3. Opcional: **Prepare the chapters** (Prepara els capítols) per veure l'esquema, sense IA.
 4. Clica **Generate with AI**. Segueix el progrés («Chapter 3 of 9 · …»); pots continuar fent servir el QGIS. Al final la barra de missatges diu, per exemple, *«7 chapters generated, 1 failed: Modern age — …»* (amb *«(cancelled)»* si has cancel·lat) i la llista es torna a carregar: els capítols escrits són «AI draft».
-5. **Llegeix**: tria un capítol darrere l'altre i llegeix el text sota la llista. Comprova'l amb l'estratigrafia: és un esborrany construït a partir de les dades de la fitxa US.
+5. **Llegeix**: tria un capítol darrere l'altre i llegeix el text sota la llista. Comprova'l amb l'estratigrafia: és un esborrany construït a partir de les dades de la fitxa US. Per veure on són les unitats de què parla, clica els seus noms o fes servir **Show on the map** (Mostra al mapa; §10.10).
 6. Si un capítol no et convenç, tria la seva fila i clica **Regenerate chapter**. El nou esborrany **substitueix** l'anterior no validat: si vols conservar la versió d'abans, exporta-la primer. Si un capítol és «truncated», regenera'l **abans** de validar-lo.
 7. Quan un capítol està bé, clica **Endorse…** (§10.6).
-8. Clica **Export…** per exportar a HTML o DOCX (§10.7), o **Open in EMStudio** per escriure a mà «Presentation» i «Where it is» i polir la resta.
+8. Clica **Export…** per exportar a HTML, DOCX o PDF (§10.7), o **Open in EMStudio** per escriure a mà «Presentation» i «Where it is» i polir la resta.
 9. Més endavant pots tornar a obrir la matriu: la narrativa es conserva (§10.8).
 
 <!-- IMMAGINE: Captura de pantalla de la generació en curs: la línia de progrés «Chapter 3 of 9 · …» i el botó Cancel -->
@@ -628,22 +629,23 @@ Validar vol dir que una **persona** es fa responsable del text escrit pel model.
 
 Els blocs passen de «AI draft» a «endorsed». Al document exportat la persona apareix entre els responsables («a cura di», a cura de) i el model com a assistent («con l'assistenza di», amb l'assistència de), i els paràgrafs validats ja no porten la marca ⚠. Regenerar no esborra els blocs validats: una signatura és un acte, i no es perd en reescriure.
 
-### 10.7 Exportar a HTML o DOCX
+### 10.7 Exportar a HTML, DOCX o PDF
 
-Clica **Export…**: s'obre la finestra de desament amb dos formats, «HTML page (\*.html)» (pàgina HTML) i «Word document (\*.docx)» (document Word). El nom proposat és `<lloc>_narrativa.html`, a la carpeta de l'em.json; si escrius tu l'extensió (`.html` o `.docx`), preval aquesta; si no, decideix el format triat. Amb l'exportació per sondeigs s'escriu **un fitxer per sondeig**, afegint el nom del sondeig al nom triat. La barra de missatges ho confirma: «Narrative exported to `<path>`» (narrativa exportada a la ruta del fitxer).
+Clica **Export…**: s'obre la finestra de desament amb tres formats: «HTML page» (pàgina HTML; `.html`), «Word document» (document Word; `.docx`) i «Printable PDF» (PDF imprimible; `.pdf`). El nom proposat és `<lloc>_narrativa`, sense extensió, a la carpeta de l'em.json: l'extensió l'hi posa el format triat al filtre de la finestra; una extensió escrita a mà (`.html`, `.docx` o `.pdf`) preval sobre el filtre. Amb l'exportació per sondeigs s'escriu **un fitxer per sondeig**, afegint el nom del sondeig al nom triat. La barra de missatges ho confirma: «Narrative exported to `<path>`» (narrativa exportada a la ruta del fitxer).
 
 El document conté:
 
 - el títol de la narrativa (per exemple, «Scavo archeologico — the story of the site»), els responsables («a cura di») i el model com a assistent («con l'assistenza di»);
-- per a cada capítol, la prosa, amb les unitats citades pel seu nom, i la llista de les unitats del capítol;
+- per a cada capítol, primer la prosa, amb les unitats citades pel seu nom, i després la llista de les unitats del capítol; per a les unitats citades que tenen fotos, una tira de fotos ocupa el lloc de la seva línia (§10.11);
 - al final, la secció **Fonti** (fonts): els documents en què es basa el relat i l'entrada «Prompt», que remet al prompt registrat al fitxer.
 
 Coses que convé saber:
 
 - **els esborranys no validats hi entren**, cadascun precedit de «⚠︎ non validato da una persona» (no validat per una persona), i la capçalera diu quants blocs hi ha en aquest estat. Per a un document sense marques, valida primer (§10.6);
 - **hi entren tots els capítols**, fins i tot els que encara són «to be written»: el seu marcador de posició «[to be written: …]» es queda al text;
+- la prosa va **al principi** del capítol, abans de la llista de les unitats; en una narrativa escrita amb una versió anterior pot ser encara al final, i es posa al seu lloc tornant a exportar el lloc (§10.8) o amb **Prepare the chapters** (Prepara els capítols);
 - les figures que un autor ha previst a EMStudio (per exemple, la matriu d'una època) no les dibuixa l'exportació de pyArchInit: al document hi queda un marcador de posició;
-- l'HTML és un sol fitxer, autosuficient; el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, un dels requisits del connector.
+- l'HTML és un sol fitxer, autosuficient (les fotos també hi van incorporades); el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, i el PDF la biblioteca ReportLab (§10.11): tots dos són entre els requisits del connector.
 
 <!-- IMMAGINE: Captura de pantalla del document HTML exportat: un capítol amb un esborrany precedit de «⚠︎ non validato da una persona» -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
@@ -677,7 +679,40 @@ L'entrada **Extended Matrix → Esporta sito in em.json…** fa la mateixa pregu
 ![Exporta el lloc a em.json: tres botons](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
 *Figura 8: La finestra final de «Esporta sito in em.json…»*
 
-### 10.10 Advertències
+### 10.10 Les unitats al mapa
+
+A partir de la versió **5.13.108-alpha**, la pestanya **Narrative** porta al **mapa del QGIS** les unitats de què parla un capítol, de dues maneres:
+
+- **Una sola unitat: clica el seu nom.** Al text del capítol triat, els noms de les unitats citades són **enllaços**: un clic selecciona aquesta unitat a la capa US carregada i enquadra el mapa sobre ella, amb un parpelleig. No obre res.
+- **Totes juntes: «Show on the map»** (*Mostra sulla mappa*; Mostra al mapa), a la segona fila de botons, entre «Prepare the chapters» (Prepara els capítols) i «Export…» (Exporta…). Selecciona i enquadra alhora totes les unitats de què parla el capítol triat: les citades a la prosa o, si la prosa no en cita cap (per exemple, perquè el capítol encara no està escrit), totes les unitats de la seva banda (l'època). La selecció és només una per capa —substitueix la que hi havia— i l'enquadrament abasta totes les geometries trobades, que parpellegen.
+
+<!-- IMMAGINE: Captura de pantalla del QGIS amb les unitats del capítol seleccionades al mapa i, a dalt, la barra de missatges «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
+![Les unitats del capítol al mapa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
+*Figura 9: Les unitats de què parla un capítol, seleccionades al mapa, i la barra de missatges*
+
+Cal que una capa amb les geometries de les US ja estigui carregada al projecte, per exemple la **vista US** de pyArchInit: la pestanya la busca entre les capes carregades, com el botó «Zoom sulla geometria» (Zoom a la geometria) de la pestanya **Units** (tutorial 01), tot reconeixent les unitats pels camps `sito`, `area` i `us`. **El projecte no es modifica**: no s'afegeix cap capa, només canvien la selecció i l'enquadrament del mapa.
+
+La barra de missatges («Narrative») diu què s'ha trobat, per exemple «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» (5 de 6 unitats ressaltades a «US view», 7 geometries; no dibuixades: 1.US9). El nom entre cometes és el de la capa on s'han trobat les unitats, tal com apareix al tauler de capes del QGIS; una unitat pot tenir més d'una geometria, de manera que les geometries poden ser més que les unitats. Només es cerquen les unitats que són files de la fitxa US: un document o un node de continuïtat no té geometria i no entra al recompte. Si les unitats no dibuixades són més de cinc, els noms s'aturen a les cinc primeres, seguides de «…» i del total.
+
+Un clic en un nom que no és una fila de la fitxa US no troba res, i la barra de missatges ho diu. Si cap capa carregada porta els camps per reconèixer les unitats, el missatge ho diu: carrega la vista US (§10.13).
+
+### 10.11 Les fotos de les unitats i el PDF
+
+A partir de la versió **5.13.108-alpha**, la narrativa mostra també les **fotos** de les unitats de què parla —al text de la pestanya i a les exportacions— i es pot desar a més com a **PDF imprimible**.
+
+**Al text del capítol.** Sota el paràgraf en què una unitat es nomena per primera vegada apareixen **fins a dues miniatures** dels seus mèdia: són les mateixes de la pestanya Units, llegides de la carpeta de miniatures del projecte, i a sota, en lletra petita, hi ha el nom de la unitat i els noms dels mèdia. Si la unitat es torna a nomenar al mateix capítol, les fotos no es repeteixen.
+
+**A les exportacions.** En els tres formats, per a cada unitat citada a la prosa que té imatges al disc, una **tira amb una o dues fotos una al costat de l'altra** ocupa el lloc de la línia de text de la unitat, amb el nom de la unitat com a peu de foto: s'usa la còpia reduïda si n'hi ha i, si no, la miniatura. Les unitats no citades a la prosa es queden com a línia de text. Les fotos van incorporades al fitxer: l'HTML i el DOCX els escriu la biblioteca s3dgraphy; el PDF, pyArchInit.
+
+**El PDF imprimible.** És un document A4 que pyArchInit escriu amb ReportLab, amb la lletra Cambria com els altres PDF del connector (si el fitxer de la lletra no és a la carpeta `bin` de pyArchInit, fa servir Helvetica). Conté el títol, els responsables («edited by») i el model com a assistent («with the assistance of»); a dalt, si hi ha esborranys no validats, apareix també un avís amb el seu nombre; després tots els capítols, com en els altres formats, cadascun amb la seva prosa —les unitats citades escrites pel nom, i davant de cada paràgraf no validat una línia «non validato da una persona» (no validat per una persona), sense el signe ⚠— seguida de les fotos amb el seu peu i de les altres unitats en lletra petita; al final, les fonts. Al peu de pàgina hi ha «Generated by pyArchInit on …» (generat per pyArchInit el …) amb la data i el número de pàgina.
+
+<!-- IMMAGINE: Captures de pantalla una al costat de l'altra: el text d'un capítol amb les miniatures sota la primera menció d'una unitat i una pàgina del PDF imprimible amb la tira de fotos i el peu -->
+![Fotos de les unitats al text i al PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
+*Figura 10: Les fotos de les unitats al text del capítol i en una pàgina del PDF*
+
+**Què cal.** Les fotos no són a l'em.json: es llegeixen de la base de dades i de les carpetes del projecte. Cal, doncs, la base de dades vinculada (la matriu oberta des del projecte), les rutes **Thumbnail path** i **Image resize** fixades a la configuració (tutorial 01) i els fitxers al disc; per al text n'hi ha prou amb la carpeta de miniatures. Les imatges en un magatzem remot no s'usen. Si falta alguna cosa no hi ha cap missatge: les fotos simplement no apareixen i l'exportació funciona igualment (§10.13).
+
+### 10.12 Advertències
 
 - **Tanca EMStudio abans de generar o validar.** Si EMStudio té el fitxer obert, guanya qui escriu l'últim. Amb diversos sondeigs, EMStudio mostra un graf cada vegada (nota del §2.2.1): la pestanya **Narrative** els mostra tots.
 - **Una IA escriu només a partir del que troba al graf, i es pot equivocar.** Les regles la frenen, no la fan infal·lible: llegeix cada capítol abans de validar-lo.
@@ -687,7 +722,7 @@ L'entrada **Extended Matrix → Esporta sito in em.json…** fa la mateixa pregu
 - **El text s'edita a EMStudio**, no a pyArchInit.
 - La narrativa i els nodes que la sostenen (autor d'IA, prompts) **no apareixen al dibuix de la matriu**.
 
-### 10.11 Resolució de problemes
+### 10.13 Resolució de problemes
 
 | Missatge (en / it) | Causa | Solució |
 |--------------------|-------|---------|
@@ -700,6 +735,8 @@ L'entrada **Extended Matrix → Esporta sito in em.json…** fa la mateixa pregu
 | «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Has canviat la forma del fitxer (un graf per sondeig ↔ un sol graf): els grafs tenen noms diferents i la narrativa no pot passar. | El fitxer d'abans és a la còpia `.bak`: reanomena-la a `.em.json` i torna a exportar amb l'elecció d'abans. |
 | «Could not write … The previous file is intact.» / «Non sono riuscito a scrivere … Il file precedente è intatto.» | El desament ha fallat (disc ple, fitxer bloquejat, permisos). | Soluciona-ho i repeteix: els capítols generats en aquella sessió no s'havien desat. |
 | «DocX export needs python-docx — install the extra: …» (sempre en anglès) | El paquet `python-docx` no està instal·lat al Python del QGIS: només cal per al DOCX. | Instal·la `python-docx` (és un dels requisits del connector), o exporta a HTML, que no necessita res. |
+| «None of the loaded layers has the fields to recognise the units…» / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | El projecte obert no té cap capa amb els camps `sito`, `area` i `us` de les unitats (per exemple, la vista US de pyArchInit): la pestanya només cerca entre les capes ja carregades. | **Carrega la vista US** de pyArchInit (o una capa amb els mateixos camps) al projecte i clica de nou el nom o **Show on the map** (Mostra al mapa). La pestanya no afegeix capes per si sola. |
+| Cap missatge: les fotos no apareixen al text del capítol ni a les exportacions | Les fotos es llegeixen de la base de dades del projecte i de les seves carpetes, i falta alguna cosa: la base de dades no està vinculada (la matriu s'ha obert sense), la ruta **Thumbnail path** no existeix en aquest ordinador o és un magatzem remot, els fitxers no són al disc, o la unitat no és una fila de la fitxa US o no té mèdia. | Mira la pestanya **Units**: si allà la unitat mostra les seves miniatures, les trobaràs també aquí. Si no, obre la matriu des del projecte, comprova **Thumbnail path** i **Image resize** a la configuració (tutorial 01) i que els fitxers siguin a l'ordinador: les imatges en un magatzem remot no hi entren. L'exportació funciona igualment, sense fotos. |
 
 ---
 
