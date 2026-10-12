@@ -116,6 +116,25 @@ def zoom_to(iface, node_id: str):
     return zoom_to_unit(iface, unit, connection=_CURRENT_CONN[0])
 
 
+def can_highlight(node_ids) -> bool:
+    """Vero se almeno uno dei nodi è una riga della scheda US."""
+    return any(can_zoom(str(i)) for i in node_ids or ())
+
+
+def highlight(iface, node_ids, lang: str = "it"):
+    """Evidenzia e inquadra insieme le unità date (quelle di cui parla un
+    capitolo della narrativa). ``(quante trovate, frase)``."""
+    from ..utility.em_matrix_links import unit_identity
+    from ..utility.em_matrix_map import zoom_to_units
+    unita = [u for u in (_CURRENT_UNITS.get(str(i)) for i in node_ids or ())
+             if u is not None and unit_identity(u)]
+    if not unita:
+        return 0, ("Nessuna delle unità citate è una riga della scheda US."
+                   if (lang or "it").startswith("it")
+                   else "None of the cited units is a US record.")
+    return zoom_to_units(iface, unita, connection=_CURRENT_CONN[0], lang=lang)
+
+
 def thumb_base() -> str:
     """La cartella (o l'indirizzo) delle anteprime, o una stringa vuota."""
     try:

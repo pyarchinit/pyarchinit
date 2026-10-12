@@ -11,6 +11,8 @@ from __future__ import annotations
 import os
 from typing import List, Optional
 
+from urllib.parse import unquote
+
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.PyQt.QtWidgets import (QFileDialog, QHBoxLayout, QInputDialog, QLabel,
                                  QListWidget, QListWidgetItem, QMenu, QPushButton,
@@ -46,6 +48,7 @@ _L = {
     "prepare": {"it": "Prepara i capitoli", "en": "Prepare the chapters"},
     "export": {"it": "Esporta…", "en": "Export…"},
     "emstudio": {"it": "Apri in EMStudio", "en": "Open in EMStudio"},
+    "map": {"it": "Mostra sulla mappa", "en": "Show on the map"},
     "cancel": {"it": "Annulla", "en": "Cancel"},
     "progress": {"it": "Capitolo {i} di {n} · {title}", "en": "Chapter {i} of {n} · {title}"},
     "starting": {"it": "Avvio…", "en": "Starting…"},
@@ -179,7 +182,7 @@ def stop_generation(widget) -> None:
     stato.thread = None
 
 
-_AZIONI = ("genera", "rigenera", "convalida", "prepara", "esporta", "emstudio")
+_AZIONI = ("genera", "rigenera", "convalida", "prepara", "mappa", "esporta", "emstudio")
 
 
 def build_tab(parent, iface) -> QWidget:
@@ -210,6 +213,10 @@ def build_tab(parent, iface) -> QWidget:
 
     testo = QTextBrowser(w)
     testo.setObjectName("testo")
+    # I nomi delle unità sono link «unit:<id>»: un clic le evidenzia sulla
+    # mappa, non apre niente.
+    testo.setOpenLinks(False)
+    testo.setOpenExternalLinks(False)
     colonna.addWidget(testo, 3)
 
     avanzamento = QLabel("", w)
@@ -221,6 +228,7 @@ def build_tab(parent, iface) -> QWidget:
     riga1, riga2 = QHBoxLayout(), QHBoxLayout()
     for nome, chiave, riga in (("genera", "generate", riga1), ("rigenera", "regenerate", riga1),
                                ("convalida", "endorse", riga1), ("prepara", "prepare", riga2),
+                               ("mappa", "map", riga2),
                                ("esporta", "export", riga2), ("emstudio", "emstudio", riga2),
                                ("annulla", "cancel", riga2)):
         b = QPushButton(_t(chiave), w)
@@ -238,11 +246,18 @@ def build_tab(parent, iface) -> QWidget:
         i = capitoli.currentRow()
         return stato.views[i] if 0 <= i < len(stato.views) else None
 
+    def _pannello():
+        from . import em_matrix_panel
+        return em_matrix_panel
+
     def _mostra_scelta():
         v = _scelta()
-        testo.setPlainText(v.text if v else "")
+        testo.setHtml(v.html if v else "")
         bottoni["rigenera"].setEnabled(bool(v and v.can_generate and stato.config is not None
                                             and stato.thread is None))
+        ids = list(v.unit_ids) if v else []
+        bottoni["mappa"].setEnabled(bool(ids) and not _running(stato)
+                                    and _pannello().can_highlight(ids))
 
     def _aggiorna_bottoni():
         ha_file = stato.path is not None
@@ -253,6 +268,7 @@ def build_tab(parent, iface) -> QWidget:
                              ("prepara", ha_file),
                              ("convalida", ha_narrativa),
                              ("esporta", ha_narrativa),
+                             ("mappa", False),             # lo accende _mostra_scelta
                              ("emstudio", ha_file)):
             bottoni[nome].setEnabled(bool(acceso) and not occupato)
         bottoni["annulla"].setVisible(occupato)
@@ -417,6 +433,26 @@ def build_tab(parent, iface) -> QWidget:
             return
         _barra("info", _t("exported", path=", ".join(scritti)))
 
+    def _evidenzia(ids):
+        quante, messaggio = _pannello().highlight(stato.iface, list(ids), _lang())
+        _barra("info" if quante else "warn", messaggio)
+
+    def _mappa():
+        v = _scelta()
+        if v is not None and v.unit_ids:
+            _evidenzia(v.unit_ids)
+
+    def _apri_unita(url):
+        """Il clic su un nome nel testo: ``unit:<id>`` evidenzia quell'unità."""
+        try:
+            if url.scheme() != "unit":
+                return
+            ref = unquote(url.path() or url.toString()[len("unit:"):])
+        except Exception:                           # noqa: BLE001
+            return
+        if ref:
+            _evidenzia([ref])
+
     def _emstudio():
         if not stato.path:
             return
@@ -431,8 +467,11 @@ def build_tab(parent, iface) -> QWidget:
     bottoni["prepara"].clicked.connect(_prepara)
     bottoni["esporta"].clicked.connect(_esporta)
     bottoni["emstudio"].clicked.connect(_emstudio)
+    bottoni["mappa"].clicked.connect(_mappa)
     bottoni["annulla"].clicked.connect(_annulla)
+    testo.anchorClicked.connect(_apri_unita)
     w._ricarica = _ricarica                         # noqa: SLF001
+    w._apri_unita = _apri_unita                     # noqa: SLF001 (per le prove)
     _aggiorna_bottoni()
     return w
 

@@ -166,3 +166,119 @@ def zoom_to_unit(iface, unit, connection=None, *, layers=None,
     return True, ("Zoom su «%s» in «%s» (%d %s)."
                   % (etichetta, nome, len(ids),
                      "geometria" if len(ids) == 1 else "geometrie"))
+
+
+# ---------------------------------------------------------------------------
+# Più unità insieme: le geometrie di cui parla un capitolo della narrativa
+# ---------------------------------------------------------------------------
+
+_MSG = {
+    "none": {"it": "Nessuna delle unità citate è una riga della scheda US: sulla "
+                   "mappa non c'è niente da cercare.",
+             "en": "None of the cited units is a US record: nothing to look for "
+                   "on the map."},
+    "no_layers": {"it": "Nessuno dei layer caricati porta i campi per riconoscere le "
+                        "unità: carica la vista US e riprova.",
+                  "en": "None of the loaded layers has the fields to recognise the "
+                        "units: load the US view and try again."},
+    "nothing": {"it": "Nessuna delle {total} unità risulta disegnata nei layer "
+                      "caricati: {names}.",
+                "en": "None of the {total} units is drawn in the loaded layers: "
+                      "{names}."},
+    "done": {"it": "Evidenziate {n} unità su {total} in «{layer}» ({k} {geom}).",
+             "en": "Highlighted {n} of {total} units in “{layer}” ({k} {geom})."},
+    "geom_one": {"it": "geometria", "en": "geometry"},
+    "geom_many": {"it": "geometrie", "en": "geometries"},
+    "missing": {"it": "Non disegnate: {names}.", "en": "Not drawn: {names}."},
+}
+
+
+def _m(key: str, lang: str, **kw) -> str:
+    voce = _MSG[key]
+    return voce.get((lang or "it")[:2], voce["en"]).format(**kw)
+
+
+def _names(etichette, massimo: int = 5) -> str:
+    testo = ", ".join(etichette[:massimo])
+    if len(etichette) > massimo:
+        testo += ", … (%d)" % len(etichette)
+    return testo
+
+
+def zoom_to_units(iface, units, connection=None, *, layers=None,
+                  margin: float = MARGIN, lang: str = "it") -> Tuple[int, str]:
+    """Seleziona e inquadra insieme le geometrie di più unità (quelle di cui
+    parla un capitolo della narrativa). ``(quante trovate, frase)``.
+
+    Una selezione sola per layer, con tutte le feature; l'inquadratura
+    abbraccia tutto; le unità non disegnate si dicono per nome. Un nodo che
+    non è una riga della scheda non si cerca.
+    """
+    from .em_matrix_links import (candidate_layers, find_unit_extent,
+                                  merge_boxes, padded_box, resolve_id_us,
+                                  unit_identity)
+
+    validi = [u for u in units if unit_identity(u)]
+    if not validi:
+        return 0, _m("none", lang)
+    disponibili = list(layers) if layers is not None else project_layers()
+    descrittori = [(layer, _field_names(layer)) for layer in disponibili]
+
+    per_layer: dict = {}
+    mancanti: List[str] = []
+    qualche_layer = False
+    for unit in validi:
+        etichetta = str(getattr(unit, "label", "") or unit.node_id)
+        id_us = resolve_id_us(connection, unit) if connection is not None else None
+        if not candidate_layers(unit, descrittori, id_us=id_us):
+            mancanti.append(etichetta)
+            continue
+        qualche_layer = True
+        esito = find_unit_extent(unit, descrittori, id_us=id_us, fetch=_found_in)
+        if esito is None:
+            mancanti.append(etichetta)
+            continue
+        layer, ids, riquadro = esito
+        voce = per_layer.setdefault(id(layer), [layer, [], []])
+        voce[1].extend(i for i in ids if i not in voce[1])
+        voce[2].append(riquadro)
+
+    trovate = len(validi) - len(mancanti)
+    if not per_layer:
+        if not qualche_layer:
+            return 0, _m("no_layers", lang)
+        return 0, _m("nothing", lang, total=len(validi), names=_names(mancanti))
+
+    canvas = iface.mapCanvas()
+    rettangolo = None
+    for layer, ids, riquadri in per_layer.values():
+        try:
+            layer.selectByIds(ids)
+        except Exception:                           # noqa: BLE001
+            pass
+        pezzo = _rectangle(layer, canvas, padded_box(
+            merge_boxes(riquadri), margin=margin, minimum=MINIMUM_SPAN))
+        if rettangolo is None:
+            rettangolo = pezzo
+        else:
+            rettangolo.combineExtentWith(pezzo)
+    canvas.setExtent(rettangolo)
+    canvas.refresh()
+    for layer, ids, _riquadri in per_layer.values():
+        try:
+            canvas.flashFeatureIds(layer, ids)
+        except Exception:                           # noqa: BLE001
+            pass
+
+    primo = next(iter(per_layer.values()))
+    nome = ""
+    try:
+        nome = str(primo[0].name())
+    except Exception:                               # noqa: BLE001
+        pass
+    quante_geom = sum(len(v[1]) for v in per_layer.values())
+    frase = _m("done", lang, n=trovate, total=len(validi), layer=nome, k=quante_geom,
+               geom=_m("geom_one" if quante_geom == 1 else "geom_many", lang))
+    if mancanti:
+        frase += " " + _m("missing", lang, names=_names(mancanti))
+    return trovate, frase

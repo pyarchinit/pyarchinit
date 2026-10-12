@@ -481,3 +481,31 @@ def test_il_conteggio_dei_capitoli_possibili_conta_solo_le_epoche_con_unita():
     g = grafo_di_prova()
     g.add_node(EpochNode("epoch_9_9", "Vuota", 1900, 1950))
     assert en.count_possible_chapters(g) == 2
+
+
+# ---------------------------------------------------------------------------
+# Punto 1 (2026-10-12): le unità di cui parla il capitolo, e i nomi cliccabili
+# ---------------------------------------------------------------------------
+
+def test_le_unita_del_capitolo_sono_le_menzioni_o_se_non_ce_ne_sono_gli_embed():
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    assert en.chapter_unit_ids(cap) == ["u2", "u3"]                   # dagli embed: nessuna prosa
+    en.generate_chapter(g, n, cap, chat=lambda m: "Prima [[u3]], poi [[u2]] e di nuovo [[u3]]; [[u1]] è fuori.", model="m")
+    assert en.chapter_unit_ids(cap) == ["u3", "u2", "u1"]             # dalle menzioni, in ordine, senza doppioni
+
+
+def test_il_testo_html_del_capitolo_ha_un_link_per_ogni_menzione():
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    assert "da scrivere" in en.chapter_html(cap, en.name_of(g)) and "<a " not in en.chapter_html(cap, en.name_of(g))
+    en.generate_chapter(g, n, cap, chat=lambda m: "Sotto [[u3]] c'è <terra> & sabbia.\n\nPoi [[zz]].", model="m")
+    html = en.chapter_html(cap, en.name_of(g))
+    assert '<a href="unit:u3">1.US3</a>' in html
+    assert "&lt;terra&gt; &amp; sabbia" in html                        # il testo si scappa
+    assert html.count("<p>") == 2 and "zz" in html and 'href="unit:zz"' not in html   # l'invenzione non è un link
+    viste = en.overview(__import__("s3dgraphy.container", fromlist=["container_of"]).container_of(g), "it")
+    v = [x for x in viste if x.anchor == "epoch_1_1"][0]
+    assert v.unit_ids == ["u3"] and '<a href="unit:u3">' in v.html and "1.US3" in v.text

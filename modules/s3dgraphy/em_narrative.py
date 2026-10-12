@@ -312,6 +312,56 @@ def chapter_text(chapter,
     return testo
 
 
+def chapter_unit_ids(chapter) -> List[str]:
+    """Le unità di cui parla il capitolo: le menzioni della prosa, in ordine
+    e senza doppioni; se non c'è prosa, gli embed «us» (le unità della
+    fascia). Sono quelle da evidenziare sulla mappa (Enzo, 2026-10-12)."""
+    from s3dgraphy.nodes.narrative_node import mentions_in
+    ids: List[str] = []
+    for b in _prose(chapter):
+        for ref in mentions_in(b.text):
+            if ref not in ids:
+                ids.append(ref)
+    if ids:
+        return ids
+    for b in getattr(chapter, "blocks", None) or []:
+        if (getattr(b, "block_type", "") == "embed" and getattr(b, "view_type", "") == "us"
+                and b.ref and b.ref not in ids):
+            ids.append(b.ref)
+    return ids
+
+
+def chapter_html(chapter,
+                 name_of_fn: Optional[Callable[[str], Optional[str]]] = None) -> str:
+    """La prosa del capitolo in HTML: un paragrafo per blocco, e ogni
+    menzione risolta diventa un link ``unit:<id>`` col nome dell'unità,
+    così un clic la evidenzia sulla mappa. Il resto del testo si scappa."""
+    import html as _html
+    from urllib.parse import quote
+    from s3dgraphy.nodes.narrative_node import MENTION_PATTERN
+    blocchi = _prose(chapter) or _prose(chapter, placeholders=True)
+    paragrafi = []
+    for b in blocchi:
+        for pezzo in str(b.text or "").split("\n\n"):
+            pezzo = pezzo.strip()
+            if not pezzo:
+                continue
+            parti, pos = [], 0
+            for m in MENTION_PATTERN.finditer(pezzo):
+                parti.append(_html.escape(pezzo[pos:m.start()]))
+                ref = m.group(1).strip()
+                nome = name_of_fn(ref) if name_of_fn is not None else None
+                if nome:
+                    parti.append('<a href="unit:%s">%s</a>'
+                                 % (quote(ref, safe=""), _html.escape(str(nome))))
+                else:
+                    parti.append(_html.escape(ref))
+                pos = m.end()
+            parti.append(_html.escape(pezzo[pos:]))
+            paragrafi.append("<p>%s</p>" % "".join(parti).replace("\n", "<br>"))
+    return "\n".join(paragrafi)
+
+
 def can_generate(graph, chapter) -> bool:
     """La libreria sa istruire il modello solo su un'epoca o un'attività."""
     from s3dgraphy.nodes.epoch_node import EpochNode
@@ -339,6 +389,10 @@ class ChapterView:
     text: str
     can_generate: bool
     truncated: bool = False
+    #: La prosa con le menzioni come link ``unit:<id>`` (per la scheda).
+    html: str = ""
+    #: Le unità di cui parla il capitolo, da evidenziare sulla mappa.
+    unit_ids: List[str] = field(default_factory=list)
 
 
 def status_word(status: str, lang: Optional[str] = None) -> str:
@@ -359,7 +413,8 @@ def overview(container, lang: Optional[str] = None) -> List[ChapterView]:
                     graph_id=str(graph_id), narrative_id=narrativa.node_id,
                     index=i, title=str(cap.title), anchor=cap.anchor,
                     status=chapter_status(cap), text=chapter_text(cap, nomi),
-                    can_generate=can_generate(graph, cap), truncated=troncato))
+                    can_generate=can_generate(graph, cap), truncated=troncato,
+                    html=chapter_html(cap, nomi), unit_ids=chapter_unit_ids(cap)))
     return viste
 
 

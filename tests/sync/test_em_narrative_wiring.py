@@ -378,3 +378,48 @@ def test_il_bersaglio_dell_export_rispetta_l_estensione_scritta():
 def test_esporta_in_em_json_non_usa_exec_underscore_e_mostra_gli_avvisi():
     esporta = _corpo("_run_em_export")
     assert "exec_()" not in esporta and "setDetailedText" in esporta
+
+
+# ---------------------------------------------------------------------------
+# Punto 1 (2026-10-12): la mappa dalla scheda Narrativa
+# ---------------------------------------------------------------------------
+
+def test_i_nomi_nel_testo_sono_link_e_il_clic_evidenzia_l_unita(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtCore import QUrl
+    from qgis.PyQt.QtWidgets import QListWidget, QPushButton, QTextBrowser, QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from modules.s3dgraphy import em_matrix_panel as panel
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    chiamate = []
+    monkeypatch.setattr(panel, "highlight", lambda iface, ids, lang="it": chiamate.append(list(ids)) or (len(ids), "ok"))
+    monkeypatch.setattr(panel, "can_highlight", lambda ids: True)
+    radice = QWidget()
+    iface = _Iface()
+    w = tab.build_tab(radice, iface)
+    from s3dgraphy.container import container_of
+    from modules.s3dgraphy import em_narrative as en
+    g = _grafo()
+    n = en.scaffold(g, "it")
+    en.generate_chapter(g, n, n.chapter_by_anchor("epoch_1_1"), chat=lambda m: "Sotto [[u2]] niente.", model="m")
+    percorso = tmp_path / "villa.em.json"
+    en.save_project(container_of(g), percorso)
+    tab.show_file(w, percorso)
+    elenco = w.findChild(QListWidget, "capitoli")
+    testo = w.findChild(QTextBrowser, "testo")
+    assert not testo.openLinks()
+    elenco.setCurrentRow(1)
+    assert 'unit:u2' in testo.toHtml() and "1.US2" in testo.toPlainText()
+    w._apri_unita(QUrl("unit:u2"))
+    assert chiamate == [["u2"]]
+    assert iface.messageBar().messaggi[-1][0] == "info"
+    mappa = w.findChild(QPushButton, "mappa")
+    assert mappa.isEnabled()
+    mappa.click()
+    assert chiamate[-1] == ["u2"]                                     # le unità del capitolo scelto
+    elenco.setCurrentRow(0)                                           # Presentazione: niente unità
+    assert not mappa.isEnabled()
+
+
+def test_il_bottone_mappa_e_spento_senza_capitolo():
+    src = TAB.read_text(encoding="utf-8")
+    assert "setOpenLinks(False)" in src and "anchorClicked" in src and '"mappa"' in src
