@@ -174,3 +174,100 @@ def test_la_finestra_si_apre_e_cambia_modelli_col_modo(qgs, dlg_module, monkeypa
     assert not dlg.us_widget.isVisibleTo(dlg) and dlg.comboBox_label_field.currentField() == "classe"
     dlg.check_thread.wait(5000)
     QgsProject.instance().removeMapLayer(other.id())
+
+
+# --- rifiniture dopo la lettura dell'agente dei tutorial -----------------------------
+def test_le_voci_dei_modelli_e_le_istruzioni_sono_nella_lingua_giusta(dlg_module):
+    assert dlg_module.models_for(True, "en")[0][0].startswith("Local:")
+    assert "text classes" in dlg_module.models_for(True, "en")[-1][0]
+    assert "solo automatico" in dlg_module.models_for(False, "it")[-1][0]
+    assert "Locale:" in dlg_module.models_for(False, "it")[0][0]
+    for key in ("instr_points", "instr_box", "instr_polygon"):
+        assert "Avvia la selezione" in dlg_module._L[key]["it"] and "Start selection" in dlg_module._L[key]["en"]
+    assert "err_outside" not in dlg_module._L, "il messaggio lo da' sam_raster_source, nella lingua di QGIS"
+
+
+def test_polygon_parts_only_butta_linee_e_punti(qgs, dlg_module):
+    coll = QgsGeometry.fromWkt("GEOMETRYCOLLECTION(POLYGON((0 0, 4 0, 4 4, 0 4, 0 0)), LINESTRING(0 0, 9 9), POINT(1 1))")
+    out = dlg_module.polygon_parts_only(coll)
+    assert out.isMultipart() and out.type() == 2 and out.area() == pytest.approx(16.0)
+    assert dlg_module.polygon_parts_only(QgsGeometry.fromWkt("GEOMETRYCOLLECTION(LINESTRING(0 0, 9 9))")).isEmpty()
+    plain = dlg_module.polygon_parts_only(QgsGeometry.fromWkt("POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"))
+    assert plain.isMultipart() and plain.area() == pytest.approx(4.0)
+
+
+def test_il_layer_dei_segmenti_ha_riempimento_semitrasparente_per_etichetta(qgs, dlg_module):
+    layer = dlg_module.new_memory_layer("s", QgsCoordinateReferenceSystem("EPSG:32633"))
+    feats = []
+    for i, lab in enumerate(("building", "road", "road")):
+        f = QgsFeature(layer.fields())
+        f.setGeometry(QgsGeometry.fromWkt(f"MULTIPOLYGON((({i*10} 0, {i*10+5} 0, {i*10+5} 5, {i*10} 5, {i*10} 0)))"))
+        f.setAttribute("label", lab)
+        feats.append(f)
+    layer.dataProvider().addFeatures(feats)
+    dlg_module.style_segments_layer(layer)
+    renderer = layer.renderer()
+    cats = renderer.categories()            # copie: vanno tenute in vita finche' si guarda il simbolo
+    assert renderer.type() == "categorizedSymbol" and len(cats) == 2
+    sym = cats[0].symbol()
+    assert 0.3 < sym.opacity() < 0.6 and sym.symbolLayer(0).brushStyle() != 0      # riempito, non solo contorno
+    single = dlg_module.new_memory_layer("u", QgsCoordinateReferenceSystem("EPSG:32633"))
+    dlg_module.style_segments_layer(single)
+    assert single.renderer().type() == "singleSymbol" and single.renderer().symbol().opacity() < 1.0
+
+
+def _fake_job(dlg_module):
+    from modules.gis.sam_raster_source import SamImage
+    crs = QgsCoordinateReferenceSystem("EPSG:32633")
+    return {"image": SamImage("x.png", 100, 100, (1000.0, 1.0, 0.0, 2000.0, 0.0, -1.0), crs), "area": None,
+            "mode": 1, "backend": "sam2", "key": "sam2.1_t", "canvas_crs": crs}
+
+
+RESULT = {"model": "sam2.1_t.pt", "polygons": [{"ring": [[0, 0], [10, 0], [10, 10], [0, 10]], "holes": [],
+                                                 "score": 0.5, "label": "stone", "area_px": 100}], "warnings": []}
+
+
+def test_add_results_rispetta_la_sessione_di_modifica_aperta(qgs, dlg_module, monkeypatch):
+    """Prima: commitChanges() salvava anche le modifiche in sospeso dell'utente, e rollBack() le buttava."""
+    monkeypatch.setattr(dlg_module.se, "is_ready", lambda *a, **k: (False, "no"))
+    dlg = dlg_module.SamSegmentationDialog(None)
+    qgs.processEvents()
+    layer = QgsVectorLayer("MultiPolygon?crs=EPSG:32633&field=label:string", "edifici", "memory")
+    QgsProject.instance().addMapLayer(layer)
+    dlg.comboBox_target.setLayer(layer)
+    dlg._on_target_changed(layer)
+    layer.startEditing()
+    pending = QgsFeature(layer.fields())
+    pending.setGeometry(QgsGeometry.fromWkt("MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))"))
+    layer.addFeature(pending)
+    dlg._job = _fake_job(dlg_module)
+    added, target, left_open = dlg._add_results(RESULT)
+    assert added == 1 and target is layer and left_open is True
+    assert layer.isEditable() and layer.featureCount() == 2      # la sessione resta aperta, niente salvato
+    layer.rollBack()
+    assert layer.featureCount() == 0
+    # senza sessione aperta: si salva, e il layer torna in sola lettura
+    added, target, left_open = dlg._add_results(RESULT)
+    assert added == 1 and left_open is False and not layer.isEditable() and layer.featureCount() == 1
+    assert next(layer.getFeatures())["label"] == "stone"
+    dlg.check_thread.wait(5000)
+    QgsProject.instance().removeMapLayer(layer.id())
+
+
+def test_add_results_sul_layer_temporaneo_lo_crea_riempito(qgs, dlg_module, monkeypatch):
+    monkeypatch.setattr(dlg_module.se, "is_ready", lambda *a, **k: (False, "no"))
+    dlg = dlg_module.SamSegmentationDialog(None)
+    qgs.processEvents()
+    dlg.comboBox_target.setLayer(None)
+    dlg._job = _fake_job(dlg_module)
+    before = set(QgsProject.instance().mapLayers())
+    added, target, left_open = dlg._add_results(RESULT)
+    assert added == 1 and left_open is False and target.id() in QgsProject.instance().mapLayers()
+    assert target.name().startswith("SAM_") and target.featureCount() == 1
+    assert target.renderer().symbol().opacity() < 1.0
+    feat = next(target.getFeatures())
+    assert feat["label"] == "stone" and feat["area"] == pytest.approx(100.0) and feat["source"] == "sam2.1_t.pt"
+    assert feat.geometry().boundingBox().xMinimum() == 1000.0 and feat.geometry().boundingBox().yMaximum() == 2000.0
+    dlg.check_thread.wait(5000)
+    for lid in set(QgsProject.instance().mapLayers()) - before:
+        QgsProject.instance().removeMapLayer(lid)

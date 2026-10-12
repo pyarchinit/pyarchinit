@@ -27,9 +27,44 @@ from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtGui import QColor
 from qgis.core import (QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsGeometry,
                        QgsMapRendererSequentialJob, QgsMapSettings, QgsPointXY, QgsProject,
-                       QgsRasterLayer, QgsRectangle)
+                       QgsRasterLayer, QgsRectangle, QgsWkbTypes)
 
 GeoTransform = Tuple[float, float, float, float, float, float]
+
+#: Lingua dei messaggi (la finestra la imposta con `set_language`).
+LANGUAGE = "it"
+_M = {
+    "not_file": {"it": "il layer non è un file raster", "en": "the layer is not a file raster"},
+    "gdal_open": {"it": "GDAL non apre {0}", "en": "GDAL cannot open {0}"},
+    "rotated": {"it": "raster ruotato: non supportato (riproiettalo prima)",
+                "en": "rotated raster: not supported (reproject it first)"},
+    "north_down": {"it": "raster con il nord in basso: non supportato",
+                   "en": "raster with north at the bottom: not supported"},
+    "outside": {"it": "l'area scelta non copre il raster", "en": "the chosen area does not cover the raster"},
+    "png_write": {"it": "GDAL non ha scritto il PNG", "en": "GDAL did not write the PNG"},
+    "bad_res": {"it": "risoluzione non valida", "en": "invalid resolution"},
+    "render_failed": {"it": "rendering fallito", "en": "rendering failed"},
+    "write_failed": {"it": "non riesco a scrivere {0}", "en": "cannot write {0}"},
+    "tile_needs_area": {"it": "per un layer di tile serve un'area: la vista, un riquadro o un poligono",
+                        "en": "a tile layer needs an area: the view, a box or a polygon"},
+    "tile_needs_res": {"it": "per un layer di tile serve la risoluzione (unità di mappa per pixel)",
+                       "en": "a tile layer needs the resolution (map units per pixel)"},
+    "desc_wms": {"it": "tile / WMS (reso dalla vista)", "en": "tiles / WMS (rendered from the view)"},
+    "desc_arcgis": {"it": "ArcGIS REST (reso dalla vista)", "en": "ArcGIS REST (rendered from the view)"},
+    "desc_wcs": {"it": "WCS (reso dalla vista)", "en": "WCS (rendered from the view)"},
+    "desc_other": {"it": "{0} (reso dalla vista)", "en": "{0} (rendered from the view)"},
+}
+
+
+def set_language(lang):
+    """'it' o 'en' (tutto il resto cade sull'inglese)."""
+    global LANGUAGE
+    LANGUAGE = "it" if (lang or "").lower().startswith("it") else "en"
+
+
+def msg(key, *args):
+    text = _M[key].get(LANGUAGE, _M[key]["en"])
+    return text.format(*args) if args else text
 
 #: Lato massimo, in pixel, dell'immagine passata al modello (SAM lavora a
 #: 1024 interni: oltre i 4096 si paga solo memoria).
@@ -80,6 +115,22 @@ def ring_to_map(gt: GeoTransform, ring: Sequence[Sequence[float]]) -> List[QgsPo
     return [QgsPointXY(*pixel_to_map(gt, c, r)) for c, r in ring]
 
 
+def only_polygons(geom: Optional[QgsGeometry]) -> Optional[QgsGeometry]:
+    """Le sole parti poligonali di una geometria (dopo `makeValid` un anello
+    degenere diventa una linea, uno a farfalla una collezione): None se non resta nulla."""
+    if geom is None or geom.isEmpty():
+        return None
+    if QgsWkbTypes.flatType(geom.wkbType()) == QgsWkbTypes.GeometryCollection:
+        parts = [g for g in geom.asGeometryCollection() if g.type() == QgsWkbTypes.PolygonGeometry]
+        if not parts:
+            return None
+        geom = QgsGeometry.collectGeometry(parts)
+    if geom.type() != QgsWkbTypes.PolygonGeometry:
+        return None
+    geom.convertToMultiType()
+    return geom
+
+
 def polygon_to_geometry(polygon: dict, gt: GeoTransform) -> Optional[QgsGeometry]:
     """Un poligono del worker ({'ring': [[c, r], …], 'holes': [...]}) -> QgsGeometry valida (o None)."""
     ring = ring_to_map(gt, polygon.get("ring") or [])
@@ -90,8 +141,8 @@ def polygon_to_geometry(polygon: dict, gt: GeoTransform) -> Optional[QgsGeometry
     if geom.isEmpty():
         return None
     if not geom.isGeosValid():
-        geom = geom.makeValid()
-    if geom.isEmpty():
+        geom = only_polygons(geom.makeValid())
+    if geom is None or geom.isEmpty():
         return None
     geom.convertToMultiType()
     return geom
@@ -149,9 +200,8 @@ def describe_layer(layer) -> str:
     if path:
         return f"{os.path.basename(path)} — {layer.width()} × {layer.height()} px"
     provider = layer.providerType() if layer is not None else "?"
-    return {"wms": "tile / WMS (reso dalla vista)",
-            "arcgismapserver": "ArcGIS REST (reso dalla vista)",
-            "wcs": "WCS (reso dalla vista)"}.get(provider, f"{provider} (reso dalla vista)")
+    key = {"wms": "desc_wms", "arcgismapserver": "desc_arcgis", "wcs": "desc_wcs"}.get(provider)
+    return msg(key) if key else msg("desc_other", provider)
 
 
 # ----------------------------------------------------------------------
@@ -174,17 +224,17 @@ def prepare_file_raster(layer, extent: Optional[QgsRectangle], out_path: str,
 
     path = layer_file_path(layer)
     if not path:
-        raise ValueError("il layer non e' un file raster")
+        raise ValueError(msg("not_file"))
     ds = gdal.Open(path)
     if ds is None:
-        raise ValueError(f"GDAL non apre {path}")
+        raise ValueError(msg("gdal_open", path))
     gt = ds.GetGeoTransform()
     if gt[2] != 0 or gt[4] != 0:
-        raise ValueError("raster ruotato: non supportato (riproiettalo prima)")
+        raise ValueError(msg("rotated"))
     full_w, full_h = ds.RasterXSize, ds.RasterYSize
     x0, dx, _, y0, _, dy = gt
     if dy >= 0:
-        raise ValueError("raster con il nord in basso: non supportato")
+        raise ValueError(msg("north_down"))
 
     if extent is None:
         c0, r0, c1, r1 = 0, 0, full_w, full_h
@@ -196,7 +246,7 @@ def prepare_file_raster(layer, extent: Optional[QgsRectangle], out_path: str,
         c0, r0 = max(0, c0), max(0, r0)
         c1, r1 = min(full_w, c1), min(full_h, r1)
     if c1 - c0 < 2 or r1 - r0 < 2:
-        raise ValueError("l'area scelta non copre il raster")
+        raise ValueError(msg("outside"))
 
     out_w, out_h, _ = _fit(c1 - c0, r1 - r0, max_side)
     bands = ds.RasterCount
@@ -213,7 +263,7 @@ def prepare_file_raster(layer, extent: Optional[QgsRectangle], out_path: str,
         kwargs["scaleParams"] = [[]]          # min/max -> 0..255 per banda
     result = gdal.Translate(out_path, ds, options=gdal.TranslateOptions(**kwargs))
     if result is None:
-        raise ValueError("GDAL non ha scritto il PNG")
+        raise ValueError(msg("png_write"))
     result = None
     ds = None
     aux = out_path + ".aux.xml"
@@ -230,7 +280,7 @@ def render_layer(layer, extent: QgsRectangle, crs: QgsCoordinateReferenceSystem,
                  background=QColor(255, 255, 255)) -> SamImage:
     """Rende `layer` su `extent` (in `crs`) alla risoluzione chiesta, in PNG."""
     if map_units_per_pixel <= 0:
-        raise ValueError("risoluzione non valida")
+        raise ValueError(msg("bad_res"))
     out_w, out_h, scale = _fit(extent.width() / map_units_per_pixel,
                                extent.height() / map_units_per_pixel, max_side)
     mupp = map_units_per_pixel * scale
@@ -254,9 +304,9 @@ def render_layer(layer, extent: QgsRectangle, crs: QgsCoordinateReferenceSystem,
     job.waitForFinished()
     image = job.renderedImage()
     if image.isNull():
-        raise ValueError("rendering fallito")
+        raise ValueError(msg("render_failed"))
     if not image.save(out_path, "PNG"):
-        raise ValueError(f"non riesco a scrivere {out_path}")
+        raise ValueError(msg("write_failed", out_path))
     gt = (x0, mupp, 0.0, y0, 0.0, -mupp)
     return SamImage(out_path, out_w, out_h, gt, QgsCoordinateReferenceSystem(crs), "render")
 
@@ -281,9 +331,9 @@ def prepare_image(layer, extent: Optional[QgsRectangle], extent_crs: QgsCoordina
             extent = transform_extent(extent, extent_crs, layer.crs())
         return prepare_file_raster(layer, extent, out_path, max_side)
     if extent is None:
-        raise ValueError("per un layer di tile serve un'area: la vista, un riquadro o un poligono")
+        raise ValueError(msg("tile_needs_area"))
     if not map_units_per_pixel:
-        raise ValueError("per un layer di tile serve la risoluzione (unita' di mappa per pixel)")
+        raise ValueError(msg("tile_needs_res"))
     return render_layer(layer, extent, extent_crs, out_path, map_units_per_pixel, max_side)
 
 
@@ -328,7 +378,7 @@ def mask_outside_polygon(image: SamImage, area: QgsGeometry, fill=(255, 255, 255
     buf[mask == 0] = np.array(fill, dtype=np.uint8)
     out = QImage(buf.data, w, h, w * 3, QImage.Format.Format_RGB888)
     if not out.save(image.path, "PNG"):
-        raise ValueError(f"non riesco a riscrivere {image.path}")
+        raise ValueError(msg("write_failed", image.path))
 
 
 def geometry_in_image_crs(geom: QgsGeometry, geom_crs: QgsCoordinateReferenceSystem,

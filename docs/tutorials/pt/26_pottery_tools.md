@@ -127,6 +127,20 @@ Utiliza inteligencia artificial para:
 - Modelos AI descarregados (YOLO, etc.)
 - GPU recomendada (mas nao obrigatoria)
 
+### Modelos de IA
+
+**Modelos de passagem a tinta (PotteryInk).** No separador **🏺 PotteryInk**, grupo **Enhancement Settings**, a lista **Model:** apresenta os modelos do PyPotteryInk 2.1.2; o botão **Download** ao lado transfere o modelo selecionado a partir do Hugging Face (`lrncrd/PyPotteryInk`) para a pasta `~/pyarchinit_5/bin/models/` (se o ficheiro já existir, pergunta se deve ser transferido de novo). Cada modelo tem cerca de 38 MB.
+
+| Modelo (entrada da lista) | Ficheiro | Utilização |
+|---------------------------|----------|------------|
+| 10k Model (General) | `model_10k.pkl` | Modelo genérico para desenhos de cerâmica |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Desenhos da Idade do Bronze |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Desenhos proto-históricos e históricos |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Cerâmica histórica e pintada |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Desenhos em papel milimétrico (pranchas quadriculadas); não suporta sombras |
+
+**Detetor de desenhos (YOLO).** O modelo `BasicModelv8_v01.pt` do PyPotteryLens, que localiza os desenhos nas páginas extraídas dos PDF (opção **Auto-detect pottery (ML)** e separador **2. Apply Model**), instala-se com o botão **Download YOLO Model** do separador **PDF Extraction**: se encontrar uma cópia local do PyPotteryLens, copia-a; caso contrário, transfere-o do Hugging Face (`lrncrd/PyPotteryLens`, cerca de 144 MB) e, se a transferência falhar, do fork no GitHub como alternativa. O ficheiro é guardado em `~/pyarchinit_5/bin/`; uma transferência falhada não deixa ficheiros incompletos.
+
 ### Utilizacao
 
 1. Carregar imagem de ceramica
@@ -148,7 +162,7 @@ Utiliza inteligencia artificial para:
 ### Configuracao Automatica
 
 No primeiro arranque, o Pottery Tools:
-1. Cria ambiente virtual em `~/pyarchinit/bin/pottery_venv/`
+1. Cria ambiente virtual em `~/pyarchinit_5/bin/pottery_venv/`
 2. Instala dependencias necessarias
 3. Descarrega modelos AI (se necessario)
 
@@ -236,11 +250,13 @@ As imagens processadas podem ser:
 ### Ficheiros Fonte
 - `tabs/Pottery_tools.py` - Interface principal
 - `modules/utility/pottery_utilities.py` - Utilitarios de processamento
+- `modules/utility/pottery_models.py` - Registo dos modelos (PotteryInk e detetor YOLO)
 - `gui/ui/Pottery_tools.ui` - Disposicao da UI
 
 ### Pastas
-- `~/pyarchinit/bin/pottery_venv/` - Ambiente virtual
-- `~/pyarchinit/models/` - Modelos AI
+- `~/pyarchinit_5/bin/pottery_venv/` - Ambiente virtual
+- `~/pyarchinit_5/bin/models/` - Modelos PotteryInk (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - Detetor YOLO
 
 ---
 
@@ -259,4 +275,4 @@ As imagens processadas podem ser:
 
 ---
 
-*Ultima atualizacao: janeiro de 2026*
+*Última atualização: outubro de 2026*

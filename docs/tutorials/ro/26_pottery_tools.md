@@ -127,6 +127,20 @@ Utilizeaza inteligenta artificiala pentru:
 - Modele AI descarcate (YOLO, etc.)
 - GPU recomandat (dar nu obligatoriu)
 
+### Modele AI
+
+**Modele de tușare (PotteryInk).** În fila **🏺 PotteryInk**, grupul **Enhancement Settings**, lista **Model:** afișează modelele PyPotteryInk 2.1.2; butonul **Download** de alături descarcă modelul selectat de pe Hugging Face (`lrncrd/PyPotteryInk`) în dosarul `~/pyarchinit_5/bin/models/` (dacă fișierul există deja, întreabă dacă trebuie descărcat din nou). Fiecare model are aproximativ 38 MB.
+
+| Model (intrare din listă) | Fișier | Utilizare |
+|---------------------------|--------|-----------|
+| 10k Model (General) | `model_10k.pkl` | Model general pentru desene de ceramică |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Desene din epoca bronzului |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Desene protoistorice și istorice |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Ceramică istorică și pictată |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Desene pe hârtie milimetrică (planșe cu caroiaj); nu suportă umbrele |
+
+**Detectorul de desene (YOLO).** Modelul `BasicModelv8_v01.pt` al PyPotteryLens, care găsește desenele în paginile extrase din PDF-uri (opțiunea **Auto-detect pottery (ML)** și fila **2. Apply Model**), se instalează cu butonul **Download YOLO Model** din fila **PDF Extraction**: dacă găsește o copie locală a PyPotteryLens, o copiază; altfel îl descarcă de pe Hugging Face (`lrncrd/PyPotteryLens`, aproximativ 144 MB) și, dacă descărcarea eșuează, de pe fork-ul GitHub, ca rezervă. Fișierul este salvat în `~/pyarchinit_5/bin/`; o descărcare eșuată nu lasă fișiere incomplete.
+
 ### Utilizare
 
 1. Incarcati imaginea ceramica
@@ -148,7 +162,7 @@ Utilizeaza inteligenta artificiala pentru:
 ### Configurare automata
 
 La prima lansare, Instrumente ceramica:
-1. Creeaza mediul virtual in `~/pyarchinit/bin/pottery_venv/`
+1. Creeaza mediul virtual in `~/pyarchinit_5/bin/pottery_venv/`
 2. Instaleaza dependentele necesare
 3. Descarca modelele AI (daca este necesar)
 
@@ -236,11 +250,13 @@ Imaginile procesate pot fi:
 ### Fisiere sursa
 - `tabs/Pottery_tools.py` - Interfata principala
 - `modules/utility/pottery_utilities.py` - Utilitare de procesare
+- `modules/utility/pottery_models.py` - Registrul modelelor (PotteryInk și detectorul YOLO)
 - `gui/ui/Pottery_tools.ui` - Macheta UI
 
 ### Foldere
-- `~/pyarchinit/bin/pottery_venv/` - Mediu virtual
-- `~/pyarchinit/models/` - Modele AI
+- `~/pyarchinit_5/bin/pottery_venv/` - Mediu virtual
+- `~/pyarchinit_5/bin/models/` - Modele PotteryInk (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - Detectorul YOLO
 
 ---
 
@@ -259,4 +275,4 @@ Imaginile procesate pot fi:
 
 ---
 
-*Ultima actualizare: ianuarie 2026*
+*Ultima actualizare: octombrie 2026*

@@ -179,3 +179,46 @@ def test_venv_python_segue_il_sistema(tmp_path):
         assert py.endswith(os.path.join("Scripts", "python.exe"))
     else:
         assert py == os.path.join(str(tmp_path), "bin", "python")
+
+
+# --- lingua e tempo scaduto -------------------------------------------------------
+def test_i_messaggi_dell_ambiente_seguono_la_lingua(tmp_path):
+    se.set_language("en")
+    try:
+        ok, info = se.is_ready(str(tmp_path / "nope"))
+        assert not ok and info == "environment not installed"
+        assert se.msg("timeout", 7) == "Timed out (7 s): process stopped."
+    finally:
+        se.set_language("it")
+    assert se.is_ready(str(tmp_path / "nope"))[1] == "ambiente non installato"
+
+
+def test_worker_command_porta_la_lingua(monkeypatch):
+    monkeypatch.setattr(se, "native_prefix", lambda *a, **k: [])
+    cmd = se.worker_command("/v/bin/python", "a", "b", "sam2", lang="en")
+    assert cmd[cmd.index("--lang") + 1] == "en"
+    cmd = se.worker_command("/v/bin/python", "a", "b", "sam2")
+    assert cmd[cmd.index("--lang") + 1] == se.LANGUAGE
+
+
+def test_il_tempo_scaduto_ferma_davvero_il_worker(tmp_path, monkeypatch):
+    """Prima `wait(timeout)` veniva dopo la lettura dell'output fino alla fine: non scattava mai."""
+    import time
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
+    esiti = []
+    thread = se.SamWorkerThread(["sleep", "30"], str(tmp_path / "out.json"), timeout_s=1)
+    thread.finished_ok.connect(lambda ok, m, path: esiti.append((ok, m, path)))
+    t0 = time.time()
+    thread.run()                                   # sincrono: niente event loop
+    assert time.time() - t0 < 8
+    assert esiti and esiti[0][0] is False and "scaduto" in esiti[0][1]
+
+
+def test_il_tempo_scaduto_ferma_anche_l_installazione(tmp_path, monkeypatch):
+    import time
+    righe = []
+    thread = se.SamSetupThread()
+    thread.log.connect(righe.append)
+    t0 = time.time()
+    assert thread._stream(["sleep", "30"], 1) is False
+    assert time.time() - t0 < 8 and any("scaduto" in r for r in righe)

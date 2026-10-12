@@ -127,6 +127,20 @@ Utilitza intel·ligència artificial per:
 - Models AI descarregats (YOLO, etc.)
 - GPU recomanada (però no obligatòria)
 
+### Models d'IA
+
+**Models d'entintat (PotteryInk).** A la pestanya **🏺 PotteryInk**, grup **Enhancement Settings**, la llista **Model:** mostra els models de PyPotteryInk 2.1.2; el botó **Download** del costat baixa el model seleccionat des de Hugging Face (`lrncrd/PyPotteryInk`) a la carpeta `~/pyarchinit_5/bin/models/` (si el fitxer ja existeix, pregunta si es vol tornar a baixar). Cada model ocupa uns 38 MB.
+
+| Model (entrada de la llista) | Fitxer | Ús |
+|------------------------------|--------|----|
+| 10k Model (General) | `model_10k.pkl` | Model general per a dibuixos de ceràmica |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Dibuixos de l'edat del bronze |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Dibuixos protohistòrics i històrics |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Ceràmica històrica i pintada |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Dibuixos en paper mil·limetrat (làmines quadriculades); no admet ombres |
+
+**Detector de dibuixos (YOLO).** El model `BasicModelv8_v01.pt` de PyPotteryLens, que localitza els dibuixos a les pàgines extretes dels PDF (opció **Auto-detect pottery (ML)** i pestanya **2. Apply Model**), s'instal·la amb el botó **Download YOLO Model** de la pestanya **PDF Extraction**: si troba una còpia local de PyPotteryLens, la copia; si no, el baixa de Hugging Face (`lrncrd/PyPotteryLens`, uns 144 MB) i, si la baixada falla, del fork de GitHub com a alternativa. El fitxer es desa a `~/pyarchinit_5/bin/`; una baixada fallida no deixa fitxers a mitges.
+
 ### Ús
 
 1. Carregar imatge ceràmica
@@ -148,7 +162,7 @@ Utilitza intel·ligència artificial per:
 ### Setup Automàtic
 
 Al primer inici, Eines Ceràmica:
-1. Crea entorn virtual a `~/pyarchinit/bin/pottery_venv/`
+1. Crea entorn virtual a `~/pyarchinit_5/bin/pottery_venv/`
 2. Instal·la dependències necessàries
 3. Descarrega models AI (si es requereixen)
 
@@ -236,11 +250,13 @@ Les imatges processades poden ser:
 ### Fitxers Font
 - `tabs/Pottery_tools.py` - Interfície principal
 - `modules/utility/pottery_utilities.py` - Utilitats elaboració
+- `modules/utility/pottery_models.py` - Registre de models (PotteryInk i detector YOLO)
 - `gui/ui/Pottery_tools.ui` - Layout UI
 
 ### Carpetes
-- `~/pyarchinit/bin/pottery_venv/` - Entorn virtual
-- `~/pyarchinit/models/` - Models AI
+- `~/pyarchinit_5/bin/pottery_venv/` - Entorn virtual
+- `~/pyarchinit_5/bin/models/` - Models PotteryInk (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - Detector YOLO
 
 ---
 
@@ -259,4 +275,4 @@ Les imatges processades poden ser:
 
 ---
 
-*Última actualització: Gener 2026*
+*Última actualització: Octubre 2026*

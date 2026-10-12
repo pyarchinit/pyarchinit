@@ -7,7 +7,7 @@
 4. [Data Tab](#data-tab)
 5. [Variogram Tab](#variogram-tab)
 6. [Kriging Tab](#kriging-tab)
-7. [Machine Learning Tab](#machine-learning-tab)
+7. [Patterns (ML) Tab](#patterns-ml-tab)
 8. [Sampling Tab](#sampling-tab)
 9. [Report Tab](#report-tab)
 10. [Operational Workflow](#operational-workflow)
@@ -18,7 +18,7 @@
 
 ## Introduction
 
-**GeoArchaeo** is the geostatistical analysis module integrated into PyArchInit. It provides a comprehensive suite of tools for spatial analysis of archaeological data, from variogram modelling to kriging interpolation, machine learning predictions, and sampling strategy design.
+**GeoArchaeo** is the geostatistical analysis module built into PyArchInit; it corresponds to version **1.3.1** of the GeoArchaeo plugin. It works on any point layer of the QGIS project that has a numeric field (sherd counts, geophysical readings, soil analyses, tomb measurements…) and takes the analysis from descriptive statistics to the variogram, to ordinary kriging interpolation with its uncertainty, to the search for groups and anomalies with machine learning, to the proposal of new sampling locations, and finally to a report.
 
 <!-- VIDEO: Introduction to GeoArchaeo -->
 > **Video Tutorial**: [Insert video link GeoArchaeo introduction]
@@ -27,437 +27,548 @@
 
 Geostatistical analysis allows you to:
 
-- **Interpolate** values between known sampling points, creating continuous surfaces from discrete data
-- **Quantify** the spatial correlation in archaeological data (e.g., find density, layer thickness)
-- **Predict** spatial distributions in areas not yet excavated
-- **Optimise** sampling strategies for future surveys
-- **Generate** comprehensive analytical reports for scientific documentation
+- **Describe** the distribution of the measured values (mean, spread, skewness, outliers)
+- **Quantify** spatial correlation, i.e. up to what distance values resemble each other (variogram)
+- **Interpolate** values between known points, producing a continuous surface together with its uncertainty (kriging)
+- **Recognise** groups of similar points and anomalies (machine learning)
+- **Plan** where to sample or excavate in the next campaigns
+- **Document** the analyses in a report
 
 ### Workflow Overview
 
 ```
-1. Load Data           2. Variogram           3. Kriging/ML
-   (Data Tab)             (Variogram Tab)        (Kriging/ML Tab)
-        |                      |                      |
-   Select layer           Compute and model       Interpolation or
-   and fields             variogram               spatial prediction
-                               |                      |
-                          4. Sampling            5. Report
-                             (Sampling Tab)         (Report Tab)
-                                  |                      |
-                             Design sampling      Generate analysis
-                             strategy             report
+Input data: point layer + numeric field (chosen at the top, only once)
+  │
+  ├─ 1 Data ............ descriptive statistics, histogram
+  ├─ 2 Variogram ....... nugget, sill, range, anisotropy
+  ├─ 3 Kriging ......... estimate and uncertainty rasters, cross-validation
+  ├─ 4 Patterns (ML) ... groups and anomalies (point layer)
+  ├─ 5 Sampling ........ proposed new points (point layer)
+  └─ 6 Report .......... HTML document with interactive charts, or PDF
 ```
+
+### What's new in version 1.3.1
+
+- Layer and field are chosen **once** at the top and apply to every tab; each tab keeps its own results
+- Charts appear in the panel even without QtWebEngine (static preview plus a button to open them in the browser)
+- Kriging also produces the **uncertainty raster**, applies the colour ramp and computes a real **leave-one-out cross-validation**
+- Anisotropy is checked with real **directional variograms**; nugget, sill and range can be set by hand
+- Variogram and kriging are much faster (KD-tree neighbour search): grids up to **500 × 500 cells**
+- NULL values no longer break statistics or kriging; the report includes the charts; the example data come from the module folder
+- The panel language is stored in the QGIS settings
 
 ---
 
 ## Accessing the Tool
 
-GeoArchaeo is accessible from the PyArchInit toolbar through the Analysis Tools dropdown button.
+GeoArchaeo belongs to the PyArchInit group of analysis tools.
 
 ### From the Toolbar
 
-1. Locate the **Analysis Tools** button (dropdown icon) in the PyArchInit toolbar
-2. Click the dropdown arrow
-3. Select **GeoArchaeo** from the list
+1. In the PyArchInit toolbar, find the drop-down button of the **analysis tools** (the same group that contains, among others, SAM, Pottery Tools and MoveCost)
+2. Click the arrow next to the button: the visible icon may belong to another tool of the group
+3. Choose **GeoArchaeo - Geostatistical Analysis**
 
-<!-- IMAGE: Analysis Tools button in the toolbar -->
-> **Fig. 1**: The Analysis Tools dropdown menu in the PyArchInit toolbar
+<!-- IMAGE: Analysis tools drop-down button in the toolbar -->
+> **Fig. 1**: The analysis tools drop-down menu in the PyArchInit toolbar
 
-The GeoArchaeo panel appears as a **dock widget** attached to the QGIS interface. You can drag, resize, or detach it like any other QGIS panel.
+The same entry is in the **pyArchInit** menu of the QGIS menu bar and in the plugins menu, under **pyArchInit - Archaeological GIS Tools**.
 
-<!-- IMAGE: GeoArchaeo panel docked in QGIS -->
-> **Fig. 2**: The GeoArchaeo panel docked in the QGIS window
+The GeoArchaeo panel opens as a **dock widget** on the right side of the QGIS window: it can be moved, resized or detached like any other QGIS panel. If you close it, the same entry reopens it with the results of the session still there.
+
+<!-- IMAGE: GeoArchaeo panel docked on the right side of QGIS -->
+> **Fig. 2**: The GeoArchaeo panel docked on the right side of the QGIS window
 
 ### Language Switcher
 
-The GeoArchaeo panel includes a **language switcher** at the top, allowing you to change the interface language without restarting QGIS. Supported languages include Italian, English, German, French, Spanish, Arabic, Catalan, Romanian, Portuguese, and Greek.
+At the top right, the **«Language:»** drop-down offers **Italiano** and **English**, the only two languages of the GeoArchaeo interface. The change is immediate, without restarting QGIS, and the choice is stored in the QGIS settings. Until you choose, the panel follows the QGIS language: Italian if QGIS is in Italian, English in every other case.
 
 ---
 
 ## User Interface
 
-The GeoArchaeo panel is organised into **6 main tabs**, each dedicated to a phase of the geostatistical analysis workflow.
+From top to bottom the panel contains: the header with its buttons, the **«Input data (used by all tabs)»** group, the **6 analysis tabs** and, while a computation runs, the progress bar with the **«Cancel»** button.
 
-| Tab | Icon | Function |
-|-----|------|----------|
-| **Data** | Table | Load and explore spatial data from QGIS layers |
-| **Variogram** | Chart | Compute and model experimental variograms |
-| **Kriging** | Grid | Perform kriging interpolation (ordinary, universal) |
-| **ML** | Brain | Machine learning spatial predictions |
-| **Sampling** | Target | Design sampling strategies for archaeological surveys |
-| **Report** | Document | Generate analysis reports |
+### Header
 
-<!-- IMAGE: Overview of the 6 GeoArchaeo tabs -->
-> **Fig. 3**: The six tabs of the GeoArchaeo panel
+| Element | Function |
+|---------|----------|
+| **«Load example data»** | Opens the list of the test datasets shipped with the module (see the Data tab) |
+| **«Tutorial»** | Opens the built-in GeoArchaeo guide, in Italian or English, which can also be opened in the browser |
+| **«Language:»** | Italiano / English drop-down |
 
-### Panel Toolbar
+### Input Data
 
-At the top of the panel you will find:
+In the **«Input data (used by all tabs)»** group you choose, only once:
 
-- **Language selector**: Dropdown to change the interface language
-- **Load example data**: Button to load a test dataset
-- **Help**: Button to access the documentation
+- **«Point layer:»**: a vector point layer of the project
+- **«Value field (numeric):»**: the field to analyse (the drop-down lists numeric fields only)
+
+Below them a summary shows the valid points out of the total, the CRS and the layer extent, for example «500 valid points of 500 · CRS EPSG:32633 · …». Points without a value (NULL or non-numeric text) are not counted as valid. The summary also warns when the project has no point layers, when the layer has no numeric fields or when the CRS is geographic (degrees).
+
+When you change layer, the panel also proposes the maximum distance of the variogram and the kriging cell size, and preselects the layer in the Patterns (ML) tab if nothing is selected there yet.
+
+### The Six Tabs
+
+| Tab | Function | Result |
+|-----|----------|--------|
+| **Data** | Descriptive statistics of the field | Statistics table, histogram with box plot |
+| **Variogram** | Spatial structure of the values | Nugget, sill, range, anisotropy, chart |
+| **Kriging** | Interpolation on a regular grid | Estimate and uncertainty rasters, cross-validation |
+| **Patterns (ML)** | Groups and anomalies with machine learning | Point layer with the group label |
+| **Sampling** | Proposal of new points to sample | Point layer and coordinate table |
+| **Report** | Collection of the session's analyses | HTML file with interactive charts, or PDF |
+
+<!-- IMAGE: Header, Input data group and the six GeoArchaeo tabs -->
+> **Fig. 3**: The header, the «Input data» group and the six tabs of the GeoArchaeo panel
+
+### Results and Charts
+
+Each tab shows its results in a **box** below the computation button, which stays visible until you run the analysis again, and the **chart** in the panel:
+
+- if QGIS has QtWebEngine, the Plotly chart is interactive right in the panel (zoom, values on mouse hover)
+- otherwise a **static preview** appears with the note «Static preview (QtWebEngine not available in this QGIS installation).»
+- in both cases the **«Open interactive chart in browser»** button opens the interactive version in the web browser
+
+The Data, Variogram and Kriging tabs end with a link to the next step, for example **«Next step: Variogram →»**.
+
+### Running Analyses
+
+Variogram, kriging, pattern recognition and sampling are computed in a **separate thread**: QGIS remains usable, and the **progress bar** (as a percentage for kriging) and the **«Cancel»** button appear at the bottom of the panel. One analysis runs at a time: starting another one shows «An analysis is already running: wait for it to finish or cancel it.»
 
 ---
 
 ## Data Tab
 
-The **Data** tab is the starting point for any geostatistical analysis. It allows you to load and view spatial data available in QGIS layers.
+The **Data** tab («1. Exploratory analysis») describes the distribution of the values before interpolating them.
 
-### Loading Data
+### Computing the Statistics
 
-1. Open the **Data** tab
-2. Select a **vector layer** from the dropdown (all point layers in the QGIS project are listed)
-3. Select the **analysis field** (the numeric field to analyse)
-4. Click **Load data**
+1. In the «Input data» group, choose the point layer and the numeric field
+2. Open the **Data** tab
+3. Click **«Calculate statistics»**
 
-<!-- IMAGE: Data tab with layer and field selected -->
-> **Fig. 4**: The Data tab with a layer and analysis field selected
+<!-- IMAGE: Data tab with statistics and histogram -->
+> **Fig. 4**: The Data tab with the statistics table and the histogram of the chosen field
+
+### Statistics and Interpretation
+
+| Statistic | Description |
+|-----------|-------------|
+| **Number of values**, **Missing values** | Points with a valid value and excluded points (NULL or non-numeric text) |
+| **Minimum**, **Maximum**, **Mean**, **Median** | Range and location of the values |
+| **Std. deviation**, **Coeff. of variation** | Absolute and relative spread |
+| **First quartile (Q1)**, **Third quartile (Q3)** | Limits of the central 50% of the values |
+| **Skewness**, **Kurtosis** | Shape of the distribution |
+
+Below the table the panel adds a reading in words:
+
+- skewness above 1: right-skewed distribution (few very high values); consider a log transform before kriging, for example by creating a new field with the Field Calculator
+- skewness below -1: left-skewed distribution (few very low values)
+- otherwise: roughly symmetric distribution, suitable for kriging
+- the number of possible outliers, i.e. beyond 3 standard deviations from the mean
+
+The chart shows the **histogram** of the values with a **box plot** (only the histogram in the static preview).
 
 ### Example Data
 
-To familiarise yourself with the tool, you can load an **example dataset** by clicking the dedicated button. The example dataset contains simulated archaeological data with coordinates and numeric values suitable for geostatistical analysis.
+The **«Load example data»** button opens the «GeoArchaeo example data» window with the datasets in the module's `test_layers` folder; the path is shown in **«Folder:»** and can be changed with **«Browse…»**. GeoPackages and GeoJSON files are already ticked. CSV files are listed only when no GeoPackage or GeoJSON with the same name exists; they must be ticked by hand and are loaded as delimited text (`x` and `y` fields, EPSG:32633). With **OK** the layers are added to the project and the first point layer loaded becomes the panel's input layer.
 
-### Data Exploration
+| Dataset | Points | Main numeric fields | Suggested use |
+|---------|--------|---------------------|---------------|
+| `villa_ceramica` (GeoPackage) | 500 | `ceramic_count`, `weight_g`, `depth_cm` | Statistics, variogram, kriging |
+| `geoarchaeo_test_complete` (GeoPackage) | 500 | Same as `villa_ceramica` | Trying out all tabs |
+| `geofisica_survey` (GeoPackage) | 4800 | `gpr_amplitude`, `mag_nt` | Isolation Forest, test on a large dataset |
+| `necropoli` (GeoPackage) | 120 tombs | `length_cm`, `width_cm`, `depth_cm`, `n_grave_goods` | DBSCAN or K-Means |
+| `soil_samples` (GeoPackage) | 80 | `sand_pct`, `silt_pct`, `clay_pct`, `ph`, `p_ppm`, `organic_pct` | Kriging of soil properties |
+| `ricognizione_survey` (GeoJSON) | 100 | `densita_mq`, `visibilita`, `pendenza`, `distanza_acqua` | Density kriging, sampling |
+| `unita_scavo_ceramica` (GeoJSON) | 50 | `ceramica_tot`, `ceramica_fine`, `ceramica_comune` | Variogram and kriging with few points |
+| `area_studio` (GeoJSON) | 1 polygon | — | Study area for sampling |
 
-After loading, the tab displays:
-
-| Information | Description |
-|-------------|-------------|
-| **Number of points** | Total loaded points |
-| **Extent** | Bounding box of the dataset (xmin, ymin, xmax, ymax) |
-| **Statistics** | Mean, median, standard deviation, min, max |
-| **Preview** | Table with the first rows of the dataset |
+Among the CSV files, `magnetometria_grid` (2500 points, field `mag_nT`) contains simulated magnetic anomalies (two walls, a pit, a kiln). All data are simulated and in EPSG:32633 (UTM 33N, metres). The `area_studio` polygon covers the area of `ricognizione_survey`, `unita_scavo_ceramica` and `magnetometria_grid`, not that of the other datasets.
 
 ### Data Requirements
 
-- The layer must be a **point vector layer**
-- The analysis field must contain **numeric values**
-- Points must have **valid coordinates** in the project's coordinate reference system
-- At least **30 points** are recommended for meaningful geostatistical analysis
+- The layer must be a vector **point** layer (for multipoints the first point is used)
+- The field must be **numeric**: a text field containing numbers must be converted with the Field Calculator
+- NULL or non-numeric values are excluded automatically and counted as missing
+- At least **5 points** with a valid value are needed for variogram and kriging (1 for statistics); a reliable variogram usually needs a few dozen points
+- A **projected CRS** in metres (for example UTM) is recommended: with a geographic CRS the summary warns you and variogram and kriging ask for confirmation
 
 ---
 
 ## Variogram Tab
 
-The **Variogram** tab allows you to compute and model experimental variograms, which describe the spatial correlation structure in your data.
+The **Variogram** tab («2. Variogram») measures how the difference between values grows with distance: it describes the spatial structure of the data and drives the kriging.
 
 ### What is a Variogram?
 
-A variogram is a plot showing how the **variance** between pairs of points changes as a function of the **distance** separating them. The key parameters are:
+The variogram relates the **semivariance** of point pairs to the **distance** separating them. The model parameters are:
 
 | Parameter | Description |
 |-----------|-------------|
-| **Nugget** | Variance at zero distance (measurement error + micro-scale variability) |
-| **Sill** | Maximum variance reached (variogram plateau) |
-| **Range** | Distance beyond which there is no more spatial correlation |
+| **Nugget** | Variability at almost zero distance: measurement error and small-scale variability |
+| **Sill** | Total variance reached by the model (the "plateau") |
+| **Range** | Distance beyond which values are no longer correlated; in GeoArchaeo it is the practical range (95% of the sill) |
 
-### Computing the Experimental Variogram
+### Computing the Variogram
 
-1. Ensure you have loaded data in the Data tab
-2. Open the **Variogram** tab
-3. Set the parameters:
-   - **Number of lags**: Number of distance intervals (default: 15)
-   - **Maximum distance**: Maximum distance to consider (default: auto)
-   - **Angular tolerance**: For directional variograms (default: omnidirectional)
-4. Click **Compute variogram**
+1. Open the **Variogram** tab
+2. In the **«Parameters»** group check **«Maximum distance:»**: the **«Auto»** button proposes about 1/3 of the diagonal of the area covered by the points (the same value is proposed when you change layer)
+3. Choose the **«Theoretical model:»**
+4. If needed, tick **«Check anisotropy (directional variograms)»**
+5. Click **«Calculate variogram»**
 
-<!-- IMAGE: Computed experimental variogram -->
-> **Fig. 5**: An experimental variogram computed from archaeological data
+Point pairs are grouped into **15 distance classes** (lags) between zero and the maximum distance; the number of classes cannot be changed from the panel. Above **3000 points** the variogram is computed on a random subsample of 3000 points, because the number of pairs grows with the square of the points. The model is fitted by least squares weighted by the number of pairs in each class.
 
-### Variogram Modelling
+<!-- IMAGE: Variogram tab with parameters and results -->
+> **Fig. 5**: The Variogram tab with the parameters, the theoretical model and the results box
 
-After computing the experimental variogram, you can fit a **theoretical model**:
+### Theoretical Models
 
-1. Select the **model type**:
-   - **Spherical**: The most common model, reaches the sill at a finite distance
-   - **Exponential**: Reaches the sill asymptotically
-   - **Gaussian**: Gradual transition, suitable for very smooth phenomena
-   - **Linear**: Variogram without a defined sill
-2. Click **Fit model**
-3. Review the estimated parameters (nugget, sill, range) and goodness of fit
+| Model | Behaviour | When to use it |
+|-------|-----------|----------------|
+| **«Spherical (recommended)»** | Rises up to the range, then stays constant | The most common: artefact densities, distributions with sharp limits |
+| **«Exponential»** | Rises quickly near the origin and reaches the sill gradually | Continuously decaying phenomena, for example chemical elements in the soil |
+| **«Gaussian»** | Very smooth near the origin | Very "smooth" phenomena (surfaces); use with caution |
+| **«Matérn»** | Between exponential and Gaussian (ν = 1.5) | Flexible alternative |
 
-<!-- IMAGE: Fitted variogram model -->
-> **Fig. 6**: Spherical model fitted to the experimental variogram
+Rule of thumb: start with the spherical model and compare its fit RMSE with that of the other models. Kriging uses the **last** variogram calculated: after comparing, recalculate the one you chose.
 
-### Directional Variograms
+### Manual Parameters
 
-To check for **anisotropy** (variation of spatial structure in different directions):
+The **«Manual parameters (optional)»** group, off by default, lets you fix **«Nugget:»**, **«Sill (total variance):»** and **«Range (correlation distance):»**. With the group enabled, non-zero values are kept fixed and those left on «Auto» (zero) are estimated.
 
-1. Set an **angular tolerance** (e.g., 22.5 degrees)
-2. Select the **directions** to analyse (0, 45, 90, 135 degrees)
-3. Compare the variograms in different directions
+### Reading the Results
+
+The results box reports:
+
+- the model with **Nugget**, **Sill**, **Range** (in CRS units) and the fit **RMSE**
+- the number of point pairs and distance classes, with the subsample used, if any
+- a reading of the range: values are spatially correlated up to that distance and do not influence each other beyond it
+- the nugget/sill ratio: below 25% strong small-scale continuity, up to 60% moderate continuity, above 60% high small-scale variability or measurement error (kriging will be weakly informative)
+
+The chart shows the points of the experimental variogram (larger where there are more pairs), the model curve and the nugget, sill and range lines.
+
+<!-- IMAGE: Experimental variogram with the fitted model -->
+> **Fig. 6**: Experimental variogram and spherical model with the nugget, sill and range lines
+
+### Directional Variograms (Anisotropy)
+
+With **«Check anisotropy (directional variograms)»** ticked, GeoArchaeo also computes the variograms in the directions **0°, 45°, 90° and 135°** (angles measured from East, counter-clockwise, tolerance ±22.5°). Nugget and sill are those of the overall variogram; the range is estimated for each direction.
+
+- If the ratio between the largest and the smallest range exceeds **2**, the box reports the anisotropy and the major direction (for example along a wall, a road or a slope)
+- Otherwise it reports «No relevant anisotropy» with the computed ratio
+- With too few pairs per direction it shows «Not enough pairs for directional variograms.»
+
+In the interactive chart the directional variograms are legend entries hidden at first: click 0°, 45°, 90° or 135° to show them (in the static preview they are always drawn). The panel's kriging uses the omnidirectional model: anisotropy is there for interpretation.
 
 ---
 
 ## Kriging Tab
 
-The **Kriging** tab allows you to perform kriging interpolation, the gold standard geostatistical method for optimal spatial prediction.
+The **Kriging** tab («3. Ordinary kriging») interpolates the values on a regular grid using the variogram, also produces the uncertainty map and adds the rasters to the project.
 
-### Available Kriging Types
+### Ordinary Kriging
 
-| Type | Description | When to Use |
-|------|-------------|-------------|
-| **Ordinary kriging** | Assumes a constant but unknown local mean | Most common case, stationary data |
-| **Universal kriging** | Accounts for a spatial trend (drift) | When data shows a directional trend |
+The panel runs **ordinary kriging** (constant but unknown local mean), suitable for most archaeological data. For each cell it uses the **20 nearest points**, found with a KD-tree; this number cannot be changed from the panel. Co-kriging, spatio-temporal kriging and tiled kriging for very large datasets exist only as Processing algorithms of the standalone GeoArchaeo plugin and are not available in PyArchInit.
 
 ### Running Kriging
 
-1. Ensure you have modelled the variogram in the Variogram tab
-2. Open the **Kriging** tab
-3. Select the **kriging type** (ordinary or universal)
-4. Set the output grid parameters:
-   - **Resolution**: Grid cell size (in CRS units)
-   - **Extent**: Automatic from dataset or custom
-5. Set the kriging parameters:
-   - **Minimum points**: Minimum number of nearby points to use
-   - **Maximum points**: Maximum number of nearby points to use
-   - **Search radius**: Maximum distance for nearby points
-6. Click **Run kriging**
+1. Open the **Kriging** tab and read the variogram status line (see below); the **«← Go to Variogram»** button takes you back to the previous tab
+2. Set **«Cell size:»**, the size of a cell in CRS units: the panel proposes about 100 cells on the longer side of the layer and shows the resulting grid below («Grid: … × … = … cells»)
+3. Leave **«Use the calculated variogram»** ticked to use the variogram of the previous tab; when it is off, the variogram is estimated automatically
+4. Leave **«Also create the uncertainty raster (std. deviation)»** ticked if you need the uncertainty map
+5. Click **«Run kriging»**: the progress bar shows the percentage and **«Cancel»** stops the computation
 
-<!-- IMAGE: Kriging interpolation result -->
-> **Fig. 7**: Kriging interpolation map with the prediction grid
+The status line can read:
+
+- «Variogram available: …, range … ✓»: the variogram calculated on the same layer and field is used
+- «No variogram calculated: it will be estimated automatically (spherical model).»
+- «The variogram was calculated on another layer/field: it will be recalculated.» (again with an automatic estimate)
+
+> **Grid**: the grid covers the extent of the point layer and is limited to **500 cells per side**. If the chosen cell size is too fine, it is increased automatically and the grid line says so («minimum cell size … (max 500 cells per side)»). Above **40,000 cells** the line turns orange and, when you start, the panel asks for confirmation because the computation may take a few minutes.
+
+<!-- IMAGE: Kriging rasters and cross-validation metrics -->
+> **Fig. 7**: The estimate and uncertainty rasters on the map, with the results box and the cross-validation
 
 ### Kriging Results
 
-The analysis produces two raster layers:
+Kriging adds two GeoTIFF rasters to the project, in the CRS of the point layer:
 
-- **Prediction**: The interpolated values on the grid
-- **Kriging variance**: The prediction uncertainty at each cell
+| Layer | Content | Style |
+|-------|---------|-------|
+| `Kriging_<field>` | Estimated value of each cell | Colour ramp from blue to red through yellow; visible |
+| `Kriging_<field>_uncertainty` | Standard deviation of the estimate (uncertainty) | Ramp from light yellow to red; added at the top of the layer list but hidden |
 
-The layers are automatically added to the QGIS project and displayed on the map.
+With the panel in Italian the second raster is called `Kriging_<field>_incertezza`. The files are written to a **temporary folder**: to keep them, export them from the layer context menu (**Export**).
 
-> **Note**: The analysis runs in a **background thread**, so the QGIS interface remains usable during computation. A progress bar indicates the processing status.
+The results box summarises the points used, the grid size, the cell size, the model and the range; the chart shows the map of the estimated values and the uncertainty map, with the sample points on top.
+
+### Leave-one-out Cross-validation
+
+After kriging, GeoArchaeo runs a **leave-one-out cross-validation**: each point is removed and re-estimated from the others (on at most 200 randomly chosen points for larger datasets). The metrics appear in the results box:
+
+| Metric | Meaning | Desirable value |
+|--------|---------|-----------------|
+| **RMSE** (root mean squared error) | Typical estimation error | As low as possible, compared with the standard deviation of the data |
+| **MAE** (mean absolute error) | Mean error in absolute value | As low as possible |
+| **ME** (mean error, bias) | Systematic over- or underestimation | Close to 0 |
+| **R²** (explained variance) | Predictive skill | 0.5 or more good, below 0.2 low |
+| **MSDR** (standardized error) | How realistic the estimated uncertainty is | About 1; above 1.5 uncertainty underestimated, below 0.5 overestimated |
+
+The panel adds a verdict in words on the predictive skill (good, moderate or low) and, when relevant, on the MSDR.
+
+> **Note**: kriging runs in a **background thread**, so the QGIS interface remains usable during the computation; the progress bar shows the processing status.
 
 ---
 
-## Machine Learning Tab
+## Patterns (ML) Tab
 
-The **ML** tab offers machine learning methods for spatial predictions, as an alternative or complement to kriging.
+The **Patterns (ML)** tab («4. Pattern recognition (machine learning)») groups the points by position and numeric attributes, or detects anomalies, and creates a layer with each point's label.
 
-### Available Algorithms
+### Available Methods
 
-| Algorithm | Description | Advantages |
-|-----------|-------------|------------|
-| **Random Forest** | Ensemble of decision trees | Robust, handles non-linear relationships |
-| **Gradient Boosting** | Sequential decision trees | High accuracy, suited for complex patterns |
-| **SVR** | Support Vector Regression | Good with small datasets, flexible kernels |
+| Method (drop-down entry) | What it does | Parameters |
+|--------------------------|--------------|------------|
+| **«K-Means – groups by similarity»** | Splits the points into K groups similar in position and attributes | **«Number of groups (0 = automatic):»**; with 0 the number is chosen from the number of points (from 2 to 5) |
+| **«DBSCAN – groups by density (also finds isolated points)»** | Finds density groups without fixing their number; isolated points form the «Isolated / noise» group | Automatic |
+| **«Isolation Forest – anomaly detection»** | Flags as «Anomaly» about 10% of the points that differ most from the others; the rest are «Normal» | Automatic |
 
-### ML Workflow
+### Running the Analysis
 
-1. Open the **ML** tab
-2. Select the desired **algorithm**
-3. Configure the **predictor variables**:
-   - Coordinates (X, Y)
-   - Additional fields from the layer (e.g., elevation, slope, distance to a river)
-4. Set the algorithm **parameters** (or use defaults)
-5. Select the **validation** method:
-   - K-fold cross-validation (default: 5 folds)
-   - Hold-out (test percentage)
-6. Click **Train model**
+1. Open the **Patterns (ML)** tab
+2. In the **«Point layers to analyse (one or more):»** list select one or more point layers (if nothing is selected, the input layer is preselected)
+3. Choose the **«Method:»**
+4. For K-Means only, set **«Number of groups (0 = automatic):»**
+5. Click **«Run pattern recognition»**
 
-<!-- IMAGE: ML model configuration -->
-> **Fig. 8**: Random Forest model configuration in the ML tab
+The variables analysed are the **X and Y coordinates** and **all the numeric fields** of the selected layers, standardised; missing values are replaced with the field mean. Not only the value field chosen at the top is used: every numeric field goes in, including identifiers and running numbers, and if they distort the groups it is better to analyse a copy of the layer with the useful fields only. When analysing several layers together, they should have the same numeric fields in the same order and the same CRS (the new layer uses the CRS of the first selected layer).
 
-### ML Results
+<!-- IMAGE: Patterns (ML) tab with the groups layer -->
+> **Fig. 8**: The Patterns (ML) tab with the groups chart and the `ML_groups` layer on the map
 
-| Result | Description |
-|--------|-------------|
-| **Prediction map** | Raster layer with predicted values |
-| **Variable importance** | Chart of relative importance of predictor variables |
-| **Validation metrics** | R-squared, RMSE, MAE from cross-validation |
-| **Residual plot** | Scatter plot of observed vs predicted values |
+### Results
 
-### Kriging vs ML Comparison
+- The results box reports the method, the number of groups and how many points fall in each (for example «Group A (n=42)»)
+- The chart shows the points on the plane of the first two principal components (PC1, PC2) of the variables, coloured by group
+- A temporary point layer is created, `ML_groups` (K-Means, DBSCAN) or `ML_anomalies` (Isolation Forest), with a categorised legend: grey for isolated points, red and larger for anomalies; with the panel in Italian the names are `Gruppi_ML` and `Anomalie_ML`
 
-To compare results:
+| Field | Content |
+|-------|---------|
+| `cluster_id` | Group number (-1 = isolated with DBSCAN; 1 = anomaly and 0 = normal with Isolation Forest) |
+| `cluster_name` | Readable name, for example «Group A (n=42)», «Isolated / noise (n=5)», «Anomaly (n=12)» |
+| `cluster_size` | Number of points in the group |
+| `method` | Method used |
+| `x_coord`, `y_coord` | Point coordinates |
 
-1. Run both kriging and ML on the same data
-2. Compare validation metrics in the Report tab
-3. Visualise difference maps
+### Supervised Classification
+
+Below the method, the panel recalls that supervised classification (Random Forest with a label field) is found in **Processing → GeoArchaeo**. That algorithm belongs to the standalone GeoArchaeo plugin: in PyArchInit the GeoArchaeo Processing provider is not registered, so Random Forest is not available. To use it you need the separate GeoArchaeo plugin.
 
 ---
 
 ## Sampling Tab
 
-The **Sampling** tab allows you to design optimal sampling strategies for future archaeological surveys.
+The **Sampling** tab («5. New sampling locations») suggests where to sample or excavate next, starting from the existing points, and creates a layer with the proposed points.
 
-### Sampling Strategies
+### Sampling Criteria
 
-| Strategy | Description | When to Use |
-|----------|-------------|-------------|
-| **Simple random** | Points randomly distributed across the area | When you have no prior information |
-| **Stratified random** | Random points within defined strata | When the area has zones with different characteristics |
-| **Regular grid** | Points on a regular grid | For uniform area coverage |
-| **Optimised** | Points positioned to minimise kriging variance | When you have a variogram |
+| Criterion (drop-down entry) | How it chooses the points | When to use it |
+|-----------------------------|---------------------------|----------------|
+| **«Coverage (maximin)»** | Each new point is as far as possible from all the others | Filling gaps uniformly |
+| **«Uncertainty reduction (kriging variance)»** | Each new point goes where the kriging variance is highest | Reducing the kriging error where it is highest |
+| **«Stratified grid»** | One location per cell of a regular grid, with a slight random jitter | Regular coverage of a defined area |
+| **«Adaptive (sparser areas)»** | Random draw with higher probability where there are few points | Favouring the least sampled zones while keeping a random component |
+
+The «Uncertainty reduction» criterion uses the calculated variogram if it refers to the same layer and field and «Use the calculated variogram» is ticked in the Kriging tab; otherwise it uses a generic model based on the typical distance between points.
 
 ### Designing a Sampling Plan
 
-1. Open the **Sampling** tab
-2. Select the **sampling strategy**
-3. Set the desired **number of points**
-4. Define the **study area**:
-   - From the current layer extent
-   - From a polygon layer
-   - By drawing manually on the map
-5. Set optional **constraints**:
-   - Minimum distance between points
-   - Exclusion areas
-6. Click **Generate sampling**
+1. Check **«Existing points:»**: it is the layer chosen at the top in the «Input data» group (the numeric field is not needed for sampling)
+2. Optional: choose a polygon layer in **«Study area (polygon, optional):»**; all its polygons are merged and reprojected to the CRS of the points, even if the layer is in another CRS
+3. Set **«New points to propose:»** (from 1 to 500, default 10)
+4. Choose the **«Criterion:»**: its description appears below the drop-down
+5. Click **«Calculate new points»**
 
-<!-- IMAGE: Generated sampling points -->
-> **Fig. 9**: Optimised sampling points overlaid on the study area map
+Without a study area, points are searched for in the rectangle containing the existing points, enlarged by 20% on each side.
+
+<!-- IMAGE: Proposed new sampling points -->
+> **Fig. 9**: The new sampling points (yellow stars) proposed inside the study area
 
 ### Sampling Results
 
-- A **point vector layer** with sampling points is added to the QGIS project
-- An **attribute table** with coordinates and point identifiers
-- A **report** with strategy statistics (coverage, distances, etc.)
+- The results box states how many points were proposed and with which criterion; below it, the «Coordinates of the proposed points:» table lists number, X and Y
+- A temporary point layer `New_sampling_points` is created (`Nuovi_punti_campionamento` with the panel in Italian), with a yellow star symbol and the fields `point_id`, `x_coord`, `y_coord` and `type` (value `suggested`)
 
 ---
 
 ## Report Tab
 
-The **Report** tab allows you to generate comprehensive geostatistical analysis reports.
+The **Report** tab («6. Report») collects the analyses run in this session into a single document: statistics, interactive charts, parameters and validation.
 
 ### Report Contents
 
-The report automatically includes all analyses performed during the session:
+In the **«Sections to include»** group each section is marked «available» or «not yet calculated»; sections not yet calculated cannot be selected.
 
 | Section | Content |
 |---------|---------|
-| **Summary** | Overview of the dataset and analyses performed |
-| **Data** | Descriptive statistics, distribution, point map |
-| **Variogram** | Experimental variogram, model, parameters |
-| **Interpolation** | Kriging/ML map, validation metrics |
-| **Sampling** | Strategy, point map, statistics |
-| **Conclusions** | Summary interpretation of results |
+| **Descriptive statistics** | Layer and field, statistics table with the reading in words, histogram |
+| **Variogram** | Model, nugget, sill, range, RMSE, maximum distance, interpretation, chart |
+| **Kriging and cross-validation** | Method, cell size, grid size, cross-validation metrics, chart |
+| **Pattern recognition** | Layers analysed, groups with their number of points, chart |
+| **New sampling locations** | Criterion, layer, coordinate table |
+
+Each section contains the **last** analysis of its kind run in the session.
 
 ### Generating a Report
 
-1. Open the **Report** tab
-2. Select the **sections** to include (all by default)
-3. Set the **output format**:
-   - PDF (recommended for documentation)
-   - HTML (for interactive viewing)
-   - Markdown (for later editing)
-4. Enter any **additional notes** or comments
-5. Click **Generate report**
+1. Run the analyses you need in the other tabs
+2. Open the **Report** tab and leave ticked the sections to include (they are ticked by default)
+3. Click **«Save HTML report»** or **«Save PDF report»** and choose the file name
 
-<!-- IMAGE: Generated report preview -->
-> **Fig. 10**: Preview of a geostatistical analysis report generated by GeoArchaeo
+When saving, the panel also shows a preview of the report without charts; the note «Preview: the interactive charts are included in the saved HTML file.» reminds you where they are.
+
+<!-- IMAGE: GeoArchaeo HTML report opened in the browser -->
+> **Fig. 10**: A GeoArchaeo HTML report with interactive charts, opened in the browser
 
 ### Export
 
-The report can be saved locally or exported in the available formats. Images (charts, maps) are embedded directly in the report.
+| Format | Content | Notes |
+|--------|---------|-------|
+| **HTML** (`geoarchaeo_report.html`) | Text, tables and **interactive charts** | The file is self-contained (the chart library is embedded, it also works offline) and opens straight away in the browser |
+| **PDF** (`geoarchaeo_report.pdf`) | Text and tables, **without charts** | If the PDF cannot be created, save the HTML report and print it to PDF from the browser |
+
+If no analysis has been run, «No analysis available: run at least one analysis first.» appears; if no section is ticked, «Select at least one section».
 
 ---
 
 ## Operational Workflow
 
-Here is a typical workflow for a complete geostatistical analysis in GeoArchaeo:
+A complete example with the example data shipped with the module.
 
 ### Step 1: Data Preparation
 
-1. Load your point vector layer into QGIS
-2. Verify that the numeric field to analyse is present and correct
-3. Check the coordinate reference system
+1. Open GeoArchaeo from the PyArchInit toolbar
+2. Click **«Load example data»** and confirm with **OK** (GeoPackages and GeoJSON files are loaded)
+3. In the «Input data» group choose the `villa_ceramica` layer and the `ceramic_count` field
+4. Check the summary: 500 valid points of 500, CRS EPSG:32633
 
 ### Step 2: Data Exploration
 
-1. Open GeoArchaeo from the toolbar
-2. In the **Data** tab, select the layer and field
-3. Examine the descriptive statistics
-4. Check the data distribution (look for outliers or anomalous values)
+1. **Data** tab → **«Calculate statistics»**
+2. Read skewness and outliers; with strong right skewness consider a log transform
 
 ### Step 3: Variogram Analysis
 
-1. In the **Variogram** tab, compute the experimental variogram
-2. Try different models (spherical, exponential, Gaussian)
-3. Choose the model with the best fit
-4. Note the parameters (nugget, sill, range)
+1. **Variogram** tab → **«Auto»** for the maximum distance, **«Spherical (recommended)»** model → **«Calculate variogram»**
+2. Repeat with **«Exponential»** and compare the fit RMSE
+3. Optional: recalculate with **«Check anisotropy (directional variograms)»**
+4. Recalculate the chosen model last and note nugget, sill and range
 
 ### Step 4: Interpolation
 
-1. In the **Kriging** tab, set the grid parameters
-2. Run ordinary kriging
-3. Examine the prediction map and variance
-4. Optionally, compare with an ML model in the ML tab
+1. **Kriging** tab: check the «Variogram available … ✓» line
+2. Keep the proposed cell size or set 1 (metre)
+3. **«Run kriging»**
+4. Examine the `Kriging_ceramic_count` and `Kriging_ceramic_count_uncertainty` rasters and the R² and MSDR values
 
-### Step 5: Sampling (optional)
+### Step 5: Patterns and Sampling (optional)
 
-1. In the **Sampling** tab, design a strategy for future surveys
-2. Use the variogram for optimised sampling
+1. **Patterns (ML)** tab: in the list keep only `necropoli` selected, DBSCAN method → **«Run pattern recognition»**; the `ML_groups` layer shows the groups of tombs and the isolated points
+2. At the top choose the `ricognizione_survey` layer (field `densita_mq`); **Sampling** tab: study area `area_studio`, 10 points, criterion «Coverage (maximin)» → **«Calculate new points»**
 
 ### Step 6: Report
 
-1. In the **Report** tab, generate the final report
-2. Export as PDF for documentation
+1. **Report** tab: leave the available sections ticked
+2. **«Save HTML report»**: the report opens in the browser with the interactive charts
+3. Export the rasters and temporary layers you want to keep
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### Common Problems
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| No layers available | No point layers in the project | Add a point vector layer to the QGIS project |
-| No numeric fields | The layer has no numeric fields | Check the layer's attribute table |
-| Flat variogram | Data with no spatial correlation | Check the data, increase the maximum distance |
-| Kriging fails | Variogram model not fitted | Fit a model first in the Variogram tab |
-| Poor ML results | Insufficient data or uninformative variables | Add predictor variables or increase the data |
-| Panel not visible | Widget closed accidentally | Reopen from the Analysis Tools menu |
+| «No point layer in the project: load one or use the example data.» | The project has no point layers | Add a point layer or use **«Load example data»** |
+| «The layer has no numeric fields…» | The field to analyse is a text field | Convert it to a number with the Field Calculator |
+| «At least 5 points with a valid value are required (found …)» | Too many NULL or non-numeric values | Check the attribute table or choose another field |
+| «geographic CRS (degrees)» warning | The layer is not in a projected CRS | Reproject the layer, for example to UTM, and repeat the analysis |
+| «No point pairs within the maximum distance…» error | Variogram maximum distance too small | Increase **«Maximum distance:»** or use **«Auto»** |
+| «Not enough pairs for directional variograms.» | Too few pairs per direction | Increase the maximum distance or skip the anisotropy check |
+| Slow kriging, confirmation request or «Out of memory: increase the cell size.» | Grid with too many cells | Increase **«Cell size:»** |
+| Low R² in the cross-validation | Little spatial correlation or too much noise | Treat the map as indicative only and look at the uncertainty raster |
+| DBSCAN puts almost all points in «Isolated / noise» | Uniform density or too many variables | Try K-Means or reduce the numeric fields |
+| «Machine Learning features not available. Please install scikit-learn.» | scikit-learn is missing | Install scikit-learn in the QGIS Python environment |
+| «Plotly visualization not available. Please install plotly.» | Plotly is missing | Install plotly in the QGIS Python environment |
+| Chart only as a static image | QtWebEngine not available | Use **«Open interactive chart in browser»** |
+| «Cannot create the PDF…» | PDF printing error | Save the HTML report and print it from the browser |
+| Panel not visible | Panel closed | Reopen it from the toolbar or the pyArchInit menu: the session's results are still there |
 
-### Common Errors
+### Frequent Errors
 
-- **"Insufficient data"**: At least 30 points are needed for reliable analysis
-- **"Variogram model not defined"**: Fit a model before running kriging
-- **"Incompatible CRS"**: All layers must use the same coordinate reference system
+- **«An analysis is already running: wait for it to finish or cancel it.»**: wait for the computation to end or press «Cancel»
+- **«Analysis cancelled»**: the analysis was stopped with «Cancel» and produced no results
+- **«Select at least one layer»** (Patterns tab): select at least one layer in the list
+- **«Select the existing points layer (above)»** (Sampling tab): choose the layer in the «Input data» group
+- **«Select a point layer and a numeric field (at the top of the panel)»**: complete the choice in the «Input data» group
 
 ### Performance
 
-- Analysis runs in a **background thread**: the QGIS interface remains usable
-- For very large datasets (>10,000 points), processing may take longer
-- You can monitor progress via the bar at the bottom of the panel
+- Analyses run in a **background thread**: QGIS stays usable and the computation can be cancelled
+- The variogram uses at most 3000 points (random subsample), the cross-validation at most 200
+- Kriging uses the 20 points nearest to each cell: the time depends mainly on the number of cells
+- The grid is limited to 500 × 500 cells; above 40,000 cells the panel asks for confirmation
+- With large datasets (for example the 4800 points of `geofisica_survey`) increase the cell size
 
 ---
 
 ## Technical Notes
 
-### Dependencies
+### Version and Origin
 
-GeoArchaeo uses the following Python libraries:
+- The `modules/geoarchaeo/` module is aligned with **GeoArchaeo 1.3.1**, the standalone plugin by Enzo Cocca (github.com/enzococca/GeoArchaeo)
+- Only the panel is integrated in PyArchInit: the GeoArchaeo Processing provider (co-kriging, spatio-temporal kriging, tiled kriging, compositional analysis, Random Forest) is **not** registered
+- The module is compatible with QGIS 3 (Qt5) and QGIS 4 (Qt6)
+
+### Dependencies
 
 | Library | Usage |
 |---------|-------|
-| **NumPy** | Numerical and matrix computations |
-| **SciPy** | Optimisation and model fitting |
-| **scikit-learn** | Machine learning algorithms |
-| **Matplotlib** | Chart generation |
+| **NumPy** | Numerical computation |
+| **SciPy** | Variogram model fitting, neighbour search (KD-tree), statistics |
+| **scikit-learn** | K-Means, DBSCAN, Isolation Forest, principal components (required by the Patterns tab) |
+| **Plotly** | Interactive charts in the panel and in the HTML report |
+| **Matplotlib** | Static chart previews when QtWebEngine is not available |
+| **QtWebEngine** (optional) | Interactive charts directly in the panel |
+| **threadpoolctl** (optional) | Limits computation threads during background analyses |
+| **GDAL** | Writing the GeoTIFF rasters (included in QGIS) |
 
 ### Coordinate Reference Systems
 
-- GeoArchaeo works in the current QGIS project's coordinate reference system
-- A **projected CRS** (in metres) is recommended for geostatistical analysis
-- Geographic systems (in degrees) may produce inaccurate results
+- Distances (maximum distance, range, cell size) are expressed in the **units of the point layer's CRS**
+- Use a **projected CRS** in metres: with a geographic CRS the summary warns you and variogram and kriging ask for confirmation
+- Kriging rasters and created layers use the CRS of the point layer (in the Patterns tab, that of the first selected layer)
+- The study area is reprojected automatically to the CRS of the points
 
-### Exporting Results
+### Output Layers and Files
 
-Results can be exported in various formats:
+| Output | Type | Location |
+|--------|------|----------|
+| `Kriging_<field>`, `Kriging_<field>_uncertainty` | GeoTIFF raster (LZW compression) | System temporary folder |
+| `ML_groups` / `ML_anomalies` | Temporary (memory) point layer | Only in the open project |
+| `New_sampling_points` | Temporary (memory) point layer | Only in the open project |
+| Report | HTML or PDF | Path chosen when saving |
 
-- **Raster layers** (GeoTIFF) for interpolated surfaces
-- **Vector layers** (GeoPackage, Shapefile) for sampling points
-- **Charts** (PNG, SVG) for variograms and diagnostics
-- **Reports** (PDF, HTML, Markdown) for documentation
+Rasters and temporary layers must be exported (layer context menu → **Export**) so they are not lost when the project is closed. Layer names follow the panel language at the time of the computation.
 
-### QGIS Integration
+### Settings
 
-- Output layers are automatically added to the QGIS **Layers** panel
-- Raster layer styling can be customised using QGIS layer properties
-- Results are compatible with all QGIS spatial analysis tools
+- The panel language is stored in the QGIS settings (key `GeoArchaeo/language`)
+- Results stay in memory while QGIS is open: closing the panel does not delete them
 
 ---
 
-> **Note**: GeoArchaeo is under active development. To report bugs or suggest improvements, please use the PyArchInit project's issue tracker on GitHub.
+> **Note**: GeoArchaeo is under continuous development. To report bugs or suggest improvements, use the issue tracking system of the PyArchInit project on GitHub.

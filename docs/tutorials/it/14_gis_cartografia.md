@@ -142,151 +142,224 @@ Dalla Scheda US, le quote min/max vengono calcolate:
 
 ### Cos'e SAM?
 
-**SAM (Segment Anything Model)** e un modello di intelligenza artificiale sviluppato da Meta per la segmentazione automatica di immagini. PyArchInit lo integra per:
-- Digitalizzazione automatica di pietre/elementi
-- Segmentazione di ortofoto
-- Velocizzazione del rilievo
+**SAM (Segment Anything Model)** è il modello di intelligenza artificiale di Meta che divide un'immagine nei suoi oggetti. In pyArchInit la finestra SAM trasforma un'immagine in **poligoni**, partendo da:
+
+- un'**ortofoto** (un file raster: GeoTIFF, JPEG georeferenziato…);
+- oppure un **layer di tile o un servizio** caricato in QGIS: XYZ come ESRI World Imagery o Google, WMS, ArcGIS REST.
+
+Non solo pietre: anche **edifici, strade, campi, fiumi, muri**. I modelli sono di due famiglie:
+
+- **SAM 2.1** (Meta) trova i contorni degli oggetti — tutti, oppure quelli che indichi con punti, un riquadro o un poligono — ma non dice che cosa sono;
+- le **classi a testo** (YOLOE-26 in locale, SAM 3 in cloud) cercano le cose che scrivi («building, road, river, field») e ogni poligono porta la sua etichetta.
+
+I poligoni vanno nel layer che scegli: i layer US di pyArchInit, un qualsiasi layer poligonale del progetto o un layer temporaneo nuovo.
 
 ### Accesso alla Funzione
 
-1. **PyArchInit** → **SAM Segmentation**
-2. Oppure dalla toolbar: icona **SAM**
+1. Dalla toolbar di pyArchInit: pulsante a tendina **Strumenti di Analisi** (Analysis Tools) → «SAM - Segmentazione (pietre, edifici, strade, campi…)». È l'azione predefinita del pulsante: un clic sull'icona apre subito la finestra.
+2. Oppure dal menu **pyArchInit** → «SAM - Segmentazione (pietre, edifici, strade, campi…)».
+
+La finestra si intitola «SAM — Segmentazione (pietre, edifici, strade, campi, fiumi…)». Le sue etichette sono in italiano se QGIS è in italiano, in inglese con tutte le altre lingue.
 
 ### Interfaccia SAM
 
 ```
-+--------------------------------------------------+
-|        SAM Stone Segmentation                     |
-+--------------------------------------------------+
-| Input:                                            |
-|   Raster Layer: [ComboBox ortofoto]              |
-+--------------------------------------------------+
-| Target Layer:                                     |
-|   [o] pyunitastratigrafiche                      |
-|   [ ] pyunitastratigrafiche_usm                  |
-+--------------------------------------------------+
-| Default Attributes:                               |
-|   Site (sito): [campo automatico]                |
-|   Area: [input area]                             |
-|   Stratigraphic Index: [1-10]                    |
-|   Type US: [pietra|layer|accumulo|taglio]        |
-+--------------------------------------------------+
-| Segmentation Mode:                                |
-|   [o] Automatic (detect all stones)              |
-|   [ ] Click mode (click on each stone)           |
-|   [ ] Box mode (draw rectangle)                  |
-|   [ ] Polygon mode (draw freehand)               |
-|   [ ] From layer (use existing polygon)          |
-+--------------------------------------------------+
-| Model:                                            |
-|   [ComboBox modello]                             |
-|   API Key: [******]                              |
-+--------------------------------------------------+
-|        [Start Segmentation]  [Cancel]             |
-+--------------------------------------------------+
+┌────────────────────────────────────────────────────────────────────┐
+│ SAM — Segmentazione (pietre, edifici, strade, campi, fiumi…)       │
+├────────────────────────────────────────────────────────────────────┤
+│ Segmentazione automatica — da un'ortofoto o da un layer di tile    │
+│ (ESRI, Google, WMS) a poligoni, con SAM 2.1 (Meta) o con classi    │
+│ a testo.                                                           │
+├─ Ambiente locale ──────────────────────────────────────────────────┤
+│ pronto — ultralytics 8.4.x, torch 2.x, mps                         │
+│                           [Installa / aggiorna]  [Mostra registro] │
+├─ Immagine ─────────────────────────────────────────────────────────┤
+│ Layer raster: [ortofoto.tif                                   v]   │
+│               ortofoto.tif — 12000 × 9000 px                       │
+│ Area:         (o) vista corrente   ( ) tutto il raster             │
+│ Risoluzione (unità mappa/px): [0,100000]                           │
+│ Lato massimo (px):            [2048]                               │
+├─ Che cosa segmentare ──────────────────────────────────────────────┤
+│ (o) Tutto automatico (ogni oggetto)                                │
+│ ( ) Punti: clicca gli oggetti sulla mappa                          │
+│ ( ) Riquadro: disegna un rettangolo                                │
+│ ( ) Poligono: disegna l'area                                       │
+│ ( ) Poligono da layer: [layer poligonale                      v]   │
+│ ( ) Classi a testo:    [building, road, river, field           ]   │
+│ Soglia: [0,30]                                                     │
+├─ Modello ──────────────────────────────────────────────────────────┤
+│ Modello: [Locale: SAM 2.1 Tiny — ~78 MB                       v]   │
+│          pesi presenti ✓                          [Scarica pesi]   │
+│ Chiave API: [••••••••]                         Chiave Replicate    │
+├─ Destinazione ─────────────────────────────────────────────────────┤
+│ Layer: [pyunitastratigrafiche                                 v]   │
+│ Sito: [Scavo 2026]                Area: [1]                        │
+│ Indice stratigrafico: [1]         Tipo US: [pietra            v]   │
+│ Campo per l'etichetta: [label                                 v]   │
+├────────────────────────────────────────────────────────────────────┤
+│ Pronto                                                             │
+│                                      [Avvia]  [Annulla]  [Chiudi]  │
+└────────────────────────────────────────────────────────────────────┘
 ```
+
+Cinque gruppi, da compilare dall'alto in basso: «Ambiente locale», «Immagine», «Che cosa segmentare», «Modello», «Destinazione». Sotto ci sono la riga di stato («Pronto»), dove scorrono anche i messaggi del lavoro in corso, e i pulsanti «Avvia», «Annulla» (compare solo durante il lavoro) e «Chiudi». Alcune righe compaiono solo quando servono: «Chiave API:» al posto dello stato dei pesi per i modelli cloud; «Sito:», «Area:», «Indice stratigrafico:» e «Tipo US:» per i layer US; «Campo per l'etichetta:» per gli altri layer. La finestra ricorda l'ultima area US, le classi, il lato massimo, il modello scelto e le chiavi API.
+
+#### Ambiente locale
+
+I modelli locali (SAM 2.1 e YOLOE) non girano nel Python di QGIS ma in un **Python separato**, che la finestra crea e controlla da sola. All'apertura il gruppo scrive «controllo…», poi:
+
+- in verde «pronto — ultralytics …, torch …, mps»: l'ambiente c'è; l'ultima parola è il dispositivo di calcolo (`mps`, `cuda` o `cpu`);
+- in arancione «non installato: serve per i modelli locali (SAM 2.1, YOLOE). Un Python 3.10–3.13 di sistema, ~1.5 GB di pacchetti.».
+
+«Installa / aggiorna» crea l'ambiente o ne aggiorna i pacchetti (vedi più avanti «Installazione Locale SAM»); «Mostra registro» apre e chiude il registro dell'installazione, con l'uscita di pip riga per riga. Per i modelli cloud l'ambiente non serve.
+
+#### Immagine
+
+- «Layer raster:» l'immagine da segmentare, scelta tra i raster del progetto: un'ortofoto (file) o un layer di tile/servizio. Sotto, in grigio, è scritto quale dei due è: nome del file e dimensioni in pixel (`ortofoto.tif — 12000 × 9000 px`) oppure il tipo di servizio, reso dalla vista (`tile / WMS (reso dalla vista)`, `ArcGIS REST (reso dalla vista)`).
+- «Area:» «vista corrente» (quello che si vede nella mappa) oppure «tutto il raster». «tutto il raster» si può scegliere solo per i file: un servizio di tile non ha un bordo, si lavora sempre sulla vista (o su un riquadro o un poligono).
+- «Risoluzione (unità mappa/px):» solo per i tile: quante unità di mappa (metri, o gradi se la mappa è in coordinate geografiche) per ogni pixel dell'immagine resa. Il valore proposto è quello della vista quando apri la finestra o scegli il layer: se poi cambi zoom, correggilo a mano. Più è piccolo, più dettagli.
+- «Lato massimo (px):» il lato più lungo dell'immagine passata al modello: 2048 di base, da 512 a 8192. Oltre questo lato l'immagine viene ridotta; SAM lavora comunque a 1024 px interni.
 
 ### Modalita di Segmentazione
 
-#### 1. Automatic Mode
-- Segmenta automaticamente tutti gli oggetti visibili
-- Ideale per aree con molte pietre
-- Richiede ortofoto di buona qualita
+Il gruppo «Che cosa segmentare» offre sei modi. Scegliendo un modo cambia l'elenco dei modelli (vedi «Modelli Disponibili») e sotto compare, in blu, l'istruzione per quel modo.
 
-#### 2. Click Mode
-- Cliccare su ogni oggetto da segmentare
-- Right-click o Enter per terminare
-- Escape per annullare
-- Piu preciso per oggetti specifici
+#### 1. Tutto automatico
 
-#### 3. Box Mode
-- Disegnare rettangolo sull'area
-- Segmenta solo l'area selezionata
-- Utile per zone delimitate
+«Tutto automatico (ogni oggetto)»: SAM 2.1 segmenta ogni oggetto che trova nell'«Area:» scelta («vista corrente» o «tutto il raster»). I poligoni non hanno una classe: nel layer temporaneo prendono l'etichetta «segmento». Si parte con «Avvia».
 
-#### 4. Polygon Mode
-- Disegnare poligono libero
-- Click per aggiungere vertici
-- Right-click per completare
-- Per aree irregolari
+#### 2. Punti
 
-#### 5. From Layer Mode
-- Usa poligono esistente come maschera
-- Selezionare layer poligonale
-- Segmenta solo entro il poligono
+«Punti: clicca gli oggetti sulla mappa»: premi «Avvia la selezione»; la finestra si nasconde e la barra dei messaggi di QGIS ricorda i comandi. Clicca gli oggetti uno per uno: ogni clic è un oggetto. Tasto destro o Invio per finire, Backspace toglie l'ultimo punto, Esc annulla. La finestra riappare e la segmentazione parte sull'«Area:» scelta, un oggetto per punto; i punti fuori dall'immagine vengono ignorati.
+
+#### 3. Riquadro
+
+«Riquadro: disegna un rettangolo»: premi «Avvia la selezione» e trascina un rettangolo sulla mappa (Esc o tasto destro annulla). L'immagine viene ritagliata sul rettangolo e tutto quello che c'è dentro viene segmentato.
+
+#### 4. Poligono
+
+«Poligono: disegna l'area»: premi «Avvia la selezione» e clicca i vertici; tasto destro, Invio o doppio clic chiudono il poligono (servono almeno tre vertici), Backspace toglie l'ultimo vertice, Esc annulla. Si segmenta solo dentro il poligono.
+
+#### 5. Poligono da layer
+
+«Poligono da layer:» scegli un layer poligonale nella tendina accanto. Si usa la geometria selezionata nel layer, o tutte se nessuna è selezionata (più geometrie vengono unite in una). Come per il poligono disegnato, si segmenta solo all'interno: utile per lavorare dentro un saggio, un'area di scavo o un limite già disegnato. Si parte con «Avvia».
+
+#### 6. Classi a testo
+
+«Classi a testo:» scrivi nel campo accanto che cosa cercare: parole **inglesi** separate da virgola (di base «building, road, river, field»; altri esempi: stone, wall). Ogni classe diventa un'etichetta sui poligoni. Funziona con YOLOE-26 in locale o con SAM 3 di Roboflow in cloud, sull'«Area:» scelta. Si parte con «Avvia».
+
+**«Soglia:»** (0,30 di base, da 0,05 a 0,95) è la confidenza minima perché un risultato venga tenuto: più bassa dà più poligoni, anche incerti; più alta ne dà meno ma più sicuri. Il modello cloud Replicate non la usa.
 
 ### Modelli Disponibili
 
-| Modello | Tipo | Requisiti | Qualita |
-|---------|------|-----------|---------|
-| Replicate SAM-2 | Cloud API | API Key | Ottima |
-| Roboflow SAM-3 | Cloud API | API Key | Ottima + Text Prompt |
-| SAM vit_b | Locale | 375MB VRAM | Buona |
-| SAM vit_l | Locale | 1.2GB VRAM | Molto buona |
-| SAM vit_h | Locale | 2.5GB VRAM | Eccellente |
-| OpenCV | Locale | Nessuno | Base |
+Il gruppo «Modello» ha una tendina «Modello:» il cui contenuto dipende dal modo scelto:
+
+| Modello | Tipo | Requisiti | Modi |
+|---------|------|-----------|------|
+| SAM 2.1 Tiny | Locale | ambiente locale + pesi ~78 MB | tutti tranne le classi a testo; il più leggero e veloce |
+| SAM 2.1 Small | Locale | ambiente locale + pesi ~92 MB | tutti tranne le classi a testo |
+| SAM 2.1 Base+ | Locale | ambiente locale + pesi ~162 MB | tutti tranne le classi a testo |
+| SAM 2.1 Large | Locale | ambiente locale + pesi ~449 MB | tutti tranne le classi a testo; il più preciso e il più lento |
+| Cloud: Replicate SAM-2 | Cloud | chiave API Replicate | solo segmentazione automatica (nel modo «Punti» i clic vengono ignorati, con un avviso) |
+| YOLOE-26 S | Locale | ambiente locale + pesi ~31 MB + MobileCLIP2 254 MB (una volta) | classi a testo |
+| YOLOE-26 M | Locale | ambiente locale + pesi ~70 MB + MobileCLIP2 254 MB (una volta) | classi a testo |
+| YOLOE-26 L | Locale | ambiente locale + pesi ~79 MB + MobileCLIP2 254 MB (una volta) | classi a testo |
+| Cloud: Roboflow SAM 3 | Cloud | chiave API Roboflow | classi a testo |
+
+Nella tendina le voci si leggono così: «Locale: SAM 2.1 Tiny — ~78 MB», «Locale: YOLOE-26 S (classi a testo) — ~31 MB + MobileCLIP2 254 MB», «Cloud: Replicate SAM-2 (solo automatico, chiave API)», «Cloud: Roboflow SAM 3 (classi a testo, chiave API)».
+
+**Pesi.** Per un modello locale, sotto la tendina c'è lo stato dei pesi: «pesi presenti ✓» (verde) oppure «pesi mancanti (~N MB)» (arancione), con il pulsante «Scarica pesi». Lo scaricamento, con la barra di avanzamento, prende i file dagli asset pubblici di ultralytics su GitHub (non serve un account). Per YOLOE si scarica anche il codificatore di testo MobileCLIP2 (254 MB), una volta sola per S, M e L. I pesi stanno in `~/pyarchinit_5/bin/models/sam/`.
+
+**Chiave API.** Per un modello cloud, al posto dello stato dei pesi compaiono il campo «Chiave API:» e il link per ottenerla (vedi «Configurazione API»).
 
 ### SAM-3 con Text Prompt
 
-La versione SAM-3 (Roboflow) supporta **prompt testuali**:
-- "stones" - pietre
-- "pottery fragments" - frammenti ceramici
-- "bones" - ossa
-- Qualsiasi descrizione testuale
+Con il modo «Classi a testo» non si chiede «dividi tutto», ma «trova queste cose»:
+
+- si scrivono una o più classi in inglese, separate da virgola: `building, road, river, field`, oppure `stone, wall`…;
+- **YOLOE-26** (locale, S/M/L) capisce le parole grazie al codificatore di testo MobileCLIP2; **SAM 3** di Roboflow (cloud) riceve le stesse classi come prompt testuali (al massimo 16);
+- ogni poligono porta la classe che l'ha trovato: nel layer temporaneo nel campo `label`, in un tuo layer nel «Campo per l'etichetta:». Nei layer US di pyArchInit la classe non viene scritta.
+
+SAM 2.1 in «Tutto automatico» invece non assegna classi: trova i contorni, non i nomi.
 
 ### Configurazione API
 
+Le chiavi servono solo per i modelli cloud. Scegli il modello cloud nella tendina, incolla la chiave nel campo «Chiave API:» (il testo resta nascosto) e premi «Avvia»: la chiave viene salvata nelle impostazioni di QGIS e riproposta la volta dopo. Con i modelli cloud l'immagine preparata viene inviata al servizio.
+
 #### Replicate API (SAM-2)
-1. Registrarsi su [replicate.com](https://replicate.com)
-2. Ottenere API key
-3. Inserire nella configurazione
+1. Creare un account su [replicate.com](https://replicate.com)
+2. Creare un token in [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens) (il link «Chiave Replicate» accanto al campo apre la stessa pagina)
+3. Incollarlo in «Chiave API:» con il modello «Cloud: Replicate SAM-2»
 
 #### Roboflow API (SAM-3)
-1. Registrarsi su [roboflow.com](https://roboflow.com)
-2. Ottenere API key
-3. Inserire nella configurazione
+1. Creare un account su [roboflow.com](https://roboflow.com)
+2. Copiare la chiave da [app.roboflow.com/settings/api](https://app.roboflow.com/settings/api) (link «Chiave Roboflow» accanto al campo)
+3. Incollarla in «Chiave API:» con il modello «Cloud: Roboflow SAM 3»
 
 ### Installazione Locale SAM
 
-Per utilizzo locale senza API:
-```bash
-# Creare ambiente virtuale
-cd ~/pyarchinit/bin
-python -m venv sam_venv
+Non serve nessun comando da terminale: l'ambiente per i modelli locali si installa dalla finestra.
 
-# Attivare ambiente
-source sam_venv/bin/activate
+1. Serve un **Python di sistema 3.10–3.13**: i pacchetti non vengono installati nel Python di QGIS, per non rischiare di romperlo. La finestra lo cerca da sola: su **macOS** il Python di [python.org](https://www.python.org/downloads/) o di Homebrew, su **Windows** il launcher `py` del Python di python.org, su **Linux** `python3.10`…`python3.13` o `python3` del sistema.
+2. Premere «Installa / aggiorna» nel gruppo «Ambiente locale»: viene creato l'ambiente virtuale `~/pyarchinit_5/bin/sam_venv` e vi vengono installati `ultralytics` (che porta con sé torch, torchvision, OpenCV, numpy) e `requests`: circa **1,5 GB** di pacchetti, una volta sola. Su Linux senza scheda NVIDIA si installa torch per CPU, molto più leggero.
+3. «Mostra registro» fa vedere pip al lavoro. Alla fine lo stato diventa verde: «pronto — ultralytics …, torch …, mps».
+4. Scaricare i pesi del modello che si vuole usare con «Scarica pesi» (gruppo «Modello»).
 
-# Installare dipendenze
-pip install segment-anything torch torchvision
+Premendo di nuovo «Installa / aggiorna» si aggiornano i pacchetti. Il dispositivo di calcolo si sceglie da solo: **MPS** sui Mac con Apple Silicon, **CUDA** con una scheda NVIDIA, altrimenti **CPU** (funziona, ma è più lento). Se MPS o CUDA falliscono, il lavoro riparte da solo sulla CPU.
 
-# Scaricare modelli (opzionale)
-# vit_b: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-# vit_l: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-# vit_h: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-```
+| Che cosa | Dove |
+|----------|------|
+| Ambiente Python | `~/pyarchinit_5/bin/sam_venv` |
+| Pesi dei modelli | `~/pyarchinit_5/bin/models/sam/` |
+| Chiavi API | impostazioni di QGIS |
+
+`~/pyarchinit_5` è la cartella dati di pyArchInit (o quella indicata dalla variabile `PYARCHINIT_HOME`).
+
+### Destinazione e Attributi
+
+Il gruppo «Destinazione» decide dove vanno i poligoni. La tendina «Layer:» elenca i layer poligonali del progetto più «— nuovo layer temporaneo —»; se `pyunitastratigrafiche` è caricato, viene proposto quello.
+
+| Destinazione | Che cosa viene scritto |
+|--------------|------------------------|
+| «— nuovo layer temporaneo —» | un layer in memoria `SAM_<raster>_<data_ora>`, nel CRS dell'immagine, con i campi `label` (la classe, o «segmento»), `score` (confidenza), `area`, `source` (il modello) e `created` (data e ora) |
+| `pyunitastratigrafiche` / `pyunitastratigrafiche_usm` | `scavo_s` = «Sito:» (dalla configurazione, non modificabile), `area_s` = «Area:» (obbligatoria), `stratigraph_index_us` = «Indice stratigrafico:» (1 = pietre/oggetti, 2 = strato/area), `tipo_us_s` = «Tipo US:» (pietra, layer, accumulo, taglio, struttura), `disegnatore` = `SAM <modello>` (es. `SAM sam2.1_t.pt`), `data` = oggi; `us_s` resta vuoto |
+| un altro layer poligonale | la classe nel «Campo per l'etichetta:», un campo di testo (viene proposto `label`, `etichetta`, `classe`, `class`, `tipo` o `nome`, se esiste; vuoto = non scrivere); se il layer ha campi `score`, `area`, `source` o `created`, vengono riempiti anche quelli |
+
+- Nei layer US il numero US si assegna dopo, nella tabella degli attributi: il messaggio finale lo ricorda («Poi assegna i numeri US nella tabella degli attributi.»).
+- I poligoni vengono riproiettati nel CRS del layer di destinazione e salvati subito nel layer (se il layer era già in modifica, vengono salvate anche le modifiche in sospeso).
+- Il layer temporaneo vive solo fino alla chiusura di QGIS: per tenerlo, esportarlo in un file (tasto destro sul layer → Esporta).
+
+### Come Funziona
+
+1. **L'immagine.** Per un file, l'area viene ritagliata e, se serve, ridotta con GDAL: i pixel sono quelli veri del file, non quelli disegnati in mappa (lo stile del layer non conta; i raster che non sono a 8 bit vengono riportati a 0–255). Per tile e servizi non c'è un file: QGIS rende la vista con il suo motore di disegno, alla risoluzione scelta — solo quel layer, senza gli altri layer della mappa — e si segmenta il reso.
+2. **L'area.** Con un poligono (disegnato o da layer) si prende il rettangolo che lo contiene, si imbianca tutto quello che sta fuori e alla fine i risultati vengono ritagliati sul poligono.
+3. **Il modello.** Il lavoro lo fa `scripts/sam_worker.py`, che gira fuori da QGIS con il Python di `sam_venv` (o chiama il servizio cloud): QGIS non si blocca. I suoi messaggi di avanzamento (le righe `[sam] …` del worker) compaiono nella riga di stato: il modello e il dispositivo, poi quanti poligoni in quanti secondi. I poligoni sotto i 20 pixel vengono scartati e i contorni semplificati.
+4. **Il ritorno in mappa.** Il worker restituisce i poligoni in pixel; pyArchInit li riporta in coordinate con la georeferenza dell'immagine, ripara le geometrie non valide e le riproietta nel CRS del layer di destinazione.
 
 ### Workflow SAM
 
-1. **Preparazione**
-   - Caricare ortofoto come layer raster
-   - Verificare sistema di riferimento
-   - Preparare layer target
+**1. Preparazione**
+- Caricare l'ortofoto, oppure un layer di tile (es. ESRI World Imagery come XYZ Tiles)
+- Verificare il sistema di riferimento del progetto
+- Per scrivere nelle US: caricare `pyunitastratigrafiche` (o `pyunitastratigrafiche_usm`) e controllare il sito nella configurazione
+- La prima volta, per i modelli locali: «Installa / aggiorna», poi «Scarica pesi»
 
-2. **Configurazione**
-   - Selezionare raster di input
-   - Impostare attributi default
-   - Scegliere modalita e modello
+**2. Configurazione**
+- «Immagine»: layer raster, area, risoluzione (per i tile) e lato massimo
+- «Che cosa segmentare»: il modo, la soglia e, per le classi a testo, le classi
+- «Modello»: un modello locale con i pesi presenti, o un modello cloud con la sua chiave
+- «Destinazione»: il layer e i suoi attributi
 
-3. **Esecuzione**
-   - Cliccare "Start Segmentation"
-   - Attendere elaborazione
-   - Verificare risultati
+**3. Esecuzione**
+- «Avvia», oppure «Avvia la selezione» e poi punti, riquadro o poligono sulla mappa
+- Seguire la riga di stato; «Annulla» interrompe il lavoro
+- Alla fine compare `Fatto: N poligoni aggiunti a «layer» (modello).`
 
-4. **Post-elaborazione**
-   - Controllare poligoni generati
-   - Assegnare numeri US
-   - Correggere eventuali errori
+**4. Post-elaborazione**
+- Controllare i poligoni; eventuali avvisi compaiono nella barra dei messaggi di QGIS
+- Layer US: assegnare i numeri US (`us_s`) nella tabella degli attributi
+- Correggere, unire o eliminare i poligoni sbagliati con gli strumenti di modifica di QGIS
+- Layer temporaneo: esportarlo se va conservato
 
 ## Integrazione Cartografica
 
@@ -329,10 +402,13 @@ Operazioni spaziali disponibili:
 
 ### 3. SAM Segmentation
 
-- Ortofoto di alta qualita
-- Illuminazione uniforme
-- Contrasto adeguato oggetti/sfondo
-- Post-verifica sempre necessaria
+- Ortofoto di buona qualità, illuminazione uniforme, buon contrasto tra oggetti e sfondo
+- **Ortofoto grandi**: lavorare per vista o per riquadro, non su «tutto il raster». SAM lavora a 1024 px interni e oltre il «Lato massimo (px):» l'immagine viene ridotta: su un'area troppo grande gli oggetti piccoli si perdono
+- **Tile**: scegliere un livello di zoom in cui gli oggetti si riconoscono a occhio (es. 0,3–0,6 m/px per edifici e strade). La «Risoluzione (unità mappa/px):» propone quella della vista; se l'area è grande, l'immagine viene ridotta al lato massimo e la risoluzione reale peggiora
+- **Classi a testo**: nomi inglesi semplici (building, road, river, field, stone, wall)
+- Le classi vengono solo da YOLOE o da SAM 3: SAM 2.1 in «Tutto automatico» trova i contorni ma non assegna classi
+- **Hardware**: sui Mac con Apple Silicon si usa MPS, con una scheda NVIDIA CUDA, altrimenti la CPU, più lenta (meglio allora SAM 2.1 Tiny o Small, YOLOE-26 S e aree piccole)
+- Verifica a posteriori sempre necessaria
 
 ### 4. Organizzazione Layer
 
@@ -356,15 +432,16 @@ Operazioni spaziali disponibili:
 
 ### SAM Non Funziona
 
-**Cause possibili**:
-- API key non valida
-- Raster non georeferenziato
-- Modello locale non installato
-
-**Soluzioni**:
-- Verificare API key
-- Controllare georeferenziazione
-- Installare modello
+| Messaggio o sintomo | Che cosa fare |
+|---------------------|---------------|
+| «Ambiente locale» in arancione «non installato…», oppure `L'ambiente locale non è installato: premi «Installa / aggiorna» (o scegli un modello cloud).` | Premere «Installa / aggiorna». Serve un Python di sistema 3.10–3.13; se non c'è, compare `Installazione non riuscita: Nessun Python 3.10–3.13 trovato: installa Python da python.org (o Homebrew) e riprova.` Se pip fallisce, l'errore è in «Mostra registro». Su Linux senza scheda NVIDIA viene installato torch per CPU |
+| «pesi mancanti (~N MB)», oppure `I pesi del modello mancano: premi «Scarica pesi».` | Premere «Scarica pesi» (serve la connessione a internet) |
+| `Serve la chiave API del servizio.` | Con un modello cloud, incollare la chiave in «Chiave API:» (vedi «Configurazione API») |
+| `Nessun poligono trovato: prova un'area più piccola, una soglia più bassa o un altro modello.` | Area più piccola, «Soglia:» più bassa, un altro modello (un SAM 2.1 più grande, o le classi a testo); per i tile, una risoluzione più fine |
+| `l'area scelta non copre il raster` | La vista, il riquadro o il poligono cadono fuori dal raster: inquadrare il raster e riprovare |
+| `Compila l'area per il layer US.` | Scrivere l'«Area:» nel gruppo «Destinazione» |
+| `raster ruotato: non supportato (riproiettalo prima)` | Riproiettare il raster con gdalwarp (menu Raster di QGIS) e usare il nuovo file |
+| «Segmentazione fallita» con le ultime righe del worker | Leggere le righe nel messaggio; riprovare con un'area o un «Lato massimo (px):» più piccoli, o con un modello più piccolo |
 
 ### Geometrie Corrotte
 
@@ -409,8 +486,11 @@ Operazioni spaziali disponibili:
 
 ### File Sorgente
 - `modules/gis/pyarchinit_pyqgis.py` - Integrazione GIS
-- `tabs/Sam_Segmentation_Dialog.py` - Dialogo SAM
-- `modules/gis/sam_map_tools.py` - Tool mappa SAM
+- `tabs/Sam_Segmentation_Dialog.py` - Finestra SAM: gruppi, modi, destinazione
+- `modules/utility/sam_environment.py` - Ambiente Python separato, pacchetti e pesi
+- `modules/gis/sam_raster_source.py` - Immagine da segmentare (ritaglio GDAL o reso della vista) e georeferenza
+- `modules/gis/sam_map_tools.py` - Strumenti di mappa per punti, riquadro e poligono
+- `scripts/sam_worker.py` - Worker fuori da QGIS: SAM 2.1, YOLOE, Replicate, Roboflow
 
 ### Layer
 - `pyunitastratigrafiche` - US deposito

@@ -31,6 +31,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import threading
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Iterable, List, Optional, Sequence, Tuple
@@ -41,6 +42,41 @@ from .native_arch import host_is_apple_silicon, native_prefix  # noqa: F401 - ri
 from .pyarchinit_home import pyarchinit_home_bin
 
 ASSETS = "https://github.com/ultralytics/assets/releases/download/"
+
+#: Lingua dei messaggi (la finestra la imposta con `set_language`).
+LANGUAGE = "it"
+_M = {
+    "not_installed": {"it": "ambiente non installato", "en": "environment not installed"},
+    "unusable": {"it": "ambiente non utilizzabile: {0}", "en": "environment not usable: {0}"},
+    "missing_packages": {"it": "pacchetti mancanti: {0}", "en": "missing packages: {0}"},
+    "unexpected": {"it": "risposta inattesa: {0}", "en": "unexpected answer: {0}"},
+    "no_python": {"it": "Nessun Python 3.10–3.13 trovato: installa Python da python.org (o Homebrew) e riprova.",
+                  "en": "No Python 3.10–3.13 found: install Python from python.org (or Homebrew) and retry."},
+    "venv_failed": {"it": "Creazione dell'ambiente fallita (vedi il registro).",
+                    "en": "Environment creation failed (see the log)."},
+    "cancelled": {"it": "Annullato.", "en": "Cancelled."},
+    "install_failed": {"it": "Installazione dei pacchetti fallita (vedi il registro).",
+                       "en": "Package installation failed (see the log)."},
+    "error": {"it": "Errore: {0}", "en": "Error: {0}"},
+    "weights_ready": {"it": "Pesi pronti.", "en": "Weights ready."},
+    "download_failed": {"it": "Scaricamento fallito: {0}", "en": "Download failed: {0}"},
+    "running": {"it": "Segmentazione in corso…", "en": "Segmenting…"},
+    "completed": {"it": "Segmentazione completata.", "en": "Segmentation completed."},
+    "worker_exit": {"it": "Il worker è uscito con codice {0}:\n{1}", "en": "The worker exited with code {0}:\n{1}"},
+    "timeout": {"it": "Tempo scaduto ({0} s): processo interrotto.", "en": "Timed out ({0} s): process stopped."},
+    "python_found": {"it": "Python {0}.{1}: {2}", "en": "Python {0}.{1}: {2}"},
+}
+
+
+def set_language(lang):
+    """'it' o 'en' (tutto il resto cade sull'inglese)."""
+    global LANGUAGE
+    LANGUAGE = "it" if (lang or "").lower().startswith("it") else "en"
+
+
+def msg(key, *args):
+    text = _M[key].get(LANGUAGE, _M[key]["en"])
+    return text.format(*args) if args else text
 
 #: Pacchetti dell'ambiente. `ultralytics` porta con se' torch, torchvision,
 #: opencv, numpy, pillow e requests.
@@ -69,13 +105,13 @@ WEIGHTS = {
     "sam2.1_b": Weight("sam2.1_b", "sam2.1_b.pt", ASSETS + "v8.3.0/sam2.1_b.pt", 162, "sam", "SAM 2.1 Base+"),
     "sam2.1_l": Weight("sam2.1_l", "sam2.1_l.pt", ASSETS + "v8.3.0/sam2.1_l.pt", 449, "sam", "SAM 2.1 Large"),
     "yoloe-26s": Weight("yoloe-26s", "yoloe-26s-seg.pt", ASSETS + "v8.4.0/yoloe-26s-seg.pt", 31, "text",
-                        "YOLOE-26 S (classi a testo)", ("mobileclip2_b",)),
+                        "YOLOE-26 S", ("mobileclip2_b",)),
     "yoloe-26m": Weight("yoloe-26m", "yoloe-26m-seg.pt", ASSETS + "v8.4.0/yoloe-26m-seg.pt", 70, "text",
-                        "YOLOE-26 M (classi a testo)", ("mobileclip2_b",)),
+                        "YOLOE-26 M", ("mobileclip2_b",)),
     "yoloe-26l": Weight("yoloe-26l", "yoloe-26l-seg.pt", ASSETS + "v8.4.0/yoloe-26l-seg.pt", 79, "text",
-                        "YOLOE-26 L (classi a testo)", ("mobileclip2_b",)),
+                        "YOLOE-26 L", ("mobileclip2_b",)),
     "mobileclip2_b": Weight("mobileclip2_b", "mobileclip2_b.ts", ASSETS + "v8.4.0/mobileclip2_b.ts", 254,
-                            "encoder", "MobileCLIP2 (codificatore di testo)"),
+                            "encoder", "MobileCLIP2 (text encoder)"),
 }
 
 #: Le chiavi offerte per tipo di prompt, nell'ordine della tendina.
@@ -250,29 +286,30 @@ def is_ready(py=None, run=subprocess.run, timeout=120):
     """(True, 'ultralytics 8.4.x, torch 2.x, mps') se l'ambiente c'e' e importa."""
     py = py or venv_python()
     if not os.path.isfile(py):
-        return False, "ambiente non installato"
+        return False, msg("not_installed")
     try:
         result = run(check_command(py), capture_output=True, text=True, timeout=timeout, env=clean_env())
     except (OSError, subprocess.SubprocessError) as e:
-        return False, f"ambiente non utilizzabile: {e}"
+        return False, msg("unusable", e)
     if result.returncode != 0:
         tail = (result.stderr or result.stdout or "").strip().splitlines()
-        return False, "pacchetti mancanti: " + (tail[-1] if tail else "?")
+        return False, msg("missing_packages", tail[-1] if tail else "?")
     marked = [l for l in result.stdout.splitlines() if l.startswith(CHECK_MARKER + " ")]
     try:
         ultra, torch, dev = marked[-1].split()[1:4]
     except (IndexError, ValueError):
-        return False, "risposta inattesa: " + result.stdout.strip()[:80]
+        return False, msg("unexpected", result.stdout.strip()[:80])
     return True, f"ultralytics {ultra}, torch {torch}, {dev}"
 
 
 def worker_command(py, image, output, backend, *, weights=None, mode="auto", prompts=None,
                    classes=None, conf=0.25, imgsz=1024, min_area=20.0, simplify=1.0,
-                   api_key=None, device="auto"):
+                   api_key=None, device="auto", lang=None):
     """La riga di comando del worker (lista, mai shell)."""
     cmd = native_prefix() + [py, worker_script(), "--image", image, "--output", output, "--backend", backend,
            "--mode", mode, "--conf", str(conf), "--imgsz", str(int(imgsz)),
-           "--min-area", str(min_area), "--simplify", str(simplify), "--device", device]
+           "--min-area", str(min_area), "--simplify", str(simplify), "--device", device,
+           "--lang", lang or LANGUAGE]
     if weights:
         cmd += ["--weights", weights]
     if prompts:
@@ -282,6 +319,30 @@ def worker_command(py, image, output, backend, *, weights=None, mode="auto", pro
     if api_key:
         cmd += ["--api-key", api_key]
     return cmd
+
+
+class _Watchdog:
+    """Uccide il processo allo scadere del tempo: `Popen.wait(timeout)` da solo
+    non basta, perché la lettura dell'output fino alla fine viene prima."""
+
+    def __init__(self, process, timeout_s):
+        self.process = process
+        self.fired = False
+        self._timer = threading.Timer(float(timeout_s), self._fire)
+        self._timer.daemon = True
+
+    def _fire(self):
+        self.fired = True
+        try:
+            self.process.kill()
+        except OSError:
+            pass
+
+    def start(self):
+        self._timer.start()
+
+    def cancel(self):
+        self._timer.cancel()
 
 
 # ----------------------------------------------------------------------
@@ -307,17 +368,24 @@ class SamSetupThread(QThread):
 
     def _stream(self, cmd, timeout_s):
         self.log.emit("$ " + " ".join(cmd))
+        self._timed_out = False
         self._process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                          text=True, env=clean_env(), bufsize=1)
+        watchdog = _Watchdog(self._process, timeout_s)
+        watchdog.start()
         try:
             for line in self._process.stdout:
                 line = line.rstrip()
                 if line:
                     self.log.emit(line)
-            self._process.wait(timeout=timeout_s)
+            self._process.wait()
         finally:
+            watchdog.cancel()
             code = self._process.returncode
             self._process = None
+        if watchdog.fired:
+            self.log.emit(msg("timeout", timeout_s))
+            return False
         return code == 0
 
     def run(self):
@@ -326,25 +394,24 @@ class SamSetupThread(QThread):
             if not os.path.isfile(py):
                 cmd, version = pick_python()
                 if cmd is None:
-                    self.finished_ok.emit(False, "Nessun Python 3.10–3.13 trovato: installa Python da python.org "
-                                                 "(o Homebrew) e riprova.")
+                    self.finished_ok.emit(False, msg("no_python"))
                     return
-                self.log.emit(f"Python {version[0]}.{version[1]}: {' '.join(cmd)}")
+                self.log.emit(msg("python_found", version[0], version[1], " ".join(cmd)))
                 os.makedirs(os.path.dirname(venv_dir()), exist_ok=True)
                 if not self._stream(create_venv_command(cmd), 300):
-                    self.finished_ok.emit(False, "Creazione dell'ambiente fallita (vedi il registro).")
+                    self.finished_ok.emit(False, msg("venv_failed"))
                     return
             if self._cancelled:
-                self.finished_ok.emit(False, "Annullato.")
+                self.finished_ok.emit(False, msg("cancelled"))
                 return
             self._stream(native_prefix() + [py, "-m", "pip", "install", "--upgrade", "pip"], 300)
             if not self._stream(pip_install_command(py), 3600):
-                self.finished_ok.emit(False, "Installazione dei pacchetti fallita (vedi il registro).")
+                self.finished_ok.emit(False, msg("install_failed"))
                 return
             ok, info = is_ready(py)
             self.finished_ok.emit(ok, info)
         except Exception as e:                       # noqa: BLE001 - va mostrato, non perso
-            self.finished_ok.emit(False, f"Errore: {e}")
+            self.finished_ok.emit(False, msg("error", e))
 
 
 class SamDownloadThread(QThread):
@@ -377,7 +444,7 @@ class SamDownloadThread(QThread):
                             if not chunk:
                                 break
                             if self._cancelled:
-                                raise RuntimeError("annullato")
+                                raise RuntimeError(msg("cancelled"))
                             out.write(chunk)
                             done += len(chunk)
                             if total:
@@ -388,9 +455,9 @@ class SamDownloadThread(QThread):
                     if os.path.exists(part):
                         os.remove(part)         # mai lasciare un file a meta'
                     raise
-            self.finished_ok.emit(True, "Pesi pronti.")
+            self.finished_ok.emit(True, msg("weights_ready"))
         except Exception as e:                       # noqa: BLE001
-            self.finished_ok.emit(False, f"Scaricamento fallito: {e}")
+            self.finished_ok.emit(False, msg("download_failed", e))
 
 
 class SamWorkerThread(QThread):
@@ -415,26 +482,30 @@ class SamWorkerThread(QThread):
     def run(self):
         try:
             os.makedirs(weights_dir(), exist_ok=True)
-            self.progress.emit("Segmentazione in corso…")
+            self.progress.emit(msg("running"))
             self._process = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                              text=True, env=clean_env(), cwd=weights_dir(), bufsize=1)
+            watchdog = _Watchdog(self._process, self.timeout_s)
+            watchdog.start()
             lines = []
-            for line in self._process.stdout:
-                line = line.rstrip()
-                if line:
-                    lines.append(line)
-                    if line.startswith("[sam]"):
-                        self.progress.emit(line[5:].strip())
-            self._process.wait(timeout=self.timeout_s)
+            try:
+                for line in self._process.stdout:
+                    line = line.rstrip()
+                    if line:
+                        lines.append(line)
+                        if line.startswith("[sam]"):
+                            self.progress.emit(line[5:].strip())
+                self._process.wait()
+            finally:
+                watchdog.cancel()
             code = self._process.returncode
             self._process = None
-            if code == 0 and os.path.isfile(self.output):
-                self.finished_ok.emit(True, "Segmentazione completata.", self.output)
+            if watchdog.fired:
+                self.finished_ok.emit(False, msg("timeout", self.timeout_s), "")
+            elif code == 0 and os.path.isfile(self.output):
+                self.finished_ok.emit(True, msg("completed"), self.output)
             else:
                 tail = "\n".join(lines[-12:])
-                self.finished_ok.emit(False, f"Il worker e' uscito con codice {code}:\n{tail}", "")
-        except subprocess.TimeoutExpired:
-            self.cancel()
-            self.finished_ok.emit(False, "Tempo scaduto.", "")
+                self.finished_ok.emit(False, msg("worker_exit", code, tail), "")
         except Exception as e:                       # noqa: BLE001
-            self.finished_ok.emit(False, f"Errore: {e}", "")
+            self.finished_ok.emit(False, msg("error", e), "")

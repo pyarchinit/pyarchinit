@@ -7,7 +7,7 @@
 4. [Scheda Dati](#scheda-dati)
 5. [Scheda Variogramma](#scheda-variogramma)
 6. [Scheda Kriging](#scheda-kriging)
-7. [Scheda Machine Learning](#scheda-machine-learning)
+7. [Scheda Pattern (ML)](#scheda-pattern-ml)
 8. [Scheda Campionamento](#scheda-campionamento)
 9. [Scheda Report](#scheda-report)
 10. [Flusso di lavoro operativo](#flusso-di-lavoro-operativo)
@@ -18,382 +18,472 @@
 
 ## Introduzione
 
-**GeoArchaeo** e il modulo di analisi geostatistica integrato in PyArchInit. Fornisce un insieme completo di strumenti per l'analisi spaziale dei dati archeologici, dalla modellazione dei variogrammi all'interpolazione kriging, fino alle predizioni con machine learning e alla progettazione di strategie di campionamento.
+**GeoArchaeo** è il modulo di analisi geostatistica integrato in PyArchInit e corrisponde alla versione **1.3.1** del plugin GeoArchaeo. Lavora su qualsiasi layer di punti del progetto QGIS che abbia un campo numerico (numero di frammenti, misure geofisiche, analisi del suolo, misure delle tombe…) e accompagna l'analisi dalle statistiche descrittive al variogramma, all'interpolazione con il kriging ordinario e la sua incertezza, alla ricerca di gruppi e anomalie con il machine learning, alla proposta di nuovi punti di campionamento, fino a un report finale.
 
 <!-- VIDEO: Introduzione a GeoArchaeo -->
 > **Video Tutorial**: [Inserire link video introduzione GeoArchaeo]
 
-### Perche l'analisi geostatistica in archeologia?
+### Perché l'analisi geostatistica in archeologia?
 
 L'analisi geostatistica permette di:
 
-- **Interpolare** valori tra punti di campionamento noti, creando superfici continue a partire da dati discreti
-- **Quantificare** la correlazione spaziale tra i dati archeologici (ad es. densita dei reperti, spessore degli strati)
-- **Predire** distribuzioni spaziali in aree non ancora scavate
-- **Ottimizzare** le strategie di campionamento per indagini future
-- **Generare** report analitici completi per la documentazione scientifica
+- **Descrivere** la distribuzione dei valori misurati (media, dispersione, asimmetria, valori anomali)
+- **Quantificare** la correlazione spaziale, cioè fino a che distanza i valori si somigliano (variogramma)
+- **Interpolare** i valori tra i punti noti, ottenendo una superficie continua accompagnata dalla sua incertezza (kriging)
+- **Riconoscere** gruppi di punti simili e anomalie (machine learning)
+- **Pianificare** dove campionare o scavare nelle campagne successive
+- **Documentare** le analisi in un report
 
 ### Panoramica del flusso di lavoro
 
 ```
-1. Carica Dati         2. Variogramma        3. Kriging/ML
-   (Scheda Dati)          (Scheda Variogramma)   (Scheda Kriging/ML)
-        |                      |                      |
-   Seleziona layer        Calcola e modella       Interpolazione o
-   e campi                variogramma             predizione spaziale
-                               |                      |
-                          4. Campionamento       5. Report
-                             (Scheda Campion.)      (Scheda Report)
-                                  |                      |
-                             Progetta             Genera report
-                             strategia            di analisi
+Dati di input: layer di punti + campo numerico (scelti in alto, una volta sola)
+  │
+  ├─ 1 Dati ............ statistiche descrittive, istogramma
+  ├─ 2 Variogramma ..... nugget, sill, range, anisotropia
+  ├─ 3 Kriging ......... raster della stima e dell'incertezza, cross-validation
+  ├─ 4 Pattern (ML) .... gruppi e anomalie (layer di punti)
+  ├─ 5 Campionamento ... nuovi punti proposti (layer di punti)
+  └─ 6 Report .......... documento HTML con grafici interattivi, oppure PDF
 ```
+
+### Novità della versione 1.3.1
+
+- Layer e campo si scelgono **una sola volta** in alto e valgono per tutte le schede; ogni scheda conserva i propri risultati
+- I grafici compaiono nel pannello anche senza QtWebEngine (anteprima statica e pulsante per aprirli nel browser)
+- Il kriging produce anche il **raster dell'incertezza**, applica la rampa di colori e calcola una vera **cross-validation leave-one-out**
+- L'anisotropia si verifica con veri **variogrammi direzionali**; nugget, sill e range si possono fissare a mano
+- Variogramma e kriging sono molto più veloci (ricerca dei vicini con KD-tree): griglie fino a **500 × 500 celle**
+- I valori NULL non bloccano più le statistiche né il kriging; il report contiene i grafici; i dati di esempio vengono dalla cartella del modulo
+- La lingua del pannello resta salvata nelle impostazioni di QGIS
 
 ---
 
 ## Accesso allo strumento
 
-GeoArchaeo e accessibile dalla barra degli strumenti di PyArchInit tramite il menu a tendina degli Strumenti di Analisi.
+GeoArchaeo fa parte del gruppo degli strumenti di analisi di PyArchInit.
 
 ### Dalla barra degli strumenti
 
-1. Individuare il pulsante **Strumenti di Analisi** (icona a tendina) nella barra degli strumenti di PyArchInit
-2. Fare clic sulla freccia del menu a tendina
-3. Selezionare **GeoArchaeo** dall'elenco
+1. Nella barra degli strumenti di PyArchInit individuare il pulsante a tendina degli **strumenti di analisi** (lo stesso gruppo che contiene, tra gli altri, SAM, Pottery Tools e MoveCost)
+2. Fare clic sulla freccia accanto al pulsante: l'icona visibile può essere quella di un altro strumento del gruppo
+3. Scegliere **GeoArchaeo - Analisi Geostatistica**
 
-<!-- IMAGE: Pulsante Strumenti di Analisi nella barra degli strumenti -->
-> **Fig. 1**: Il menu a tendina Strumenti di Analisi nella barra degli strumenti di PyArchInit
+<!-- IMAGE: Pulsante a tendina degli strumenti di analisi nella barra degli strumenti -->
+> **Fig. 1**: Il menu a tendina degli strumenti di analisi nella barra degli strumenti di PyArchInit
 
-Il pannello GeoArchaeo appare come un **dock widget** agganciato all'interfaccia di QGIS. E possibile trascinarlo, ridimensionarlo o staccarlo come qualsiasi altro pannello di QGIS.
+La stessa voce si trova nel menu **pyArchInit** della barra dei menu di QGIS e nel menu dei plugin, sotto **pyArchInit - Archaeological GIS Tools**.
 
-<!-- IMAGE: Pannello GeoArchaeo agganciato in QGIS -->
-> **Fig. 2**: Il pannello GeoArchaeo agganciato nella finestra QGIS
+Il pannello GeoArchaeo si apre come **pannello agganciato (dock)** sul lato destro della finestra di QGIS: si può spostare, ridimensionare o staccare come qualsiasi pannello di QGIS. Se lo si chiude, la stessa voce lo riapre con i risultati della sessione ancora presenti.
+
+<!-- IMAGE: Pannello GeoArchaeo agganciato sul lato destro di QGIS -->
+> **Fig. 2**: Il pannello GeoArchaeo agganciato sul lato destro della finestra di QGIS
 
 ### Selettore di lingua
 
-Il pannello GeoArchaeo include un **selettore di lingua** nella parte superiore, che permette di cambiare la lingua dell'interfaccia senza riavviare QGIS. Le lingue supportate includono italiano, inglese, tedesco, francese, spagnolo, arabo, catalano, romeno, portoghese e greco.
+In alto a destra la tendina **«Lingua:»** offre **Italiano** ed **English**, le sole due lingue dell'interfaccia di GeoArchaeo. Il cambio è immediato, senza riavviare QGIS, e la scelta resta salvata nelle impostazioni di QGIS. Finché non si sceglie, il pannello segue la lingua di QGIS: italiano se QGIS è in italiano, inglese in tutti gli altri casi.
 
 ---
 
 ## Interfaccia utente
 
-Il pannello GeoArchaeo e organizzato in **6 schede** principali, ciascuna dedicata a una fase dell'analisi geostatistica.
+Il pannello contiene, dall'alto in basso: l'intestazione con i pulsanti, il gruppo **«Dati di input (usati da tutte le schede)»**, le **6 schede** dell'analisi e, durante i calcoli, la barra di avanzamento con il pulsante **«Annulla»**.
 
-| Scheda | Icona | Funzione |
-|--------|-------|----------|
-| **Dati** | Tabella | Caricamento ed esplorazione dei dati spaziali dai layer QGIS |
-| **Variogramma** | Grafico | Calcolo e modellazione dei variogrammi sperimentali |
-| **Kriging** | Griglia | Interpolazione kriging (ordinario, universale) |
-| **ML** | Cervello | Predizioni spaziali con machine learning |
-| **Campionamento** | Bersaglio | Progettazione di strategie di campionamento |
-| **Report** | Documento | Generazione di report di analisi |
+### Intestazione
 
-<!-- IMAGE: Panoramica delle 6 schede di GeoArchaeo -->
-> **Fig. 3**: Le sei schede del pannello GeoArchaeo
+| Elemento | Funzione |
+|----------|----------|
+| **«Carica dati di esempio»** | Apre l'elenco dei dataset di prova inclusi nel modulo (vedi la scheda Dati) |
+| **«Tutorial»** | Apre la guida integrata di GeoArchaeo, in italiano o in inglese, consultabile anche nel browser |
+| **«Lingua:»** | Tendina Italiano / English |
 
-### Barra degli strumenti del pannello
+### Dati di input
 
-Nella parte superiore del pannello si trovano:
+Nel gruppo **«Dati di input (usati da tutte le schede)»** si scelgono una sola volta:
 
-- **Selettore lingua**: Menu a tendina per cambiare la lingua dell'interfaccia
-- **Carica dati di esempio**: Pulsante per caricare un dataset di prova
-- **Guida**: Pulsante per accedere alla documentazione
+- **«Layer punti:»**: un layer vettoriale di punti del progetto
+- **«Campo valore (numerico):»**: il campo da analizzare (la tendina elenca solo i campi numerici)
+
+Sotto compare un riepilogo con i punti validi sul totale, il CRS e l'estensione del layer, per esempio «500 punti validi su 500 · CRS EPSG:32633 · …». I punti senza valore (NULL o testo non numerico) non sono contati tra i validi. Il riepilogo avvisa anche se nel progetto non ci sono layer di punti, se il layer non ha campi numerici o se il CRS è geografico (gradi).
+
+Quando si cambia layer, il pannello propone anche la distanza massima del variogramma e la risoluzione del kriging e, se nella scheda Pattern (ML) non è selezionato nessun layer, vi preseleziona questo.
+
+### Le sei schede
+
+| Scheda | Funzione | Risultato |
+|--------|----------|-----------|
+| **Dati** | Statistiche descrittive del campo | Tabella delle statistiche, istogramma con box plot |
+| **Variogramma** | Struttura spaziale dei valori | Nugget, sill, range, anisotropia, grafico |
+| **Kriging** | Interpolazione su una griglia regolare | Raster della stima e dell'incertezza, cross-validation |
+| **Pattern (ML)** | Gruppi e anomalie con il machine learning | Layer di punti con l'etichetta del gruppo |
+| **Campionamento** | Proposta di nuovi punti da campionare | Layer di punti e tabella delle coordinate |
+| **Report** | Raccolta delle analisi della sessione | File HTML con grafici interattivi, oppure PDF |
+
+<!-- IMAGE: Intestazione, gruppo Dati di input e le sei schede di GeoArchaeo -->
+> **Fig. 3**: L'intestazione, il gruppo «Dati di input» e le sei schede del pannello GeoArchaeo
+
+### Risultati e grafici
+
+Ogni scheda mostra i risultati in un **riquadro** sotto il pulsante di calcolo, che resta visibile finché non si ripete l'analisi, e il **grafico** nel pannello:
+
+- se QGIS dispone di QtWebEngine, il grafico Plotly è interattivo direttamente nel pannello (zoom, valori al passaggio del mouse)
+- altrimenti compare un'**anteprima statica** con la nota «Anteprima statica (QtWebEngine non disponibile in questa installazione di QGIS).»
+- in entrambi i casi il pulsante **«Apri grafico interattivo nel browser»** apre la versione interattiva nel browser web
+
+Le schede Dati, Variogramma e Kriging terminano con un collegamento al passo successivo, per esempio **«Prossimo passo: Variogramma →»**.
+
+### Analisi in corso
+
+Variogramma, kriging, pattern recognition e campionamento vengono calcolati in un **thread separato**: QGIS resta utilizzabile e in fondo al pannello compaiono la **barra di avanzamento** (in percentuale per il kriging) e il pulsante **«Annulla»**. Si esegue un'analisi alla volta: avviandone un'altra compare «Un'analisi è già in corso: attendi che finisca o annullala.»
 
 ---
 
 ## Scheda Dati
 
-La scheda **Dati** e il punto di partenza per qualsiasi analisi geostatistica. Permette di caricare e visualizzare i dati spaziali disponibili nei layer QGIS.
+La scheda **Dati** («1. Analisi esplorativa») descrive la distribuzione dei valori prima di interpolarli.
 
-### Caricamento dei dati
+### Calcolo delle statistiche
 
-1. Aprire la scheda **Dati**
-2. Selezionare un **layer vettoriale** dal menu a tendina (vengono elencati tutti i layer puntuali presenti nel progetto QGIS)
-3. Selezionare il **campo di analisi** (il campo numerico da analizzare)
-4. Fare clic su **Carica dati**
+1. Nel gruppo «Dati di input» scegliere il layer di punti e il campo numerico
+2. Aprire la scheda **Dati**
+3. Fare clic su **«Calcola statistiche»**
 
-<!-- IMAGE: Scheda Dati con layer e campo selezionati -->
-> **Fig. 4**: La scheda Dati con un layer e un campo di analisi selezionati
+<!-- IMAGE: Scheda Dati con statistiche e istogramma -->
+> **Fig. 4**: La scheda Dati con la tabella delle statistiche e l'istogramma del campo scelto
+
+### Statistiche e interpretazione
+
+| Statistica | Descrizione |
+|------------|-------------|
+| **Numero valori**, **Valori mancanti** | Punti con un valore valido e punti esclusi (NULL o testo non numerico) |
+| **Minimo**, **Massimo**, **Media**, **Mediana** | Intervallo e posizione dei valori |
+| **Dev. standard**, **Coeff. di variazione** | Dispersione assoluta e relativa |
+| **Primo quartile (Q1)**, **Terzo quartile (Q3)** | Limiti del 50% centrale dei valori |
+| **Asimmetria (skewness)**, **Curtosi** | Forma della distribuzione |
+
+Sotto la tabella il pannello aggiunge una lettura in parole:
+
+- asimmetria maggiore di 1: distribuzione asimmetrica a destra (pochi valori molto alti); conviene valutare una trasformazione logaritmica prima del kriging, per esempio creando un nuovo campo con il Calcolatore di campi
+- asimmetria minore di -1: distribuzione asimmetrica a sinistra (pochi valori molto bassi)
+- negli altri casi: distribuzione circa simmetrica, adatta al kriging
+- il numero di possibili valori anomali, cioè oltre 3 deviazioni standard dalla media
+
+Il grafico mostra l'**istogramma** dei valori con un **box plot** (nell'anteprima statica solo l'istogramma).
 
 ### Dati di esempio
 
-Per familiarizzare con lo strumento, e possibile caricare un **dataset di esempio** facendo clic sul pulsante dedicato. Il dataset di esempio contiene dati archeologici simulati con coordinate e valori numerici adatti all'analisi geostatistica.
+Il pulsante **«Carica dati di esempio»** apre la finestra «Dati di esempio GeoArchaeo» con i dataset della cartella `test_layers` del modulo; il percorso è indicato in **«Cartella:»** e si può cambiare con **«Sfoglia…»**. GeoPackage e GeoJSON sono già spuntati. I CSV compaiono solo se non esiste un GeoPackage o un GeoJSON con lo stesso nome, vanno spuntati a mano e vengono caricati come testo delimitato (campi `x` e `y`, EPSG:32633). Con **OK** i layer vengono aggiunti al progetto e il primo layer di punti caricato diventa il layer di input del pannello.
 
-### Esplorazione dei dati
+| Dataset | Punti | Campi numerici principali | Uso consigliato |
+|---------|-------|---------------------------|-----------------|
+| `villa_ceramica` (GeoPackage) | 500 | `ceramic_count`, `weight_g`, `depth_cm` | Statistiche, variogramma, kriging |
+| `geoarchaeo_test_complete` (GeoPackage) | 500 | Gli stessi di `villa_ceramica` | Prova di tutte le schede |
+| `geofisica_survey` (GeoPackage) | 4800 | `gpr_amplitude`, `mag_nt` | Isolation Forest, prova su un dataset grande |
+| `necropoli` (GeoPackage) | 120 tombe | `length_cm`, `width_cm`, `depth_cm`, `n_grave_goods` | DBSCAN o K-Means |
+| `soil_samples` (GeoPackage) | 80 | `sand_pct`, `silt_pct`, `clay_pct`, `ph`, `p_ppm`, `organic_pct` | Kriging delle proprietà del suolo |
+| `ricognizione_survey` (GeoJSON) | 100 | `densita_mq`, `visibilita`, `pendenza`, `distanza_acqua` | Kriging della densità, campionamento |
+| `unita_scavo_ceramica` (GeoJSON) | 50 | `ceramica_tot`, `ceramica_fine`, `ceramica_comune` | Variogramma e kriging con pochi punti |
+| `area_studio` (GeoJSON) | 1 poligono | — | Area di studio per il campionamento |
 
-Dopo il caricamento, la scheda visualizza:
-
-| Informazione | Descrizione |
-|--------------|-------------|
-| **Numero di punti** | Totale dei punti caricati |
-| **Estensione** | Bounding box del dataset (xmin, ymin, xmax, ymax) |
-| **Statistiche** | Media, mediana, deviazione standard, min, max |
-| **Anteprima** | Tabella con le prime righe del dataset |
+Tra i CSV, `magnetometria_grid` (2500 punti, campo `mag_nT`) contiene anomalie magnetiche simulate (due muri, una fossa, una fornace). Tutti i dati sono simulati e in EPSG:32633 (UTM 33N, metri). Il poligono `area_studio` copre la zona di `ricognizione_survey`, `unita_scavo_ceramica` e `magnetometria_grid`, non quella degli altri dataset.
 
 ### Requisiti dei dati
 
-- Il layer deve essere un layer **vettoriale puntuale**
-- Il campo di analisi deve contenere **valori numerici**
-- I punti devono avere **coordinate valide** nel sistema di riferimento del progetto
-- Si raccomandano almeno **30 punti** per un'analisi geostatistica significativa
+- Il layer deve essere un layer vettoriale di **punti** (per i multipunto si usa il primo punto)
+- Il campo deve essere **numerico**: un campo di testo che contiene numeri va convertito con il Calcolatore di campi
+- I valori NULL o non numerici vengono esclusi automaticamente e contati come mancanti
+- Servono almeno **5 punti** con un valore valido per variogramma e kriging (1 per le statistiche); un variogramma affidabile richiede di norma alcune decine di punti
+- Si raccomanda un **CRS proiettato** in metri (per esempio UTM): con un CRS geografico il riepilogo avvisa e variogramma e kriging chiedono conferma
 
 ---
 
 ## Scheda Variogramma
 
-La scheda **Variogramma** permette di calcolare e modellare variogrammi sperimentali, che descrivono la struttura della correlazione spaziale nei dati.
+La scheda **Variogramma** («2. Variogramma») misura come la differenza tra i valori cresce con la distanza: descrive la struttura spaziale dei dati e guida il kriging.
 
-### Cos'e un variogramma?
+### Cos'è un variogramma?
 
-Un variogramma e un grafico che mostra come la **varianza** tra coppie di punti cambia in funzione della **distanza** che li separa. I parametri chiave sono:
+Il variogramma mette in relazione la **semivarianza** delle coppie di punti con la **distanza** che li separa. I parametri del modello sono:
 
 | Parametro | Descrizione |
 |-----------|-------------|
-| **Nugget** | Varianza a distanza zero (errore di misura + variabilita micro-scala) |
-| **Sill** | Varianza massima raggiunta (plateau del variogramma) |
-| **Range** | Distanza oltre la quale non c'e piu correlazione spaziale |
+| **Nugget** | Variabilità a distanza quasi nulla: errore di misura e variabilità a piccola scala |
+| **Sill** | Varianza totale raggiunta dal modello (il "plateau") |
+| **Range** | Distanza oltre la quale i valori non sono più correlati; in GeoArchaeo è il range pratico (95% del sill) |
 
-### Calcolo del variogramma sperimentale
+### Calcolo del variogramma
 
-1. Assicurarsi di aver caricato i dati nella scheda Dati
-2. Aprire la scheda **Variogramma**
-3. Impostare i parametri:
-   - **Numero di lag**: Numero di intervalli di distanza (default: 15)
-   - **Distanza massima**: Distanza massima da considerare (default: auto)
-   - **Tolleranza angolare**: Per variogrammi direzionali (default: omni-direzionale)
-4. Fare clic su **Calcola variogramma**
+1. Aprire la scheda **Variogramma**
+2. Nel gruppo **«Parametri»** controllare **«Distanza massima:»**: il pulsante **«Auto»** propone circa 1/3 della diagonale dell'area occupata dai punti (lo stesso valore viene proposto quando si cambia layer)
+3. Scegliere il **«Modello teorico:»**
+4. Se serve, spuntare **«Verifica anisotropia (variogrammi direzionali)»**
+5. Fare clic su **«Calcola variogramma»**
 
-<!-- IMAGE: Variogramma sperimentale calcolato -->
-> **Fig. 5**: Un variogramma sperimentale calcolato dai dati archeologici
+Le coppie di punti vengono raggruppate in **15 classi di distanza** (lag) tra zero e la distanza massima; il numero di classi non si modifica dal pannello. Oltre i **3000 punti** il variogramma viene calcolato su un sottocampione casuale di 3000 punti, perché il numero di coppie cresce con il quadrato dei punti. Il modello viene adattato con i minimi quadrati pesati sul numero di coppie di ogni classe.
 
-### Modellazione del variogramma
+<!-- IMAGE: Scheda Variogramma con parametri e risultati -->
+> **Fig. 5**: La scheda Variogramma con i parametri, il modello teorico e il riquadro dei risultati
 
-Dopo il calcolo del variogramma sperimentale, e possibile adattare un **modello teorico**:
+### Modelli teorici
 
-1. Selezionare il **tipo di modello**:
-   - **Sferico**: Il modello piu comune, raggiunge il sill a una distanza finita
-   - **Esponenziale**: Raggiunge il sill asintoticamente
-   - **Gaussiano**: Transizione graduale, adatto a fenomeni molto regolari
-   - **Lineare**: Variogramma senza sill definito
-2. Fare clic su **Adatta modello**
-3. Verificare i parametri stimati (nugget, sill, range) e la bonta di adattamento
+| Modello | Andamento | Quando usarlo |
+|---------|-----------|---------------|
+| **«Sferico (consigliato)»** | Cresce fino al range e poi resta costante | Il più usato: densità di reperti, distribuzioni con limiti netti |
+| **«Esponenziale»** | Cresce rapidamente vicino all'origine e raggiunge il sill gradualmente | Fenomeni a decadimento continuo, per esempio elementi chimici nel suolo |
+| **«Gaussiano»** | Molto regolare vicino all'origine | Fenomeni molto "lisci" (superfici); da usare con cautela |
+| **«Matérn»** | Intermedio tra esponenziale e gaussiano (ν = 1,5) | Alternativa flessibile |
 
-<!-- IMAGE: Modello di variogramma adattato -->
-> **Fig. 6**: Modello sferico adattato al variogramma sperimentale
+Regola pratica: iniziare con il modello sferico e confrontare l'RMSE del fit con quello degli altri modelli. Il kriging usa l'**ultimo** variogramma calcolato: dopo i confronti, ricalcolare quello scelto.
 
-### Variogrammi direzionali
+### Parametri manuali
 
-Per verificare l'**anisotropia** (variazione della struttura spaziale in direzioni diverse):
+Il gruppo **«Parametri manuali (opzionale)»**, disattivato per default, permette di fissare **«Nugget (effetto pepita):»**, **«Sill (varianza totale):»** e **«Range (distanza di correlazione):»**. Con il gruppo attivo, i valori diversi da zero restano fissi e quelli lasciati su «Auto» (zero) vengono stimati.
 
-1. Impostare una **tolleranza angolare** (ad es. 22.5 gradi)
-2. Selezionare le **direzioni** da analizzare (0, 45, 90, 135 gradi)
-3. Confrontare i variogrammi nelle diverse direzioni
+### Lettura dei risultati
+
+Il riquadro dei risultati riporta:
+
+- il modello con **Nugget**, **Sill**, **Range** (nelle unità del CRS) e l'**RMSE** del fit
+- il numero di coppie di punti e di classi di distanza, con l'eventuale sottocampione usato
+- una lettura del range: fino a quella distanza i valori sono spazialmente correlati, oltre non si influenzano
+- il rapporto nugget/sill: sotto il 25% forte continuità a piccola scala, fino al 60% continuità moderata, oltre il 60% molta variabilità a piccola scala o errore di misura (il kriging sarà poco informativo)
+
+Il grafico mostra i punti del variogramma sperimentale (più grandi dove le coppie sono più numerose), la curva del modello e le linee di nugget, sill e range.
+
+<!-- IMAGE: Variogramma sperimentale con il modello adattato -->
+> **Fig. 6**: Variogramma sperimentale e modello sferico con le linee di nugget, sill e range
+
+### Variogrammi direzionali (anisotropia)
+
+Con **«Verifica anisotropia (variogrammi direzionali)»** attiva, GeoArchaeo calcola anche i variogrammi nelle direzioni **0°, 45°, 90° e 135°** (angoli misurati da Est in senso antiorario, tolleranza ±22,5°). Nugget e sill restano quelli del variogramma complessivo; per ogni direzione si stima il range.
+
+- Se il rapporto tra il range maggiore e quello minore supera **2**, il riquadro segnala l'anisotropia e la direzione maggiore (per esempio lungo un muro, una strada o un pendio)
+- Altrimenti riporta «Nessuna anisotropia rilevante» con il rapporto calcolato
+- Con poche coppie per direzione compare «Coppie insufficienti per i variogrammi direzionali.»
+
+Nel grafico interattivo i variogrammi direzionali sono voci della legenda nascoste all'inizio: fare clic su 0°, 45°, 90° o 135° per mostrarli (nell'anteprima statica sono sempre disegnati). Il kriging del pannello usa il modello omnidirezionale: l'anisotropia serve all'interpretazione.
 
 ---
 
 ## Scheda Kriging
 
-La scheda **Kriging** permette di eseguire l'interpolazione kriging, il metodo geostatistico per eccellenza per la predizione spaziale ottimale.
+La scheda **Kriging** («3. Kriging ordinario») interpola i valori su una griglia regolare usando il variogramma, produce anche la mappa dell'incertezza e aggiunge i raster al progetto.
 
-### Tipi di kriging disponibili
+### Il kriging ordinario
 
-| Tipo | Descrizione | Quando usarlo |
-|------|-------------|---------------|
-| **Kriging ordinario** | Assume media locale costante ma sconosciuta | Caso piu comune, dati stazionari |
-| **Kriging universale** | Tiene conto di un trend spaziale (drift) | Quando i dati mostrano una tendenza direzionale |
+Il pannello esegue il **kriging ordinario** (media locale costante ma sconosciuta), adatto alla maggior parte dei dati archeologici. Per ogni cella usa i **20 punti più vicini**, trovati con un KD-tree; questo numero non si modifica dal pannello. Co-kriging, kriging spazio-temporale e kriging a blocchi per dataset molto grandi esistono solo come algoritmi Processing del plugin GeoArchaeo autonomo e non sono disponibili in PyArchInit.
 
 ### Esecuzione del kriging
 
-1. Assicurarsi di aver modellato il variogramma nella scheda Variogramma
-2. Aprire la scheda **Kriging**
-3. Selezionare il **tipo di kriging** (ordinario o universale)
-4. Impostare i parametri della griglia di output:
-   - **Risoluzione**: Dimensione delle celle della griglia (in unita del CRS)
-   - **Estensione**: Automatica dal dataset o personalizzata
-5. Impostare i parametri del kriging:
-   - **Punti minimi**: Numero minimo di punti vicini da usare
-   - **Punti massimi**: Numero massimo di punti vicini da usare
-   - **Raggio di ricerca**: Distanza massima per i punti vicini
-6. Fare clic su **Esegui kriging**
+1. Aprire la scheda **Kriging** e leggere la riga di stato del variogramma (vedi sotto); il pulsante **«← Vai al Variogramma»** riporta alla scheda precedente
+2. Impostare **«Risoluzione cella:»**, cioè la dimensione della cella nelle unità del CRS: il pannello propone circa 100 celle sul lato maggiore del layer e mostra sotto la griglia risultante («Griglia: … × … = … celle»)
+3. Lasciare attiva **«Usa il variogramma calcolato»** per usare il variogramma della scheda precedente; se è disattiva, il variogramma viene stimato automaticamente
+4. Lasciare attiva **«Crea anche il raster dell'incertezza (dev. standard)»** se serve la mappa dell'incertezza
+5. Fare clic su **«Esegui kriging»**: la barra di avanzamento mostra la percentuale e **«Annulla»** interrompe il calcolo
 
-<!-- IMAGE: Risultato dell'interpolazione kriging -->
-> **Fig. 7**: Mappa di interpolazione kriging con la griglia di predizione
+La riga di stato può indicare:
+
+- «Variogramma disponibile: …, range … ✓»: viene usato il variogramma calcolato sullo stesso layer e campo
+- «Nessun variogramma calcolato: verrà stimato automaticamente (modello sferico).»
+- «Il variogramma è stato calcolato su un altro layer/campo: verrà ricalcolato.» (anche in questo caso con una stima automatica)
+
+> **Griglia**: la griglia copre l'estensione del layer di punti ed è limitata a **500 celle per lato**. Se la risoluzione scelta è troppo fine, la dimensione della cella viene aumentata automaticamente e la riga della griglia lo segnala («risoluzione minima … (max 500 celle per lato)»). Oltre **40.000 celle** la riga diventa arancione e all'avvio il pannello chiede conferma, perché il calcolo può richiedere alcuni minuti.
+
+<!-- IMAGE: Raster del kriging e metriche di cross-validation -->
+> **Fig. 7**: I raster della stima e dell'incertezza sulla mappa, con il riquadro dei risultati e la cross-validation
 
 ### Risultati del kriging
 
-L'analisi produce due layer raster:
+Il kriging aggiunge al progetto due raster GeoTIFF nel CRS del layer di punti:
 
-- **Predizione**: I valori interpolati sulla griglia
-- **Varianza di kriging**: L'incertezza della predizione in ogni cella
+| Layer | Contenuto | Stile |
+|-------|-----------|-------|
+| `Kriging_<campo>` | Valore stimato in ogni cella | Rampa di colori dal blu al rosso passando per il giallo; visibile |
+| `Kriging_<campo>_incertezza` | Deviazione standard della stima (incertezza) | Rampa dal giallo chiaro al rosso; aggiunto in cima all'elenco dei layer ma nascosto |
 
-I layer vengono aggiunti automaticamente al progetto QGIS e visualizzati sulla mappa.
+Con il pannello in inglese il secondo raster si chiama `Kriging_<campo>_uncertainty`. I file vengono scritti in una **cartella temporanea**: per conservarli, esportarli dal menu contestuale del layer (**Esporta**).
 
-> **Nota**: L'analisi viene eseguita in un **thread in background**, cosi l'interfaccia di QGIS rimane utilizzabile durante il calcolo. Una barra di progresso indica lo stato dell'elaborazione.
+Il riquadro dei risultati riassume punti usati, dimensioni della griglia, risoluzione, modello e range; il grafico mostra la mappa dei valori stimati e quella dell'incertezza con i punti campione sovrapposti.
+
+### Cross-validation leave-one-out
+
+Dopo il kriging, GeoArchaeo esegue una **validazione incrociata leave-one-out**: ogni punto viene tolto e ristimato dagli altri (su un massimo di 200 punti scelti a caso nei dataset più grandi). Le metriche compaiono nel riquadro dei risultati:
+
+| Metrica | Significato | Valore desiderabile |
+|---------|-------------|---------------------|
+| **RMSE** | Errore tipico della stima | Il più basso possibile, rispetto alla dev. standard dei dati |
+| **MAE** (errore assoluto medio) | Errore medio in valore assoluto | Il più basso possibile |
+| **ME** (errore medio, bias) | Sovrastima o sottostima sistematica | Vicino a 0 |
+| **R²** (quota di varianza spiegata) | Capacità predittiva | Da 0,5 in su buona, sotto 0,2 bassa |
+| **MSDR** (errore standardizzato) | Realismo dell'incertezza stimata | Circa 1; sopra 1,5 incertezza sottostimata, sotto 0,5 sovrastimata |
+
+Il pannello aggiunge un giudizio in parole sulla capacità predittiva (buona, moderata o bassa) e, quando serve, sull'MSDR.
+
+> **Nota**: il kriging viene eseguito in un **thread in background**, quindi QGIS resta utilizzabile durante il calcolo; la barra di avanzamento indica lo stato dell'elaborazione.
 
 ---
 
-## Scheda Machine Learning
+## Scheda Pattern (ML)
 
-La scheda **ML** offre metodi di machine learning per predizioni spaziali, come alternativa o complemento al kriging.
+La scheda **Pattern (ML)** («4. Pattern recognition (machine learning)») raggruppa i punti per posizione e attributi numerici, oppure individua le anomalie, e crea un layer con l'etichetta di ogni punto.
 
-### Algoritmi disponibili
+### Metodi disponibili
 
-| Algoritmo | Descrizione | Vantaggi |
-|-----------|-------------|----------|
-| **Random Forest** | Ensemble di alberi decisionali | Robusto, gestisce relazioni non lineari |
-| **Gradient Boosting** | Alberi decisionali sequenziali | Alta accuratezza, adatto a pattern complessi |
-| **SVR** | Support Vector Regression | Buono con pochi dati, kernel flessibili |
+| Metodo (voce della tendina) | Cosa fa | Parametri |
+|-----------------------------|---------|-----------|
+| **«K-Means – gruppi per similarità»** | Divide i punti in K gruppi simili per posizione e attributi | **«Numero di gruppi (0 = automatico):»**; con 0 il numero viene scelto in base ai punti (da 2 a 5) |
+| **«DBSCAN – gruppi per densità (trova anche punti isolati)»** | Trova gruppi per densità senza fissarne il numero; i punti isolati formano il gruppo «Isolati / rumore» | Automatici |
+| **«Isolation Forest – rilevamento anomalie»** | Segnala come «Anomalia» circa il 10% dei punti più diversi dagli altri; i restanti sono «Normale» | Automatici |
 
-### Flusso di lavoro ML
+### Esecuzione
 
-1. Aprire la scheda **ML**
-2. Selezionare l'**algoritmo** desiderato
-3. Configurare le **variabili predittive**:
-   - Coordinate (X, Y)
-   - Campi aggiuntivi dal layer (ad es. quota, pendenza, distanza da un fiume)
-4. Impostare i **parametri** dell'algoritmo (o utilizzare i valori predefiniti)
-5. Selezionare il metodo di **validazione**:
-   - Validazione incrociata k-fold (default: 5 fold)
-   - Hold-out (percentuale di test)
-6. Fare clic su **Addestra modello**
+1. Aprire la scheda **Pattern (ML)**
+2. Nell'elenco **«Layer di punti da analizzare (uno o più):»** selezionare uno o più layer di punti (se l'elenco non ha selezioni, viene preselezionato il layer di input)
+3. Scegliere il **«Metodo:»**
+4. Solo per K-Means, impostare **«Numero di gruppi (0 = automatico):»**
+5. Fare clic su **«Avvia pattern recognition»**
 
-<!-- IMAGE: Configurazione del modello ML -->
-> **Fig. 8**: Configurazione di un modello Random Forest nella scheda ML
+Le variabili analizzate sono le **coordinate X e Y** e **tutti i campi numerici** dei layer selezionati, standardizzati; i valori mancanti vengono sostituiti con la media del campo. Non si usa solo il campo valore scelto in alto: entrano tutti i campi numerici, compresi identificativi e numeri progressivi, e se falsano i gruppi conviene analizzare una copia del layer con i soli campi utili. Analizzando più layer insieme, conviene che abbiano gli stessi campi numerici nello stesso ordine e lo stesso CRS (il layer creato usa il CRS del primo layer selezionato).
 
-### Risultati ML
+<!-- IMAGE: Scheda Pattern (ML) con il layer dei gruppi -->
+> **Fig. 8**: La scheda Pattern (ML) con il grafico dei gruppi e il layer `Gruppi_ML` sulla mappa
 
-| Risultato | Descrizione |
-|-----------|-------------|
-| **Mappa di predizione** | Layer raster con i valori predetti |
-| **Importanza variabili** | Grafico dell'importanza relativa delle variabili predittive |
-| **Metriche di validazione** | R-squared, RMSE, MAE dalla validazione incrociata |
-| **Grafico residui** | Scatter plot dei valori osservati vs predetti |
+### Risultati
 
-### Confronto Kriging vs ML
+- Il riquadro dei risultati riporta il metodo, il numero di gruppi e quanti punti cadono in ciascuno (per esempio «Gruppo A (n=42)»)
+- Il grafico mostra i punti nel piano delle prime due componenti principali (PC1, PC2) delle variabili, colorati per gruppo
+- Viene creato un layer di punti temporaneo, `Gruppi_ML` (K-Means, DBSCAN) oppure `Anomalie_ML` (Isolation Forest), con una legenda per categoria: grigio per i punti isolati, rosso e più grande per le anomalie; con il pannello in inglese i nomi sono `ML_groups` e `ML_anomalies`
 
-Per confrontare i risultati:
+| Campo | Contenuto |
+|-------|-----------|
+| `cluster_id` | Numero del gruppo (-1 = isolati con DBSCAN; 1 = anomalia e 0 = normale con Isolation Forest) |
+| `cluster_name` | Nome leggibile, per esempio «Gruppo A (n=42)», «Isolati / rumore (n=5)», «Anomalia (n=12)» |
+| `cluster_size` | Numero di punti del gruppo |
+| `method` | Metodo usato |
+| `x_coord`, `y_coord` | Coordinate del punto |
 
-1. Eseguire sia il kriging che il ML sugli stessi dati
-2. Confrontare le metriche di validazione nella scheda Report
-3. Visualizzare le mappe di differenza
+### Classificazione supervisionata
+
+Sotto il metodo, il pannello ricorda che la classificazione supervisionata (Random Forest con un campo di etichette) si trova in **Processing → GeoArchaeo**. Quell'algoritmo appartiene al plugin GeoArchaeo autonomo: in PyArchInit il provider Processing di GeoArchaeo non viene registrato, quindi la Random Forest non è disponibile. Per usarla serve il plugin GeoArchaeo separato.
 
 ---
 
 ## Scheda Campionamento
 
-La scheda **Campionamento** permette di progettare strategie di campionamento ottimali per indagini archeologiche future.
+La scheda **Campionamento** («5. Nuovi punti di campionamento») suggerisce dove campionare o scavare in futuro partendo dai punti esistenti e crea un layer con i punti proposti.
 
-### Strategie di campionamento
+### Criteri di campionamento
 
-| Strategia | Descrizione | Quando usarla |
-|-----------|-------------|---------------|
-| **Casuale semplice** | Punti distribuiti casualmente nell'area | Quando non si hanno informazioni a priori |
-| **Casuale stratificato** | Punti casuali all'interno di strati definiti | Quando l'area ha zone con caratteristiche diverse |
-| **Griglia regolare** | Punti su una griglia regolare | Per copertura uniforme dell'area |
-| **Ottimizzato** | Punti posizionati per minimizzare la varianza di kriging | Quando si ha un variogramma |
+| Criterio (voce della tendina) | Come sceglie i punti | Quando usarlo |
+|-------------------------------|----------------------|---------------|
+| **«Copertura (maximin)»** | Ogni nuovo punto è il più lontano possibile da tutti gli altri | Riempire i vuoti in modo uniforme |
+| **«Riduzione incertezza (varianza di kriging)»** | Ogni nuovo punto va dove la varianza di kriging è massima | Ridurre l'errore del kriging dove è più alto |
+| **«Griglia stratificata»** | Una posizione per cella di una griglia regolare, con una leggera perturbazione casuale | Copertura regolare di un'area definita |
+| **«Adattivo (zone meno dense)»** | Estrazione casuale con probabilità maggiore dove ci sono pochi punti | Privilegiare le zone meno campionate mantenendo una componente casuale |
+
+Il criterio «Riduzione incertezza» usa il variogramma calcolato se riguarda lo stesso layer e campo e se nella scheda Kriging è attiva «Usa il variogramma calcolato»; altrimenti usa un modello generico basato sulla distanza tipica tra i punti.
 
 ### Progettazione del campionamento
 
-1. Aprire la scheda **Campionamento**
-2. Selezionare la **strategia** di campionamento
-3. Impostare il **numero di punti** desiderato
-4. Definire l'**area di studio**:
-   - Dall'estensione del layer corrente
-   - Da un layer poligonale
-   - Disegnando manualmente sulla mappa
-5. Impostare eventuali **vincoli**:
-   - Distanza minima tra i punti
-   - Aree di esclusione
-6. Fare clic su **Genera campionamento**
+1. Controllare **«Punti esistenti:»**: è il layer scelto in alto nel gruppo «Dati di input» (per il campionamento il campo numerico non serve)
+2. Facoltativo: scegliere in **«Area di studio (poligono, opzionale):»** un layer poligonale; tutti i suoi poligoni vengono uniti e riproiettati nel CRS dei punti, anche se il layer è in un altro CRS
+3. Impostare **«Nuovi punti da proporre:»** (da 1 a 500, predefinito 10)
+4. Scegliere il **«Criterio:»**: sotto la tendina compare la sua descrizione
+5. Fare clic su **«Calcola nuovi punti»**
 
-<!-- IMAGE: Punti di campionamento generati -->
-> **Fig. 9**: Punti di campionamento ottimizzato sovrapposti alla mappa dell'area di studio
+Senza area di studio, i punti vengono cercati nel rettangolo che contiene i punti esistenti, allargato del 20% su ogni lato.
+
+<!-- IMAGE: Nuovi punti di campionamento proposti -->
+> **Fig. 9**: I nuovi punti di campionamento (stelle gialle) proposti dentro l'area di studio
 
 ### Risultati del campionamento
 
-- Un **layer vettoriale puntuale** con i punti di campionamento viene aggiunto al progetto QGIS
-- Una **tabella attributi** con le coordinate e gli identificativi dei punti
-- Un **report** con le statistiche della strategia (copertura, distanze, etc.)
+- Il riquadro dei risultati indica quanti punti sono stati proposti e con quale criterio; sotto, la tabella «Coordinate dei punti proposti:» elenca numero, X e Y
+- Viene creato il layer di punti temporaneo `Nuovi_punti_campionamento` (`New_sampling_points` con il pannello in inglese), con simbolo a stella gialla e i campi `point_id`, `x_coord`, `y_coord` e `type` (valore `suggested`)
 
 ---
 
 ## Scheda Report
 
-La scheda **Report** permette di generare report completi dell'analisi geostatistica.
+La scheda **Report** («6. Report») riunisce in un unico documento le analisi eseguite in questa sessione: statistiche, grafici interattivi, parametri e validazione.
 
 ### Contenuto del report
 
-Il report include automaticamente tutte le analisi eseguite durante la sessione:
+Nel gruppo **«Sezioni da includere»** ogni sezione è indicata come «disponibile» o «non ancora calcolato»; le sezioni non calcolate non si possono scegliere.
 
 | Sezione | Contenuto |
 |---------|-----------|
-| **Sommario** | Riepilogo del dataset e delle analisi eseguite |
-| **Dati** | Statistiche descrittive, distribuzione, mappa dei punti |
-| **Variogramma** | Variogramma sperimentale, modello, parametri |
-| **Interpolazione** | Mappa di kriging/ML, metriche di validazione |
-| **Campionamento** | Strategia, mappa dei punti, statistiche |
-| **Conclusioni** | Interpretazione sintetica dei risultati |
+| **Statistiche descrittive** | Layer e campo, tabella delle statistiche con la lettura in parole, istogramma |
+| **Variogramma** | Modello, nugget, sill, range, RMSE, distanza massima, interpretazione, grafico |
+| **Kriging e cross-validation** | Metodo, risoluzione, dimensioni della griglia, metriche di cross-validation, grafico |
+| **Pattern recognition** | Layer analizzati, gruppi con il numero di punti, grafico |
+| **Nuovi punti di campionamento** | Criterio, layer, tabella delle coordinate |
+
+Ogni sezione contiene l'**ultima** analisi del suo tipo eseguita nella sessione.
 
 ### Generazione del report
 
-1. Aprire la scheda **Report**
-2. Selezionare le **sezioni** da includere (tutte per default)
-3. Impostare il **formato di output**:
-   - PDF (consigliato per la documentazione)
-   - HTML (per la consultazione interattiva)
-   - Markdown (per la modifica successiva)
-4. Inserire eventuali **note aggiuntive** o commenti
-5. Fare clic su **Genera report**
+1. Eseguire le analisi desiderate nelle altre schede
+2. Aprire la scheda **Report** e lasciare spuntate le sezioni da includere (sono spuntate per default)
+3. Fare clic su **«Salva report HTML»** oppure su **«Salva report PDF»** e scegliere il nome del file
 
-<!-- IMAGE: Anteprima del report generato -->
-> **Fig. 10**: Anteprima di un report di analisi geostatistica generato da GeoArchaeo
+Al salvataggio il pannello mostra anche un'anteprima del report senza grafici; la nota «Anteprima: i grafici interattivi sono inclusi nel file HTML salvato.» ricorda dove si trovano.
+
+
+<!-- IMAGE: Report HTML di GeoArchaeo aperto nel browser -->
+> **Fig. 10**: Un report HTML di GeoArchaeo con i grafici interattivi, aperto nel browser
 
 ### Esportazione
 
-Il report puo essere salvato localmente o esportato nei formati disponibili. Le immagini (grafici, mappe) vengono incorporate direttamente nel report.
+| Formato | Contenuto | Note |
+|---------|-----------|------|
+| **HTML** (`geoarchaeo_report.html`) | Testo, tabelle e **grafici interattivi** | Il file è autonomo (la libreria dei grafici è inclusa, funziona anche senza rete) e si apre subito nel browser |
+| **PDF** (`geoarchaeo_report.pdf`) | Testo e tabelle, **senza grafici** | Se il PDF non si crea, salvare il report HTML e stamparlo in PDF dal browser |
+
+Se non è stata eseguita nessuna analisi compare «Nessuna analisi disponibile: esegui prima almeno un'analisi.»; se nessuna sezione è spuntata, «Seleziona almeno una sezione».
 
 ---
 
 ## Flusso di lavoro operativo
 
-Ecco un flusso di lavoro tipico per un'analisi geostatistica completa in GeoArchaeo:
+Un esempio completo con i dati di esempio inclusi nel modulo.
 
 ### Passo 1: Preparazione dei dati
 
-1. Caricare il layer vettoriale puntuale in QGIS
-2. Verificare che il campo numerico da analizzare sia presente e corretto
-3. Controllare il sistema di riferimento delle coordinate
+1. Aprire GeoArchaeo dalla barra degli strumenti di PyArchInit
+2. Fare clic su **«Carica dati di esempio»** e confermare con **OK** (vengono caricati i GeoPackage e i GeoJSON)
+3. Nel gruppo «Dati di input» scegliere il layer `villa_ceramica` e il campo `ceramic_count`
+4. Controllare il riepilogo: 500 punti validi su 500, CRS EPSG:32633
 
 ### Passo 2: Esplorazione dei dati
 
-1. Aprire GeoArchaeo dalla barra degli strumenti
-2. Nella scheda **Dati**, selezionare il layer e il campo
-3. Esaminare le statistiche descrittive
-4. Verificare la distribuzione dei dati (cercare outlier o valori anomali)
+1. Scheda **Dati** → **«Calcola statistiche»**
+2. Leggere asimmetria e valori anomali; con una forte asimmetria a destra valutare una trasformazione logaritmica
 
 ### Passo 3: Analisi del variogramma
 
-1. Nella scheda **Variogramma**, calcolare il variogramma sperimentale
-2. Provare diversi modelli (sferico, esponenziale, gaussiano)
-3. Scegliere il modello con il miglior adattamento
-4. Annotare i parametri (nugget, sill, range)
+1. Scheda **Variogramma** → **«Auto»** per la distanza massima, modello **«Sferico (consigliato)»** → **«Calcola variogramma»**
+2. Ripetere con **«Esponenziale»** e confrontare l'RMSE del fit
+3. Facoltativo: ricalcolare con **«Verifica anisotropia (variogrammi direzionali)»**
+4. Ricalcolare per ultimo il modello scelto e annotare nugget, sill e range
 
 ### Passo 4: Interpolazione
 
-1. Nella scheda **Kriging**, impostare i parametri della griglia
-2. Eseguire il kriging ordinario
-3. Esaminare la mappa di predizione e la varianza
-4. Opzionalmente, confrontare con un modello ML nella scheda ML
+1. Scheda **Kriging**: verificare la riga «Variogramma disponibile … ✓»
+2. Lasciare la risoluzione proposta oppure impostare 1 (metro)
+3. **«Esegui kriging»**
+4. Esaminare i raster `Kriging_ceramic_count` e `Kriging_ceramic_count_incertezza` e i valori di R² e MSDR
 
-### Passo 5: Campionamento (opzionale)
+### Passo 5: Pattern e campionamento (facoltativi)
 
-1. Nella scheda **Campionamento**, progettare una strategia per indagini future
-2. Utilizzare il variogramma per il campionamento ottimizzato
+1. Scheda **Pattern (ML)**: nell'elenco lasciare selezionato solo `necropoli`, metodo DBSCAN → **«Avvia pattern recognition»**; il layer `Gruppi_ML` mostra i gruppi di tombe e i punti isolati
+2. In alto scegliere il layer `ricognizione_survey` (campo `densita_mq`); scheda **Campionamento**: area di studio `area_studio`, 10 punti, criterio «Copertura (maximin)» → **«Calcola nuovi punti»**
 
 ### Passo 6: Report
 
-1. Nella scheda **Report**, generare il report finale
-2. Esportare in PDF per la documentazione
+1. Scheda **Report**: lasciare spuntate le sezioni disponibili
+2. **«Salva report HTML»**: il report si apre nel browser con i grafici interattivi
+3. Esportare i raster e i layer temporanei che si vogliono conservare
 
 ---
 
@@ -402,62 +492,84 @@ Ecco un flusso di lavoro tipico per un'analisi geostatistica completa in GeoArch
 ### Problemi comuni
 
 | Problema | Causa | Soluzione |
-|----------|-------|----------|
-| Nessun layer disponibile | Non ci sono layer puntuali nel progetto | Aggiungere un layer vettoriale puntuale al progetto QGIS |
-| Nessun campo numerico | Il layer non ha campi numerici | Verificare la tabella attributi del layer |
-| Variogramma piatto | Dati senza correlazione spaziale | Verificare i dati, aumentare la distanza massima |
-| Kriging fallisce | Modello di variogramma non adattato | Adattare prima un modello nella scheda Variogramma |
-| Risultati ML scadenti | Pochi dati o variabili non informative | Aggiungere variabili predittive o aumentare i dati |
-| Pannello non visibile | Widget chiuso accidentalmente | Riaccedere dal menu Strumenti di Analisi |
+|----------|-------|-----------|
+| «Nessun layer di punti nel progetto: caricane uno o usa i dati di esempio.» | Nel progetto non ci sono layer di punti | Aggiungere un layer di punti o usare **«Carica dati di esempio»** |
+| «Il layer non ha campi numerici…» | Il campo da analizzare è di tipo testo | Convertirlo in numero con il Calcolatore di campi |
+| «Servono almeno 5 punti con valore valido (trovati …)» | Troppi valori NULL o non numerici | Controllare la tabella attributi o scegliere un altro campo |
+| Avviso «CRS geografico (gradi)» | Il layer non è in un CRS proiettato | Riproiettare il layer, per esempio in UTM, e ripetere l'analisi |
+| Errore «No point pairs within the maximum distance…» | Distanza massima del variogramma troppo piccola | Aumentare **«Distanza massima:»** o usare **«Auto»** |
+| «Coppie insufficienti per i variogrammi direzionali.» | Troppe poche coppie per direzione | Aumentare la distanza massima o rinunciare alla verifica dell'anisotropia |
+| Kriging lento, richiesta di conferma o «Memoria insufficiente: aumenta la dimensione della cella.» | Griglia con troppe celle | Aumentare **«Risoluzione cella:»** |
+| R² basso nella cross-validation | Poca correlazione spaziale o troppo rumore | Considerare la mappa solo indicativa e consultare il raster dell'incertezza |
+| DBSCAN mette quasi tutti i punti in «Isolati / rumore» | Densità uniforme o troppe variabili | Provare K-Means o ridurre i campi numerici |
+| «Machine Learning features not available. Please install scikit-learn.» | Manca scikit-learn | Installare scikit-learn nell'ambiente Python di QGIS |
+| «Plotly visualization not available. Please install plotly.» | Manca Plotly | Installare plotly nell'ambiente Python di QGIS |
+| Grafico solo come immagine statica | QtWebEngine non disponibile | Usare **«Apri grafico interattivo nel browser»** |
+| «Impossibile creare il PDF…» | Errore nella stampa del PDF | Salvare il report HTML e stamparlo dal browser |
+| Pannello non visibile | Pannello chiuso | Riaprirlo dalla barra degli strumenti o dal menu pyArchInit: i risultati della sessione sono ancora lì |
 
 ### Errori frequenti
 
-- **"Dati insufficienti"**: Servono almeno 30 punti per un'analisi affidabile
-- **"Modello di variogramma non definito"**: Adattare un modello prima di eseguire il kriging
-- **"CRS non compatibile"**: Tutti i layer devono usare lo stesso sistema di riferimento
+- **«Un'analisi è già in corso: attendi che finisca o annullala.»**: attendere la fine del calcolo o premere «Annulla»
+- **«Analisi annullata»**: l'analisi è stata interrotta con «Annulla» e non ha prodotto risultati
+- **«Seleziona almeno un layer»** (scheda Pattern): selezionare almeno un layer nell'elenco
+- **«Seleziona il layer dei punti esistenti (in alto)»** (scheda Campionamento): scegliere il layer nel gruppo «Dati di input»
+- **«Seleziona un layer di punti e un campo numerico (in alto nel pannello)»**: completare la scelta nel gruppo «Dati di input»
 
 ### Prestazioni
 
-- L'analisi viene eseguita in **thread in background**: l'interfaccia QGIS resta utilizzabile
-- Per dataset molto grandi (>10.000 punti), l'elaborazione potrebbe richiedere piu tempo
-- E possibile monitorare il progresso tramite la barra nella parte inferiore del pannello
+- Le analisi girano in un **thread in background**: QGIS resta utilizzabile e si può annullare il calcolo
+- Il variogramma usa al massimo 3000 punti (sottocampione casuale), la cross-validation al massimo 200
+- Il kriging usa i 20 punti più vicini a ogni cella: il tempo dipende soprattutto dal numero di celle
+- La griglia è limitata a 500 × 500 celle; oltre 40.000 celle il pannello chiede conferma
+- Con dataset grandi (per esempio i 4800 punti di `geofisica_survey`) aumentare la dimensione della cella
 
 ---
 
 ## Note tecniche
 
-### Dipendenze
+### Versione e origine
 
-GeoArchaeo utilizza le seguenti librerie Python:
+- Il modulo `modules/geoarchaeo/` è allineato a **GeoArchaeo 1.3.1**, il plugin autonomo di Enzo Cocca (github.com/enzococca/GeoArchaeo)
+- In PyArchInit è integrato il solo pannello: il provider Processing di GeoArchaeo (co-kriging, kriging spazio-temporale, kriging a blocchi, analisi composizionale, Random Forest) **non** viene registrato
+- Il modulo è compatibile con QGIS 3 (Qt5) e QGIS 4 (Qt6)
+
+### Dipendenze
 
 | Libreria | Utilizzo |
 |----------|----------|
-| **NumPy** | Calcoli numerici e matriciali |
-| **SciPy** | Ottimizzazione e fitting dei modelli |
-| **scikit-learn** | Algoritmi di machine learning |
-| **Matplotlib** | Generazione dei grafici |
+| **NumPy** | Calcoli numerici |
+| **SciPy** | Fit dei modelli di variogramma, ricerca dei vicini (KD-tree), statistiche |
+| **scikit-learn** | K-Means, DBSCAN, Isolation Forest, componenti principali (necessaria per la scheda Pattern) |
+| **Plotly** | Grafici interattivi nel pannello e nel report HTML |
+| **Matplotlib** | Anteprime statiche dei grafici quando QtWebEngine non è disponibile |
+| **QtWebEngine** (facoltativo) | Grafici interattivi direttamente nel pannello |
+| **threadpoolctl** (facoltativo) | Limita i thread di calcolo durante le analisi in background |
+| **GDAL** | Scrittura dei raster GeoTIFF (incluso in QGIS) |
 
 ### Sistemi di riferimento
 
-- GeoArchaeo lavora nel sistema di riferimento del progetto QGIS corrente
-- Si raccomanda di utilizzare un **CRS proiettato** (in metri) per l'analisi geostatistica
-- Sistemi geografici (in gradi) possono produrre risultati imprecisi
+- Le distanze (distanza massima, range, risoluzione della cella) sono espresse nelle **unità del CRS del layer di punti**
+- Usare un **CRS proiettato** in metri: con un CRS geografico il riepilogo avvisa e variogramma e kriging chiedono conferma
+- I raster del kriging e i layer creati usano il CRS del layer di punti (nella scheda Pattern, quello del primo layer selezionato)
+- L'area di studio viene riproiettata automaticamente nel CRS dei punti
 
-### Esportazione dei risultati
+### Layer e file prodotti
 
-I risultati possono essere esportati in vari formati:
+| Prodotto | Tipo | Dove si trova |
+|----------|------|---------------|
+| `Kriging_<campo>`, `Kriging_<campo>_incertezza` | Raster GeoTIFF (compressione LZW) | Cartella temporanea del sistema |
+| `Gruppi_ML` / `Anomalie_ML` | Layer di punti temporaneo (in memoria) | Solo nel progetto aperto |
+| `Nuovi_punti_campionamento` | Layer di punti temporaneo (in memoria) | Solo nel progetto aperto |
+| Report | HTML o PDF | Percorso scelto al salvataggio |
 
-- **Layer raster** (GeoTIFF) per le superfici interpolate
-- **Layer vettoriale** (GeoPackage, Shapefile) per i punti di campionamento
-- **Grafici** (PNG, SVG) per variogrammi e diagnostiche
-- **Report** (PDF, HTML, Markdown) per la documentazione
+Raster e layer temporanei vanno esportati (menu contestuale del layer → **Esporta**) per non perderli alla chiusura del progetto. I nomi dei layer seguono la lingua del pannello al momento del calcolo.
 
-### Integrazione con QGIS
+### Impostazioni
 
-- I layer di output vengono aggiunti automaticamente al pannello **Layer** di QGIS
-- Lo stile dei layer raster puo essere personalizzato con le proprieta di QGIS
-- I risultati sono compatibili con tutti gli strumenti di analisi spaziale di QGIS
+- La lingua del pannello è salvata nelle impostazioni di QGIS (chiave `GeoArchaeo/language`)
+- I risultati restano in memoria finché QGIS è aperto: chiudere il pannello non li cancella
 
 ---
 
-> **Nota**: GeoArchaeo e in costante sviluppo. Per segnalare bug o suggerire miglioramenti, utilizzare il sistema di issue tracking del progetto PyArchInit su GitHub.
+> **Nota**: GeoArchaeo è in costante sviluppo. Per segnalare bug o suggerire miglioramenti, utilizzare il sistema di issue tracking del progetto PyArchInit su GitHub.

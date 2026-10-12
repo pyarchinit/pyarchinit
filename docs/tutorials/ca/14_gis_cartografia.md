@@ -142,151 +142,226 @@ Des de la Fitxa US, les cotes min/max es calculen:
 
 ### Què és SAM?
 
-**SAM (Segment Anything Model)** és un model d'intel·ligència artificial desenvolupat per Meta per a la segmentació automàtica d'imatges. PyArchInit l'integra per:
-- Digitalització automàtica de pedres/elements
-- Segmentació d'ortofotos
-- Acceleració de l'aixecament
+**SAM (Segment Anything Model)** és el model d'intel·ligència artificial de Meta que divideix una imatge en els seus objectes. A pyArchInit la finestra SAM converteix una imatge en **polígons**, a partir de:
+
+- una **ortofoto** (un fitxer ràster: GeoTIFF, JPEG georeferenciat…);
+- o una **capa de tessel·les o un servei** carregat a QGIS: XYZ com ESRI World Imagery o Google, WMS, ArcGIS REST.
+
+No només pedres: també **edificis, carreteres, camps, rius, murs**. Els models són de dues famílies:
+
+- **SAM 2.1** (Meta) troba els contorns dels objectes —tots, o els que s'indiquin amb punts, un rectangle o un polígon—, però no diu què són;
+- les **classes de text** (YOLOE-26 en local, SAM 3 al núvol) cerquen el que s'escriu («building, road, river, field») i cada polígon porta la seva etiqueta.
+
+Els polígons van a la capa que es triï: les capes US de pyArchInit, qualsevol capa de polígons del projecte o una capa temporal nova.
 
 ### Accés a la Funció
 
-1. **PyArchInit** → **SAM Segmentation**
-2. O des de la barra d'eines: icona **SAM**
+1. Des de la barra d'eines de pyArchInit: botó desplegable **Eines d'anàlisi** (Analysis Tools) → «SAM - Segmentation (stones, buildings, roads, fields…)». És l'acció per defecte del botó: un clic a la icona obre directament la finestra.
+2. O des del menú **pyArchInit** → «SAM - Segmentation (stones, buildings, roads, fields…)».
+
+La finestra es titula «SAM — Segmentation (stones, buildings, roads, fields, rivers…)». Les seves etiquetes només existeixen en italià i en anglès: amb QGIS en català apareix en anglès, com a l'esquema. A continuació, cada etiqueta traduïda va seguida de l'anglesa entre parèntesis.
 
 ### Interfície SAM
 
 ```
-+--------------------------------------------------+
-|        SAM Stone Segmentation                     |
-+--------------------------------------------------+
-| Input:                                            |
-|   Raster Layer: [ComboBox ortofoto]              |
-+--------------------------------------------------+
-| Target Layer:                                     |
-|   [o] pyunitastratigrafiche                      |
-|   [ ] pyunitastratigrafiche_usm                  |
-+--------------------------------------------------+
-| Default Attributes:                               |
-|   Site (sito): [camp automàtic]                  |
-|   Area: [input àrea]                             |
-|   Stratigraphic Index: [1-10]                    |
-|   Type US: [pietra|layer|accumulo|taglio]        |
-+--------------------------------------------------+
-| Segmentation Mode:                                |
-|   [o] Automatic (detect all stones)              |
-|   [ ] Click mode (click on each stone)           |
-|   [ ] Box mode (draw rectangle)                  |
-|   [ ] Polygon mode (draw freehand)               |
-|   [ ] From layer (use existing polygon)          |
-+--------------------------------------------------+
-| Model:                                            |
-|   [ComboBox model]                               |
-|   API Key: [******]                              |
-+--------------------------------------------------+
-|        [Start Segmentation]  [Cancel]             |
-+--------------------------------------------------+
+┌────────────────────────────────────────────────────────────────────┐
+│ SAM — Segmentation (stones, buildings, roads, fields, rivers…)     │
+├────────────────────────────────────────────────────────────────────┤
+│ Automatic segmentation — from an orthophoto or a tile layer        │
+│ (ESRI, Google, WMS) to polygons, with SAM 2.1 (Meta) or with text  │
+│ classes.                                                           │
+├─ Local environment ────────────────────────────────────────────────┤
+│ ready — ultralytics 8.4.x, torch 2.x, mps                          │
+│                                     [Install / update]  [Show log] │
+├─ Image ────────────────────────────────────────────────────────────┤
+│ Raster layer: [orthophoto.tif                                 v]   │
+│               orthophoto.tif — 12000 × 9000 px                     │
+│ Area:         (o) current view   ( ) whole raster                  │
+│ Resolution (map units/px): [0.100000]                              │
+│ Max side (px):             [2048]                                  │
+├─ What to segment ──────────────────────────────────────────────────┤
+│ (o) Everything (automatic)                                         │
+│ ( ) Points: click the objects on the map                           │
+│ ( ) Box: draw a rectangle                                          │
+│ ( ) Polygon: draw the area                                         │
+│ ( ) Polygon from layer: [polygon layer                        v]   │
+│ ( ) Text classes:       [building, road, river, field          ]   │
+│ Threshold: [0.30]                                                  │
+├─ Model ────────────────────────────────────────────────────────────┤
+│ Model: [Locale: SAM 2.1 Tiny — ~78 MB                         v]   │
+│        weights present ✓                      [Download weights]   │
+│ API key: [••••••••]                                Replicate key   │
+├─ Target ───────────────────────────────────────────────────────────┤
+│ Layer: [pyunitastratigrafiche                                 v]   │
+│ Site: [Excavation 2026]           Area: [1]                        │
+│ Stratigraphic index: [1]          US type: [pietra            v]   │
+│ Field for the label: [label                                   v]   │
+├────────────────────────────────────────────────────────────────────┤
+│ Ready                                                              │
+│                                         [Start]  [Cancel]  [Close] │
+└────────────────────────────────────────────────────────────────────┘
 ```
+
+Cinc grups, que s'omplen de dalt a baix: «Entorn local» (*Local environment*), «Imatge» (*Image*), «Què cal segmentar» (*What to segment*), «Model» (*Model*), «Destinació» (*Target*). A sota hi ha la línia d'estat («Llest», *Ready*), on també apareixen els missatges de la feina en curs, i els botons «Inicia» (*Start*), «Cancel·la» (*Cancel*, visible només durant la feina) i «Tanca» (*Close*). Algunes files només apareixen quan cal: «Clau API:» (*API key:*) en lloc de l'estat dels pesos per als models al núvol; «Lloc:» (*Site:*), «Àrea:» (*Area:*), «Índex estratigràfic:» (*Stratigraphic index:*) i «Tipus US:» (*US type:*) per a les capes US; «Camp per a l'etiqueta:» (*Field for the label:*) per a les altres capes. La finestra recorda l'última àrea US, les classes, el costat màxim, el model triat i les claus API.
+
+Les entrades de la llista de models estan sempre escrites en italià («Locale» = local), igual que alguns missatges de servei citats més avall.
+
+#### Entorn local
+
+Els models locals (SAM 2.1 i YOLOE) no s'executen en el Python de QGIS, sinó en un **Python separat**, que la finestra crea i comprova tota sola. En obrir-se, el grup mostra «comprovant…» (*checking…*) i després:
+
+- en verd «llest — ultralytics …, torch …, mps» (*ready — …*): l'entorn hi és; l'última paraula és el dispositiu de càlcul (`mps`, `cuda` o `cpu`);
+- en taronja «no instal·lat: cal per als models locals (SAM 2.1, YOLOE). Un Python del sistema 3.10–3.13, ~1,5 GB de paquets.» (*not installed: needed for the local models (SAM 2.1, YOLOE). A system Python 3.10–3.13, ~1.5 GB of packages.*).
+
+«Instal·la / actualitza» (*Install / update*) crea l'entorn o n'actualitza els paquets (vegeu més avall «Instal·lació Local SAM»); «Mostra el registre» (*Show log*) obre i tanca el registre de la instal·lació, amb la sortida de pip línia a línia. Els models al núvol no necessiten l'entorn.
+
+#### Imatge
+
+- «Capa ràster:» (*Raster layer:*): la imatge que es vol segmentar, triada entre els ràsters del projecte: una ortofoto (fitxer) o una capa de tessel·les/servei. A sota, en gris, s'indica quin dels dos és: nom del fitxer i mida en píxels (`orthophoto.tif — 12000 × 9000 px`) o el tipus de servei, renderitzat des de la vista (`tile / WMS (reso dalla vista)`, `ArcGIS REST (reso dalla vista)`; aquesta línia és en italià, *reso dalla vista* = renderitzat des de la vista).
+- «Extensió:» (*Area:*): «vista actual» (*current view*, el que es veu al mapa) o «tot el ràster» (*whole raster*). «tot el ràster» només es pot triar per als fitxers: un servei de tessel·les no té vora, així que sempre es treballa sobre la vista (o sobre un rectangle o un polígon).
+- «Resolució (unitats de mapa/px):» (*Resolution (map units/px):*): només per a les tessel·les: quantes unitats de mapa (metres, o graus si el mapa és en coordenades geogràfiques) per cada píxel de la imatge renderitzada. El valor proposat és el de la vista en obrir la finestra o en triar la capa: si després es canvia el zoom, cal corregir-lo a mà. Com més petit, més detall.
+- «Costat màxim (px):» (*Max side (px):*): el costat més llarg de la imatge que es passa al model: 2048 per defecte, de 512 a 8192. Per sobre d'aquest costat la imatge es redueix; SAM treballa igualment a 1024 px interns.
 
 ### Modes de Segmentació
 
-#### 1. Mode Automàtic
-- Segmenta automàticament tots els objectes visibles
-- Ideal per a àrees amb moltes pedres
-- Requereix ortofoto de bona qualitat
+El grup «Què cal segmentar» (*What to segment*) ofereix sis modes. En triar un mode canvia la llista de models (vegeu «Models Disponibles») i a sota apareix, en blau, la instrucció d'aquell mode.
 
-#### 2. Mode Click
-- Fer clic sobre cada objecte a segmentar
-- Right-click o Enter per acabar
-- Escape per cancel·lar
-- Més precís per a objectes específics
+#### 1. Tot automàtic
 
-#### 3. Mode Box
-- Dibuixar rectangle sobre l'àrea
-- Segmenta només l'àrea seleccionada
-- Útil per a zones delimitades
+«Tot (automàtic)» (*Everything (automatic)*): SAM 2.1 segmenta cada objecte que troba a l'«Extensió:» triada («vista actual» o «tot el ràster»). Els polígons no tenen classe: a la capa temporal reben l'etiqueta «segment». S'engega amb «Inicia» (*Start*).
 
-#### 4. Mode Polygon
-- Dibuixar polígon lliure
-- Click per afegir vèrtexs
-- Right-click per completar
-- Per a àrees irregulars
+#### 2. Punts
 
-#### 5. Mode From Layer
-- Usa polígon existent com a màscara
-- Seleccionar capa poligonal
-- Segmenta només dins del polígon
+«Punts: feu clic als objectes del mapa» (*Points: click the objects on the map*): premeu «Inicia la selecció» (*Start selection*); la finestra s'amaga i la barra de missatges de QGIS recorda les ordres. Feu clic als objectes un per un: cada clic és un objecte. Clic dret o Retorn per acabar, Retrocés treu l'últim punt, Esc cancel·la. La finestra torna a aparèixer i la segmentació s'executa sobre l'«Extensió:» triada, un objecte per punt; els punts fora de la imatge s'ignoren.
+
+#### 3. Rectangle
+
+«Rectangle: dibuixeu un rectangle» (*Box: draw a rectangle*): premeu «Inicia la selecció» i arrossegueu un rectangle sobre el mapa (Esc o clic dret cancel·la). La imatge es retalla al rectangle i se segmenta tot el que hi ha a dins.
+
+#### 4. Polígon
+
+«Polígon: dibuixeu l'àrea» (*Polygon: draw the area*): premeu «Inicia la selecció» i feu clic als vèrtexs; clic dret, Retorn o doble clic tanquen el polígon (calen almenys tres vèrtexs), Retrocés treu l'últim vèrtex, Esc cancel·la. Només se segmenta l'interior del polígon.
+
+#### 5. Polígon des d'una capa
+
+«Polígon des d'una capa:» (*Polygon from layer:*): trieu una capa de polígons al desplegable del costat. S'utilitza l'entitat seleccionada de la capa, o totes si no n'hi ha cap de seleccionada (diverses entitats s'uneixen en una). Com amb el polígon dibuixat, només se segmenta l'interior: útil per treballar dins d'un sondeig, una àrea d'excavació o un límit ja dibuixat. S'engega amb «Inicia».
+
+#### 6. Classes de text
+
+«Classes de text:» (*Text classes:*): escriviu al camp del costat què cal cercar: paraules en **anglès** separades per comes (per defecte «building, road, river, field»; altres exemples: stone, wall). Cada classe esdevé una etiqueta dels polígons. Funciona amb YOLOE-26 en local o amb SAM 3 de Roboflow al núvol, sobre l'«Extensió:» triada. S'engega amb «Inicia».
+
+**«Llindar:»** (*Threshold:*; 0,30 per defecte, de 0,05 a 0,95) és la confiança mínima perquè un resultat es conservi: més baix dona més polígons, també incerts; més alt en dona menys però més segurs. El model al núvol de Replicate no el fa servir.
 
 ### Models Disponibles
 
-| Model | Tipus | Requisits | Qualitat |
-|-------|-------|-----------|----------|
-| Replicate SAM-2 | Cloud API | API Key | Òptima |
-| Roboflow SAM-3 | Cloud API | API Key | Òptima + Text Prompt |
-| SAM vit_b | Local | 375MB VRAM | Bona |
-| SAM vit_l | Local | 1.2GB VRAM | Molt bona |
-| SAM vit_h | Local | 2.5GB VRAM | Excel·lent |
-| OpenCV | Local | Cap | Bàsica |
+El grup «Model» (*Model*) té un desplegable «Model:» (*Model:*) el contingut del qual depèn del mode triat:
+
+| Model | Tipus | Requisits | Modes |
+|-------|-------|-----------|-------|
+| SAM 2.1 Tiny | Local | entorn local + pesos ~78 MB | tots excepte les classes de text; el més lleuger i ràpid |
+| SAM 2.1 Small | Local | entorn local + pesos ~92 MB | tots excepte les classes de text |
+| SAM 2.1 Base+ | Local | entorn local + pesos ~162 MB | tots excepte les classes de text |
+| SAM 2.1 Large | Local | entorn local + pesos ~449 MB | tots excepte les classes de text; el més precís i el més lent |
+| Cloud: Replicate SAM-2 | Núvol | clau API de Replicate | només segmentació automàtica (en el mode «Punts» els clics s'ignoren, amb un avís) |
+| YOLOE-26 S | Local | entorn local + pesos ~31 MB + MobileCLIP2 254 MB (una vegada) | classes de text |
+| YOLOE-26 M | Local | entorn local + pesos ~70 MB + MobileCLIP2 254 MB (una vegada) | classes de text |
+| YOLOE-26 L | Local | entorn local + pesos ~79 MB + MobileCLIP2 254 MB (una vegada) | classes de text |
+| Cloud: Roboflow SAM 3 | Núvol | clau API de Roboflow | classes de text |
+
+Al desplegable les entrades es llegeixen així: «Locale: SAM 2.1 Tiny — ~78 MB», «Locale: YOLOE-26 S (classi a testo) — ~31 MB + MobileCLIP2 254 MB», «Cloud: Replicate SAM-2 (solo automatico, chiave API)», «Cloud: Roboflow SAM 3 (classi a testo, chiave API)» (*locale* = local, *classi a testo* = classes de text, *solo automatico* = només automàtic, *chiave* = clau).
+
+**Pesos.** Per a un model local, sota el desplegable apareix l'estat dels pesos: «pesos presents ✓» (*weights present ✓*, verd) o «falten els pesos (~N MB)» (*weights missing (~N MB)*, taronja), amb el botó «Descarrega els pesos» (*Download weights*). La descàrrega, amb barra de progrés, agafa els fitxers dels recursos públics d'ultralytics a GitHub (no cal cap compte). Per a YOLOE també es descarrega el codificador de text MobileCLIP2 (254 MB), una sola vegada per a S, M i L. Els pesos es desen a `~/pyarchinit_5/bin/models/sam/`.
+
+**Clau API.** Per a un model al núvol, el camp «Clau API:» (*API key:*) i l'enllaç per obtenir-la substitueixen l'estat dels pesos (vegeu «Configuració API»).
 
 ### SAM-3 amb Text Prompt
 
-La versió SAM-3 (Roboflow) suporta **prompts textuals**:
-- "stones" - pedres
-- "pottery fragments" - fragments ceràmics
-- "bones" - ossos
-- Qualsevol descripció textual
+Amb el mode «Classes de text» no es demana «divideix-ho tot», sinó «troba aquestes coses»:
+
+- s'escriuen una o més classes en anglès, separades per comes: `building, road, river, field`, o bé `stone, wall`…;
+- **YOLOE-26** (local, S/M/L) entén les paraules gràcies al codificador de text MobileCLIP2; **SAM 3** de Roboflow (núvol) rep les mateixes classes com a prompts de text (16 com a màxim);
+- cada polígon porta la classe que l'ha trobat: a la capa temporal, al camp `label`; en una capa pròpia, al «Camp per a l'etiqueta:» (*Field for the label:*). A les capes US de pyArchInit la classe no s'escriu.
+
+En canvi, SAM 2.1 en «Tot (automàtic)» no assigna classes: troba contorns, no noms.
 
 ### Configuració API
 
+Les claus només calen per als models al núvol. Trieu el model al núvol al desplegable, enganxeu la clau al camp «Clau API:» (*API key:*; el text queda ocult) i premeu «Inicia»: la clau es desa a la configuració de QGIS i es torna a proposar la vegada següent. Amb els models al núvol la imatge preparada s'envia al servei.
+
 #### Replicate API (SAM-2)
-1. Registrar-se a [replicate.com](https://replicate.com)
-2. Obtenir API key
-3. Inserir a la configuració
+1. Crear un compte a [replicate.com](https://replicate.com)
+2. Crear un testimoni (token) a [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens) (l'enllaç «Clau de Replicate» (*Replicate key*) al costat del camp obre la mateixa pàgina)
+3. Enganxar-lo a «Clau API:» amb el model «Cloud: Replicate SAM-2»
 
 #### Roboflow API (SAM-3)
-1. Registrar-se a [roboflow.com](https://roboflow.com)
-2. Obtenir API key
-3. Inserir a la configuració
+1. Crear un compte a [roboflow.com](https://roboflow.com)
+2. Copiar la clau des de [app.roboflow.com/settings/api](https://app.roboflow.com/settings/api) (enllaç «Clau de Roboflow» (*Roboflow key*) al costat del camp)
+3. Enganxar-la a «Clau API:» amb el model «Cloud: Roboflow SAM 3»
 
 ### Instal·lació Local SAM
 
-Per a ús local sense API:
-```bash
-# Crear entorn virtual
-cd ~/pyarchinit/bin
-python -m venv sam_venv
+No cal cap ordre al terminal: l'entorn dels models locals s'instal·la des de la finestra.
 
-# Activar entorn
-source sam_venv/bin/activate
+1. Cal un **Python del sistema 3.10–3.13**: els paquets no s'instal·len al Python de QGIS, per no arriscar-se a espatllar-lo. La finestra el cerca tota sola: a **macOS** el Python de [python.org](https://www.python.org/downloads/) o de Homebrew, a **Windows** el llançador `py` del Python de python.org, a **Linux** `python3.10`…`python3.13` o el `python3` del sistema.
+2. Premeu «Instal·la / actualitza» (*Install / update*) al grup «Entorn local»: es crea l'entorn virtual `~/pyarchinit_5/bin/sam_venv` i s'hi instal·len `ultralytics` (que porta torch, torchvision, OpenCV, numpy) i `requests`: uns **1,5 GB** de paquets, una sola vegada. A Linux sense targeta NVIDIA s'instal·la torch per a CPU, molt més lleuger.
+3. «Mostra el registre» (*Show log*) permet veure pip treballant. Al final l'estat es posa en verd: «llest — ultralytics …, torch …, mps».
+4. Descarregueu els pesos del model que vulgueu fer servir amb «Descarrega els pesos» (*Download weights*, grup «Model»).
 
-# Instal·lar dependències
-pip install segment-anything torch torchvision
+Prement de nou «Instal·la / actualitza» s'actualitzen els paquets. El dispositiu de càlcul es tria sol: **MPS** als Mac amb Apple Silicon, **CUDA** amb una targeta NVIDIA i, si no, **CPU** (funciona, però és més lent). Si MPS o CUDA fallen, la feina torna a començar sola a la CPU.
 
-# Descarregar models (opcional)
-# vit_b: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-# vit_l: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-# vit_h: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-```
+| Què | On |
+|-----|----|
+| Entorn Python | `~/pyarchinit_5/bin/sam_venv` |
+| Pesos dels models | `~/pyarchinit_5/bin/models/sam/` |
+| Claus API | configuració de QGIS |
+
+`~/pyarchinit_5` és la carpeta de dades de pyArchInit (o la indicada per la variable `PYARCHINIT_HOME`).
+
+### Destinació i Atributs
+
+El grup «Destinació» (*Target*) decideix on van els polígons. El desplegable «Capa:» (*Layer:*) conté les capes de polígons del projecte i «— nova capa temporal —» (*— new temporary layer —*); si `pyunitastratigrafiche` està carregada, es proposa aquesta.
+
+| Destinació | Què s'escriu |
+|------------|--------------|
+| «— nova capa temporal —» | una capa en memòria `SAM_<ràster>_<data_hora>`, en el SRC de la imatge, amb els camps `label` (la classe, o «segment»), `score` (confiança), `area`, `source` (el model) i `created` (data i hora) |
+| `pyunitastratigrafiche` / `pyunitastratigrafiche_usm` | `scavo_s` = «Lloc:» (*Site:*; de la configuració, no editable), `area_s` = «Àrea:» (*Area:*; obligatòria), `stratigraph_index_us` = «Índex estratigràfic:» (*Stratigraphic index:*; 1 = pedres/objectes, 2 = estrat/superfície), `tipo_us_s` = «Tipus US:» (*US type:*; pietra, layer, accumulo, taglio, struttura), `disegnatore` = `SAM <model>` (p. ex. `SAM sam2.1_t.pt`), `data` = avui; `us_s` queda buit |
+| una altra capa de polígons | la classe al «Camp per a l'etiqueta:» (*Field for the label:*), un camp de text (es proposa `label`, `etichetta`, `classe`, `class`, `tipo` o `nome`, si existeix; buit = no escriure); si la capa té camps `score`, `area`, `source` o `created`, també s'omplen |
+
+- A les capes US el número d'US s'assigna després, a la taula d'atributs; el missatge final ho recorda: «Assigna després els números d'US a la taula d'atributs.» (*Then assign the US numbers in the attribute table.*).
+- Els polígons es reprojecten al SRC de la capa de destinació i s'hi desen de seguida (si la capa ja estava en edició, també se'n desen els canvis pendents).
+- La capa temporal només dura fins que es tanca QGIS: per conservar-la, exporteu-la a un fitxer (clic dret sobre la capa → Exporta).
+
+### Com Funciona
+
+1. **La imatge.** En un fitxer, l'extensió es retalla i, si cal, es redueix amb GDAL: els píxels són els reals del fitxer, no els dibuixats al mapa (l'estil de la capa no compta; els ràsters que no són de 8 bits es reescalen a 0–255). Les tessel·les i els serveis no tenen fitxer: QGIS renderitza la vista amb el seu propi motor de dibuix, a la resolució triada —només aquella capa, sense les altres capes del mapa—, i se segmenta aquest renderitzat.
+2. **L'àrea.** Amb un polígon (dibuixat o des d'una capa) es pren el rectangle que el conté, es pinta de blanc tot el que queda fora i, al final, els resultats es retallen al polígon.
+3. **El model.** La feina la fa `scripts/sam_worker.py`, que s'executa fora de QGIS amb el Python de `sam_venv` (o crida el servei al núvol): QGIS no es bloqueja. Els seus missatges de progrés (les línies `[sam] …` del worker, en italià) apareixen a la línia d'estat: model i dispositiu, i després quants polígons en quants segons. Els polígons de menys de 20 píxels es descarten i els contorns se simplifiquen.
+4. **La tornada al mapa.** El worker retorna els polígons en píxels; pyArchInit els passa a coordenades amb la georeferència de la imatge, repara les geometries no vàlides i les reprojecta al SRC de la capa de destinació.
 
 ### Flux de Treball SAM
 
-1. **Preparació**
-   - Carregar ortofoto com a capa ràster
-   - Verificar sistema de referència
-   - Preparar capa objectiu
+**1. Preparació**
+- Carregar l'ortofoto, o una capa de tessel·les (p. ex. ESRI World Imagery com a tessel·les XYZ)
+- Comprovar el sistema de referència del projecte
+- Per escriure a les US: carregar `pyunitastratigrafiche` (o `pyunitastratigrafiche_usm`) i comprovar el lloc a la configuració
+- La primera vegada, per als models locals: «Instal·la / actualitza» i després «Descarrega els pesos»
 
-2. **Configuració**
-   - Seleccionar ràster d'entrada
-   - Establir atributs per defecte
-   - Escollir mode i model
+**2. Configuració**
+- «Imatge»: capa ràster, extensió, resolució (per a les tessel·les) i costat màxim
+- «Què cal segmentar»: el mode, el llindar i, per a les classes de text, les classes
+- «Model»: un model local amb els pesos presents, o un model al núvol amb la seva clau
+- «Destinació»: la capa i els seus atributs
 
-3. **Execució**
-   - Fer clic "Start Segmentation"
-   - Esperar elaboració
-   - Verificar resultats
+**3. Execució**
+- «Inicia», o «Inicia la selecció» i després punts, rectangle o polígon al mapa
+- Seguir la línia d'estat; «Cancel·la» interromp la feina
+- Al final apareix «Fet: N polígons afegits a “capa” (model).» (*Done: N polygons added to “layer” (model).*)
 
-4. **Post-elaboració**
-   - Controlar polígons generats
-   - Assignar números US
-   - Corregir eventuals errors
+**4. Postprocessament**
+- Revisar els polígons; els possibles avisos apareixen a la barra de missatges de QGIS
+- Capes US: assignar els números d'US (`us_s`) a la taula d'atributs
+- Corregir, unir o esborrar els polígons erronis amb les eines d'edició de QGIS
+- Capa temporal: exportar-la si cal conservar-la
 
 ## Integració Cartogràfica
 
@@ -329,9 +404,12 @@ Operacions espacials disponibles:
 
 ### 3. SAM Segmentation
 
-- Ortofoto d'alta qualitat
-- Il·luminació uniforme
-- Contrast adequat objectes/fons
+- Ortofoto de bona qualitat, il·luminació uniforme, bon contrast entre objectes i fons
+- **Ortofotos grans**: treballar per vista o per rectangle, no sobre «tot el ràster». SAM treballa a 1024 px interns i, per sobre del «Costat màxim (px):», la imatge es redueix: en una àrea massa gran els objectes petits es perden
+- **Tessel·les**: triar un nivell de zoom en què els objectes es reconeguin a simple vista (p. ex. 0,3–0,6 m/px per a edificis i carreteres). La «Resolució (unitats de mapa/px):» proposa la de la vista; si l'extensió és gran, la imatge es redueix al costat màxim i la resolució real empitjora
+- **Classes de text**: substantius anglesos senzills (building, road, river, field, stone, wall)
+- Les classes només les donen YOLOE o SAM 3: SAM 2.1 en «Tot (automàtic)» troba contorns però no assigna classes
+- **Maquinari**: els Mac amb Apple Silicon fan servir MPS, una targeta NVIDIA fa servir CUDA i, si no, la CPU, més lenta (millor aleshores SAM 2.1 Tiny o Small, YOLOE-26 S i àrees petites)
 - Post-verificació sempre necessària
 
 ### 4. Organització Capes
@@ -356,15 +434,16 @@ Operacions espacials disponibles:
 
 ### SAM No Funciona
 
-**Causes possibles**:
-- API key no vàlida
-- Ràster no georeferenciat
-- Model local no instal·lat
-
-**Solucions**:
-- Verificar API key
-- Controlar georeferenciació
-- Instal·lar model
+| Missatge o símptoma | Què cal fer |
+|---------------------|-------------|
+| «Entorn local» en taronja: «no instal·lat…» (*not installed…*), o «L'entorn local no està instal·lat: premeu “Instal·la / actualitza” (o trieu un model al núvol).» (*The local environment is not installed: press “Install / update” (or choose a cloud model).*) | Prémer «Instal·la / actualitza». Cal un Python del sistema 3.10–3.13; si no n'hi ha, apareix `Installation failed: Nessun Python 3.10–3.13 trovato: installa Python da python.org (o Homebrew) e riprova.` (no s'ha trobat cap Python 3.10–3.13: instal·leu Python des de python.org o Homebrew). Si pip falla, l'error és a «Mostra el registre». A Linux sense targeta NVIDIA s'instal·la torch per a CPU |
+| «falten els pesos (~N MB)» (*weights missing (~N MB)*), o «Falten els pesos del model: premeu “Descarrega els pesos”.» (*The model weights are missing: press “Download weights”.*) | Prémer «Descarrega els pesos» (cal connexió a internet) |
+| «Cal la clau API del servei.» (*The service API key is needed.*) | Amb un model al núvol, enganxar la clau a «Clau API:» (vegeu «Configuració API») |
+| «No s'ha trobat cap polígon: proveu una àrea més petita, un llindar més baix o un altre model.» (*No polygon found: try a smaller area, a lower threshold or another model.*) | Extensió més petita, «Llindar:» més baix, un altre model (un SAM 2.1 més gran, o les classes de text); per a les tessel·les, una resolució més fina |
+| «L'àrea triada no cobreix el ràster» (missatge en italià: `l'area scelta non copre il raster`) | La vista, el rectangle o el polígon queden fora del ràster: enquadrar el ràster i tornar-ho a provar |
+| «Ompliu l'àrea per a la capa US.» (*Fill in the area for the US layer.*) | Escriure l'«Àrea:» al grup «Destinació» |
+| «Ràster girat: no admès (reprojecteu-lo abans)» (missatge en italià: `raster ruotato: non supportato (riproiettalo prima)`) | Reprojectar el ràster amb gdalwarp (menú Ràster de QGIS) i fer servir el fitxer nou |
+| «La segmentació ha fallat» (*Segmentation failed*) amb les últimes línies del worker | Llegir les línies del missatge; tornar-ho a provar amb una extensió o un «Costat màxim (px):» més petits, o amb un model més petit |
 
 ### Geometries Corruptes
 
@@ -409,8 +488,11 @@ Operacions espacials disponibles:
 
 ### Fitxers Font
 - `modules/gis/pyarchinit_pyqgis.py` - Integració GIS
-- `tabs/Sam_Segmentation_Dialog.py` - Diàleg SAM
-- `modules/gis/sam_map_tools.py` - Tool mapa SAM
+- `tabs/Sam_Segmentation_Dialog.py` - Finestra SAM: grups, modes, destinació
+- `modules/utility/sam_environment.py` - Entorn Python separat, paquets i pesos
+- `modules/gis/sam_raster_source.py` - Imatge que se segmenta (retall GDAL o renderitzat de la vista) i georeferència
+- `modules/gis/sam_map_tools.py` - Eines de mapa per a punts, rectangle i polígon
+- `scripts/sam_worker.py` - Worker fora de QGIS: SAM 2.1, YOLOE, Replicate, Roboflow
 
 ### Capes
 - `pyunitastratigrafiche` - US dipòsit

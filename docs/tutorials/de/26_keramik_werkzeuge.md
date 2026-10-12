@@ -127,6 +127,20 @@ Verwendet künstliche Intelligenz für:
 - Heruntergeladene KI-Modelle (YOLO, etc.)
 - GPU empfohlen (aber nicht zwingend)
 
+### KI-Modelle
+
+**Modelle für die Tuschezeichnung (PotteryInk).** In der Registerkarte **🏺 PotteryInk**, Gruppe **Enhancement Settings**, listet die Auswahlliste **Model:** die Modelle von PyPotteryInk 2.1.2 auf; die Schaltfläche **Download** daneben lädt das gewählte Modell von Hugging Face (`lrncrd/PyPotteryInk`) in den Ordner `~/pyarchinit_5/bin/models/` herunter (ist die Datei schon vorhanden, fragt sie, ob sie erneut geladen werden soll). Jedes Modell ist etwa 38 MB groß.
+
+| Modell (Eintrag der Auswahlliste) | Datei | Verwendung |
+|-----------------------------------|-------|------------|
+| 10k Model (General) | `model_10k.pkl` | Allgemeines Modell für Keramikzeichnungen |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Zeichnungen der Bronzezeit |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Protohistorische und historische Zeichnungen |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Historische und bemalte Keramik |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Zeichnungen auf Millimeterpapier (Rastertafeln); unterstützt keine Schatten |
+
+**Zeichnungsdetektor (YOLO).** Das PyPotteryLens-Modell `BasicModelv8_v01.pt`, das die Zeichnungen auf den aus PDFs extrahierten Seiten erkennt (Option **Auto-detect pottery (ML)** und Registerkarte **2. Apply Model**), wird mit der Schaltfläche **Download YOLO Model** der Registerkarte **PDF Extraction** installiert: Wird eine lokale Kopie von PyPotteryLens gefunden, wird sie kopiert; andernfalls wird das Modell von Hugging Face (`lrncrd/PyPotteryLens`, etwa 144 MB) und, falls das scheitert, ersatzweise vom GitHub-Fork heruntergeladen. Die Datei wird in `~/pyarchinit_5/bin/` gespeichert; ein fehlgeschlagener Download hinterlässt keine unvollständige Datei.
+
 ### Verwendung
 
 1. Keramikbild laden
@@ -148,7 +162,7 @@ Verwendet künstliche Intelligenz für:
 ### Automatische Einrichtung
 
 Beim ersten Start erstellen die Keramik-Werkzeuge:
-1. Virtuelle Umgebung in `~/pyarchinit/bin/pottery_venv/`
+1. Virtuelle Umgebung in `~/pyarchinit_5/bin/pottery_venv/`
 2. Installation notwendiger Abhängigkeiten
 3. Download der KI-Modelle (falls angefordert)
 
@@ -236,11 +250,13 @@ Verarbeitete Bilder können:
 ### Quelldateien
 - `tabs/Pottery_tools.py` - Hauptoberfläche
 - `modules/utility/pottery_utilities.py` - Verarbeitungs-Utilities
+- `modules/utility/pottery_models.py` - Modellregister (PotteryInk und YOLO-Detektor)
 - `gui/ui/Pottery_tools.ui` - UI-Layout
 
 ### Ordner
-- `~/pyarchinit/bin/pottery_venv/` - Virtuelle Umgebung
-- `~/pyarchinit/models/` - KI-Modelle
+- `~/pyarchinit_5/bin/pottery_venv/` - Virtuelle Umgebung
+- `~/pyarchinit_5/bin/models/` - PotteryInk-Modelle (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - YOLO-Detektor
 
 ---
 
@@ -259,4 +275,4 @@ Verarbeitete Bilder können:
 
 ---
 
-*Letzte Aktualisierung: Januar 2026*
+*Letzte Aktualisierung: Oktober 2026*

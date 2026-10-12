@@ -1,463 +1,576 @@
-# PyArchInit - GeoArchaeo - Analisis Geoestadistico
+# PyArchInit - GeoArchaeo - Análisis Geoestadístico
 
-## Indice
-1. [Introduccion](#introduccion)
+## Índice
+1. [Introducción](#introducción)
 2. [Acceso a la herramienta](#acceso-a-la-herramienta)
 3. [Interfaz de usuario](#interfaz-de-usuario)
-4. [Pestana Datos](#pestana-datos)
-5. [Pestana Variograma](#pestana-variograma)
-6. [Pestana Kriging](#pestana-kriging)
-7. [Pestana Machine Learning](#pestana-machine-learning)
-8. [Pestana Muestreo](#pestana-muestreo)
-9. [Pestana Informe](#pestana-informe)
+4. [Pestaña Datos](#pestaña-datos)
+5. [Pestaña Variograma](#pestaña-variograma)
+6. [Pestaña Kriging](#pestaña-kriging)
+7. [Pestaña Patrones (ML)](#pestaña-patrones-ml)
+8. [Pestaña Muestreo](#pestaña-muestreo)
+9. [Pestaña Informe](#pestaña-informe)
 10. [Flujo de trabajo operativo](#flujo-de-trabajo-operativo)
-11. [Solucion de problemas](#solucion-de-problemas)
-12. [Notas tecnicas](#notas-tecnicas)
+11. [Solución de problemas](#solución-de-problemas)
+12. [Notas técnicas](#notas-técnicas)
 
 ---
 
-## Introduccion
+## Introducción
 
-**GeoArchaeo** es el modulo de analisis geoestadistico integrado en PyArchInit. Proporciona un conjunto completo de herramientas para el analisis espacial de datos arqueologicos, desde la modelizacion de variogramas hasta la interpolacion kriging, pasando por predicciones con aprendizaje automatico y el diseno de estrategias de muestreo.
+**GeoArchaeo** es el módulo de análisis geoestadístico integrado en PyArchInit y corresponde a la versión **1.3.1** del plugin GeoArchaeo. Trabaja con cualquier capa de puntos del proyecto QGIS que tenga un campo numérico (número de fragmentos, medidas geofísicas, análisis de suelo, medidas de las tumbas…) y acompaña el análisis desde las estadísticas descriptivas hasta el variograma, la interpolación mediante kriging ordinario con su incertidumbre, la búsqueda de grupos y anomalías con aprendizaje automático, la propuesta de nuevos puntos de muestreo y, por último, un informe.
+
+La interfaz de GeoArchaeo solo existe en italiano y en inglés. En este tutorial las etiquetas están traducidas y entre paréntesis se indica la etiqueta inglesa que aparece en el panel.
 
 <!-- VIDEO: Introduccion a GeoArchaeo -->
 > **Video Tutorial**: [Insertar enlace de video introduccion GeoArchaeo]
 
-### Por que el analisis geoestadistico en arqueologia?
+### ¿Por qué el análisis geoestadístico en arqueología?
 
-El analisis geoestadistico permite:
+El análisis geoestadístico permite:
 
-- **Interpolar** valores entre puntos de muestreo conocidos, creando superficies continuas a partir de datos discretos
-- **Cuantificar** la correlacion espacial en los datos arqueologicos (ej. densidad de hallazgos, espesor de estratos)
-- **Predecir** distribuciones espaciales en areas aun no excavadas
-- **Optimizar** estrategias de muestreo para prospecciones futuras
-- **Generar** informes analiticos completos para la documentacion cientifica
+- **Describir** la distribución de los valores medidos (media, dispersión, asimetría, valores atípicos)
+- **Cuantificar** la correlación espacial, es decir, hasta qué distancia se parecen los valores (variograma)
+- **Interpolar** los valores entre los puntos conocidos, obteniendo una superficie continua acompañada de su incertidumbre (kriging)
+- **Reconocer** grupos de puntos similares y anomalías (aprendizaje automático)
+- **Planificar** dónde muestrear o excavar en las próximas campañas
+- **Documentar** los análisis en un informe
 
-### Vision general del flujo de trabajo
+### Visión general del flujo de trabajo
 
 ```
-1. Cargar datos         2. Variograma          3. Kriging/ML
-   (Pestana Datos)         (Pestana Variograma)   (Pestana Kriging/ML)
-        |                      |                      |
-   Seleccionar capa       Calcular y modelar     Interpolacion o
-   y campos               variograma             prediccion espacial
-                               |                      |
-                          4. Muestreo            5. Informe
-                             (Pestana Muestreo)     (Pestana Informe)
-                                  |                      |
-                             Disenar              Generar informe
-                             estrategia           de analisis
+Datos de entrada: capa de puntos + campo numérico (elegidos arriba, una sola vez)
+  │
+  ├─ 1 Datos ............ estadísticas descriptivas, histograma
+  ├─ 2 Variograma ....... pepita, meseta, alcance, anisotropía
+  ├─ 3 Kriging .......... rásteres de la estimación y de la incertidumbre, validación cruzada
+  ├─ 4 Patrones (ML) .... grupos y anomalías (capa de puntos)
+  ├─ 5 Muestreo ......... nuevos puntos propuestos (capa de puntos)
+  └─ 6 Informe .......... documento HTML con gráficos interactivos, o PDF
 ```
+
+### Novedades de la versión 1.3.1
+
+- La capa y el campo se eligen **una sola vez** arriba y valen para todas las pestañas; cada pestaña conserva sus propios resultados
+- Los gráficos aparecen en el panel incluso sin QtWebEngine (vista previa estática y botón para abrirlos en el navegador)
+- El kriging produce también el **ráster de incertidumbre**, aplica la rampa de colores y calcula una verdadera **validación cruzada leave-one-out**
+- La anisotropía se comprueba con verdaderos **variogramas direccionales**; pepita, meseta y alcance pueden fijarse a mano
+- Variograma y kriging son mucho más rápidos (búsqueda de vecinos con KD-tree): cuadrículas de hasta **500 × 500 celdas**
+- Los valores NULL ya no bloquean las estadísticas ni el kriging; el informe contiene los gráficos; los datos de ejemplo proceden de la carpeta del módulo
+- El idioma del panel se guarda en la configuración de QGIS
 
 ---
 
 ## Acceso a la herramienta
 
-GeoArchaeo es accesible desde la barra de herramientas de PyArchInit a traves del boton desplegable de Herramientas de Analisis.
+GeoArchaeo forma parte del grupo de herramientas de análisis de PyArchInit.
 
 ### Desde la barra de herramientas
 
-1. Localizar el boton **Herramientas de Analisis** (icono desplegable) en la barra de herramientas de PyArchInit
-2. Hacer clic en la flecha del menu desplegable
-3. Seleccionar **GeoArchaeo** de la lista
+1. En la barra de herramientas de PyArchInit, localizar el botón desplegable de las **herramientas de análisis** (el mismo grupo que contiene, entre otros, SAM, Pottery Tools y MoveCost)
+2. Hacer clic en la flecha junto al botón: el icono visible puede ser el de otra herramienta del grupo
+3. Elegir **GeoArchaeo - Geostatistical Analysis** (etiqueta de la acción en PyArchInit cuando QGIS está en español)
 
-<!-- IMAGE: Boton Herramientas de Analisis en la barra de herramientas -->
-> **Fig. 1**: El menu desplegable Herramientas de Analisis en la barra de herramientas de PyArchInit
+<!-- IMAGE: Boton desplegable de las herramientas de analisis en la barra de herramientas -->
+> **Fig. 1**: El menú desplegable de las herramientas de análisis en la barra de herramientas de PyArchInit
 
-El panel GeoArchaeo aparece como un **widget acoplable** en la interfaz de QGIS. Se puede arrastrar, redimensionar o desacoplar como cualquier otro panel de QGIS.
+La misma entrada se encuentra en el menú **pyArchInit** de la barra de menús de QGIS y en el menú de complementos, bajo **pyArchInit - Archaeological GIS Tools**.
 
-<!-- IMAGE: Panel GeoArchaeo acoplado en QGIS -->
-> **Fig. 2**: El panel GeoArchaeo acoplado en la ventana de QGIS
+El panel GeoArchaeo se abre como **panel acoplable** en el lado derecho de la ventana de QGIS: se puede mover, redimensionar o desacoplar como cualquier panel de QGIS. Si se cierra, la misma entrada lo vuelve a abrir con los resultados de la sesión todavía presentes.
+
+<!-- IMAGE: Panel GeoArchaeo acoplado a la derecha en QGIS -->
+> **Fig. 2**: El panel GeoArchaeo acoplado en el lado derecho de la ventana de QGIS
 
 ### Selector de idioma
 
-El panel GeoArchaeo incluye un **selector de idioma** en la parte superior, que permite cambiar el idioma de la interfaz sin reiniciar QGIS. Los idiomas soportados incluyen italiano, ingles, aleman, frances, espanol, arabe, catalan, rumano, portugues y griego.
+Arriba a la derecha, la lista **«Idioma:»** (*Language:*) ofrece **Italiano** y **English**, los dos únicos idiomas de la interfaz de GeoArchaeo. El cambio es inmediato, sin reiniciar QGIS, y la elección se guarda en la configuración de QGIS. Mientras no se elija, el panel sigue el idioma de QGIS: italiano si QGIS está en italiano, inglés en todos los demás casos, por tanto también con QGIS en español.
 
 ---
 
 ## Interfaz de usuario
 
-El panel GeoArchaeo esta organizado en **6 pestanas principales**, cada una dedicada a una fase del flujo de trabajo de analisis geoestadistico.
+De arriba abajo, el panel contiene: la cabecera con sus botones, el grupo **«Datos de entrada (usados por todas las pestañas)»** (*Input data (used by all tabs)*), las **6 pestañas** del análisis y, durante los cálculos, la barra de progreso con el botón **«Cancelar»** (*Cancel*).
 
-| Pestana | Icono | Funcion |
-|---------|-------|---------|
-| **Datos** | Tabla | Cargar y explorar datos espaciales desde capas QGIS |
-| **Variograma** | Grafico | Calcular y modelar variogramas experimentales |
-| **Kriging** | Cuadricula | Realizar interpolacion kriging (ordinario, universal) |
-| **ML** | Cerebro | Predicciones espaciales con aprendizaje automatico |
-| **Muestreo** | Diana | Disenar estrategias de muestreo para prospecciones arqueologicas |
-| **Informe** | Documento | Generar informes de analisis |
+### Cabecera
 
-<!-- IMAGE: Vision general de las 6 pestanas de GeoArchaeo -->
-> **Fig. 3**: Las seis pestanas del panel GeoArchaeo
+| Elemento | Función |
+|----------|---------|
+| **«Cargar datos de ejemplo»** (*Load example data*) | Abre la lista de los conjuntos de datos de prueba incluidos en el módulo (ver la pestaña Datos) |
+| **«Tutorial»** (*Tutorial*) | Abre la guía integrada de GeoArchaeo, en italiano o en inglés, que también se puede abrir en el navegador |
+| **«Idioma:»** (*Language:*) | Lista Italiano / English |
 
-### Barra de herramientas del panel
+### Datos de entrada
 
-En la parte superior del panel se encuentran:
+En el grupo **«Datos de entrada (usados por todas las pestañas)»** (*Input data (used by all tabs)*) se elige una sola vez:
 
-- **Selector de idioma**: Menu desplegable para cambiar el idioma de la interfaz
-- **Cargar datos de ejemplo**: Boton para cargar un conjunto de datos de prueba
-- **Ayuda**: Boton para acceder a la documentacion
+- **«Capa de puntos:»** (*Point layer:*): una capa vectorial de puntos del proyecto
+- **«Campo de valor (numérico):»** (*Value field (numeric):*): el campo que se va a analizar (la lista solo muestra campos numéricos)
+
+Debajo aparece un resumen con los puntos válidos sobre el total, el SRC y la extensión de la capa, por ejemplo «500 puntos válidos de 500 · SRC EPSG:32633 · …» (*500 valid points of 500 · CRS EPSG:32633 · …*). Los puntos sin valor (NULL o texto no numérico) no se cuentan como válidos. El resumen avisa también cuando el proyecto no tiene capas de puntos, cuando la capa no tiene campos numéricos o cuando el SRC es geográfico (grados).
+
+Al cambiar de capa, el panel propone además la distancia máxima del variograma y el tamaño de celda del kriging, y preselecciona la capa en la pestaña Patrones (ML) si allí todavía no hay nada seleccionado.
+
+### Las seis pestañas
+
+| Pestaña | Función | Resultado |
+|---------|---------|-----------|
+| **Datos** (*Data*) | Estadísticas descriptivas del campo | Tabla de estadísticas, histograma con diagrama de caja |
+| **Variograma** (*Variogram*) | Estructura espacial de los valores | Pepita, meseta, alcance, anisotropía, gráfico |
+| **Kriging** (*Kriging*) | Interpolación sobre una cuadrícula regular | Rásteres de la estimación y de la incertidumbre, validación cruzada |
+| **Patrones (ML)** (*Patterns (ML)*) | Grupos y anomalías con aprendizaje automático | Capa de puntos con la etiqueta del grupo |
+| **Muestreo** (*Sampling*) | Propuesta de nuevos puntos de muestreo | Capa de puntos y tabla de coordenadas |
+| **Informe** (*Report*) | Recopilación de los análisis de la sesión | Archivo HTML con gráficos interactivos, o PDF |
+
+<!-- IMAGE: Cabecera, grupo Datos de entrada y las seis pestanas de GeoArchaeo -->
+> **Fig. 3**: La cabecera, el grupo «Datos de entrada» y las seis pestañas del panel GeoArchaeo
+
+### Resultados y gráficos
+
+Cada pestaña muestra sus resultados en un **recuadro** bajo el botón de cálculo, que sigue visible hasta que se repite el análisis, y el **gráfico** en el panel:
+
+- si QGIS dispone de QtWebEngine, el gráfico Plotly es interactivo directamente en el panel (zoom, valores al pasar el ratón)
+- si no, aparece una **vista previa estática** con la nota «Vista previa estática (QtWebEngine no disponible en esta instalación de QGIS).» (*Static preview (QtWebEngine not available in this QGIS installation).*)
+- en ambos casos, el botón **«Abrir gráfico interactivo en el navegador»** (*Open interactive chart in browser*) abre la versión interactiva en el navegador web
+
+Las pestañas Datos, Variograma y Kriging terminan con un enlace al paso siguiente, por ejemplo **«Siguiente paso: Variograma →»** (*Next step: Variogram →*).
+
+### Análisis en curso
+
+Variograma, kriging, reconocimiento de patrones y muestreo se calculan en un **hilo separado**: QGIS sigue siendo utilizable y en la parte inferior del panel aparecen la **barra de progreso** (en porcentaje para el kriging) y el botón **«Cancelar»** (*Cancel*). Se ejecuta un análisis cada vez: al iniciar otro aparece «Ya hay un análisis en curso: espere a que termine o cancélelo.» (*An analysis is already running: wait for it to finish or cancel it.*)
 
 ---
 
-## Pestana Datos
+## Pestaña Datos
 
-La pestana **Datos** es el punto de partida para cualquier analisis geoestadistico. Permite cargar y visualizar los datos espaciales disponibles en las capas QGIS.
+La pestaña **Datos** (*Data*, «1. Análisis exploratorio» / *1. Exploratory analysis*) describe la distribución de los valores antes de interpolarlos.
 
-### Carga de datos
+### Cálculo de las estadísticas
 
-1. Abrir la pestana **Datos**
-2. Seleccionar una **capa vectorial** del menu desplegable (se listan todas las capas de puntos del proyecto QGIS)
-3. Seleccionar el **campo de analisis** (el campo numerico a analizar)
-4. Hacer clic en **Cargar datos**
+1. En el grupo «Datos de entrada», elegir la capa de puntos y el campo numérico
+2. Abrir la pestaña **Datos**
+3. Hacer clic en **«Calcular estadísticas»** (*Calculate statistics*)
 
-<!-- IMAGE: Pestana Datos con capa y campo seleccionados -->
-> **Fig. 4**: La pestana Datos con una capa y un campo de analisis seleccionados
+<!-- IMAGE: Pestana Datos con estadisticas e histograma -->
+> **Fig. 4**: La pestaña Datos con la tabla de estadísticas y el histograma del campo elegido
+
+### Estadísticas e interpretación
+
+| Estadística | Descripción |
+|-------------|-------------|
+| **Número de valores** (*Number of values*), **Valores ausentes** (*Missing values*) | Puntos con un valor válido y puntos excluidos (NULL o texto no numérico) |
+| **Mínimo**, **Máximo**, **Media** (*Mean*), **Mediana** (*Median*) | Rango y posición de los valores |
+| **Desv. estándar** (*Std. deviation*), **Coef. de variación** (*Coeff. of variation*) | Dispersión absoluta y relativa |
+| **Primer cuartil (Q1)**, **Tercer cuartil (Q3)** (*First/Third quartile*) | Límites del 50 % central de los valores |
+| **Asimetría** (*Skewness*), **Curtosis** (*Kurtosis*) | Forma de la distribución |
+
+Bajo la tabla, el panel añade una lectura en palabras:
+
+- asimetría mayor que 1: distribución asimétrica a la derecha (pocos valores muy altos); conviene valorar una transformación logarítmica antes del kriging, por ejemplo creando un nuevo campo con la calculadora de campos
+- asimetría menor que -1: distribución asimétrica a la izquierda (pocos valores muy bajos)
+- en los demás casos: distribución aproximadamente simétrica, adecuada para el kriging
+- el número de posibles valores atípicos, es decir, más allá de 3 desviaciones estándar de la media
+
+El gráfico muestra el **histograma** de los valores con un **diagrama de caja** (en la vista previa estática, solo el histograma).
 
 ### Datos de ejemplo
 
-Para familiarizarse con la herramienta, es posible cargar un **conjunto de datos de ejemplo** haciendo clic en el boton dedicado. El conjunto de datos de ejemplo contiene datos arqueologicos simulados con coordenadas y valores numericos adecuados para el analisis geoestadistico.
+El botón **«Cargar datos de ejemplo»** (*Load example data*) abre la ventana «Datos de ejemplo de GeoArchaeo» (*GeoArchaeo example data*) con los conjuntos de datos de la carpeta `test_layers` del módulo; la ruta se indica en **«Carpeta:»** (*Folder:*) y se puede cambiar con **«Examinar…»** (*Browse…*). Los GeoPackage y los GeoJSON ya están marcados. Los CSV solo aparecen si no existe un GeoPackage o un GeoJSON con el mismo nombre; hay que marcarlos a mano y se cargan como texto delimitado (campos `x` e `y`, EPSG:32633). Con **OK** las capas se añaden al proyecto y la primera capa de puntos cargada se convierte en la capa de entrada del panel.
 
-### Exploracion de datos
+| Conjunto de datos | Puntos | Principales campos numéricos | Uso recomendado |
+|-------------------|--------|------------------------------|-----------------|
+| `villa_ceramica` (GeoPackage) | 500 | `ceramic_count`, `weight_g`, `depth_cm` | Estadísticas, variograma, kriging |
+| `geoarchaeo_test_complete` (GeoPackage) | 500 | Los mismos que `villa_ceramica` | Prueba de todas las pestañas |
+| `geofisica_survey` (GeoPackage) | 4800 | `gpr_amplitude`, `mag_nt` | Isolation Forest, prueba con un conjunto grande |
+| `necropoli` (GeoPackage) | 120 tumbas | `length_cm`, `width_cm`, `depth_cm`, `n_grave_goods` | DBSCAN o K-Means |
+| `soil_samples` (GeoPackage) | 80 | `sand_pct`, `silt_pct`, `clay_pct`, `ph`, `p_ppm`, `organic_pct` | Kriging de propiedades del suelo |
+| `ricognizione_survey` (GeoJSON) | 100 | `densita_mq`, `visibilita`, `pendenza`, `distanza_acqua` | Kriging de la densidad, muestreo |
+| `unita_scavo_ceramica` (GeoJSON) | 50 | `ceramica_tot`, `ceramica_fine`, `ceramica_comune` | Variograma y kriging con pocos puntos |
+| `area_studio` (GeoJSON) | 1 polígono | — | Área de estudio para el muestreo |
 
-Despues de la carga, la pestana muestra:
-
-| Informacion | Descripcion |
-|-------------|-------------|
-| **Numero de puntos** | Total de puntos cargados |
-| **Extension** | Caja envolvente del conjunto de datos (xmin, ymin, xmax, ymax) |
-| **Estadisticas** | Media, mediana, desviacion estandar, min, max |
-| **Vista previa** | Tabla con las primeras filas del conjunto de datos |
+Entre los CSV, `magnetometria_grid` (2500 puntos, campo `mag_nT`) contiene anomalías magnéticas simuladas (dos muros, una fosa, un horno). Todos los datos son simulados y están en EPSG:32633 (UTM 33N, metros). El polígono `area_studio` cubre la zona de `ricognizione_survey`, `unita_scavo_ceramica` y `magnetometria_grid`, no la de los demás conjuntos de datos.
 
 ### Requisitos de los datos
 
-- La capa debe ser una **capa vectorial de puntos**
-- El campo de analisis debe contener **valores numericos**
-- Los puntos deben tener **coordenadas validas** en el sistema de referencia del proyecto
-- Se recomiendan al menos **30 puntos** para un analisis geoestadistico significativo
+- La capa debe ser una capa vectorial de **puntos** (en los multipuntos se usa el primer punto)
+- El campo debe ser **numérico**: un campo de texto que contenga números debe convertirse con la calculadora de campos
+- Los valores NULL o no numéricos se excluyen automáticamente y se cuentan como ausentes
+- Se necesitan al menos **5 puntos** con un valor válido para el variograma y el kriging (1 para las estadísticas); un variograma fiable suele requerir algunas decenas de puntos
+- Se recomienda un **SRC proyectado** en metros (por ejemplo UTM): con un SRC geográfico el resumen avisa y el variograma y el kriging piden confirmación
 
 ---
 
-## Pestana Variograma
+## Pestaña Variograma
 
-La pestana **Variograma** permite calcular y modelar variogramas experimentales, que describen la estructura de la correlacion espacial en los datos.
+La pestaña **Variograma** (*Variogram*, «2. Variograma» / *2. Variogram*) mide cómo crece la diferencia entre los valores con la distancia: describe la estructura espacial de los datos y guía el kriging.
 
-### Que es un variograma?
+### ¿Qué es un variograma?
 
-Un variograma es un grafico que muestra como la **varianza** entre pares de puntos cambia en funcion de la **distancia** que los separa. Los parametros clave son:
+El variograma relaciona la **semivarianza** de los pares de puntos con la **distancia** que los separa. Los parámetros del modelo son:
 
-| Parametro | Descripcion |
+| Parámetro | Descripción |
 |-----------|-------------|
-| **Nugget** | Varianza a distancia cero (error de medicion + variabilidad a microescala) |
-| **Sill** | Varianza maxima alcanzada (meseta del variograma) |
-| **Rango (Range)** | Distancia mas alla de la cual no hay correlacion espacial |
+| **Pepita** (*nugget*) | Variabilidad a distancia casi nula: error de medida y variabilidad a pequeña escala |
+| **Meseta** (*sill*) | Varianza total alcanzada por el modelo (la "meseta") |
+| **Alcance** (*range*) | Distancia a partir de la cual los valores dejan de estar correlacionados; en GeoArchaeo es el alcance práctico (95 % de la meseta) |
 
-### Calculo del variograma experimental
+### Cálculo del variograma
 
-1. Asegurarse de haber cargado datos en la pestana Datos
-2. Abrir la pestana **Variograma**
-3. Configurar los parametros:
-   - **Numero de lags**: Numero de intervalos de distancia (por defecto: 15)
-   - **Distancia maxima**: Distancia maxima a considerar (por defecto: auto)
-   - **Tolerancia angular**: Para variogramas direccionales (por defecto: omnidireccional)
-4. Hacer clic en **Calcular variograma**
+1. Abrir la pestaña **Variograma**
+2. En el grupo **«Parámetros»** (*Parameters*), revisar **«Distancia máxima:»** (*Maximum distance:*): el botón **«Auto»** propone aproximadamente 1/3 de la diagonal del área ocupada por los puntos (el mismo valor se propone al cambiar de capa)
+3. Elegir el **«Modelo teórico:»** (*Theoretical model:*)
+4. Si es necesario, marcar **«Comprobar anisotropía (variogramas direccionales)»** (*Check anisotropy (directional variograms)*)
+5. Hacer clic en **«Calcular variograma»** (*Calculate variogram*)
 
-<!-- IMAGE: Variograma experimental calculado -->
-> **Fig. 5**: Un variograma experimental calculado a partir de datos arqueologicos
+Los pares de puntos se agrupan en **15 clases de distancia** (lags) entre cero y la distancia máxima; el número de clases no se puede cambiar desde el panel. Por encima de **3000 puntos**, el variograma se calcula sobre una submuestra aleatoria de 3000 puntos, porque el número de pares crece con el cuadrado del número de puntos. El modelo se ajusta por mínimos cuadrados ponderados por el número de pares de cada clase.
 
-### Modelizacion del variograma
+<!-- IMAGE: Pestana Variograma con parametros y resultados -->
+> **Fig. 5**: La pestaña Variograma con los parámetros, el modelo teórico y el recuadro de resultados
 
-Tras calcular el variograma experimental, es posible ajustar un **modelo teorico**:
+### Modelos teóricos
 
-1. Seleccionar el **tipo de modelo**:
-   - **Esferico**: El modelo mas comun, alcanza el sill a una distancia finita
-   - **Exponencial**: Alcanza el sill asintoticamente
-   - **Gaussiano**: Transicion gradual, adecuado para fenomenos muy regulares
-   - **Lineal**: Variograma sin sill definido
-2. Hacer clic en **Ajustar modelo**
-3. Verificar los parametros estimados (nugget, sill, rango) y la bondad de ajuste
+| Modelo | Comportamiento | Cuándo usarlo |
+|--------|----------------|---------------|
+| **«Esférico (recomendado)»** (*Spherical (recommended)*) | Crece hasta el alcance y luego permanece constante | El más usado: densidades de materiales, distribuciones con límites netos |
+| **«Exponencial»** (*Exponential*) | Crece rápido cerca del origen y alcanza la meseta de forma gradual | Fenómenos de decaimiento continuo, por ejemplo elementos químicos en el suelo |
+| **«Gaussiano»** (*Gaussian*) | Muy regular cerca del origen | Fenómenos muy "suaves" (superficies); usar con precaución |
+| **«Matérn»** (*Matérn*) | Intermedio entre exponencial y gaussiano (ν = 1,5) | Alternativa flexible |
 
-<!-- IMAGE: Modelo de variograma ajustado -->
-> **Fig. 6**: Modelo esferico ajustado al variograma experimental
+Regla práctica: empezar con el modelo esférico y comparar el RMSE de su ajuste con el de los demás modelos. El kriging usa el **último** variograma calculado: después de las comparaciones, volver a calcular el elegido.
 
-### Variogramas direccionales
+### Parámetros manuales
 
-Para verificar la **anisotropia** (variacion de la estructura espacial en diferentes direcciones):
+El grupo **«Parámetros manuales (opcional)»** (*Manual parameters (optional)*), desactivado por defecto, permite fijar **«Pepita:»** (*Nugget:*), **«Meseta (varianza total):»** (*Sill (total variance):*) y **«Alcance (distancia de correlación):»** (*Range (correlation distance):*). Con el grupo activo, los valores distintos de cero quedan fijos y los que se dejan en «Auto» (cero) se estiman.
 
-1. Establecer una **tolerancia angular** (ej. 22,5 grados)
-2. Seleccionar las **direcciones** a analizar (0, 45, 90, 135 grados)
-3. Comparar los variogramas en las diferentes direcciones
+### Lectura de los resultados
+
+El recuadro de resultados indica:
+
+- el modelo con **pepita**, **meseta**, **alcance** (en unidades del SRC) y el **RMSE** del ajuste
+- el número de pares de puntos y de clases de distancia, con la submuestra usada si la hay
+- una lectura del alcance: hasta esa distancia los valores están correlacionados espacialmente; más allá no se influyen
+- la relación pepita/meseta: por debajo del 25 % fuerte continuidad a pequeña escala, hasta el 60 % continuidad moderada, por encima del 60 % mucha variabilidad a pequeña escala o error de medida (el kriging será poco informativo)
+
+El gráfico muestra los puntos del variograma experimental (más grandes donde hay más pares), la curva del modelo y las líneas de pepita, meseta y alcance.
+
+<!-- IMAGE: Variograma experimental con el modelo ajustado -->
+> **Fig. 6**: Variograma experimental y modelo esférico con las líneas de pepita, meseta y alcance
+
+### Variogramas direccionales (anisotropía)
+
+Con **«Comprobar anisotropía (variogramas direccionales)»** marcada, GeoArchaeo calcula también los variogramas en las direcciones **0°, 45°, 90° y 135°** (ángulos medidos desde el este en sentido antihorario, tolerancia ±22,5°). Pepita y meseta son las del variograma global; para cada dirección se estima el alcance.
+
+- Si la relación entre el alcance mayor y el menor supera **2**, el recuadro señala la anisotropía y la dirección principal (por ejemplo a lo largo de un muro, un camino o una pendiente)
+- Si no, indica «Ninguna anisotropía relevante» (*No relevant anisotropy*) con la relación calculada
+- Con pocos pares por dirección aparece «No hay suficientes pares para los variogramas direccionales.» (*Not enough pairs for directional variograms.*)
+
+En el gráfico interactivo, los variogramas direccionales son entradas de la leyenda ocultas al principio: hacer clic en 0°, 45°, 90° o 135° para mostrarlos (en la vista previa estática siempre se dibujan). El kriging del panel usa el modelo omnidireccional: la anisotropía sirve para la interpretación.
 
 ---
 
-## Pestana Kriging
+## Pestaña Kriging
 
-La pestana **Kriging** permite realizar la interpolacion kriging, el metodo geoestadistico de referencia para la prediccion espacial optima.
+La pestaña **Kriging** (*Kriging*, «3. Kriging ordinario» / *3. Ordinary kriging*) interpola los valores sobre una cuadrícula regular usando el variograma, produce también el mapa de incertidumbre y añade los rásteres al proyecto.
 
-### Tipos de kriging disponibles
+### El kriging ordinario
 
-| Tipo | Descripcion | Cuando usarlo |
-|------|-------------|---------------|
-| **Kriging ordinario** | Asume una media local constante pero desconocida | Caso mas comun, datos estacionarios |
-| **Kriging universal** | Tiene en cuenta una tendencia espacial (deriva) | Cuando los datos muestran una tendencia direccional |
+El panel ejecuta **kriging ordinario** (media local constante pero desconocida), adecuado para la mayoría de los datos arqueológicos. Para cada celda usa los **20 puntos más cercanos**, encontrados con un KD-tree; este número no se puede cambiar desde el panel. El cokriging, el kriging espacio-temporal y el kriging por bloques para conjuntos de datos muy grandes solo existen como algoritmos de Processing del plugin GeoArchaeo independiente y no están disponibles en PyArchInit.
 
-### Ejecucion del kriging
+### Ejecución del kriging
 
-1. Asegurarse de haber modelado el variograma en la pestana Variograma
-2. Abrir la pestana **Kriging**
-3. Seleccionar el **tipo de kriging** (ordinario o universal)
-4. Configurar los parametros de la cuadricula de salida:
-   - **Resolucion**: Tamano de las celdas de la cuadricula (en unidades del CRS)
-   - **Extension**: Automatica desde el conjunto de datos o personalizada
-5. Configurar los parametros del kriging:
-   - **Puntos minimos**: Numero minimo de puntos cercanos a usar
-   - **Puntos maximos**: Numero maximo de puntos cercanos a usar
-   - **Radio de busqueda**: Distancia maxima para los puntos cercanos
-6. Hacer clic en **Ejecutar kriging**
+1. Abrir la pestaña **Kriging** y leer la línea de estado del variograma (ver más abajo); el botón **«← Ir al variograma»** (*← Go to Variogram*) vuelve a la pestaña anterior
+2. Ajustar **«Tamaño de celda:»** (*Cell size:*), es decir, el tamaño de una celda en unidades del SRC: el panel propone unas 100 celdas en el lado mayor de la capa y muestra debajo la cuadrícula resultante («Cuadrícula: … × … = … celdas» / *Grid: … × … = … cells*)
+3. Dejar marcada **«Usar el variograma calculado»** (*Use the calculated variogram*) para usar el variograma de la pestaña anterior; si está desmarcada, el variograma se estima automáticamente
+4. Dejar marcada **«Crear también el ráster de incertidumbre (desv. estándar)»** (*Also create the uncertainty raster (std. deviation)*) si se necesita el mapa de incertidumbre
+5. Hacer clic en **«Ejecutar kriging»** (*Run kriging*): la barra de progreso muestra el porcentaje y **«Cancelar»** (*Cancel*) interrumpe el cálculo
 
-<!-- IMAGE: Resultado de la interpolacion kriging -->
-> **Fig. 7**: Mapa de interpolacion kriging con la cuadricula de prediccion
+La línea de estado puede indicar:
+
+- «Variograma disponible: …, alcance … ✓» (*Variogram available: …, range … ✓*): se usa el variograma calculado con la misma capa y el mismo campo
+- «Ningún variograma calculado: se estimará automáticamente (modelo esférico).» (*No variogram calculated: it will be estimated automatically (spherical model).*)
+- «El variograma se calculó con otra capa/otro campo: se volverá a calcular.» (*The variogram was calculated on another layer/field: it will be recalculated.*), también en este caso con una estimación automática
+
+> **Cuadrícula**: la cuadrícula cubre la extensión de la capa de puntos y está limitada a **500 celdas por lado**. Si el tamaño de celda elegido es demasiado fino, se aumenta automáticamente y la línea de la cuadrícula lo indica («tamaño de celda mínimo … (máx. 500 celdas por lado)» / *minimum cell size … (max 500 cells per side)*). Por encima de **40.000 celdas** la línea se vuelve naranja y, al iniciar, el panel pide confirmación porque el cálculo puede tardar algunos minutos.
+
+<!-- IMAGE: Rasteres del kriging y metricas de validacion cruzada -->
+> **Fig. 7**: Los rásteres de la estimación y de la incertidumbre en el mapa, con el recuadro de resultados y la validación cruzada
 
 ### Resultados del kriging
 
-El analisis produce dos capas raster:
+El kriging añade al proyecto dos rásteres GeoTIFF en el SRC de la capa de puntos:
 
-- **Prediccion**: Los valores interpolados en la cuadricula
-- **Varianza de kriging**: La incertidumbre de la prediccion en cada celda
+| Capa | Contenido | Estilo |
+|------|-----------|--------|
+| `Kriging_<campo>` | Valor estimado en cada celda | Rampa de colores del azul al rojo pasando por el amarillo; visible |
+| `Kriging_<campo>_uncertainty` | Desviación estándar de la estimación (incertidumbre) | Rampa del amarillo claro al rojo; añadida en lo alto de la lista de capas, pero oculta |
 
-Las capas se anaden automaticamente al proyecto QGIS y se muestran en el mapa.
+Con el panel en italiano, el segundo ráster se llama `Kriging_<campo>_incertezza`. Los archivos se escriben en una **carpeta temporal**: para conservarlos, exportarlos desde el menú contextual de la capa (**Exportar**).
 
-> **Nota**: El analisis se ejecuta en un **hilo en segundo plano**, por lo que la interfaz de QGIS permanece utilizable durante el calculo. Una barra de progreso indica el estado del procesamiento.
+El recuadro de resultados resume los puntos usados, el tamaño de la cuadrícula, el tamaño de celda, el modelo y el alcance; el gráfico muestra el mapa de los valores estimados y el de la incertidumbre, con los puntos de muestra superpuestos.
 
----
+### Validación cruzada leave-one-out
 
-## Pestana Machine Learning
+Tras el kriging, GeoArchaeo realiza una **validación cruzada leave-one-out**: cada punto se elimina y se vuelve a estimar a partir de los demás (sobre un máximo de 200 puntos elegidos al azar en los conjuntos grandes). Las métricas aparecen en el recuadro de resultados:
 
-La pestana **ML** ofrece metodos de aprendizaje automatico para predicciones espaciales, como alternativa o complemento al kriging.
+| Métrica | Significado | Valor deseable |
+|---------|-------------|----------------|
+| **RMSE** (*root mean squared error*) | Error típico de la estimación | El más bajo posible, comparado con la desviación estándar de los datos |
+| **MAE** (*mean absolute error*) | Error medio en valor absoluto | El más bajo posible |
+| **ME** (*mean error, bias*) | Sobreestimación o subestimación sistemática | Cercano a 0 |
+| **R²** (*explained variance*) | Capacidad predictiva | Desde 0,5 buena, por debajo de 0,2 baja |
+| **MSDR** (*standardized error*) | Realismo de la incertidumbre estimada | Alrededor de 1; por encima de 1,5 incertidumbre subestimada, por debajo de 0,5 sobreestimada |
 
-### Algoritmos disponibles
+El panel añade un juicio en palabras sobre la capacidad predictiva (buena, moderada o baja) y, cuando procede, sobre el MSDR.
 
-| Algoritmo | Descripcion | Ventajas |
-|-----------|-------------|----------|
-| **Random Forest** | Conjunto de arboles de decision | Robusto, maneja relaciones no lineales |
-| **Gradient Boosting** | Arboles de decision secuenciales | Alta precision, adecuado para patrones complejos |
-| **SVR** | Regresion por vectores de soporte | Bueno con pocos datos, kernels flexibles |
-
-### Flujo de trabajo ML
-
-1. Abrir la pestana **ML**
-2. Seleccionar el **algoritmo** deseado
-3. Configurar las **variables predictoras**:
-   - Coordenadas (X, Y)
-   - Campos adicionales de la capa (ej. elevacion, pendiente, distancia a un rio)
-4. Establecer los **parametros** del algoritmo (o usar los valores por defecto)
-5. Seleccionar el metodo de **validacion**:
-   - Validacion cruzada k-fold (por defecto: 5 folds)
-   - Hold-out (porcentaje de prueba)
-6. Hacer clic en **Entrenar modelo**
-
-<!-- IMAGE: Configuracion del modelo ML -->
-> **Fig. 8**: Configuracion de un modelo Random Forest en la pestana ML
-
-### Resultados ML
-
-| Resultado | Descripcion |
-|-----------|-------------|
-| **Mapa de prediccion** | Capa raster con los valores predichos |
-| **Importancia de variables** | Grafico de la importancia relativa de las variables predictoras |
-| **Metricas de validacion** | R-cuadrado, RMSE, MAE de la validacion cruzada |
-| **Grafico de residuos** | Diagrama de dispersion de valores observados vs predichos |
-
-### Comparacion Kriging vs ML
-
-Para comparar resultados:
-
-1. Ejecutar tanto el kriging como el ML con los mismos datos
-2. Comparar las metricas de validacion en la pestana Informe
-3. Visualizar mapas de diferencias
+> **Nota**: el kriging se ejecuta en un **hilo en segundo plano**, por lo que la interfaz de QGIS sigue siendo utilizable durante el cálculo; la barra de progreso indica el estado del procesamiento.
 
 ---
 
-## Pestana Muestreo
+## Pestaña Patrones (ML)
 
-La pestana **Muestreo** permite disenar estrategias de muestreo optimas para prospecciones arqueologicas futuras.
+La pestaña **Patrones (ML)** (*Patterns (ML)*, «4. Reconocimiento de patrones (aprendizaje automático)» / *4. Pattern recognition (machine learning)*) agrupa los puntos por posición y atributos numéricos, o detecta anomalías, y crea una capa con la etiqueta de cada punto.
 
-### Estrategias de muestreo
+### Métodos disponibles
 
-| Estrategia | Descripcion | Cuando usarla |
-|------------|-------------|---------------|
-| **Aleatorio simple** | Puntos distribuidos aleatoriamente en el area | Cuando no se tiene informacion previa |
-| **Aleatorio estratificado** | Puntos aleatorios dentro de estratos definidos | Cuando el area tiene zonas con diferentes caracteristicas |
-| **Cuadricula regular** | Puntos en una cuadricula regular | Para cobertura uniforme del area |
-| **Optimizado** | Puntos posicionados para minimizar la varianza de kriging | Cuando se dispone de un variograma |
+| Método (entrada de la lista) | Qué hace | Parámetros |
+|------------------------------|----------|------------|
+| **«K-Means – grupos por similitud»** (*K-Means – groups by similarity*) | Divide los puntos en K grupos similares por posición y atributos | **«Número de grupos (0 = automático):»** (*Number of groups (0 = automatic):*); con 0 el número se elige según la cantidad de puntos (de 2 a 5) |
+| **«DBSCAN – grupos por densidad (también encuentra puntos aislados)»** (*DBSCAN – groups by density (also finds isolated points)*) | Encuentra grupos por densidad sin fijar su número; los puntos aislados forman el grupo «Aislados / ruido» (*Isolated / noise*) | Automáticos |
+| **«Isolation Forest – detección de anomalías»** (*Isolation Forest – anomaly detection*) | Señala como «Anomalía» (*Anomaly*) aproximadamente el 10 % de los puntos más distintos de los demás; el resto son «Normal» (*Normal*) | Automáticos |
 
-### Diseno del plan de muestreo
+### Ejecución
 
-1. Abrir la pestana **Muestreo**
-2. Seleccionar la **estrategia** de muestreo
-3. Establecer el **numero de puntos** deseado
-4. Definir el **area de estudio**:
-   - Desde la extension de la capa actual
-   - Desde una capa poligonal
-   - Dibujando manualmente sobre el mapa
-5. Establecer posibles **restricciones**:
-   - Distancia minima entre puntos
-   - Areas de exclusion
-6. Hacer clic en **Generar muestreo**
+1. Abrir la pestaña **Patrones (ML)**
+2. En la lista **«Capas de puntos a analizar (una o varias):»** (*Point layers to analyse (one or more):*), seleccionar una o varias capas de puntos (si no hay nada seleccionado, se preselecciona la capa de entrada)
+3. Elegir el **«Método:»** (*Method:*)
+4. Solo para K-Means, ajustar **«Número de grupos (0 = automático):»**
+5. Hacer clic en **«Iniciar reconocimiento de patrones»** (*Run pattern recognition*)
 
-<!-- IMAGE: Puntos de muestreo generados -->
-> **Fig. 9**: Puntos de muestreo optimizado superpuestos al mapa del area de estudio
+Las variables analizadas son las **coordenadas X e Y** y **todos los campos numéricos** de las capas seleccionadas, estandarizados; los valores ausentes se sustituyen por la media del campo. Por tanto, no se usa solo el campo de valor elegido arriba: entran todos los campos numéricos, incluidos identificadores y números correlativos, y si distorsionan los grupos conviene analizar una copia de la capa con solo los campos útiles. Si se analizan varias capas juntas, conviene que tengan los mismos campos numéricos en el mismo orden y el mismo SRC (la capa creada usa el SRC de la primera capa seleccionada).
+
+<!-- IMAGE: Pestana Patrones (ML) con la capa de grupos -->
+> **Fig. 8**: La pestaña Patrones (ML) con el gráfico de los grupos y la capa `ML_groups` en el mapa
+
+### Resultados
+
+- El recuadro de resultados indica el método, el número de grupos y cuántos puntos caen en cada uno (por ejemplo «Grupo A (n=42)» / *Group A (n=42)*)
+- El gráfico muestra los puntos en el plano de las dos primeras componentes principales (PC1, PC2) de las variables, coloreados por grupo
+- Se crea una capa de puntos temporal, `ML_groups` (K-Means, DBSCAN) o `ML_anomalies` (Isolation Forest), con una leyenda por categorías: gris para los puntos aislados, rojo y más grande para las anomalías; con el panel en italiano los nombres son `Gruppi_ML` y `Anomalie_ML`
+
+| Campo | Contenido |
+|-------|-----------|
+| `cluster_id` | Número del grupo (-1 = aislados con DBSCAN; 1 = anomalía y 0 = normal con Isolation Forest) |
+| `cluster_name` | Nombre legible, por ejemplo «Group A (n=42)», «Isolated / noise (n=5)», «Anomaly (n=12)» |
+| `cluster_size` | Número de puntos del grupo |
+| `method` | Método usado |
+| `x_coord`, `y_coord` | Coordenadas del punto |
+
+### Clasificación supervisada
+
+Bajo el método, el panel recuerda que la clasificación supervisada (Random Forest con un campo de etiquetas) se encuentra en **Processing → GeoArchaeo**. Ese algoritmo pertenece al plugin GeoArchaeo independiente: en PyArchInit el proveedor de Processing de GeoArchaeo no se registra, así que Random Forest no está disponible. Para usarlo se necesita el plugin GeoArchaeo separado.
+
+---
+
+## Pestaña Muestreo
+
+La pestaña **Muestreo** (*Sampling*, «5. Nuevos puntos de muestreo» / *5. New sampling locations*) sugiere dónde muestrear o excavar en el futuro a partir de los puntos existentes y crea una capa con los puntos propuestos.
+
+### Criterios de muestreo
+
+| Criterio (entrada de la lista) | Cómo elige los puntos | Cuándo usarlo |
+|--------------------------------|-----------------------|---------------|
+| **«Cobertura (maximin)»** (*Coverage (maximin)*) | Cada nuevo punto está lo más lejos posible de todos los demás | Rellenar los vacíos de forma uniforme |
+| **«Reducción de la incertidumbre (varianza de kriging)»** (*Uncertainty reduction (kriging variance)*) | Cada nuevo punto va donde la varianza de kriging es máxima | Reducir el error del kriging donde es mayor |
+| **«Cuadrícula estratificada»** (*Stratified grid*) | Una posición por celda de una cuadrícula regular, con una ligera perturbación aleatoria | Cobertura regular de un área definida |
+| **«Adaptativo (zonas menos densas)»** (*Adaptive (sparser areas)*) | Extracción aleatoria con mayor probabilidad donde hay pocos puntos | Favorecer las zonas menos muestreadas manteniendo un componente aleatorio |
+
+El criterio «Reducción de la incertidumbre» usa el variograma calculado si corresponde a la misma capa y al mismo campo y si en la pestaña Kriging está marcada «Usar el variograma calculado»; si no, usa un modelo genérico basado en la distancia típica entre los puntos.
+
+### Diseño del muestreo
+
+1. Comprobar **«Puntos existentes:»** (*Existing points:*): es la capa elegida arriba en el grupo «Datos de entrada» (para el muestreo no hace falta el campo numérico)
+2. Opcional: elegir en **«Área de estudio (polígono, opcional):»** (*Study area (polygon, optional):*) una capa de polígonos; todos sus polígonos se unen y se reproyectan al SRC de los puntos, aunque la capa esté en otro SRC
+3. Ajustar **«Nuevos puntos a proponer:»** (*New points to propose:*) (de 1 a 500, 10 por defecto)
+4. Elegir el **«Criterio:»** (*Criterion:*): bajo la lista aparece su descripción
+5. Hacer clic en **«Calcular nuevos puntos»** (*Calculate new points*)
+
+Sin área de estudio, los puntos se buscan en el rectángulo que contiene los puntos existentes, ampliado un 20 % por cada lado.
+
+<!-- IMAGE: Nuevos puntos de muestreo propuestos -->
+> **Fig. 9**: Los nuevos puntos de muestreo (estrellas amarillas) propuestos dentro del área de estudio
 
 ### Resultados del muestreo
 
-- Una **capa vectorial de puntos** con los puntos de muestreo se anade al proyecto QGIS
-- Una **tabla de atributos** con las coordenadas e identificadores de los puntos
-- Un **informe** con las estadisticas de la estrategia (cobertura, distancias, etc.)
+- El recuadro de resultados indica cuántos puntos se han propuesto y con qué criterio; debajo, la tabla «Coordenadas de los puntos propuestos:» (*Coordinates of the proposed points:*) enumera número, X e Y
+- Se crea la capa de puntos temporal `New_sampling_points` (`Nuovi_punti_campionamento` con el panel en italiano), con símbolo de estrella amarilla y los campos `point_id`, `x_coord`, `y_coord` y `type` (valor `suggested`)
 
 ---
 
-## Pestana Informe
+## Pestaña Informe
 
-La pestana **Informe** permite generar informes completos del analisis geoestadistico.
+La pestaña **Informe** (*Report*, «6. Informe» / *6. Report*) reúne en un único documento los análisis realizados en la sesión: estadísticas, gráficos interactivos, parámetros y validación.
 
 ### Contenido del informe
 
-El informe incluye automaticamente todos los analisis realizados durante la sesion:
+En el grupo **«Secciones a incluir»** (*Sections to include*), cada sección se marca como «disponible» (*available*) o «aún no calculado» (*not yet calculated*); las secciones no calculadas no se pueden elegir.
 
-| Seccion | Contenido |
+| Sección | Contenido |
 |---------|-----------|
-| **Resumen** | Vision general del conjunto de datos y los analisis realizados |
-| **Datos** | Estadisticas descriptivas, distribucion, mapa de puntos |
-| **Variograma** | Variograma experimental, modelo, parametros |
-| **Interpolacion** | Mapa de kriging/ML, metricas de validacion |
-| **Muestreo** | Estrategia, mapa de puntos, estadisticas |
-| **Conclusiones** | Interpretacion sintetica de los resultados |
+| **Estadísticas descriptivas** (*Descriptive statistics*) | Capa y campo, tabla de estadísticas con la lectura en palabras, histograma |
+| **Variograma** (*Variogram*) | Modelo, pepita, meseta, alcance, RMSE, distancia máxima, interpretación, gráfico |
+| **Kriging y validación cruzada** (*Kriging and cross-validation*) | Método, tamaño de celda, dimensiones de la cuadrícula, métricas de validación cruzada, gráfico |
+| **Reconocimiento de patrones** (*Pattern recognition*) | Capas analizadas, grupos con su número de puntos, gráfico |
+| **Nuevos puntos de muestreo** (*New sampling locations*) | Criterio, capa, tabla de coordenadas |
 
-### Generacion del informe
+Cada sección contiene el **último** análisis de su tipo realizado en la sesión.
 
-1. Abrir la pestana **Informe**
-2. Seleccionar las **secciones** a incluir (todas por defecto)
-3. Establecer el **formato de salida**:
-   - PDF (recomendado para documentacion)
-   - HTML (para consulta interactiva)
-   - Markdown (para edicion posterior)
-4. Introducir posibles **notas adicionales** o comentarios
-5. Hacer clic en **Generar informe**
+### Generación del informe
 
-<!-- IMAGE: Vista previa del informe generado -->
-> **Fig. 10**: Vista previa de un informe de analisis geoestadistico generado por GeoArchaeo
+1. Realizar los análisis deseados en las otras pestañas
+2. Abrir la pestaña **Informe** y dejar marcadas las secciones que se quieren incluir (están marcadas por defecto)
+3. Hacer clic en **«Guardar informe HTML»** (*Save HTML report*) o en **«Guardar informe PDF»** (*Save PDF report*) y elegir el nombre del archivo
 
-### Exportacion
+Al guardar, el panel muestra también una vista previa del informe sin gráficos; la nota «Vista previa: los gráficos interactivos están incluidos en el archivo HTML guardado.» (*Preview: the interactive charts are included in the saved HTML file.*) recuerda dónde están.
 
-El informe puede guardarse localmente o exportarse en los formatos disponibles. Las imagenes (graficos, mapas) se incorporan directamente en el informe.
+<!-- IMAGE: Informe HTML de GeoArchaeo abierto en el navegador -->
+> **Fig. 10**: Un informe HTML de GeoArchaeo con gráficos interactivos, abierto en el navegador
+
+### Exportación
+
+| Formato | Contenido | Notas |
+|---------|-----------|-------|
+| **HTML** (`geoarchaeo_report.html`) | Texto, tablas y **gráficos interactivos** | El archivo es autónomo (la biblioteca de gráficos va incluida, funciona también sin conexión) y se abre enseguida en el navegador |
+| **PDF** (`geoarchaeo_report.pdf`) | Texto y tablas, **sin gráficos** | Si el PDF no se puede crear, guardar el informe HTML e imprimirlo en PDF desde el navegador |
+
+Si no se ha realizado ningún análisis aparece «Ningún análisis disponible: ejecute primero al menos un análisis.» (*No analysis available: run at least one analysis first.*); si no hay ninguna sección marcada, «Seleccione al menos una sección» (*Select at least one section*).
 
 ---
 
 ## Flujo de trabajo operativo
 
-A continuacion se presenta un flujo de trabajo tipico para un analisis geoestadistico completo en GeoArchaeo:
+Un ejemplo completo con los datos de ejemplo incluidos en el módulo (panel en inglés).
 
-### Paso 1: Preparacion de datos
+### Paso 1: Preparación de los datos
 
-1. Cargar la capa vectorial de puntos en QGIS
-2. Verificar que el campo numerico a analizar esta presente y es correcto
-3. Comprobar el sistema de referencia de coordenadas
+1. Abrir GeoArchaeo desde la barra de herramientas de PyArchInit
+2. Hacer clic en **«Cargar datos de ejemplo»** (*Load example data*) y confirmar con **OK** (se cargan los GeoPackage y los GeoJSON)
+3. En el grupo «Datos de entrada», elegir la capa `villa_ceramica` y el campo `ceramic_count`
+4. Comprobar el resumen: 500 puntos válidos de 500, SRC EPSG:32633
 
-### Paso 2: Exploracion de datos
+### Paso 2: Exploración de los datos
 
-1. Abrir GeoArchaeo desde la barra de herramientas
-2. En la pestana **Datos**, seleccionar la capa y el campo
-3. Examinar las estadisticas descriptivas
-4. Verificar la distribucion de los datos (buscar valores atipicos o anomalos)
+1. Pestaña **Datos** → **«Calcular estadísticas»** (*Calculate statistics*)
+2. Leer la asimetría y los valores atípicos; con una fuerte asimetría a la derecha, valorar una transformación logarítmica
 
-### Paso 3: Analisis del variograma
+### Paso 3: Análisis del variograma
 
-1. En la pestana **Variograma**, calcular el variograma experimental
-2. Probar diferentes modelos (esferico, exponencial, gaussiano)
-3. Elegir el modelo con el mejor ajuste
-4. Anotar los parametros (nugget, sill, rango)
+1. Pestaña **Variograma** → **«Auto»** para la distancia máxima, modelo **«Esférico (recomendado)»** (*Spherical (recommended)*) → **«Calcular variograma»** (*Calculate variogram*)
+2. Repetir con **«Exponencial»** (*Exponential*) y comparar el RMSE del ajuste
+3. Opcional: volver a calcular con **«Comprobar anisotropía (variogramas direccionales)»**
+4. Calcular en último lugar el modelo elegido y anotar pepita, meseta y alcance
 
-### Paso 4: Interpolacion
+### Paso 4: Interpolación
 
-1. En la pestana **Kriging**, configurar los parametros de la cuadricula
-2. Ejecutar el kriging ordinario
-3. Examinar el mapa de prediccion y la varianza
-4. Opcionalmente, comparar con un modelo ML en la pestana ML
+1. Pestaña **Kriging**: comprobar la línea «Variograma disponible … ✓» (*Variogram available … ✓*)
+2. Mantener el tamaño de celda propuesto o indicar 1 (metro)
+3. **«Ejecutar kriging»** (*Run kriging*)
+4. Examinar los rásteres `Kriging_ceramic_count` y `Kriging_ceramic_count_uncertainty` y los valores de R² y MSDR
 
-### Paso 5: Muestreo (opcional)
+### Paso 5: Patrones y muestreo (opcionales)
 
-1. En la pestana **Muestreo**, disenar una estrategia para prospecciones futuras
-2. Utilizar el variograma para el muestreo optimizado
+1. Pestaña **Patrones (ML)**: dejar seleccionada en la lista solo `necropoli`, método DBSCAN → **«Iniciar reconocimiento de patrones»** (*Run pattern recognition*); la capa `ML_groups` muestra los grupos de tumbas y los puntos aislados
+2. Arriba, elegir la capa `ricognizione_survey` (campo `densita_mq`); pestaña **Muestreo**: área de estudio `area_studio`, 10 puntos, criterio «Cobertura (maximin)» (*Coverage (maximin)*) → **«Calcular nuevos puntos»** (*Calculate new points*)
 
 ### Paso 6: Informe
 
-1. En la pestana **Informe**, generar el informe final
-2. Exportar en PDF para documentacion
+1. Pestaña **Informe**: dejar marcadas las secciones disponibles
+2. **«Guardar informe HTML»** (*Save HTML report*): el informe se abre en el navegador con los gráficos interactivos
+3. Exportar los rásteres y las capas temporales que se quieran conservar
 
 ---
 
-## Solucion de problemas
+## Solución de problemas
 
 ### Problemas comunes
 
-| Problema | Causa | Solucion |
+| Problema | Causa | Solución |
 |----------|-------|----------|
-| No hay capas disponibles | No hay capas de puntos en el proyecto | Anadir una capa vectorial de puntos al proyecto QGIS |
-| No hay campos numericos | La capa no tiene campos numericos | Verificar la tabla de atributos de la capa |
-| Variograma plano | Datos sin correlacion espacial | Verificar los datos, aumentar la distancia maxima |
-| El kriging falla | Modelo de variograma no ajustado | Ajustar primero un modelo en la pestana Variograma |
-| Malos resultados ML | Datos insuficientes o variables no informativas | Anadir variables predictoras o aumentar los datos |
-| Panel no visible | Widget cerrado accidentalmente | Reabrir desde el menu Herramientas de Analisis |
+| «No hay ninguna capa de puntos en el proyecto…» (*No point layer in the project: load one or use the example data.*) | El proyecto no tiene capas de puntos | Añadir una capa de puntos o usar **«Cargar datos de ejemplo»** |
+| «La capa no tiene campos numéricos…» (*The layer has no numeric fields…*) | El campo que se va a analizar es de texto | Convertirlo en número con la calculadora de campos |
+| «Se necesitan al menos 5 puntos con un valor válido…» (*At least 5 points with a valid value are required (found …)*) | Demasiados valores NULL o no numéricos | Revisar la tabla de atributos o elegir otro campo |
+| Aviso «SRC geográfico (grados)» (*geographic CRS (degrees)*) | La capa no está en un SRC proyectado | Reproyectar la capa, por ejemplo a UTM, y repetir el análisis |
+| Error «No point pairs within the maximum distance…» | Distancia máxima del variograma demasiado pequeña | Aumentar **«Distancia máxima:»** o usar **«Auto»** |
+| «No hay suficientes pares para los variogramas direccionales.» (*Not enough pairs for directional variograms.*) | Muy pocos pares por dirección | Aumentar la distancia máxima o renunciar a la comprobación de la anisotropía |
+| Kriging lento, petición de confirmación o «Memoria insuficiente: aumente el tamaño de celda.» (*Out of memory: increase the cell size.*) | Cuadrícula con demasiadas celdas | Aumentar **«Tamaño de celda:»** |
+| R² bajo en la validación cruzada | Poca correlación espacial o demasiado ruido | Considerar el mapa solo orientativo y consultar el ráster de incertidumbre |
+| DBSCAN pone casi todos los puntos en «Aislados / ruido» (*Isolated / noise*) | Densidad uniforme o demasiadas variables | Probar K-Means o reducir los campos numéricos |
+| «Machine Learning features not available. Please install scikit-learn.» | Falta scikit-learn | Instalar scikit-learn en el entorno Python de QGIS |
+| «Plotly visualization not available. Please install plotly.» | Falta Plotly | Instalar plotly en el entorno Python de QGIS |
+| Gráfico solo como imagen estática | QtWebEngine no disponible | Usar **«Abrir gráfico interactivo en el navegador»** (*Open interactive chart in browser*) |
+| «No se puede crear el PDF…» (*Cannot create the PDF…*) | Error al imprimir el PDF | Guardar el informe HTML e imprimirlo desde el navegador |
+| Panel no visible | Panel cerrado | Volver a abrirlo desde la barra de herramientas o el menú pyArchInit: los resultados de la sesión siguen ahí |
 
 ### Errores frecuentes
 
-- **"Datos insuficientes"**: Se necesitan al menos 30 puntos para un analisis fiable
-- **"Modelo de variograma no definido"**: Ajustar un modelo antes de ejecutar el kriging
-- **"CRS incompatible"**: Todas las capas deben usar el mismo sistema de referencia
+- **«Ya hay un análisis en curso…»** (*An analysis is already running: wait for it to finish or cancel it.*): esperar a que termine el cálculo o pulsar «Cancelar»
+- **«Análisis cancelado»** (*Analysis cancelled*): el análisis se interrumpió con «Cancelar» y no produjo resultados
+- **«Seleccione al menos una capa»** (*Select at least one layer*, pestaña Patrones): seleccionar al menos una capa en la lista
+- **«Seleccione la capa de los puntos existentes (arriba)»** (*Select the existing points layer (above)*, pestaña Muestreo): elegir la capa en el grupo «Datos de entrada»
+- **«Seleccione una capa de puntos y un campo numérico (en la parte superior del panel)»** (*Select a point layer and a numeric field (at the top of the panel)*): completar la elección en el grupo «Datos de entrada»
 
 ### Rendimiento
 
-- El analisis se ejecuta en un **hilo en segundo plano**: la interfaz de QGIS permanece utilizable
-- Para conjuntos de datos muy grandes (>10.000 puntos), el procesamiento puede tardar mas
-- Es posible monitorizar el progreso mediante la barra en la parte inferior del panel
+- Los análisis se ejecutan en un **hilo en segundo plano**: QGIS sigue siendo utilizable y el cálculo se puede cancelar
+- El variograma usa como máximo 3000 puntos (submuestra aleatoria) y la validación cruzada como máximo 200
+- El kriging usa los 20 puntos más cercanos a cada celda: el tiempo depende sobre todo del número de celdas
+- La cuadrícula está limitada a 500 × 500 celdas; por encima de 40.000 celdas el panel pide confirmación
+- Con conjuntos de datos grandes (por ejemplo los 4800 puntos de `geofisica_survey`), aumentar el tamaño de celda
 
 ---
 
-## Notas tecnicas
+## Notas técnicas
+
+### Versión y origen
+
+- El módulo `modules/geoarchaeo/` está alineado con **GeoArchaeo 1.3.1**, el plugin independiente de Enzo Cocca (github.com/enzococca/GeoArchaeo)
+- En PyArchInit solo está integrado el panel: el proveedor de Processing de GeoArchaeo (cokriging, kriging espacio-temporal, kriging por bloques, análisis composicional, Random Forest) **no** se registra
+- El módulo es compatible con QGIS 3 (Qt5) y QGIS 4 (Qt6)
 
 ### Dependencias
 
-GeoArchaeo utiliza las siguientes bibliotecas Python:
-
 | Biblioteca | Uso |
-|-----------|-----|
-| **NumPy** | Calculos numericos y matriciales |
-| **SciPy** | Optimizacion y ajuste de modelos |
-| **scikit-learn** | Algoritmos de aprendizaje automatico |
-| **Matplotlib** | Generacion de graficos |
+|------------|-----|
+| **NumPy** | Cálculos numéricos |
+| **SciPy** | Ajuste de los modelos de variograma, búsqueda de vecinos (KD-tree), estadísticas |
+| **scikit-learn** | K-Means, DBSCAN, Isolation Forest, componentes principales (necesaria para la pestaña Patrones) |
+| **Plotly** | Gráficos interactivos en el panel y en el informe HTML |
+| **Matplotlib** | Vistas previas estáticas de los gráficos cuando falta QtWebEngine |
+| **QtWebEngine** (opcional) | Gráficos interactivos directamente en el panel |
+| **threadpoolctl** (opcional) | Limita los hilos de cálculo durante los análisis en segundo plano |
+| **GDAL** | Escritura de los rásteres GeoTIFF (incluido en QGIS) |
 
 ### Sistemas de referencia
 
-- GeoArchaeo trabaja en el sistema de referencia del proyecto QGIS actual
-- Se recomienda un **CRS proyectado** (en metros) para el analisis geoestadistico
-- Los sistemas geograficos (en grados) pueden producir resultados imprecisos
+- Las distancias (distancia máxima, alcance, tamaño de celda) se expresan en las **unidades del SRC de la capa de puntos**
+- Usar un **SRC proyectado** en metros: con un SRC geográfico el resumen avisa y el variograma y el kriging piden confirmación
+- Los rásteres del kriging y las capas creadas usan el SRC de la capa de puntos (en la pestaña Patrones, el de la primera capa seleccionada)
+- El área de estudio se reproyecta automáticamente al SRC de los puntos
 
-### Exportacion de resultados
+### Capas y archivos generados
 
-Los resultados pueden exportarse en varios formatos:
+| Producto | Tipo | Ubicación |
+|----------|------|-----------|
+| `Kriging_<campo>`, `Kriging_<campo>_uncertainty` | Ráster GeoTIFF (compresión LZW) | Carpeta temporal del sistema |
+| `ML_groups` / `ML_anomalies` | Capa de puntos temporal (en memoria) | Solo en el proyecto abierto |
+| `New_sampling_points` | Capa de puntos temporal (en memoria) | Solo en el proyecto abierto |
+| Informe | HTML o PDF | Ruta elegida al guardar |
 
-- **Capas raster** (GeoTIFF) para superficies interpoladas
-- **Capas vectoriales** (GeoPackage, Shapefile) para puntos de muestreo
-- **Graficos** (PNG, SVG) para variogramas y diagnosticos
-- **Informes** (PDF, HTML, Markdown) para documentacion
+Los rásteres y las capas temporales deben exportarse (menú contextual de la capa → **Exportar**) para no perderlos al cerrar el proyecto. Los nombres de las capas siguen el idioma del panel en el momento del cálculo.
 
-### Integracion con QGIS
+### Configuración
 
-- Las capas de salida se anaden automaticamente al panel de **Capas** de QGIS
-- El estilo de las capas raster puede personalizarse con las propiedades de capa de QGIS
-- Los resultados son compatibles con todas las herramientas de analisis espacial de QGIS
+- El idioma del panel se guarda en la configuración de QGIS (clave `GeoArchaeo/language`)
+- Los resultados permanecen en memoria mientras QGIS esté abierto: cerrar el panel no los borra
 
 ---
 
-> **Nota**: GeoArchaeo esta en desarrollo activo. Para reportar errores o sugerir mejoras, utilice el sistema de seguimiento de incidencias del proyecto PyArchInit en GitHub.
+> **Nota**: GeoArchaeo está en desarrollo continuo. Para informar de errores o sugerir mejoras, utilizar el sistema de seguimiento de incidencias (issues) del proyecto PyArchInit en GitHub.

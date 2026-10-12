@@ -137,3 +137,23 @@ def test_il_worker_tiene_sam2_a_1024_e_arrotonda_yoloe(worker):
     assert "imgsz=SAM2_IMGSZ" in src, "SAM 2 non deve ricevere l'imgsz dalla riga di comando"
     assert worker.yoloe_imgsz(1000, 800) == 1024 and worker.yoloe_imgsz(4000, 3000) == 1280
     assert worker.yoloe_imgsz(30, 20) == 64 and worker.yoloe_imgsz(1000, 800, max_side=640) == 640
+
+
+def test_i_messaggi_del_worker_seguono_la_lingua(worker):
+    assert worker.T("done", 3, 1.5) == "3 poligoni in 1.5 s"
+    worker.LANG = "en"
+    try:
+        assert worker.T("done", 3, 1.5) == "3 polygons in 1.5 s"
+        assert worker.T("load", "sam2.1_t.pt", "mps") == "loading sam2.1_t.pt on mps"
+    finally:
+        worker.LANG = "it"
+
+
+def test_lang_dalla_riga_di_comando(worker, tmp_path):
+    img = tmp_path / "a.png"
+    cv2.imwrite(str(img), np.zeros((8, 8, 3), dtype=np.uint8))
+    with pytest.raises(SystemExit) as e:
+        worker.main(["--image", str(img), "--output", str(tmp_path / "o.json"), "--backend", "sam2",
+                     "--weights", str(tmp_path / "nope.pt"), "--lang", "en"])
+    assert "missing weights" in str(e.value)
+    worker.LANG = "it"

@@ -127,6 +127,20 @@
 - Λήψη μοντέλων τεχνητής νοημοσύνης (YOLO κ.λπ.)
 - Συνιστάται GPU (αλλά δεν απαιτείται)
 
+### Μοντέλα τεχνητής νοημοσύνης
+
+**Μοντέλα μελάνωσης σχεδίων (inking, PotteryInk).** Στην καρτέλα **🏺 PotteryInk**, ομάδα **Enhancement Settings**, η λίστα **Model:** περιέχει τα μοντέλα του PyPotteryInk 2.1.2· το κουμπί **Download** δίπλα της κατεβάζει το επιλεγμένο μοντέλο από το Hugging Face (`lrncrd/PyPotteryInk`) στον φάκελο `~/pyarchinit_5/bin/models/` (αν το αρχείο υπάρχει ήδη, ρωτά αν θα κατέβει ξανά). Κάθε μοντέλο έχει μέγεθος περίπου 38 MB.
+
+| Μοντέλο (επιλογή της λίστας) | Αρχείο | Χρήση |
+|------------------------------|--------|-------|
+| 10k Model (General) | `model_10k.pkl` | Γενικό μοντέλο για σχέδια κεραμικής |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Σχέδια της Εποχής του Χαλκού |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Πρωτοϊστορικά και ιστορικά σχέδια |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Ιστορική και γραπτή κεραμική |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Σχέδια σε χιλιοστομετρικό χαρτί (πίνακες με κάνναβο)· δεν υποστηρίζει σκιές |
+
+**Ανιχνευτής σχεδίων (YOLO).** Το μοντέλο `BasicModelv8_v01.pt` του PyPotteryLens, που εντοπίζει τα σχέδια στις σελίδες που εξάγονται από αρχεία PDF (επιλογή **Auto-detect pottery (ML)** και καρτέλα **2. Apply Model**), εγκαθίσταται με το κουμπί **Download YOLO Model** της καρτέλας **PDF Extraction**: αν βρεθεί τοπικό αντίγραφο του PyPotteryLens, αντιγράφεται· διαφορετικά κατεβαίνει από το Hugging Face (`lrncrd/PyPotteryLens`, περίπου 144 MB) και, αν αυτό αποτύχει, από το fork στο GitHub ως εφεδρική πηγή. Το αρχείο αποθηκεύεται στο `~/pyarchinit_5/bin/`· μια αποτυχημένη λήψη δεν αφήνει ημιτελές αρχείο.
+
 ### Χρήση
 
 1. Φορτώστε εικόνα κεραμικής
@@ -148,7 +162,7 @@
 ### Αυτόματη Εγκατάσταση
 
 Κατά την πρώτη εκκίνηση, τα Pottery Tools:
-1. Δημιουργούν εικονικό περιβάλλον στο `~/pyarchinit/bin/pottery_venv/`
+1. Δημιουργούν εικονικό περιβάλλον στο `~/pyarchinit_5/bin/pottery_venv/`
 2. Εγκαθιστούν τις απαιτούμενες εξαρτήσεις
 3. Κατεβάζουν μοντέλα ΤΝ (εάν απαιτείται)
 
@@ -236,11 +250,13 @@
 ### Αρχεία Πηγαίου Κώδικα
 - `tabs/Pottery_tools.py` - Κύρια διεπαφή
 - `modules/utility/pottery_utilities.py` - Βοηθητικά εργαλεία επεξεργασίας
+- `modules/utility/pottery_models.py` - Μητρώο μοντέλων (PotteryInk και ανιχνευτής YOLO)
 - `gui/ui/Pottery_tools.ui` - Διάταξη διεπαφής
 
 ### Φάκελοι
-- `~/pyarchinit/bin/pottery_venv/` - Εικονικό περιβάλλον
-- `~/pyarchinit/models/` - Μοντέλα ΤΝ
+- `~/pyarchinit_5/bin/pottery_venv/` - Εικονικό περιβάλλον
+- `~/pyarchinit_5/bin/models/` - Μοντέλα PotteryInk (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - Ανιχνευτής YOLO
 
 ---
 
@@ -259,4 +275,4 @@
 
 ---
 
-*Τελευταία ενημέρωση: Ιανουάριος 2026*
+*Τελευταία ενημέρωση: Οκτώβριος 2026*

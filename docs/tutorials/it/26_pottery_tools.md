@@ -127,6 +127,20 @@ Utilizza intelligenza artificiale per:
 - Modelli AI scaricati (YOLO, etc.)
 - GPU consigliata (ma non obbligatoria)
 
+### Modelli AI
+
+**Modelli di inchiostrazione (PotteryInk).** Nella scheda **🏺 PotteryInk**, gruppo **Enhancement Settings**, la tendina **Model:** elenca i modelli di PyPotteryInk 2.1.2; il pulsante **Download** accanto scarica il modello selezionato da Hugging Face (`lrncrd/PyPotteryInk`) nella cartella `~/pyarchinit_5/bin/models/` (se il file c'è già, chiede se riscaricarlo). Ogni modello pesa circa 38 MB.
+
+| Modello (voce della tendina) | File | Uso |
+|------------------------------|------|-----|
+| 10k Model (General) | `model_10k.pkl` | Modello generico per disegni di ceramica |
+| 6h-MCG Model (Bronze Age) | `6h-MCG.pkl` | Disegni dell'età del Bronzo |
+| 6h-MC Model (Protohistoric) | `6h-MC.pkl` | Disegni protostorici e storici |
+| 4h-PAINT Model (Historic/Painted) | `4h-PAINT.pkl` | Ceramica storica e dipinta |
+| 5h-PAPERGRID Model (Paper grid tables) | `5h_PAPERGRID.pkl` | Disegni su carta millimetrata (tavole a griglia); non supporta le ombre |
+
+**Rilevatore dei disegni (YOLO).** Il modello `BasicModelv8_v01.pt` di PyPotteryLens, che riconosce i disegni nelle pagine estratte dai PDF (opzione **Auto-detect pottery (ML)** e scheda **2. Apply Model**), si installa con il pulsante **Download YOLO Model** della scheda **PDF Extraction**: se trova una copia locale di PyPotteryLens la copia, altrimenti lo scarica da Hugging Face (`lrncrd/PyPotteryLens`, circa 144 MB) e, se il download non riesce, dal fork GitHub come riserva. Il file viene salvato in `~/pyarchinit_5/bin/`; un download fallito non lascia file a metà.
+
 ### Utilizzo
 
 1. Caricare immagine ceramica
@@ -148,7 +162,7 @@ Utilizza intelligenza artificiale per:
 ### Setup Automatico
 
 Al primo avvio, Pottery Tools:
-1. Crea ambiente virtuale in `~/pyarchinit/bin/pottery_venv/`
+1. Crea ambiente virtuale in `~/pyarchinit_5/bin/pottery_venv/`
 2. Installa dipendenze necessarie
 3. Scarica modelli AI (se richiesti)
 
@@ -236,11 +250,13 @@ Le immagini processate possono essere:
 ### File Sorgente
 - `tabs/Pottery_tools.py` - Interfaccia principale
 - `modules/utility/pottery_utilities.py` - Utility elaborazione
+- `modules/utility/pottery_models.py` - Registro dei modelli (PotteryInk e rilevatore YOLO)
 - `gui/ui/Pottery_tools.ui` - Layout UI
 
 ### Cartelle
-- `~/pyarchinit/bin/pottery_venv/` - Ambiente virtuale
-- `~/pyarchinit/models/` - Modelli AI
+- `~/pyarchinit_5/bin/pottery_venv/` - Ambiente virtuale
+- `~/pyarchinit_5/bin/models/` - Modelli PotteryInk (`.pkl`)
+- `~/pyarchinit_5/bin/BasicModelv8_v01.pt` - Rilevatore YOLO
 
 ---
 
@@ -259,4 +275,4 @@ Le immagini processate possono essere:
 
 ---
 
-*Ultimo aggiornamento: Gennaio 2026*
+*Ultimo aggiornamento: Ottobre 2026*

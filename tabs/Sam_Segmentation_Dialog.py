@@ -42,10 +42,12 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 from qgis.core import (
-    Qgis, QgsCoordinateTransform, QgsFeature, QgsField, QgsFields, QgsGeometry,
-    QgsFieldProxyModel, QgsMapLayerProxyModel, QgsMessageLog, QgsPointXY, QgsProject,
-    QgsRasterLayer, QgsRectangle, QgsSettings, QgsVectorLayer, QgsWkbTypes,
+    Qgis, QgsCategorizedSymbolRenderer, QgsCoordinateTransform, QgsFeature, QgsField, QgsFields,
+    QgsFillSymbol, QgsGeometry, QgsFieldProxyModel, QgsMapLayerProxyModel, QgsMessageLog, QgsPointXY,
+    QgsProject, QgsRasterLayer, QgsRectangle, QgsRendererCategory, QgsSettings,
+    QgsSingleSymbolRenderer, QgsVectorLayer, QgsWkbTypes,
 )
+from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtCore import QVariant
 from qgis.gui import QgsFieldComboBox, QgsMapLayerComboBox
 from qgis.utils import iface
@@ -117,12 +119,12 @@ _L = {
     "classes_tip": {"it": "Parole in inglese separate da virgola: building, road, river, field, stone, wall…",
                     "en": "English words separated by commas: building, road, river, field, stone, wall…"},
     "conf": {"it": "Soglia:", "en": "Threshold:"},
-    "instr_points": {"it": "Premi «Avvia», poi clicca gli oggetti sulla mappa. Tasto destro o Invio per finire, Esc per annullare.",
-                     "en": "Press “Start”, then click the objects on the map. Right-click or Enter to finish, Esc to cancel."},
-    "instr_box": {"it": "Premi «Avvia», poi trascina un rettangolo sulla mappa. Esc per annullare.",
-                  "en": "Press “Start”, then drag a rectangle on the map. Esc to cancel."},
-    "instr_polygon": {"it": "Premi «Avvia», poi clicca i vertici; tasto destro o Invio per chiudere, Backspace toglie l'ultimo, Esc annulla.",
-                      "en": "Press “Start”, then click the vertices; right-click or Enter to close, Backspace removes the last, Esc cancels."},
+    "instr_points": {"it": "Premi «Avvia la selezione», poi clicca gli oggetti sulla mappa. Tasto destro o Invio per finire, Esc per annullare.",
+                     "en": "Press “Start selection”, then click the objects on the map. Right-click or Enter to finish, Esc to cancel."},
+    "instr_box": {"it": "Premi «Avvia la selezione», poi trascina un rettangolo sulla mappa. Esc per annullare.",
+                  "en": "Press “Start selection”, then drag a rectangle on the map. Esc to cancel."},
+    "instr_polygon": {"it": "Premi «Avvia la selezione», poi clicca i vertici; tasto destro o Invio per chiudere, Backspace toglie l'ultimo, Esc annulla.",
+                      "en": "Press “Start selection”, then click the vertices; right-click or Enter to close, Backspace removes the last, Esc cancels."},
     "instr_layer": {"it": "Si usa la geometria selezionata nel layer (o tutte, se nessuna è selezionata).",
                     "en": "The selected feature of the layer is used (or all of them if none is selected)."},
     "instr_text": {"it": "Ogni classe diventa un'etichetta sui poligoni. In locale serve YOLOE (con il codificatore di testo); in cloud SAM 3 di Roboflow.",
@@ -167,7 +169,6 @@ _L = {
     "err_no_area": {"it": "Compila l'area per il layer US.", "en": "Fill in the area for the US layer."},
     "err_no_polygon_layer": {"it": "Scegli un layer poligonale.", "en": "Choose a polygon layer."},
     "err_no_features": {"it": "Il layer non ha geometrie.", "en": "The layer has no features."},
-    "err_outside": {"it": "L'area scelta non copre il raster.", "en": "The chosen area does not cover the raster."},
     "preparing": {"it": "Preparo l'immagine…", "en": "Preparing the image…"},
     "rendering": {"it": "Rendo la vista del layer di tile…", "en": "Rendering the tile layer view…"},
     "running": {"it": "Segmentazione in corso…", "en": "Segmenting…"},
@@ -186,6 +187,13 @@ _L = {
     "segment": {"it": "segmento", "en": "segment"},
     "us_edit_hint": {"it": "Poi assegna i numeri US nella tabella degli attributi.",
                      "en": "Then assign the US numbers in the attribute table."},
+    "left_open": {"it": "Il layer era in modifica: i poligoni sono nella sessione aperta, salva quando vuoi.",
+                  "en": "The layer was being edited: the polygons are in the open session, save when you want."},
+    "model_local": {"it": "Locale", "en": "Local"},
+    "model_text_cloud": {"it": "Cloud: Roboflow SAM 3 (classi a testo, chiave API)",
+                         "en": "Cloud: Roboflow SAM 3 (text classes, API key)"},
+    "model_sam_cloud": {"it": "Cloud: Replicate SAM-2 (solo automatico, chiave API)",
+                        "en": "Cloud: Replicate SAM-2 (automatic only, API key)"},
 }
 
 
@@ -197,16 +205,52 @@ def _t(key, *args):
 # ----------------------------------------------------------------------
 # Funzioni pure (provate dai test)
 # ----------------------------------------------------------------------
-def models_for(text_mode):
+def models_for(text_mode, lang=None):
     """Le voci della tendina «Modello» per il tipo di prompt: (etichetta, backend, chiave pesi)."""
+    lang = lang or _lang()
+
+    def t(key):
+        return _L[key].get(lang, _L[key]["en"])
+    local = t("model_local")
     if text_mode:
-        rows = [(f"Locale: {se.WEIGHTS[k].label} — ~{se.WEIGHTS[k].size_mb} MB + MobileCLIP2 254 MB",
+        rows = [(f"{local}: {se.WEIGHTS[k].label} — ~{se.WEIGHTS[k].size_mb} MB + MobileCLIP2 254 MB",
                  "yoloe", k) for k in se.TEXT_KEYS]
-        rows.append(("Cloud: Roboflow SAM 3 (classi a testo, chiave API)", "roboflow", None))
+        rows.append((t("model_text_cloud"), "roboflow", None))
         return rows
-    rows = [(f"Locale: {se.WEIGHTS[k].label} — ~{se.WEIGHTS[k].size_mb} MB", "sam2", k) for k in se.SAM_KEYS]
-    rows.append(("Cloud: Replicate SAM-2 (solo automatico, chiave API)", "replicate", None))
+    rows = [(f"{local}: {se.WEIGHTS[k].label} — ~{se.WEIGHTS[k].size_mb} MB", "sam2", k) for k in se.SAM_KEYS]
+    rows.append((t("model_sam_cloud"), "replicate", None))
     return rows
+
+
+def polygon_parts_only(geom):
+    """Dopo `makeValid` una geometria può essere una collezione con linee o punti
+    (slivers): si tengono solo le parti poligonali, come multipoligono (vuota se niente)."""
+    out = rs.only_polygons(geom)
+    return out if out is not None else QgsGeometry()
+
+
+def style_segments_layer(layer, label_field="label", alpha=110):
+    """Riempimento semitrasparente, un colore per etichetta (o uno solo): i
+    segmenti si vedono sopra l'ortofoto. Lo stile predefinito del progetto
+    spesso è solo contorno, e sembrava che i poligoni non fossero riempiti."""
+    def symbol(color):
+        sym = QgsFillSymbol.createSimple({"color": color.name(QColor.NameFormat.HexArgb) if hasattr(QColor, "NameFormat")
+                                          else color.name(), "outline_color": "#202020", "outline_width": "0.4"})
+        sym.setColor(color)
+        sym.setOpacity(alpha / 255.0)
+        return sym
+    labels = []
+    if label_field in [f.name() for f in layer.fields()]:
+        idx = layer.fields().indexOf(label_field)
+        labels = sorted({str(v) for v in layer.uniqueValues(idx) if v not in (None, "")})
+    if len(labels) > 1:
+        palette = ["#e6194b", "#3cb44b", "#4363d8", "#f58231", "#911eb4", "#42d4f4", "#f032e6", "#bfef45",
+                   "#fabed4", "#469990", "#dcbeff", "#9a6324", "#800000", "#aaffc3", "#808000", "#000075"]
+        cats = [QgsRendererCategory(lab, symbol(QColor(palette[i % len(palette)])), lab) for i, lab in enumerate(labels)]
+        layer.setRenderer(QgsCategorizedSymbolRenderer(label_field, cats))
+    else:
+        layer.setRenderer(QgsSingleSymbolRenderer(symbol(QColor("#ff9f1c"))))
+    layer.triggerRepaint()
 
 
 def is_us_layer(layer):
@@ -322,6 +366,8 @@ class SamSegmentationDialog(QDialog):
         self.env_info = ""
         self.work_dir = tempfile.mkdtemp(prefix="pyarchinit_sam_")
         self._job = None                      # dati del lavoro in corso
+        rs.set_language(_lang())
+        se.set_language(_lang())
         self.initUI()
         self.load_settings()
         self._check_environment()
@@ -595,7 +641,7 @@ class SamSegmentationDialog(QDialog):
         current = self.comboBox_model.currentData()
         self.comboBox_model.blockSignals(True)
         self.comboBox_model.clear()
-        for label, backend, key in models_for(text_mode):
+        for label, backend, key in models_for(text_mode, _lang()):
             self.comboBox_model.addItem(label, (backend, key))
         wanted = QSettings().value("pyArchInit/sam_model_text" if text_mode else "pyArchInit/sam_model", "")
         for i in range(self.comboBox_model.count()):
@@ -920,7 +966,8 @@ class SamSegmentationDialog(QDialog):
                                     weights=se.weight_path(key) if key else None, mode=worker_mode,
                                     prompts=prompts_file, classes=classes, conf=self.spin_conf.value(),
                                     imgsz=worker_imgsz(backend, image.width, image.height),
-                                    api_key=self.lineEdit_api_key.text().strip() if backend in ("replicate", "roboflow") else None)
+                                    api_key=self.lineEdit_api_key.text().strip() if backend in ("replicate", "roboflow") else None,
+                                    lang=_lang())
         except Exception as e:          # noqa: BLE001
             self._set_busy(False, str(e))
             QMessageBox.warning(self, _t("warn"), str(e))
@@ -959,7 +1006,7 @@ class SamSegmentationDialog(QDialog):
         try:
             with open(output, encoding="utf-8") as f:
                 result = json.load(f)
-            added, target = self._add_results(result)
+            added, target, left_open = self._add_results(result)
         except Exception as e:          # noqa: BLE001
             QgsMessageLog.logMessage(f"SAM results: {e}", LOG, Qgis.Critical)
             self.label_status.setText(_t("error"))
@@ -974,6 +1021,8 @@ class SamSegmentationDialog(QDialog):
         msg = _t("done", added, target.name(), result.get("model", ""))
         if is_us_layer(target):
             msg += " " + _t("us_edit_hint")
+        if left_open:
+            msg += " " + _t("left_open")
         self.label_status.setText(msg)
         iface.messageBar().pushSuccess("SAM", msg)
 
@@ -1002,7 +1051,9 @@ class SamSegmentationDialog(QDialog):
         fields = target.fields()
         features = []
         for poly, geom in pairs:
-            geom = QgsGeometry(geom)
+            geom = polygon_parts_only(QgsGeometry(geom))
+            if geom is None or geom.isEmpty():
+                continue
             if transform is not None:
                 geom.transform(transform)
             feat = QgsFeature(fields)
@@ -1011,20 +1062,28 @@ class SamSegmentationDialog(QDialog):
                 feat.setAttribute(k, v)
             features.append(feat)
 
+        left_open = False
         if new_layer:
             target.dataProvider().addFeatures(features)
             target.updateExtents()
+            style_segments_layer(target)
             QgsProject.instance().addMapLayer(target)
         elif features:
-            if not target.isEditable():
+            if target.isEditable():
+                # modifiche dell'utente in sospeso: si aggiunge nella sua sessione, senza salvare ne' annullare
+                target.beginEditCommand("SAM")
+                target.addFeatures(features)
+                target.endEditCommand()
+                left_open = True
+            else:
                 target.startEditing()
-            target.addFeatures(features)
-            if not target.commitChanges():
-                errors = "; ".join(target.commitErrors())
-                target.rollBack()
-                raise ValueError(errors or "commit failed")
+                target.addFeatures(features)
+                if not target.commitChanges():
+                    errors = "; ".join(target.commitErrors())
+                    target.rollBack()
+                    raise ValueError(errors or "commit failed")
         target.triggerRepaint()
-        return len(features), target
+        return len(features), target, left_open
 
     # ------------------------------------------------------------------
     def reject(self):

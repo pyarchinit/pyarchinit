@@ -45,6 +45,33 @@ def yoloe_imgsz(width, height, max_side=YOLOE_MAX_IMGSZ):
     return int(((side + 31) // 32) * 32)
 
 
+LANG = "it"
+_T = {
+    "load": {"it": "carico {0} su {1}", "en": "loading {0} on {1}"},
+    "segment": {"it": "segmento", "en": "segmenting"},
+    "done": {"it": "{0} poligoni in {1} s", "en": "{0} polygons in {1} s"},
+    "fallback": {"it": "{0} ha fallito ({1}), riprovo su CPU", "en": "{0} failed ({1}), retrying on CPU"},
+    "classes": {"it": "classi: {0}", "en": "classes: {0}"},
+    "replicate_send": {"it": "invio a Replicate (meta/sam-2)", "en": "sending to Replicate (meta/sam-2)"},
+    "download_masks": {"it": "scarico {0} maschere", "en": "downloading {0} masks"},
+    "roboflow_send": {"it": "invio a Roboflow SAM 3: {0}", "en": "sending to Roboflow SAM 3: {0}"},
+    "no_points": {"it": "modo punti senza punti", "en": "points mode without points"},
+    "no_boxes": {"it": "modo riquadri senza riquadri", "en": "boxes mode without boxes"},
+    "no_classes": {"it": "{0} vuole almeno una classe (--classes)", "en": "{0} needs at least one class (--classes)"},
+    "no_weights": {"it": "pesi mancanti: {0}", "en": "missing weights: {0}"},
+    "no_key": {"it": "serve la chiave API (--api-key)", "en": "the API key is needed (--api-key)"},
+    "no_image": {"it": "non leggo l'immagine {0}", "en": "cannot read the image {0}"},
+    "replicate_timeout": {"it": "Replicate: tempo scaduto", "en": "Replicate: timed out"},
+    "replicate_auto_only": {"it": "Replicate SAM-2: solo il modo automatico; punti e riquadri ignorati",
+                            "en": "Replicate SAM-2: automatic mode only; points and boxes ignored"},
+}
+
+
+def T(key, *args):
+    text = _T[key].get(LANG, _T[key]["en"])
+    return text.format(*args) if args else text
+
+
 def say(msg):
     print(f"[sam] {msg}", flush=True)
 
@@ -133,7 +160,7 @@ def load_image(path):
     import cv2
     img = cv2.imread(path, cv2.IMREAD_COLOR)
     if img is None:
-        raise SystemExit(f"non leggo l'immagine {path}")
+        raise SystemExit(T("no_image", path))
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
@@ -178,7 +205,7 @@ def run_sam2(image, weights, mode, prompts, conf, imgsz, device, min_area, simpl
     from ultralytics import SAM
     import numpy as np
 
-    say(f"carico {os.path.basename(weights)} su {device}")
+    say(T("load", os.path.basename(weights), device))
     model = SAM(weights)
     # SAM 2 (Hiera) ha gli embedding di posizione per 1024 px: con un'altra
     # dimensione il codificatore si ferma («size of tensor a (60) must match
@@ -190,17 +217,17 @@ def run_sam2(image, weights, mode, prompts, conf, imgsz, device, min_area, simpl
             return model(image, **kwargs, **extra)
         except Exception as e:          # noqa: BLE001 - MPS a volte non regge: si ricade su CPU
             if device != "cpu":
-                say(f"{device} ha fallito ({str(e)[:80]}), riprovo su CPU")
+                say(T("fallback", device, str(e)[:80]))
                 kwargs["device"] = "cpu"
                 return model(image, **kwargs, **extra)
             raise
 
-    say("segmento")
+    say(T("segment"))
     if mode == "points":
         pts = prompts.get("points") or []
         lbl = prompts.get("labels") or [1] * len(pts)
         if not pts:
-            raise SystemExit("modo punti senza punti")
+            raise SystemExit(T("no_points"))
         masks, scores = [], []
         for p, l in zip(pts, lbl):          # un oggetto per punto
             res = predict(points=[[float(p[0]), float(p[1])]], labels=[int(l)])
@@ -213,7 +240,7 @@ def run_sam2(image, weights, mode, prompts, conf, imgsz, device, min_area, simpl
     if mode == "boxes":
         boxes = prompts.get("boxes") or []
         if not boxes:
-            raise SystemExit("modo riquadri senza riquadri")
+            raise SystemExit(T("no_boxes"))
         res = predict(bboxes=[[float(v) for v in b] for b in boxes])
         arr = _masks_array(res[0])
         scores = [_score(res[0], k) for k in range(len(arr))]
@@ -235,21 +262,21 @@ def run_yoloe(image, weights, classes, conf, imgsz, device, min_area, simplify):
     from ultralytics import YOLOE
 
     if not classes:
-        raise SystemExit("YOLOE vuole almeno una classe (--classes)")
-    say(f"carico {os.path.basename(weights)} su {device}; classi: {', '.join(classes)}")
+        raise SystemExit(T("no_classes", "YOLOE"))
+    say(T("load", os.path.basename(weights), device) + "; " + T("classes", ", ".join(classes)))
     model = YOLOE(weights)
     try:
         model.set_classes(classes, model.get_text_pe(classes))
     except TypeError:
         model.set_classes(classes)
-    say("segmento")
+    say(T("segment"))
     imgsz = yoloe_imgsz(image.shape[1], image.shape[0], max_side=imgsz or YOLOE_MAX_IMGSZ)
     try:
         res = model.predict(image, conf=conf, imgsz=imgsz, device=device, retina_masks=True, verbose=False)
     except Exception as e:              # noqa: BLE001
         if device == "cpu":
             raise
-        say(f"{device} ha fallito ({str(e)[:80]}), riprovo su CPU")
+        say(T("fallback", device, str(e)[:80]))
         res = model.predict(image, conf=conf, imgsz=imgsz, device="cpu", retina_masks=True, verbose=False)
     r = res[0]
     arr = _masks_array(r)
@@ -284,7 +311,7 @@ def run_replicate(image_path, api_key, conf, min_area, simplify, points_per_side
     payload = {"input": {"image": "data:image/png;base64," + _image_b64(image_path),
                          "points_per_side": int(points_per_side),
                          "pred_iou_thresh": 0.88, "stability_score_thresh": 0.95, "use_m2m": True}}
-    say("invio a Replicate (meta/sam-2)")
+    say(T("replicate_send"))
     r = requests.post("https://api.replicate.com/v1/models/meta/sam-2/predictions",
                       headers=headers, json=payload, timeout=120)
     if r.status_code >= 400:
@@ -294,7 +321,7 @@ def run_replicate(image_path, api_key, conf, min_area, simplify, points_per_side
     deadline = time.time() + 900
     while pred.get("status") not in ("succeeded", "failed", "canceled"):
         if not poll or time.time() > deadline:
-            raise SystemExit("Replicate: tempo scaduto")
+            raise SystemExit(T("replicate_timeout"))
         time.sleep(3)
         pred = requests.get(poll, headers=headers, timeout=60).json()
         say(f"Replicate: {pred.get('status')}")
@@ -307,7 +334,7 @@ def run_replicate(image_path, api_key, conf, min_area, simplify, points_per_side
         urls = out
     else:
         urls = [out]
-    say(f"scarico {len(urls)} maschere")
+    say(T("download_masks", len(urls)))
     masks = []
     for u in urls:
         data = requests.get(u, timeout=120).content
@@ -322,11 +349,11 @@ def run_roboflow(image_path, api_key, classes, conf, min_area):
     import requests
 
     if not classes:
-        raise SystemExit("SAM 3 vuole almeno una classe (--classes)")
+        raise SystemExit(T("no_classes", "SAM 3"))
     payload = {"image": {"type": "base64", "value": _image_b64(image_path)},
                "prompts": [{"type": "text", "text": c} for c in classes[:16]],
                "output_prob_thresh": float(conf), "format": "polygon"}
-    say(f"invio a Roboflow SAM 3: {', '.join(classes[:16])}")
+    say(T("roboflow_send", ", ".join(classes[:16])))
     r = requests.post("https://serverless.roboflow.com/sam3/concept_segment",
                       headers={"Authorization": f"Bearer {api_key}"}, json=payload, timeout=300)
     if r.status_code >= 400:
@@ -359,7 +386,10 @@ def main(argv=None):
     ap.add_argument("--simplify", type=float, default=1.0, help="tolleranza Douglas-Peucker in pixel")
     ap.add_argument("--device", default="auto")
     ap.add_argument("--api-key", default=None)
+    ap.add_argument("--lang", default="it", help="lingua dei messaggi: it | en")
     args = ap.parse_args(argv)
+    global LANG
+    LANG = "it" if (args.lang or "").lower().startswith("it") else "en"
 
     prompts = {}
     if args.prompts:
@@ -371,7 +401,7 @@ def main(argv=None):
 
     if args.backend in ("sam2", "yoloe"):
         if not args.weights or not os.path.isfile(args.weights):
-            raise SystemExit(f"pesi mancanti: {args.weights}")
+            raise SystemExit(T("no_weights", args.weights))
         image = load_image(args.image)
         device = pick_device(args.device)
         if args.backend == "sam2":
@@ -384,15 +414,15 @@ def main(argv=None):
         model = os.path.basename(args.weights)
     else:
         if not args.api_key:
-            raise SystemExit("serve la chiave API (--api-key)")
+            raise SystemExit(T("no_key"))
         import cv2
         img = cv2.imread(args.image)
         if img is None:
-            raise SystemExit(f"non leggo l'immagine {args.image}")
+            raise SystemExit(T("no_image", args.image))
         h, w = img.shape[:2]
         if args.backend == "replicate":
             if args.mode != "auto":
-                warnings.append("Replicate SAM-2: solo il modo automatico; punti e riquadri ignorati")
+                warnings.append(T("replicate_auto_only"))
             polygons = run_replicate(args.image, args.api_key, args.conf, args.min_area, args.simplify)
             model = "replicate:meta/sam-2"
         else:
@@ -406,7 +436,7 @@ def main(argv=None):
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(result, f)
     os.replace(tmp, args.output)
-    say(f"{len(polygons)} poligoni in {result['seconds']} s")
+    say(T("done", len(polygons), result["seconds"]))
     return 0
 
 

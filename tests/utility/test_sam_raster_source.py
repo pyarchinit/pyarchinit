@@ -159,3 +159,30 @@ def test_mask_outside_polygon_imbianca_fuori(qgs, geotiff, tmp_path):
     assert q.pixelColor(50, 20).red() == 255 and q.pixelColor(50, 20).green() == 0    # dentro: rosso
     assert q.pixelColor(150, 50) == q.pixelColor(190, 90)                              # fuori: bianco
     assert q.pixelColor(150, 50).red() == 255 and q.pixelColor(150, 50).blue() == 255
+
+
+# --- messaggi nella lingua di QGIS, poligoni validi -------------------------------
+def test_i_messaggi_seguono_la_lingua(qgs, geotiff, tmp_path):
+    layer = QgsRasterLayer(geotiff, "orto")
+    xyz = QgsRasterLayer("type=xyz&url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png", "osm", "wms")
+    rs.set_language("en")
+    try:
+        assert "rendered from the view" in rs.describe_layer(xyz)
+        with pytest.raises(ValueError, match="does not cover"):
+            rs.prepare_image(layer, QgsRectangle(5000, 5000, 5100, 5100), layer.crs(), str(tmp_path / "a.png"))
+    finally:
+        rs.set_language("it")
+    assert "reso dalla vista" in rs.describe_layer(xyz)
+    with pytest.raises(ValueError, match="non copre"):
+        rs.prepare_image(layer, QgsRectangle(5000, 5000, 5100, 5100), layer.crs(), str(tmp_path / "a.png"))
+
+
+def test_un_anello_a_farfalla_diventa_un_multipoligono_valido(qgs):
+    gt = (0.0, 1.0, 0.0, 0.0, 0.0, -1.0)
+    bowtie = {"ring": [[0, 0], [10, 10], [10, 0], [0, 10]], "holes": []}     # si interseca al centro
+    geom = rs.polygon_to_geometry(bowtie, gt)
+    assert geom is not None and geom.isGeosValid() and geom.isMultipart()
+    assert geom.area() == pytest.approx(50.0)
+    assert geom.type() == 2                 # poligoni, mai linee
+    degenerate = {"ring": [[0, 0], [5, 5], [10, 10]], "holes": []}           # tre punti allineati
+    assert rs.polygon_to_geometry(degenerate, gt) is None
