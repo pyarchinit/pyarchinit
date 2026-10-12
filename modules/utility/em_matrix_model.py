@@ -79,7 +79,14 @@ _NOT_A_UNIT = frozenset({
     "EpochNode", "LocationNodeGroup", "ActivityNodeGroup",
     "ParadataNodeGroup", "TimeBranchNodeGroup",
     "RepresentationModelNodeGroup", "geo_position", "author", "GraphNode",
+    # La narrativa e l'autore AI che la scrive (2026-10-12): reggono il
+    # racconto, non la sequenza.
+    "narrative", "author_ai",
 })
+
+#: Gli estrattori che registrano i prompt della narrativa: con
+#: `extracted_from` verso i documenti sarebbero disegnati come paradati.
+_PROMPT_EXTRACTOR_PREFIX = "EXT.prompt."
 
 
 @dataclass(frozen=True)
@@ -333,6 +340,8 @@ def read_em_json(source) -> MatrixModel:
                 start=_anno_di(dati.get("start_time")),
                 end=_anno_di(dati.get("end_time")),
                 color=str(dati.get("color") or "#F5F5F5")))
+        elif tipo == "extractor" and chiave.startswith(_PROMPT_EXTRACTOR_PREFIX):
+            continue      # il prompt di una narrativa non è un paradato della matrice
         elif tipo not in _NOT_A_UNIT:
             if chiave in unita_grezze:
                 avvisi.append("Due nodi con lo stesso id «%s»: ne disegno uno."

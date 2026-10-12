@@ -316,3 +316,37 @@ def test_autori_umani_convalida_ed_export(tmp_path):
     assert Path(docx).stat().st_size > 1000
     with pytest.raises(ValueError):
         en.export_file(g, n, "pdf", tmp_path / "v.pdf")
+
+
+# ---------------------------------------------------------------------------
+# Task 4: conservare la narrativa alla riesportazione
+# ---------------------------------------------------------------------------
+
+def test_carry_over_conserva_narrativa_autori_prompt_e_convalida_e_aggiunge_le_epoche_nuove():
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    vecchio = grafo_di_prova()
+    n = en.scaffold(vecchio, "it")
+    en.generate_chapter(vecchio, n, n.chapter_by_anchor("epoch_1_1"),
+                        chat=lambda m: "Scritto [[u3]].", model="m")
+    nuovo_autore = en.add_author(vecchio, "Anna Bianchi")
+    en.endorse(vecchio, n, nuovo_autore)
+    nuovo = grafo_di_prova()                       # riesportato dal DB: senza narrativa, senza Anna
+    nuovo.add_node(EpochNode("epoch_3_1", "Età moderna", 1500, 1800))
+    nuovo.add_edge("u1_se", "u1", "epoch_3_1", "survive_in_epoch")
+    assert en.carry_over({"Villa": vecchio}, {"Villa": nuovo}, "it") == 1
+    portata = en.narrative_of(nuovo)
+    assert portata is not None and en.chapter_status(portata.chapter_by_anchor("epoch_1_1")) == "ai_endorsed"
+    assert nuovo.find_node_by_id("AI.m") is not None and nuovo.find_node_by_id(nuovo_autore) is not None
+    blocco = [b for b in portata.chapter_by_anchor("epoch_1_1").blocks if b.ai_generated][0]
+    assert nuovo.find_node_by_id(blocco.prompt_ref) is not None
+    assert nuovo.find_edge_by_id("%s_has_author_AI.m" % portata.node_id) is not None
+    assert portata.chapter_by_anchor("epoch_3_1") is not None          # epoca nuova → capitolo
+    assert en.carry_over({"Altro": vecchio}, {"Villa": grafo_di_prova()}, "it") == 0
+
+
+def test_is_support_node_riconosce_i_nodi_della_narrativa():
+    assert en.is_support_node("narrative", "narrative_Villa")
+    assert en.is_support_node("author_ai", "AI.m")
+    assert en.is_support_node("extractor", "EXT.prompt.abc")
+    assert not en.is_support_node("extractor", "EXT.1")
+    assert not en.is_support_node("US", "u1")

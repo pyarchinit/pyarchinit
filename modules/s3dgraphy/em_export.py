@@ -55,8 +55,16 @@ def _claim_path(path, site):
         owner = payload.get("active_graph_id") or next(
             iter(payload.get("graphs", {}) or {}), None)
     except Exception:
-        owner = None
-    if owner == str(site):
+        # Un file che non si legge non appartiene a nessuno: porta il nome
+        # del sito e non c'è niente da proteggere, si riscrive (chi vuole
+        # conservarne la narrativa lo saprà da `_keep_narrative`).
+        return path
+    # Nell'esportazione per saggi i grafi si chiamano «sito|saggio»
+    # (`populate_container`): prima del 2026-10-12 il confronto secco
+    # mandava OGNI riesportazione di un sito a saggi in un file col
+    # suffisso, uno nuovo per volta.
+    owner = str(owner or "")
+    if owner == str(site) or owner.startswith(str(site) + "|"):
         return path
     import hashlib
     tag = hashlib.sha1(str(site).encode("utf-8")).hexdigest()[:8]
@@ -87,9 +95,15 @@ def saggi_del_sito(connection_url, site) -> list:
                    if r[0] is not None and str(r[0]).strip()})
 
 
-def export_site(connection_url, site, out_dir, per_saggio=None):
+def export_site(connection_url, site, out_dir, per_saggio=None,
+                keep_narrative=True):
     """Build the site's graph, write <out_dir>/<site>.em.json, read it
     back. Returns (path, n_nodes, n_edges, warnings).
+
+    ``keep_narrative``: se il file di destinazione esiste e porta una
+    narrativa (spec 2026-10-12), la narrativa e i nodi che la reggono
+    passano nel grafo nuovo prima della scrittura — riesportare dal
+    database non cancella la prosa.
 
     ``per_saggio`` decide la forma del file:
 
@@ -161,6 +175,8 @@ def export_site(connection_url, site, out_dir, per_saggio=None):
         os.makedirs(out_dir, exist_ok=True)
         path = os.path.join(out_dir, site_filename(site))
         path = _claim_path(path, site)
+        if keep_narrative and os.path.exists(path):
+            warnings.extend(_keep_narrative(path, contenitore, graph, site))
         if contenitore is not None:
             from s3dgraphy.container import save_container_file
             # `bump=False`: questa è una conversione, non un salvataggio del
@@ -286,3 +302,25 @@ def open_in_emstudio(path, runner=None):
         return True
     except Exception:
         return False
+
+
+def _keep_narrative(path, contenitore, graph, site):
+    """La narrativa del file che sta per essere sovrascritto passa nel
+    grafo nuovo (spec 2026-10-12): riesportare dal database non deve
+    cancellare la prosa scritta, né le firme. Un file che non si legge
+    non ferma l'esportazione: lo si dice. Restituisce gli avvisi."""
+    from . import em_narrative as en
+    try:
+        precedente, _ = en.load_project(path)
+    except Exception as e:                          # noqa: BLE001
+        return [en.msg("narrative_not_kept", err=e)]
+    nuovi = (dict(getattr(contenitore, "graphs", None) or {})
+             if contenitore is not None else {str(site): graph})
+    try:
+        quante = en.carry_over(dict(precedente.graphs), nuovi)
+    except Exception as e:                          # noqa: BLE001
+        return [en.msg("narrative_not_kept", err=e)]
+    if not quante:
+        return []
+    capitoli = sum(len(n.chapters) for g in nuovi.values() for n in en.narratives_of(g))
+    return [en.msg("narrative_kept", n=capitoli)]

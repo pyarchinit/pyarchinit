@@ -672,3 +672,67 @@ def export_file(graph, narrative, fmt: str, path) -> str:
         with open(percorso, "w", encoding="utf-8") as fh:
             fh.write(str(payload))
     return percorso
+
+
+# ---------------------------------------------------------------------------
+# Conservare la narrativa quando il sito si riesporta
+# ---------------------------------------------------------------------------
+
+def is_support_node(node_type: str, node_id: str) -> bool:
+    """I nodi che reggono la narrativa e non sono stratigrafia: la narrativa,
+    l'autore AI, gli estrattori dei prompt."""
+    tipo = str(node_type or "")
+    return (tipo in ("narrative", "author_ai")
+            or (tipo == "extractor"
+                and str(node_id or "").startswith(PROMPT_EXTRACTOR_PREFIX)))
+
+
+def _support_refs(narrative) -> List[str]:
+    refs: List[str] = []
+    for cap in narrative.chapters:
+        if getattr(cap, "authored_by", None):
+            refs.append(cap.authored_by)
+        for b in cap.blocks:
+            for ref in (getattr(b, "authored_by", None), getattr(b, "prompt_ref", None),
+                        getattr(b, "validated_by", None)):
+                if ref:
+                    refs.append(ref)
+    return list(dict.fromkeys(refs))
+
+
+def carry_over(previous_graphs: Dict[str, Any], fresh_graphs: Dict[str, Any],
+               lang: Optional[str] = None) -> int:
+    """Porta nel grafo nuovo (stesso id) la narrativa del vecchio e quello
+    che la regge, poi le dà un capitolo per ogni epoca nuova. Quante
+    narrative portate."""
+    portate = 0
+    for graph_id, nuovo in (fresh_graphs or {}).items():
+        vecchio = (previous_graphs or {}).get(graph_id)
+        if vecchio is None:
+            continue
+        for narrativa in narratives_of(vecchio):
+            if nuovo.find_node_by_id(narrativa.node_id) is not None:
+                continue
+            nuovo.add_node(narrativa)
+            riferiti = set(_support_refs(narrativa))
+            for e in vecchio.edges:
+                if e.edge_source == narrativa.node_id and e.edge_type == "has_author":
+                    riferiti.add(e.edge_target)
+            for ref in riferiti:
+                nodo = vecchio.find_node_by_id(ref)
+                if nodo is not None and nuovo.find_node_by_id(ref) is None:
+                    nuovo.add_node(nodo)
+            for e in vecchio.edges:
+                porta = ((e.edge_source == narrativa.node_id and e.edge_type == "has_author")
+                         or (str(e.edge_source).startswith(PROMPT_EXTRACTOR_PREFIX)
+                             and e.edge_type == "extracted_from"))
+                if not porta:
+                    continue
+                if nuovo.find_node_by_id(e.edge_source) is None \
+                        or nuovo.find_node_by_id(e.edge_target) is None:
+                    continue
+                if nuovo.find_edge_by_id(e.edge_id) is None:
+                    nuovo.add_edge(e.edge_id, e.edge_source, e.edge_target, e.edge_type)
+            scaffold(nuovo, lang)
+            portate += 1
+    return portate

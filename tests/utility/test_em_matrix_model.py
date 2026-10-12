@@ -306,3 +306,21 @@ def test_a_continuity_node_without_survivals_keeps_its_first_epoch():
     model = read_em_json(grafo)
     per_id = {u.node_id: u for u in model.units}
     assert per_id["c12"].epoch_id == "e_vecchia"
+
+
+def test_i_nodi_di_supporto_della_narrativa_non_entrano_nel_disegno_ne_negli_avvisi():
+    """Dopo «Genera con l'AI» il file porta la narrativa, l'autore AI e il
+    prompt come estrattore collegato ai documenti: niente di tutto questo
+    è stratigrafia (2026-10-12)."""
+    from modules.utility.em_matrix_model import read_em_json
+    modello = read_em_json({"graphs": {"S": {"nodes": [
+        {"id": "u1", "name": "US1", "node_type": "US", "data": {"us": "1"}},
+        {"id": "d1", "name": "Relazione", "node_type": "document"},
+        {"id": "narrative_S", "name": "Storia", "node_type": "narrative", "data": {"chapters": []}},
+        {"id": "AI.m", "name": "m", "node_type": "author_ai"},
+        {"id": "EXT.prompt.abc", "name": "Prompt", "node_type": "extractor"}],
+        "edges": [{"source": "EXT.prompt.abc", "target": "d1", "type": "extracted_from"},
+                  {"source": "narrative_S", "target": "AI.m", "type": "has_author"}]}}})
+    assert [u.node_id for u in modello.units] == ["u1"]
+    assert modello.relations == []
+    assert not any("Storia" in a or "AI.m" in a or "Prompt" in a for a in modello.warnings)
