@@ -11,6 +11,7 @@ import random
 import io
 from pathlib import Path
 from .pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
+from .native_arch import native_prefix
 from typing import List, Tuple, Optional, Dict, Any
 
 try:
@@ -225,7 +226,7 @@ class PDFExtractor:
 
         try:
             # Run detection script
-            cmd = [
+            cmd = native_prefix() + [
                 venv_python,
                 script_path,
                 '--input', image_path,
@@ -985,7 +986,7 @@ class PotteryInkProcessor:
 
             try:
                 # Check device availability using venv Python
-                check_cmd = [self.venv_python, '-c', '''
+                check_cmd = native_prefix() + [self.venv_python, '-c', '''
 import torch
 if torch.backends.mps.is_available():
     print("mps")
@@ -1274,7 +1275,7 @@ else:
                 clean_env.pop(key, None)
 
             # Build command with new Pix2Pix_Turbo parameters
-            cmd = [
+            cmd = native_prefix() + [
                 self.venv_python,
                 script_path,
                 '--input', input_path,

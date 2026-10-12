@@ -88,3 +88,20 @@ def test_la_tendina_dei_modelli_viene_dal_registro():
     assert len(chiamate) == 1
     arg = chiamate[0].args[0]
     assert isinstance(arg, ast.Call) and getattr(arg.func, "id", "") == "ink_model_labels"
+
+
+# --- Rosetta: ogni Python esterno parte con l'architettura nativa --------------
+UTILITIES = (_ROOT / "modules" / "utility" / "pottery_utilities.py").read_text(encoding="utf-8")
+
+
+def test_ogni_python_esterno_di_pottery_tools_passa_da_native_prefix():
+    """Il QGIS macOS e' x86_64 sotto Rosetta: senza `arch -arm64` il venv nasce
+    x86_64 e pip non trova torch. Nessuna lista `[venv_python, …]` nuda."""
+    import re
+    pattern = re.compile(r"(?<!native_prefix\(\) \+ )\[\s*(?:self\.)?(?:venv_python|python_exe)\b")
+    for name, src in (("Pottery_tools.py", SORGENTE), ("pottery_utilities.py", UTILITIES)):
+        righe = [src.count("\n", 0, m.start()) + 1 for m in pattern.finditer(src)]
+        assert not righe, f"{name}: Python lanciato senza native_prefix alle righe {righe}"
+    assert "native_prefix() + [py, '-m', 'venv'" in SORGENTE
+    assert "from ..modules.utility.native_arch import native_prefix" in SORGENTE
+    assert "from .native_arch import native_prefix" in UTILITIES

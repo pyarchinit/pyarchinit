@@ -489,11 +489,11 @@ class PyArchInitPlugin(object):
             self.actionTutorials.triggered.connect(self.runTutorials)
             self.toolBar.addAction(self.actionTutorials)
 
-            # SAM Stone Segmentation action (grouped in analysis tools below)
+            # SAM segmentation action (grouped in analysis tools below)
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
-            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stone Segmentation", self.iface.mainWindow())
-            self.actionSamSegmentation.setWhatsThis("Automatic stone segmentation using SAM AI model")
-            self.actionSamSegmentation.setToolTip("SAM Stone Segmentation - Automatically detect and digitize stones from orthophotos")
+            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM - Segmentazione (pietre, edifici, strade, campi…)", self.iface.mainWindow())
+            self.actionSamSegmentation.setWhatsThis("Segmentazione automatica con SAM 2.1 e classi a testo, da ortofoto o layer di tile")
+            self.actionSamSegmentation.setToolTip("SAM - Segmentazione: pietre, edifici, strade, campi, fiumi da ortofoto o tile (ESRI, WMS)")
             self.actionSamSegmentation.triggered.connect(self.runSamSegmentation)
 
             # AI Query Database button - standalone before data entry section
@@ -870,11 +870,11 @@ class PyArchInitPlugin(object):
             self.actionTutorials.triggered.connect(self.runTutorials)
             self.toolBar.addAction(self.actionTutorials)
 
-            # SAM Stone Segmentation action (grouped in analysis tools below)
+            # SAM segmentation action (grouped in analysis tools below)
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
-            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stone Segmentation", self.iface.mainWindow())
-            self.actionSamSegmentation.setWhatsThis("Automatic stone segmentation using SAM AI model")
-            self.actionSamSegmentation.setToolTip("SAM Stone Segmentation - Automatically detect and digitize stones from orthophotos")
+            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM - Segmentation (stones, buildings, roads, fields…)", self.iface.mainWindow())
+            self.actionSamSegmentation.setWhatsThis("Automatic segmentation with SAM 2.1 and text classes, from orthophotos or tile layers")
+            self.actionSamSegmentation.setToolTip("SAM - Segmentation: stones, buildings, roads, fields, rivers from orthophotos or tiles (ESRI, WMS)")
             self.actionSamSegmentation.triggered.connect(self.runSamSegmentation)
 
             # AI Query Database button - standalone before data entry section
@@ -1251,11 +1251,11 @@ class PyArchInitPlugin(object):
             self.actionTutorials.triggered.connect(self.runTutorials)
             self.toolBar.addAction(self.actionTutorials)
 
-            # SAM Stone Segmentation button - before AI Query
+            # SAM segmentation button - before AI Query
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
-            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stein-Segmentierung", self.iface.mainWindow())
-            self.actionSamSegmentation.setWhatsThis("Automatische Steinsegmentierung mit SAM AI-Modell")
-            self.actionSamSegmentation.setToolTip("SAM Stein-Segmentierung - Steine automatisch aus Orthofotos erkennen")
+            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM - Segmentierung (Steine, Gebäude, Straßen, Felder…)", self.iface.mainWindow())
+            self.actionSamSegmentation.setWhatsThis("Automatische Segmentierung mit SAM 2.1 und Textklassen, aus Orthofotos oder Kachel-Layern")
+            self.actionSamSegmentation.setToolTip("SAM - Segmentierung: Steine, Gebäude, Straßen, Felder, Flüsse aus Orthofotos oder Kacheln (ESRI, WMS)")
             self.actionSamSegmentation.triggered.connect(self.runSamSegmentation)
 
             # AI Query Database button - standalone before data entry section
@@ -1630,11 +1630,11 @@ class PyArchInitPlugin(object):
             self.actionTutorials.triggered.connect(self.runTutorials)
             self.toolBar.addAction(self.actionTutorials)
 
-            # SAM Stone Segmentation action (grouped in analysis tools below)
+            # SAM segmentation action (grouped in analysis tools below)
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
-            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stone Segmentation", self.iface.mainWindow())
-            self.actionSamSegmentation.setWhatsThis("Automatic stone segmentation using SAM AI model")
-            self.actionSamSegmentation.setToolTip("SAM Stone Segmentation - Automatically detect and digitize stones from orthophotos")
+            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM - Segmentation (stones, buildings, roads, fields…)", self.iface.mainWindow())
+            self.actionSamSegmentation.setWhatsThis("Automatic segmentation with SAM 2.1 and text classes, from orthophotos or tile layers")
+            self.actionSamSegmentation.setToolTip("SAM - Segmentation: stones, buildings, roads, fields, rivers from orthophotos or tiles (ESRI, WMS)")
             self.actionSamSegmentation.triggered.connect(self.runSamSegmentation)
 
             # AI Query Database button - standalone before data entry section
@@ -2049,7 +2049,7 @@ class PyArchInitPlugin(object):
             )
 
     def runSamSegmentation(self):
-        """Open the SAM Stone Segmentation dialog"""
+        """Open the SAM segmentation dialog (stones, buildings, roads, fields…)"""
         try:
             from .tabs.Sam_Segmentation_Dialog import SamSegmentationDialog
             from .modules.db.pyarchinit_conn_strings import Connection

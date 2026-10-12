@@ -35,6 +35,7 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.pottery_utilities import (
     PDFExtractor, LayoutGenerator, ImageProcessor, PotteryInkProcessor
 )
+from ..modules.utility.native_arch import native_prefix
 from ..modules.utility.pottery_models import (
     POTTERY_INK_MODELS, YOLO_MODEL_FILE, YOLO_MODEL_NAMES, YOLO_MODEL_URLS,
     ink_model_labels, ink_model_path, ink_model_url, ink_models_dir, local_yolo_candidates,
@@ -177,7 +178,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                             continue
                             
                         # Test if Python executable works
-                        test_cmd = [py, '--version']
+                        test_cmd = native_prefix() + [py, '--version']
                         test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
                         if test_result.returncode != 0:
                             self.log_message(f"Python {py} test failed: {test_result.stderr}", Qgis.Warning)
@@ -189,7 +190,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         venv_parent = os.path.dirname(self.venv_path)
                         os.makedirs(venv_parent, exist_ok=True)
                         
-                        create_cmd = [py, '-m', 'venv', self.venv_path, '--clear']
+                        create_cmd = native_prefix() + [py, '-m', 'venv', self.venv_path, '--clear']
                         self.log_message(f"Running command: {' '.join(create_cmd)}")
                         result = subprocess.run(create_cmd, capture_output=True, text=True, timeout=30)
 
@@ -259,7 +260,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             check_packages = ['ultralytics', 'torch', 'diffusers']
 
             for package in check_packages:
-                cmd = [self.venv_python, '-c', f'import {package}']
+                cmd = native_prefix() + [self.venv_python, '-c', f'import {package}']
                 # Longer timeout for heavy packages like torch/ultralytics
                 timeout = 30 if package in ['torch', 'ultralytics', 'diffusers'] else 10
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=clean_env)
@@ -283,7 +284,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             import subprocess
 
             # Upgrade pip
-            cmd = [self.venv_python, '-m', 'pip', 'install', '--upgrade', 'pip']
+            cmd = native_prefix() + [self.venv_python, '-m', 'pip', 'install', '--upgrade', 'pip']
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
 
             if result.returncode == 0:
@@ -314,7 +315,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         clean_env.pop(key, None)
 
                     # Check if already installed
-                    check_cmd = [self.venv_python, '-c', 'import torch, diffusers, ultralytics']
+                    check_cmd = native_prefix() + [self.venv_python, '-c', 'import torch, diffusers, ultralytics']
                     result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=30)
 
                     if result.returncode == 0:
@@ -342,13 +343,13 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         module_name = re.split(r'[<>=!]', package_spec)[0]
 
                         # Check if already installed
-                        check_cmd = [self.venv_python, '-c', f'import {module_name}']
+                        check_cmd = native_prefix() + [self.venv_python, '-c', f'import {module_name}']
                         result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=5)
 
                         if result.returncode != 0:
                             # Install the package with progress logging
                             self.log_message(f"Installing {package_spec}...")
-                            install_cmd = [self.venv_python, '-m', 'pip', 'install', package_spec, '--no-warn-script-location']
+                            install_cmd = native_prefix() + [self.venv_python, '-m', 'pip', 'install', package_spec, '--no-warn-script-location']
                             result = subprocess.run(install_cmd, capture_output=True, text=True, env=clean_env, timeout=300)
 
                             if result.returncode == 0:
@@ -399,7 +400,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             all_installed = True
             
             for package in core_packages:
-                check_cmd = [self.venv_python, '-c', f'import {package}']
+                check_cmd = native_prefix() + [self.venv_python, '-c', f'import {package}']
                 timeout = 30 if package in ['torch', 'ultralytics', 'diffusers'] else 10
                 result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=timeout)
                 if result.returncode != 0:
@@ -425,7 +426,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 self.log_message(f"Installing {package}...")
                 self.progressBar.setValue(i)
 
-                cmd = [self.venv_python, '-m', 'pip', 'install', package]
+                cmd = native_prefix() + [self.venv_python, '-m', 'pip', 'install', package]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, env=clean_env)
 
                 if result.returncode == 0:
@@ -486,7 +487,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         continue
                     
                     # Not in cache, check normally
-                    check_cmd = [self.venv_python, '-c', f'import {dep}; print({dep}.__version__)']
+                    check_cmd = native_prefix() + [self.venv_python, '-c', f'import {dep}; print({dep}.__version__)']
                     timeout = 30 if dep in ['torch', 'ultralytics', 'diffusers'] else 10
                     dep_result = subprocess.run(check_cmd, capture_output=True, text=True, env=clean_env, timeout=timeout)
                     if dep_result.returncode != 0:
@@ -499,7 +500,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         self.update_cache(dep, version)
 
                 # Quick check for torch and diffusers
-                check_cmd = [self.venv_python, '-c',
+                check_cmd = native_prefix() + [self.venv_python, '-c',
                            'import torch, diffusers; print(f"torch:{torch.__version__},mps:{torch.backends.mps.is_available() if hasattr(torch.backends, "mps") else False}")']
                 result = subprocess.run(check_cmd, capture_output=True, text=True, env=clean_env, timeout=10)
 
@@ -1734,7 +1735,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             import subprocess
             
             # Check for CUDA and MPS using virtual environment
-            check_cmd = [
+            check_cmd = native_prefix() + [
                 self.venv_python, '-c',
                 '''
 import torch
@@ -1969,7 +1970,7 @@ print("PLATFORM:", platform.system())
 
                 try:
                     # Run YOLO inference using standalone script
-                    cmd = [python_exe, runner_script, self.model_path, img_path, str(confidence), str(kernel_size), str(iterations)]
+                    cmd = native_prefix() + [python_exe, runner_script, self.model_path, img_path, str(confidence), str(kernel_size), str(iterations)]
 
                     result = subprocess.run(
                         cmd,
@@ -2219,7 +2220,7 @@ if __name__ == '__main__':
                 # Use clean environment to avoid QGIS interference
                 clean_env = self.get_clean_environment()
                 result = subprocess.run(
-                    [python_exe, '-c', 'import ultralytics; print("OK")'],
+                    native_prefix() + [python_exe, '-c', 'import ultralytics; print("OK")'],
                     capture_output=True,
                     text=True,
                     timeout=5,
@@ -2308,7 +2309,7 @@ if __name__ == '__main__':
             for package in required_packages:
                 try:
                     check_result = subprocess.run(
-                        [python_exe, '-c', f'import {package}; print("OK")'],
+                        native_prefix() + [python_exe, '-c', f'import {package}; print("OK")'],
                         capture_output=True,
                         text=True,
                         timeout=5,
@@ -2343,9 +2344,9 @@ if __name__ == '__main__':
 
                 # Build command based on strategy
                 if strategy == 'with_user':
-                    cmd = [python_exe, '-m', 'pip', 'install', '--user', '--progress-bar', 'off'] + packages_to_install
+                    cmd = native_prefix() + [python_exe, '-m', 'pip', 'install', '--user', '--progress-bar', 'off'] + packages_to_install
                 else:
-                    cmd = [python_exe, '-m', 'pip', 'install', '--progress-bar', 'off'] + packages_to_install
+                    cmd = native_prefix() + [python_exe, '-m', 'pip', 'install', '--progress-bar', 'off'] + packages_to_install
 
                 try:
                     # Initialize terminal/shell session first
@@ -2433,7 +2434,7 @@ if __name__ == '__main__':
             self.log_message("Verifying installation...")
             try:
                 verify_result = subprocess.run(
-                    [python_exe, '-c', 'import ultralytics; import torch; import torchvision; print("OK")'],
+                    native_prefix() + [python_exe, '-c', 'import ultralytics; import torch; import torchvision; print("OK")'],
                     capture_output=True,
                     text=True,
                     timeout=10,
@@ -2936,7 +2937,7 @@ if __name__ == '__main__':
                 for key in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP', 'VIRTUAL_ENV']:
                     clean_env.pop(key, None)
 
-                test_cmd = [self.venv_python, '-c', 'import torch, diffusers; print("OK")']
+                test_cmd = native_prefix() + [self.venv_python, '-c', 'import torch, diffusers; print("OK")']
                 test_result = subprocess.run(test_cmd, capture_output=True, text=True, env=clean_env, timeout=5)
 
                 if test_result.returncode != 0:
