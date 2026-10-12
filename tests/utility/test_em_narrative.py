@@ -183,9 +183,11 @@ def test_messaggi_nella_lingua_con_vincoli_e_regola_delle_menzioni():
     it = en.messages(b, "it")
     assert [m["role"] for m in it] == ["system", "user"]
     assert "italiano" in it[0]["content"].lower()
-    assert "[[" in it[0]["content"] and "id" in it[0]["content"]
+    assert "[[" in it[0]["content"] and "nome" in it[0]["content"]
     assert b["constraints"][0] in it[0]["content"]
-    assert "Età romana" in it[1]["content"] and '"u3"' in it[1]["content"]
+    assert "Età romana" in it[1]["content"] and '"1.US3"' in it[1]["content"]
+    assert '"u3"' not in it[1]["content"]                      # niente uuid al modello
+    assert '"epoch_1_1"' in it[1]["content"]                    # le epoche tengono l'id
     en_ = en.messages(b, "en")
     assert "english" in en_[0]["content"].lower()
     record = en.prompt_record(b, "it")

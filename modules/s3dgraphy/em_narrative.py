@@ -39,8 +39,10 @@ _SCOPE_LABELS = {
 #: non si racconta in un paragrafo, e un prompt enorme costa e confonde.
 MAX_ACTIONS = 80
 
-#: Quanto può scrivere il modello per capitolo.
-MAX_TOKENS = 1800
+#: Quanto può scrivere il modello per capitolo. Con 1800 Claude Opus 4.7
+#: si fermava a metà di un capitolo di 23 unità (misurato il 2026-10-12,
+#: 3397 caratteri): le menzioni costano token.
+MAX_TOKENS = 4000
 
 #: Gli estrattori che registrano i prompt (``write_ai_draft``).
 PROMPT_EXTRACTOR_PREFIX = "EXT.prompt."
@@ -409,14 +411,15 @@ _SYSTEM = {
            "tre paragrafi, per un lettore che non ha la matrice davanti. Le unità "
            "sono elencate dalla più antica alla più recente: racconta la sequenza "
            "in quell'ordine, usando i rapporti stratigrafici forniti. Quando nomini "
-           "un'unità scrivi [[id]] con l'id esatto che ti è dato (non il nome). "
-           "Regole:"),
+           "un'unità scrivi [[nome]] con il nome esatto che ti è dato, per esempio "
+           "[[1.US38]]. Regole:"),
     "en": ("You are an archaeologist writing the story of a site from its "
            "stratigraphic matrix. Write in English, continuous prose, one to three "
            "paragraphs, for a reader who is not holding the matrix. The units are "
            "listed from the oldest to the most recent: tell the sequence in that "
            "order, using the stratigraphic relations given. When you name a unit "
-           "write [[id]] with the exact id you were given (not the name). Rules:"),
+           "write [[name]] with the exact name you were given, for example "
+           "[[1.US38]]. Rules:"),
 }
 
 _USER_HEAD = {
@@ -443,6 +446,28 @@ def _system_text(brief, lang: str) -> str:
     return testa + "\n" + regole
 
 
+#: Le chiavi che portano gli id delle unità: uuid lunghi, che il modello
+#: non deve ripetere (cita per nome) e che costano token a ogni occorrenza
+#: — un capitolo di 23 unità ne portava più di cento (2026-10-12).
+_ID_KEYS = ("id", "subject_id", "object_id")
+
+
+def _slim(valore):
+    """Una copia senza gli id delle unità; le epoche tengono il loro
+    (corto, e il modello non le cita)."""
+    if isinstance(valore, dict):
+        return {k: _slim(v) for k, v in valore.items()
+                if not (k in _ID_KEYS and _looks_like_unit_id(valore))}
+    if isinstance(valore, list):
+        return [_slim(v) for v in valore]
+    return valore
+
+
+def _looks_like_unit_id(voce: dict) -> bool:
+    """Le epoche (``relation``/``start``) e l'àncora tengono l'id."""
+    return "relation" not in voce and "start" not in voce
+
+
 def messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str, str]]:
     """I due messaggi per il modello: le istruzioni e il briefing in JSON."""
     lingua = _prompt_lang(lang)
@@ -451,7 +476,8 @@ def messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str
         title=(brief.get("activity") or {}).get("name") or "",
         kind=_kind_word(brief, lingua),
         omitted=_OMITTED[lingua].format(n=omesse) if omesse else "")
-    corpo = {k: brief[k] for k in ("activity", "actions", "epochs", "sources") if k in brief}
+    corpo = _slim({k: brief[k] for k in ("activity", "actions", "epochs", "sources")
+                   if k in brief})
     return [{"role": "system", "content": _system_text(brief, lingua)},
             {"role": "user", "content": testa + json.dumps(corpo, ensure_ascii=False)}]
 
