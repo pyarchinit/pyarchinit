@@ -5,6 +5,32 @@
 
 ---
 
+## [fix] - 2026-10-12 — La continuità scende dritta, il rombo è piccolo e senza nome, le linee punteggiate hanno la loro corsia — 5.13.96-alpha
+
+> Branch `Stratigraph_00001`. Suite **1810 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Continuity comes straight down, the diamond is small and unlabelled, dotted lines get their own lane.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«sembra che CON500 abbia continuità con la 12 e la 10».** No: CON500 ha un rapporto solo, `> 12`. Il rombo stava nella colonna giusta ma la linea, invece di scendere dritta, faceva il giro a sinistra passando accanto alla US 10 — e la 10 sembrava sua. Due cause: il router provava la verticale solo con scarto zero, e lo scarto tocca a due archi su tre; e sulla verticale c'era il rombo di CON12, che il router scansava girando largo. Ora la continuità viaggia **senza scarto**, e se sulla verticale trova solo rombi li **scansa a un passo**, tornando subito in colonna. Misurato: CON500 → USM12 in sei punti, tutti entro 22 px dalla colonna; CON12 → USM12 in due.
+- 🇬🇧 **EN**: **«CON500 looks continuous with 12 and 10».** No: CON500 has one relation, `> 12`. The diamond sat in the right column but the line detoured left past US 10. Continuity now travels **with no offset**, and when the vertical meets only diamonds it **steps around them** and comes straight back. Measured: CON500 → USM12 within 22 px of the column.
+- 🇮🇹 **IT**: **le linee punteggiate non corrono più sopra quelle piene.** La corsa di lato di ogni arco stava alla stessa quota — quattordici punti sotto la casella di partenza — e un taglio punteggiato finiva disegnato sopra una sovrapposizione piena, invisibile. Ogni classe ha la sua corsia: la sequenza al centro, il taglio cinque punti più in basso, i paradati cinque più in alto.
+- 🇬🇧 **EN**: **dotted lines no longer run on top of solid ones.** Each class gets its own lane for the sideways run: sequence in the middle, cuts five points lower, paradata five higher.
+- 🇮🇹 **IT**: **il rombo della continuità è piccolo, nero e senza nome**, com'è nell'Extended Matrix: un quadrato di 22 punti in mezzo alla casella che avrebbe avuto, così la colonna non si muove. Il nome resta nel `<title>` per chi ci passa col mouse; la riga della sua unità, dritta sotto, dice già di chi è.
+- 🇬🇧 **EN**: **the continuity diamond is small, black and unlabelled**, as in the Extended Matrix; the name stays in the `<title>` for hover.
+
+#### L'em.json / The em.json
+- 🇮🇹 **IT**: di tutto questo, nel file cambia **una cosa sola**: il nome del nodo di continuità generato, `1.CONCON_12` → `1.CON12` (campo `name`, dalla 5.13.95; id e uuid intatti). Linee, colori, bordi e posizioni sono solo disegno: nel file non si scrive niente di grafico.
+- 🇬🇧 **EN**: of all this, **one thing** changes in the file: the generated continuity node's name (`name` field, since 5.13.95). Lines, colours, borders and positions are drawing only.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: cinque prove nuove sul layout e sull'SVG: la linea della continuità è dritta quando la colonna è libera; con due rombi sulla stessa unità la seconda linea resta entro 30 punti dalla colonna e non attraversa nessuno; il rombo è un quadrato di 22; il taglio corre di lato nella sua corsia; il rombo non porta `<text>` e tiene il `<title>`.
+- 🇬🇧 **EN**: five new checks on the layout and the SVG.
+
+#### Tutorial
+- 🇮🇹 **IT**: §9, dieci lingue: il rombo piccolo e nero senza nome, col nome al passaggio del mouse.
+- 🇬🇧 **EN**: §9 in ten languages: the small unlabelled diamond, name on hover.
+
+---
+
 ## [feat] - 2026-10-12 — La matrice: le linee dicono che rapporto sono, le USM hanno il bordo bruno, la continuità sta sopra la sua unità — 5.13.95-alpha
 
 > Branch `Stratigraph_00001`. Suite **1805 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The matrix: lines say which relationship they are, USM get a brown border, continuity sits above its unit.

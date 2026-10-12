@@ -520,11 +520,13 @@ def test_the_continuity_diamond_sits_in_its_units_column():
 
 
 def test_nothing_in_the_row_overlaps_the_pinned_diamond():
+    """Nessuna casella della riga entra in un'altra: si misurano i
+    rettangoli, non le ascisse — il rombo è più stretto delle caselle."""
     lay = layout(_modello_con_rombo())
-    riga = sorted((b.x, b.unit.node_id) for b in lay.boxes
+    riga = sorted((b.x, b.x + b.w, b.unit.node_id) for b in lay.boxes
                   if b.unit.node_id != "U")
-    for (x1, _), (x2, _) in zip(riga, riga[1:]):
-        assert x2 - x1 >= lay.boxes[0].w, riga
+    for (_, fine, a), (inizio, _, b) in zip(riga, riga[1:]):
+        assert fine <= inizio + 0.01, (a, b, riga)
 
 
 def test_a_diamond_with_two_neighbours_is_left_where_it_is():
@@ -538,3 +540,92 @@ def test_a_diamond_with_two_neighbours_is_left_where_it_is():
         title="t")
     lay = layout(m)
     assert len(lay.boxes) == 3            # e nessuna eccezione
+
+
+# ---------------------------------------------------------------------------
+# La linea della continuità è dritta, e il rombo è piccolo e senza nome
+# ---------------------------------------------------------------------------
+# «Sembra che CON500 abbia continuità con la US 12 e la US 10» (Enzo, 12
+# ottobre 2026): il rombo stava nella colonna giusta ma la linea, invece
+# di scendere dritta, faceva il giro a sinistra passando accanto a
+# un'altra unità. Il router provava la verticale solo quando lo scarto
+# era zero, e lo scarto tocca a due archi su tre.
+
+def test_the_continuity_line_is_straight_when_the_column_is_free():
+    lay = layout(_modello_con_rombo())
+    arco = next(e for e in lay.edges if e.continuity)
+    assert len(arco.points) == 2, arco.points
+    (x1, _), (x2, _) = arco.points
+    assert abs(x1 - x2) < 0.5
+
+
+def test_the_continuity_diamond_is_a_small_square():
+    lay = layout(_modello_con_rombo())
+    rombo = next(b for b in lay.boxes if b.unit.node_id == "B")
+    assert rombo.w == rombo.h, (rombo.w, rombo.h)
+    assert rombo.w <= 24.0, rombo.w
+    unita = next(b for b in lay.boxes if b.unit.node_id == "U")
+    assert rombo.w < unita.w / 3
+
+
+# ---------------------------------------------------------------------------
+# Le linee punteggiate non corrono sopra quelle piene
+# ---------------------------------------------------------------------------
+# «Alcune linee dot si sovrappongono alle linee continue» (Enzo): la
+# corsa di lato di ogni arco stava alla stessa quota — quattordici punti
+# sotto la casella di partenza — e un taglio punteggiato finiva disegnato
+# sopra una sovrapposizione piena, invisibile. Ogni classe ha la sua
+# corsia.
+
+def test_a_cut_runs_sideways_in_its_own_lane():
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    m = MatrixModel(
+        units=[Unit(i, i, "US", "e") for i in ("A", "B", "C", "D")],
+        epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
+        # il taglio va sull'ultima, che non sta sotto la A: la sua linea
+        # deve girare, e si vede a che quota lo fa
+        relations=[Relation("A", "B", "overlies"), Relation("A", "C", "overlies"),
+                   Relation("A", "D", "cuts")],
+        title="t")
+    lay = layout(m)
+    quote = {e.kind: e.points[1][1] for e in lay.edges if len(e.points) >= 3}
+    assert "cuts" in quote and "overlies" in quote, quote
+    assert abs(quote["cuts"] - quote["overlies"]) >= 4.0, quote
+
+
+# ---------------------------------------------------------------------------
+# Due continuità sulla stessa unità: la seconda passa accanto alla prima
+# ---------------------------------------------------------------------------
+# Nel demo CON500 (fatta a mano, quattro fasce più su) e CON12 (generata)
+# puntano tutt'e due alla USM 12. Il rombo di CON12 sta sulla verticale, e
+# la linea di CON500 — invece di passargli accanto — girava mezzo disegno
+# ed entrava nella USM di fianco, passando vicino alla US 10: «sembra che
+# CON500 abbia continuità con la 12 e la 10» (Enzo). La linea deve restare
+# nella colonna, a un passo dal rombo, e scendere nella sua unità.
+
+def _modello_due_rombi():
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    unita = [Unit("B1", "B1", "BR", "alta"),       # quattro... una fascia più su
+             Unit("X", "X", "US", "alta"),
+             Unit("B2", "B2", "BR", "bassa"),
+             Unit("U", "U", "US", "bassa")]
+    rel = [Relation("B1", "U", "is_after"), Relation("B2", "U", "is_after"),
+           Relation("X", "U", "overlies")]
+    return MatrixModel(units=unita,
+                       epochs=[Epoch("alta", "XVI", 1500, 1599, "#FFF"),
+                               Epoch("bassa", "XV", 1400, 1499, "#FFF")],
+                       relations=rel, title="t")
+
+
+def test_the_second_continuity_line_stays_beside_the_first_diamond():
+    from modules.utility.em_matrix_layout import attraversa
+    lay = layout(_modello_due_rombi())
+    colonna = _centro(lay, "U")
+    assert abs(_centro(lay, "B1") - colonna) < 0.5
+    assert abs(_centro(lay, "B2") - colonna) < 0.5
+    lunga = next(e for e in lay.edges if e.source == "B1")
+    assert attraversa(lunga.points, lay.boxes if False else
+                      [b for b in lay.boxes if b.unit.node_id not in ("B1", "U")]) == 0, \
+        lunga.points
+    scostamento = max(abs(x - colonna) for x, _ in lunga.points)
+    assert scostamento <= 30.0, (scostamento, lunga.points)

@@ -312,15 +312,24 @@ def _box_svg(box: Box) -> str:
     if fuori:
         descrizione = ((descrizione + " — ") if descrizione else "") \
             + "non visibile sulla mappa"
+    titolo = _esc("%s — %s" % (box.unit.label, descrizione)
+                  if descrizione else box.unit.label)
+    if box.unit.node_type == "BR":
+        # Il rombo della continuità non porta il nome sopra: è piccolo e
+        # nero, com'è nell'Extended Matrix, e la sua unità sta dritta
+        # sotto di lui. Il nome resta nel `<title>` per chi ci passa col
+        # mouse.
+        return ('<g class="unit%s" data-id="%s"%s>%s<title>%s</title></g>'
+                % (" fuori" if fuori else "", _esc(box.unit.node_id),
+                   ' opacity="%.2f"' % OPACITA_FUORI if fuori else "",
+                   _drawing_svg(box), titolo))
     return ('<g class="unit%s" data-id="%s"%s>%s'
             '<title>%s</title>'
             '<text x="%.1f" y="%.1f" font-size="12" text-anchor="middle" '
             'fill="%s">%s</text></g>'
             % (" fuori" if fuori else "", _esc(box.unit.node_id),
                ' opacity="%.2f"' % OPACITA_FUORI if fuori else "",
-               _drawing_svg(box),
-               _esc("%s — %s" % (box.unit.label, descrizione)
-                    if descrizione else box.unit.label),
+               _drawing_svg(box), titolo,
                x, y, colore, _esc(_short(box.unit.label))))
 
 

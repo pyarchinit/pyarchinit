@@ -407,3 +407,18 @@ def test_a_plain_unit_keeps_the_red_border():
     m = MatrixModel(units=[u], epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
                     relations=[], title="t")
     assert 'stroke="#9B3333"' in to_svg(layout(m))
+
+
+def test_the_continuity_diamond_carries_no_printed_label():
+    """Un rombo nero piccolo, senza nome sopra: il nome resta nel
+    `<title>` per chi ci passa col mouse. La riga della USM 12 sotto di
+    lui dice già di chi è."""
+    import re
+    svg = to_svg(layout(_model(labels=("B1", "US1"), tipi={"B1": "BR"},
+                               relazioni=(("B1", "US1", "is_after"),))))
+    gruppo = re.search(r'<g class="unit" data-id="B1">.*?</g>', svg, re.S)
+    assert gruppo, svg
+    assert "<text" not in gruppo.group(0), gruppo.group(0)
+    assert "<title>B1</title>" in gruppo.group(0)
+    altro = re.search(r'<g class="unit" data-id="US1">.*?</g>', svg, re.S)
+    assert "<text" in altro.group(0)

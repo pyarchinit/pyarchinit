@@ -23,7 +23,20 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 from .em_matrix_glyphs import box_size, label_overhang
 from .em_matrix_model import (MatrixModel, Epoch, Unit, PARADATA_KINDS,
-                              PARADATA_NODE_TYPES)
+                              PARADATA_NODE_TYPES, CUT_KIND)
+
+#: Il lato del rombo della continuità: piccolo, nero, senza nome sopra
+#: — com'è nell'Extended Matrix. Il nome resta nel `<title>`, e la riga
+#: della sua unità, dritta sotto di lui, dice già di chi è.
+BR_SIZE = 22.0
+
+#: La corsia della corsa di lato, per classe di arco: la sequenza al
+#: centro, il taglio un po' più in basso, i paradati un po' più in alto.
+#: Alla stessa quota un taglio punteggiato finiva disegnato **sopra** una
+#: sovrapposizione piena, e spariva (Enzo, 12 ottobre 2026: «alcune linee
+#: dot si sovrappongono alle linee continue»).
+_CORSIA_TAGLIO = 5.0
+_CORSIA_PARADATI = -5.0
 
 #: Relazioni che NON ordinano dall'alto in basso: le due unità sono
 #: contemporanee, non una sopra l'altra.
@@ -466,13 +479,21 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                 larghezza, altezza_casella = box_size(
                     unita[i].node_type, unita[i].label,
                     config.box_w, config.box_h)
+                rialzo = 0.0
+                if unita[i].node_type == "BR":
+                    # Il rombo: un quadrato piccolo in mezzo alla casella
+                    # che avrebbe avuto, così la colonna non si muove e
+                    # la linea gli arriva sotto la punta.
+                    larghezza = altezza_casella = BR_SIZE
+                    rialzo = (config.box_h - BR_SIZE) / 2.0
                 risultato.boxes.append(Box(
                     unit=unita[i],
                     x=(config.margin + config.band_label_w
                        + ascisse.get(i, 0.0)
                        + (config.box_w - larghezza) / 2.0),
                     y=cima + config.band_pad + riga * (config.box_h
-                                                       + config.v_gap),
+                                                       + config.v_gap)
+                      + rialzo,
                     w=larghezza, h=altezza_casella))
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
@@ -508,13 +529,20 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         # y cresce verso il basso e la fascia più recente sta in cima:
         # se la partenza è più in basso dell'arrivo, la freccia risale.
         in_salita = (not simmetrica) and a.y > b.y
+        # La continuità scende dritta: senza scarto, così il router prova
+        # la verticale — con lo scarto a due archi su tre non la provava
+        # mai, e la linea faceva il giro passando accanto a un'altra
+        # unità, che sembrava la sua.
+        scarto = (0.0 if continuita
+                  else ((len(risultato.edges) % 3) - 1) * 4.0)
+        corsia = (_CORSIA_TAGLIO if r.kind == CUT_KIND
+                  else _CORSIA_PARADATI if paradati else 0.0)
         risultato.edges.append(Edge(
             kind=r.kind, source=r.source, target=r.target,
             symmetric=simmetrica, continuity=continuita,
             paradata=paradati, upward=in_salita,
-            points=_route(a, b, simmetrica,
-                          scarto=((len(risultato.edges) % 3) - 1) * 4.0,
-                          griglia=griglia,
+            points=_route(a, b, simmetrica, scarto=scarto, corsia=corsia,
+                          griglia=griglia, accanto=continuita,
                           esclusi=(r.source, r.target))))
 
     # Il nome di un pittogramma è più largo del pittogramma, e non si
@@ -699,7 +727,9 @@ def _route(a: Box, b: Box, simmetrica: bool,
            scarto: float = 0.0,
            ostacoli: Sequence[Box] = (),
            griglia: Optional["_Griglia"] = None,
-           esclusi: Sequence[str] = ()) -> List[Tuple[float, float]]:
+           esclusi: Sequence[str] = (),
+           corsia: float = 0.0,
+           accanto: bool = False) -> List[Tuple[float, float]]:
     """La spezzata da ``a`` a ``b``: un pezzetto giù, di lato, poi giù.
 
     Lo spostamento laterale avviene **subito sotto la casella di
@@ -737,9 +767,46 @@ def _route(a: Box, b: Box, simmetrica: bool,
         if not costa(diretto):
             return diretto
     passo = -_STACCO if allinsu else _STACCO
-    giu = p[1] + passo
+    # ``corsia`` sposta la corsa di lato di qualche punto, per classe di
+    # arco: una linea punteggiata non deve correre sopra una piena.
+    giu = p[1] + passo + (-corsia if allinsu else corsia)
     if (allinsu and giu < q[1]) or (not allinsu and giu > q[1]):
         giu = (p[1] + q[1]) / 2
+    if accanto and abs(p[0] - q[0]) < 0.5:
+        # La verticale è presa da un altro rombo della stessa unità —
+        # CON12 sotto CON500 nel sito di esempio. Si scende **in
+        # colonna** e si scansa solo il rombo, a un passo, tornando
+        # subito sulla verticale: la linea resta nella colonna e si
+        # legge. Girare largo la faceva sembrare la continuità di
+        # un'altra unità («sembra che CON500 abbia continuità con la 12
+        # e la 10», Enzo, 12 ottobre 2026). Se sulla verticale c'è altro
+        # che rombi, si lascia fare al router di sempre.
+        vicini_diretti = (griglia.intorno([p, q], esclusi)
+                          if griglia is not None else ostacoli)
+        sulla_linea = [c for c in vicini_diretti if attraversa([p, q], [c])]
+        if sulla_linea and all(c.unit.node_type == "BR" for c in sulla_linea):
+            for lato in (1.0, -1.0):
+                punti = [p]
+                for c in sorted(sulla_linea, key=lambda c: c.y,
+                                reverse=allinsu):
+                    fianco = p[0] + lato * (c.w / 2.0 + _SPIRAGLIO + 4.0)
+                    prima, dopo = c.y - 8.0, c.y + c.h + 8.0
+                    if allinsu:
+                        prima, dopo = dopo, prima
+                    punti += [(p[0], prima), (fianco, prima),
+                              (fianco, dopo), (p[0], dopo)]
+                punti.append(q)
+                if not costa(punti):
+                    return punti
+        # Oppure tutta la discesa di fianco, a un passo dalla colonna,
+        # con un gradino sopra la casella d'arrivo.
+        gradino = q[1] + 8.0 if allinsu else q[1] - 8.0
+        for lato in (1.0, -1.0):
+            fianco = q[0] + lato * (BR_SIZE / 2.0 + _SPIRAGLIO + 4.0)
+            punti = [p, (p[0], giu), (fianco, giu), (fianco, gradino),
+                     (q[0], gradino), q]
+            if not costa(punti):
+                return punti
     x = q[0] + scarto
 
     def spezzata(quota):
