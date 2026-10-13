@@ -285,7 +285,7 @@ The chooser window lists the `.qpt` files found in the plugin folder, in `resour
 
 ---
 
-*Last updated: January 2026*
+*Last updated: October 2026*
 
 ---
 

@@ -621,16 +621,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
         if not bool(per_res):
             
-            if self.L=='it': 
-                QMessageBox.warning(self, "Alert", "Non vi sono Periodizzazioni in questo intervallo di tempo",
-                                    QMessageBox.StandardButton.Ok)
-        
-            elif self.L=='de': 
-                QMessageBox.warning(self, "Alert", "Es gibt keine Perioden in diesem Zeitintervall.",
-                                    QMessageBox.StandardButton.Ok)
-            else: 
-                QMessageBox.warning(self, "Alert", "There are no Periods in this time interval",
-                                    QMessageBox.StandardButton.Ok)
+            QMessageBox.warning(self, self._tm("alert"), self._tm("no_periods"),
+                                QMessageBox.StandardButton.Ok)
             
         else:
             us_res = []
@@ -648,20 +640,15 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
             if not bool(us_res_dep):
                 
-                if self.L=='it':
-                    QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare", QMessageBox.StandardButton.Ok)
-
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Alert", "es gibt keine Geometrien, die angezeigt werden können", QMessageBox.StandardButton.Ok) 
-                else:
-                    QMessageBox.warning(self, "Alert", "There are no geometries to display", QMessageBox.StandardButton.Ok)    
+                QMessageBox.warning(self, self._tm("alert"), self._tm("no_geometries"),
+                                    QMessageBox.StandardButton.Ok)    
             else:
                 self.pyQGIS.charge_vector_layers(us_res_dep)
 
             try:
                 self.update_graphics_view()
             except AssertionError as e:
-                QMessageBox.warning(self, "Attenzione", 'Devi selezionare prima il layer us view nella toc')
+                QMessageBox.warning(self, self._tm("alert"), self._tm("select_us_view_first"))
 
 
 

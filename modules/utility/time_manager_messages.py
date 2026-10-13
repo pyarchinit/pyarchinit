@@ -64,6 +64,10 @@ MESSAGES = {
         "stopped_title": "Atlante interrotto",
         "stopped_text": "Generazione dell'atlante interrotta.\n"
                         "Livelli di order_layer elaborati prima dell'interruzione: {done}/{total}",
+        "alert": "Attenzione",
+        "no_periods": "Non vi sono periodizzazioni in questo intervallo di tempo",
+        "no_geometries": "Non ci sono geometrie da visualizzare",
+        "select_us_view_first": "Seleziona prima il layer della vista US nel pannello dei layer",
     },
     "en": {
         "warning": "Warning",
@@ -125,13 +129,26 @@ MESSAGES = {
         "stopped_title": "Atlas stopped",
         "stopped_text": "Atlas generation stopped.\n"
                         "Order layers processed before stopping: {done}/{total}",
+        "alert": "Warning",
+        "no_periods": "There are no periods in this time interval",
+        "no_geometries": "There are no geometries to display",
+        "select_us_view_first": "Select the US view layer in the layer panel first",
+    },
+    #: Il tedesco copre solo gli avvisi che aveva già nel codice (il resto
+    #: cade sull'inglese, come per le altre lingue).
+    "de": {
+        "alert": "Achtung",
+        "no_periods": "Es gibt keine Perioden in diesem Zeitintervall.",
+        "no_geometries": "Es gibt keine Geometrien, die angezeigt werden können.",
+        "select_us_view_first": "Wähle zuerst den Layer der US-Ansicht im Layerfenster.",
     },
 }
 
 
 def tm(lang, key: str, **kw) -> str:
-    """Il testo ``key`` nella lingua data (``it`` o ``en``; il resto cade
-    sull'inglese); una chiave sconosciuta torna com'è."""
-    lingua = "it" if str(lang or "").lower().startswith("it") else "en"
+    """Il testo ``key`` nella lingua data (``it``, ``en``, e ``de`` dove
+    c'è; il resto cade sull'inglese); una chiave sconosciuta torna com'è."""
+    prefisso = str(lang or "").lower()[:2]
+    lingua = prefisso if prefisso in MESSAGES else "en"
     testo = MESSAGES[lingua].get(key, MESSAGES["en"].get(key, key))
     return testo.format(**kw) if kw else testo

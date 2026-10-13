@@ -527,7 +527,7 @@ Operazioni spaziali disponibili:
 
 ---
 
-*Ultimo aggiornamento: Gennaio 2026*
+*Ultimo aggiornamento: Ottobre 2026*
 
 ---
 

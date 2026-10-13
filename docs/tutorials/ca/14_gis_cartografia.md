@@ -529,7 +529,7 @@ Operacions espacials disponibles:
 
 ---
 
-*Última actualització: Gener 2026*
+*Última actualització: Octubre 2026*
 
 ---
 

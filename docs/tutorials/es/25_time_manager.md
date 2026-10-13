@@ -285,7 +285,7 @@ La ventana de elección lista los archivos `.qpt` encontrados en la carpeta del 
 
 ---
 
-*Última actualización: Enero 2026*
+*Última actualización: Octubre 2026*
 
 ---
 

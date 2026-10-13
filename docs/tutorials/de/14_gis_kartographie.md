@@ -529,7 +529,7 @@ Verfügbare räumliche Operationen:
 
 ---
 
-*Letzte Aktualisierung: Januar 2026*
+*Letzte Aktualisierung: Oktober 2026*
 
 ---
 

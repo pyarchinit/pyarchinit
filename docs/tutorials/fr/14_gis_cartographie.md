@@ -529,7 +529,7 @@ Opérations spatiales disponibles :
 
 ---
 
-*Dernière mise à jour : Janvier 2026*
+*Dernière mise à jour : Octobre 2026*
 *PyArchInit - Système de Gestion des Données Archéologiques*
 
 ---

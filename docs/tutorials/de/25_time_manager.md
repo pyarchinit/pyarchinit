@@ -285,7 +285,7 @@ Das Auswahlfenster listet die `.qpt`-Dateien auf, die im Plugin-Ordner, in `reso
 
 ---
 
-*Letzte Aktualisierung: Januar 2026*
+*Letzte Aktualisierung: Oktober 2026*
 
 ---
 

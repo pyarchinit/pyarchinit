@@ -285,7 +285,7 @@ Fereastra de alegere listeaza fisierele `.qpt` gasite in folderul plugin-ului, i
 
 ---
 
-*Ultima actualizare: ianuarie 2026*
+*Ultima actualizare: octombrie 2026*
 
 ---
 

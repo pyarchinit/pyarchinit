@@ -503,7 +503,33 @@ Operaciones espaciales disponibles:
 
 ---
 
-*Última actualización: Enero 2026*
+## Video Tutorial
+
+### GIS Integration
+`[Placeholder: video_gis_integration.mp4]`
+
+**Contenidos**:
+- Capas predefinidas
+- Visualización de las UE
+- Estilos y etiquetas
+- Exportación cartográfica
+
+**Duración prevista**: 15-18 minutos
+
+### SAM Segmentation
+`[Placeholder: video_sam_segmentation.mp4]`
+
+**Contenidos**:
+- Configuración de SAM
+- Modos de segmentación
+- Posprocesado
+- Buenas prácticas
+
+**Duración prevista**: 12-15 minutos
+
+---
+
+*Última actualización: Octubre 2026*
 
 ---
 

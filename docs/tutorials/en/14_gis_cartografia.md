@@ -529,7 +529,7 @@ Available spatial operations:
 
 ---
 
-*Last updated: January 2026*
+*Last updated: October 2026*
 
 ---
 

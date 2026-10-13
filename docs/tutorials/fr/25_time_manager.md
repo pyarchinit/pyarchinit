@@ -285,7 +285,7 @@ La fenêtre de choix liste les fichiers `.qpt` trouvés dans le dossier du plugi
 
 ---
 
-*Dernière mise à jour : Janvier 2026*
+*Dernière mise à jour : Octobre 2026*
 *PyArchInit - Système de Gestion des Données Archéologiques*
 
 ---

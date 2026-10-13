@@ -285,7 +285,7 @@ La finestra d'elecció llista els fitxers `.qpt` trobats a la carpeta del plugin
 
 ---
 
-*Última actualització: Gener 2026*
+*Última actualització: Octubre 2026*
 
 ---
 

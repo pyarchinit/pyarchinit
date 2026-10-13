@@ -19,13 +19,15 @@ from modules.utility.time_manager_messages import MESSAGES, tm  # noqa: E402
 SRC = _ROOT / "tabs" / "Gis_Time_controller.py"
 UI = _ROOT / "gui" / "ui" / "Gis_Time_controller.ui"
 FUNZIONI = ("browse_for_template", "create_new_template", "open_layout_designer",
-            "save_current_as_template", "generate_images", "choose_template")
+            "save_current_as_template", "generate_images", "choose_template",
+            "on_pushButton_visualize_pressed")
 ITALIANO = ("Seleziona", "Nuovo Template", "Nome per il nuovo", "Template Creato", "Errore",
             "Nessun layout", "Salva Template", "Inserisci", "esiste già", "Selezionare una cartella",
             "Impossibile", "Vuoi ", "Modifica Template", "Generazione", "NON scritte",
             "Atlas Completato", "Atlas Interrotto", "Salvate in", "interrotta", "Continua Atlas",
             "Hai terminato", "Nessuna US", "Nessun order_layer", "Scegli Layout", "Sfoglia",
-            "Usa Template", "trovato nelle", "Annulla")
+            "Usa Template", "trovato nelle", "Annulla", "Non vi sono", "Non ci sono",
+            "Devi selezionare", "Attenzione", "Es gibt keine")
 
 
 def _stringhe(funzione):
@@ -47,11 +49,19 @@ def test_le_finestre_della_stampa_non_hanno_testo_fisso_in_italiano():
 
 
 def test_la_tabella_ha_italiano_e_inglese_con_gli_stessi_segnaposto():
-    assert set(MESSAGES) == {"it", "en"}
+    assert {"it", "en"} <= set(MESSAGES)
     assert set(MESSAGES["it"]) == set(MESSAGES["en"]) and MESSAGES["it"]
     for chiave, it in MESSAGES["it"].items():
         en = MESSAGES["en"][chiave]
         assert set(re.findall(r"{(\w+)}", it)) == set(re.findall(r"{(\w+)}", en)), chiave
+    for lingua, voci in MESSAGES.items():                   # il tedesco copre solo quello che aveva
+        assert set(voci) <= set(MESSAGES["en"]), lingua
+
+
+def test_il_tedesco_tiene_i_suoi_avvisi_della_cronologia_assoluta():
+    assert tm("de", "no_periods") == "Es gibt keine Perioden in diesem Zeitintervall."
+    assert tm("de", "folder") == tm("en", "folder")              # dove non c'è, inglese
+    assert "periodizzazioni" in tm("it", "no_periods").lower()
 
 
 def test_tm_formatta_nella_lingua_e_cade_sull_inglese():

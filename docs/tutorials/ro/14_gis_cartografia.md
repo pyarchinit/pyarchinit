@@ -529,7 +529,7 @@ Operații spațiale disponibile:
 
 ---
 
-*Ultima actualizare: ianuarie 2026*
+*Ultima actualizare: octombrie 2026*
 
 ---
 

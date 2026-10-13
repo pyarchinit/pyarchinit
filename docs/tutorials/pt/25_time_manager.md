@@ -285,7 +285,7 @@ A janela de escolha lista os ficheiros `.qpt` encontrados na pasta do plugin, em
 
 ---
 
-*Ultima atualizacao: janeiro de 2026*
+*Ultima atualizacao: outubro de 2026*
 
 ---
 
