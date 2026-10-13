@@ -76,3 +76,6 @@ def overrides_dir(tmp_path: Path) -> Path:
     out = tmp_path / "vocab_overrides"
     out.mkdir()
     return out
+
+# Una sola applicazione QGIS per tutta la sessione (vedi tests/_qgis_keepalive.py).
+from tests._qgis_keepalive import qgis_application_keepalive  # noqa: F401,E402
