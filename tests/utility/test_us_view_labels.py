@@ -123,3 +123,33 @@ def test_le_etichette_di_prima_sopravvivono_alla_tavola_dell_atlante(qgs):
     nudo.setLabelsEnabled(True)
     restore_labeling(nudo, ricordo)
     assert nudo.labeling() is None and not nudo.labelsEnabled()
+
+
+def test_la_vista_delle_quote_prende_la_quota_sopra_il_simbolo(qgs):
+    """«le etichette delle quote non compaiono» (13 ottobre 2026): la vista
+    delle quote, appena caricata, porta il valore della quota con la
+    ricetta delle tavole dell'atlante."""
+    from modules.utility.atlas_labels import label_quote_view
+    quote = QgsVectorLayer("Point?crs=EPSG:32633&field=sito_q:string&field=us_q:string&field=quota_q:double",
+                           "Quote view", "memory")
+    assert label_quote_view(quote) is True
+    assert quote.labelsEnabled()
+    etichettatura = quote.labeling()
+    impostazioni = etichettatura.settings()
+    assert "quota_q" in impostazioni.fieldName and impostazioni.isExpression
+    poligoni = QgsVectorLayer("Polygon?crs=EPSG:32633&" + FIELDS, "US", "memory")
+    assert label_quote_view(poligoni) is False and not poligoni.labelsEnabled()
+    senza = QgsVectorLayer("Point?crs=EPSG:32633&field=gid:integer", "x", "memory")
+    assert label_quote_view(senza) is False
+
+
+def test_ogni_caricamento_della_vista_quote_mette_le_etichette():
+    """Dove il plugin carica `quote_us_view.qml` subito dopo chiama
+    `label_quote_view`: la vista delle quote si carica da più scheda."""
+    righe = (_ROOT / "modules" / "gis" / "pyarchinit_pyqgis.py").read_text(encoding="utf-8").split("\n")
+    carichi = [i for i, r in enumerate(righe) if "quote_us_view.qml" in r and "style_path" in r]
+    assert carichi, "nessun caricamento di quote_us_view.qml?"
+    for i in carichi:
+        finestra = "\n".join(righe[i:i + 4])
+        assert "loadNamedStyle(style_path)" in finestra, righe[i]
+        assert "label_quote_view(" in finestra, (i + 1, finestra)

@@ -338,3 +338,23 @@ def restore_labeling(layer, remembered) -> None:
     prima, attive = remembered
     layer.setLabeling(prima.clone() if prima is not None else None)
     layer.setLabelsEnabled(bool(attive))
+
+
+def label_quote_view(layer) -> bool:
+    """La quota sopra il simbolo sulla vista delle quote appena caricata,
+    con la ricetta delle tavole dell'atlante (:func:`quota_labeling`).
+    ``False`` — e il layer non si tocca — se non è una vista di quote:
+    non punti, o senza il campo della quota (13 ottobre 2026: «le
+    etichette delle quote non compaiono»)."""
+    try:
+        from qgis.core import QgsWkbTypes
+        if layer.geometryType() != QgsWkbTypes.PointGeometry:
+            return False
+        nuove = quota_labeling([f.name() for f in layer.fields()])
+    except Exception:                               # noqa: BLE001
+        return False
+    if nuove is None:
+        return False
+    layer.setLabeling(nuove)
+    layer.setLabelsEnabled(True)
+    return True

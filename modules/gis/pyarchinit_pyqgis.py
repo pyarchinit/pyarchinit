@@ -48,6 +48,7 @@ import urllib.request
 import urllib.error
 
 from ..utility.create_style import ThesaurusStyler, USViewStyler, apply_stratigraphic_order
+from ..utility.atlas_labels import label_quote_view
 from ..utility.settings import Settings
 from ..utility.pyarchinit_i18n_stratigraphic import (
     COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
@@ -1040,6 +1041,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
@@ -1594,6 +1596,7 @@ class Pyarchinit_pyqgis(QDialog):
                 #self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
@@ -1726,6 +1729,7 @@ class Pyarchinit_pyqgis(QDialog):
                 #self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
@@ -1806,6 +1810,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -1965,6 +1970,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
@@ -2253,6 +2259,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.setName(layer_name_label_quote)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
@@ -2495,6 +2502,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # self.USLayerId = layerUS.getLayerID()
                     style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                     layerQUOTE.loadNamedStyle(style_path)
+                    label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
@@ -2695,6 +2703,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
+                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
