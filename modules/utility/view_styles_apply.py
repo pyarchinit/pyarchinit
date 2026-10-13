@@ -104,9 +104,12 @@ def apply_recipe(layer, recipe: LabelRecipe, touch_when_off: bool = True) -> boo
     return True
 
 
-def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engine=None) -> str:
+def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engine=None,
+                     fallback: bool = True) -> str:
     """Chi comanda al caricamento: lo stile predefinito del sito, poi quello
-    per tutti i siti, poi il QML fornito con la ricetta di partenza.
+    per tutti i siti, poi — se ``fallback`` — il QML fornito con la ricetta
+    di partenza; con ``fallback=False`` (i caricatori che oggi caricano la
+    vista nuda) senza stile salvato non si tocca niente.
     Torna ``"saved:<id>"``, ``"shipped"`` o ``"none"``."""
     spec = view_by_name(view_name)
     if spec is None:
@@ -120,6 +123,8 @@ def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engin
         if scelto is not None and import_qml_text(layer, scelto.qml):
             apply_recipe(layer, scelto.recipe, touch_when_off=True)
             return "saved:%d" % int(scelto.id)
+    if not fallback:
+        return "none"
     qml = shipped_qml(spec)
     if qml:
         try:

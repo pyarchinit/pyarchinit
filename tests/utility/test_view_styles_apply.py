@@ -139,3 +139,12 @@ def test_il_qml_fornito_si_trova_per_nome(qgs):
     from modules.utility.view_styles import view_by_name
     assert va.shipped_qml(view_by_name("pyarchinit_us_view")).endswith("us_view.qml")
     assert va.shipped_qml(view_by_name("pyarchinit_tomba_view")) is None
+
+
+def test_senza_ripiego_si_applica_solo_uno_stile_salvato(qgs):
+    """I caricatori secondari (matrice, documentazione) caricano la vista
+    nuda: con ``fallback=False`` si applica solo un predefinito salvato."""
+    quote = QgsVectorLayer("Point?crs=EPSG:32633&field=sito_q:string&field=us_q:string&field=quota_q:double",
+                           "Quote", "memory")
+    assert va.apply_view_style(quote, "pyarchinit_quote_view", fallback=False) == "none"
+    assert not quote.labelsEnabled()

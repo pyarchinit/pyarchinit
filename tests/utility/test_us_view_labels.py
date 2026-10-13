@@ -143,31 +143,6 @@ def test_la_vista_delle_quote_prende_la_quota_sopra_il_simbolo(qgs):
     assert label_quote_view(senza) is False
 
 
-def test_ogni_caricamento_della_vista_quote_mette_le_etichette():
-    """Dove il plugin carica `quote_us_view.qml` subito dopo chiama
-    `label_quote_view`: la vista delle quote si carica da più scheda."""
-    righe = (_ROOT / "modules" / "gis" / "pyarchinit_pyqgis.py").read_text(encoding="utf-8").split("\n")
-    carichi = [i for i, r in enumerate(righe) if "quote_us_view.qml" in r and "style_path" in r]
-    assert carichi, "nessun caricamento di quote_us_view.qml?"
-    for i in carichi:
-        finestra = "\n".join(righe[i:i + 4])
-        assert "loadNamedStyle(style_path)" in finestra, righe[i]
-        assert "label_quote_view(" in finestra, (i + 1, finestra)
-
-
-def test_la_scheda_us_etichetta_la_vista_us_anche_se_lo_stile_scelto_rinuncia():
-    """«le etichette delle US le vedo ancora in ettari» (13 ottobre 2026):
-    lo stile scelto esce prima delle etichette se alla vista manca un campo
-    che si aspetta. Il caricatore della scheda US le mette da sé, dopo lo
-    stile, in tutti e due i rami (SQLite e PostgreSQL) e per le USM."""
-    righe = (_ROOT / "modules" / "gis" / "pyarchinit_pyqgis.py").read_text(encoding="utf-8").split("\n")
-    stili = [i for i, r in enumerate(righe) if "styler.apply_style_to_layer(" in r and not r.strip().startswith("#")]
-    assert len(stili) >= 3, stili
-    for i in stili:
-        finestra = "\n".join(righe[i:i + 6])
-        assert "label_us_view(" in finestra, (i + 1, righe[i].strip())
-
-
 def test_la_rinuncia_delle_etichette_dice_il_perche(qgs):
     from modules.utility.atlas_labels import label_us_view, why_not_us_view
     punti = QgsVectorLayer("Point?crs=EPSG:32633&" + FIELDS, "Quote", "memory")

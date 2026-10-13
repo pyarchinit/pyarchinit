@@ -48,7 +48,7 @@ import urllib.request
 import urllib.error
 
 from ..utility.create_style import ThesaurusStyler, USViewStyler, apply_stratigraphic_order
-from ..utility.atlas_labels import label_quote_view, label_us_view
+from ..utility.view_styles_apply import apply_view_style
 from ..utility.settings import Settings
 from ..utility.pyarchinit_i18n_stratigraphic import (
     COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
@@ -923,6 +923,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
             ###################################################################
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
@@ -935,6 +936,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
@@ -955,6 +957,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
 
@@ -968,6 +971,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE.isValid():
 
@@ -1035,18 +1039,17 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=True)
 
             if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
@@ -1071,6 +1074,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
@@ -1088,6 +1092,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(),'' , "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
@@ -1186,6 +1191,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = "Registro Doc - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_doc_view', docstr, srid)
+            self._stile_vista(layerPos, 'pyarchinit_doc_view', self._sito_corrente(), fallback=False)
             if layerPos and layerPos.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
@@ -1213,6 +1219,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_neg = "US Negative - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             layerNeg = self._load_spatialite_view(db_file_path, 'pyarchinit_us_negative_doc_view', gdrst, srid)
+            self._stile_vista(layerNeg, 'pyarchinit_us_negative_doc_view', self._sito_corrente(), fallback=False)
 
             if layerNeg and layerNeg.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
@@ -1239,6 +1246,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = self._gn('us_orizzontali', str(data[0].tipo_documentazione), str(data[0].nome_doc))
             layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr, srid)
+            self._stile_vista(layerPos, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerPos and layerPos.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
@@ -1250,6 +1258,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_verticali = self._gn('us_verticali', str(data[0].tipo_documentazione), str(data[0].nome_doc))
             layerverticali = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', docstr, srid)
+            self._stile_vista(layerverticali, 'pyarchinit_usm_view', self._sito_corrente(), fallback=False)
 
             if layerverticali and layerverticali.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
@@ -1274,6 +1283,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = "US Disegno - " + str(data[0].tipo_documentazione)
             layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr_grezzo if docstr_grezzo else None, srid)
+            self._stile_vista(layerPos, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerPos and layerPos.isValid():
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_vuote.qml')
@@ -1541,6 +1551,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_doc_view', doc_from_us_str, srid)
+            self._stile_vista(layerUS, 'pyarchinit_doc_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName(name_layer_d)
@@ -1551,6 +1562,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUSneg = self._load_spatialite_view(db_file_path, 'pyarchinit_us_negative_doc_view', doc_from_us_neg_str, srid)
+            self._stile_vista(layerUSneg, 'pyarchinit_us_negative_doc_view', self._sito_corrente(), fallback=False)
 
             if layerUSneg and layerUSneg.isValid():
                 layerUSneg.setName(name_layer_s_n)
@@ -1561,6 +1573,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', doc_from_us_str, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName(name_layer_s)
@@ -1576,6 +1589,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUSM = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', doc_from_us_str, srid)
+            self._stile_vista(layerUSM, 'pyarchinit_usm_view', self._sito_corrente(), fallback=False)
 
             if layerUSM and layerUSM.isValid():
                 layerUSM.setName(name_layer_sw)
@@ -1594,9 +1608,6 @@ class Pyarchinit_pyqgis(QDialog):
 
             if  layerQUOTE.isValid() == True:
                 #self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
@@ -1727,9 +1738,6 @@ class Pyarchinit_pyqgis(QDialog):
 
             if  layerQUOTE.isValid() == True:
                 #self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
@@ -1805,12 +1813,10 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=True)
 
             if layerQUOTE and layerQUOTE.isValid():
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -1819,11 +1825,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
 
             if layerUS and layerUS.isValid():
                 # Applica lo stile al layer
-                styler.apply_style_to_layer(layerUS)
-                label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                    styler.apply_style_to_layer(layerUS)
 
                 # Apply feature ordering for correct stratigraphic rendering
                 self._apply_us_feature_ordering(layerUS)
@@ -1860,6 +1867,7 @@ class Pyarchinit_pyqgis(QDialog):
             quote_filter = "sito = '{}'".format(sito_filter)
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", quote_filter, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
@@ -1875,6 +1883,7 @@ class Pyarchinit_pyqgis(QDialog):
             # US layer - load from view with sito filter (not IN() with 900 ids)
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
 
             if layerUS.isValid():
 
@@ -1883,8 +1892,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 # Apply categorized style by d_stratigrafica (typology)
                 try:
-                    styler.apply_style_to_layer(layerUS)
-                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                    if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                        styler.apply_style_to_layer(layerUS)
                 except Exception:
                     pass
 
@@ -1965,20 +1974,19 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_usm_view', gidstr, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self._sito_corrente(), fallback=True)
 
             if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_usm_view', self._sito_corrente(), fallback=True)
 
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
@@ -1987,8 +1995,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # as on PostgreSQL
                 try:
                     usm_styler = USViewStyler(Connection(), sito=str(data[0].sito) if data else None)
-                    usm_styler.apply_style_to_layer(layerUS)
-                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                    if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                        usm_styler.apply_style_to_layer(layerUS)
                 except Exception as e:
                     print(f"USM style not applied: {e}")
                 self._apply_us_feature_ordering(layerUS)
@@ -2013,6 +2021,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Quote USM - from materialized view (has order_layer for Time Manager)
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
@@ -2028,6 +2037,7 @@ class Pyarchinit_pyqgis(QDialog):
             # USM view - from materialized view with sito filter
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_usm_view', self._sito_corrente(), fallback=True)
 
             if layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
@@ -2037,8 +2047,8 @@ class Pyarchinit_pyqgis(QDialog):
                 try:
                     a = Connection()
                     usm_styler = USViewStyler(a, sito=sito_filter)
-                    usm_styler.apply_style_to_layer(layerUS)
-                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                    if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                        usm_styler.apply_style_to_layer(layerUS)
                 except Exception:
                     pass
 
@@ -2064,6 +2074,66 @@ class Pyarchinit_pyqgis(QDialog):
                     pass
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
+
+    # ------------------------------------------------------------------
+    # Stili delle viste (spec 2026-10-13): chi comanda al caricamento
+    # ------------------------------------------------------------------
+    def _sito_corrente(self):
+        """Il sito impostato in config.cfg (SITE_SET), o None."""
+        try:
+            percorso = '{}{}'.format(self.HOME, os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg'))
+            with open(percorso, "r") as conf:
+                settings = Settings(conf.read())
+            settings.set_configuration()
+            sito = str(getattr(settings, "SITE_SET", "") or "").strip()
+            return sito or None
+        except Exception:                           # noqa: BLE001
+            return None
+
+    def _engine_stili(self):
+        """Il motore per leggere gli stili salvati, tenuto finché la
+        connessione non cambia; None se il database non risponde."""
+        try:
+            from sqlalchemy import create_engine
+            url = Connection().conn_str()
+            if getattr(self, "_motore_stili_url", None) != url:
+                self._motore_stili = create_engine(url)
+                self._motore_stili_url = url
+            return self._motore_stili
+        except Exception:                           # noqa: BLE001
+            return None
+
+    def _stile_vista(self, layer, view_name, site=None, fallback=True):
+        """Lo stile della vista appena caricata: il predefinito salvato
+        (del sito, o per tutti), altrimenti — se ``fallback`` — il QML
+        fornito e la ricetta delle etichette. Segna sul layer l'esito."""
+        if layer is None:
+            return "none"
+        try:
+            if not layer.isValid():
+                return "none"
+        except Exception:                           # noqa: BLE001
+            return "none"
+        try:
+            esito = apply_view_style(layer, view_name, site, engine=self._engine_stili(),
+                                     fallback=fallback)
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage("Stile della vista %s non applicato: %s" % (view_name, e),
+                                     "PyArchInit", Qgis.MessageLevel.Warning)
+            esito = "none"
+        try:
+            layer.setCustomProperty("pyarchinit/stile", esito)
+        except Exception:                           # noqa: BLE001
+            pass
+        return esito
+
+    def _stile_salvato(self, layer):
+        """Vero se `_stile_vista` ha applicato uno stile salvato: lo stile
+        scelto a mano non deve sovrascriverlo."""
+        try:
+            return str(layer.customProperty("pyarchinit/stile", "") or "").startswith("saved:")
+        except Exception:                           # noqa: BLE001
+            return False
 
     def _apply_us_feature_ordering(self, layer):
         """
@@ -2140,6 +2210,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Use OGR provider for views to avoid spatialite schema caching bug
             # Load Point layer
             layerPoint = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_point_view', gidstr, srid)
+            self._stile_vista(layerPoint, 'pyarchinit_ut_point_view', self._sito_corrente(), fallback=False)
             if layerPoint and layerPoint.isValid():
                 unique_name = self.unique_layer_name(name_layer_point)
                 layerPoint.setName(unique_name)
@@ -2148,6 +2219,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Load Line layer
             layerLine = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_line_view', gidstr, srid)
+            self._stile_vista(layerLine, 'pyarchinit_ut_line_view', self._sito_corrente(), fallback=False)
             if layerLine and layerLine.isValid():
                 unique_name = self.unique_layer_name(name_layer_line)
                 layerLine.setName(unique_name)
@@ -2156,6 +2228,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Load Polygon layer
             layerPolygon = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_polygon_view', gidstr, srid)
+            self._stile_vista(layerPolygon, 'pyarchinit_ut_polygon_view', self._sito_corrente(), fallback=False)
             if layerPolygon and layerPolygon.isValid():
                 unique_name = self.unique_layer_name(name_layer_polygon)
                 layerPolygon.setName(unique_name)
@@ -2178,6 +2251,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Load Point layer
             uri.setDataSource("public", "pyarchinit_ut_point_view", "the_geom", gidstr, "gid")
             layerPoint = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerPoint, 'pyarchinit_ut_point_view', self._sito_corrente(), fallback=False)
             if layerPoint.isValid():
                 unique_name = self.unique_layer_name(name_layer_point)
                 layerPoint.setName(unique_name)
@@ -2187,6 +2261,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Load Line layer
             uri.setDataSource("public", "pyarchinit_ut_line_view", "the_geom", gidstr, "gid")
             layerLine = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerLine, 'pyarchinit_ut_line_view', self._sito_corrente(), fallback=False)
             if layerLine.isValid():
                 unique_name = self.unique_layer_name(name_layer_line)
                 layerLine.setName(unique_name)
@@ -2196,6 +2271,7 @@ class Pyarchinit_pyqgis(QDialog):
             # Load Polygon layer
             uri.setDataSource("public", "pyarchinit_ut_polygon_view", "the_geom", gidstr, "gid")
             layerPolygon = QgsVectorLayer(uri.uri(), '', "postgres")
+            self._stile_vista(layerPolygon, 'pyarchinit_ut_polygon_view', self._sito_corrente(), fallback=False)
             if layerPolygon.isValid():
                 unique_name = self.unique_layer_name(name_layer_polygon)
                 layerPolygon.setName(unique_name)
@@ -2258,17 +2334,16 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', cont_per_string, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=True)
 
             if layerQUOTE and layerQUOTE.isValid():
                 layerQUOTE.setName(layer_name_label_quote)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', cont_per_string, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName(layer_name_label_us)
@@ -2292,6 +2367,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
             if layerQUOTE.isValid():
                 #crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
                 #layerQUOTE.setCrs(crs)
@@ -2305,6 +2381,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
@@ -2374,6 +2451,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_usm_view', cont_per_string, srid)
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self._sito_corrente(), fallback=False)
 
             if layerQUOTE and layerQUOTE.isValid():
                 layerQUOTE.setName(layer_name_label_quote)
@@ -2384,6 +2462,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', cont_per_string, srid)
+            self._stile_vista(layerUS, 'pyarchinit_usm_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName(layer_name_label_us)
@@ -2407,6 +2486,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self._sito_corrente(), fallback=False)
             if layerQUOTE.isValid():
                 #layerQUOTE.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
@@ -2419,6 +2499,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_usm_view', self._sito_corrente(), fallback=False)
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
@@ -2504,9 +2585,6 @@ class Pyarchinit_pyqgis(QDialog):
                     crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                     layerQUOTE.setCrs(crs)
                     # self.USLayerId = layerUS.getLayerID()
-                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                    layerQUOTE.loadNamedStyle(style_path)
-                    label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
@@ -2519,8 +2597,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                     # Applica lo stile: scelta, modello e campo sono chiesti una
                     # volta sola e riusati per tutti i periodi
-                    styler.apply_style_to_layer(layerUS, choice=style_choice)
-                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                    if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                        styler.apply_style_to_layer(layerUS, choice=style_choice)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2578,6 +2656,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
                 layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+                self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self._sito_corrente(), fallback=False)
                 if layerQUOTE.isValid():
                     #layerQUOTE.setCrs(srs)
                     style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
@@ -2590,14 +2669,15 @@ class Pyarchinit_pyqgis(QDialog):
 
                 uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
                 layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+                self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
                 if layerUS.isValid():
                     print(f"Layer US per periodo {periodo} è valido")
 
 
                     # Applica lo stile: scelta, modello e campo sono chiesti una
                     # volta sola e riusati per tutti i periodi
-                    styler.apply_style_to_layer(layerUS, choice=style_choice)
-                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                    if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                        styler.apply_style_to_layer(layerUS, choice=style_choice)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2707,9 +2787,6 @@ class Pyarchinit_pyqgis(QDialog):
                 crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                label_quote_view(layerQUOTE)        # la quota sopra il simbolo (13-10-2026)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
@@ -2741,6 +2818,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+            self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self._sito_corrente(), fallback=False)
             if layerQUOTE.isValid():
                 #layerQUOTE.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
@@ -2753,6 +2831,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_usm_view', self._sito_corrente(), fallback=False)
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
@@ -2783,10 +2862,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri_u.uri(), "Unita Stratigrafiche in uso", "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", "","gid")
             layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
 
@@ -2819,7 +2900,9 @@ class Pyarchinit_pyqgis(QDialog):
             conn.close()
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
             layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
@@ -2858,6 +2941,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri_u.uri(), "Unita Stratigrafiche in uso", "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
 
             # Filter background layer by sito (not all sites!) for fast rendering
             # Extract sito from gidstr: "id_us = 12345" → query the sito from the view
@@ -2877,6 +2961,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", sito_filter, "gid")
             layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
                 # Applica lo stile automatico
@@ -2886,8 +2971,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # Ottieni il mapping tra d_stratigrafica e sigla dal thesaurus
                 thesaurus_mapping = self.get_thesaurus_mapping_postgres(uri_u)
 
-                styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
-                label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
+                if not self._stile_salvato(layerUS):            # un predefinito salvato comanda (Stili delle viste)
+                    styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
 
                 # Crea un nuovo simbolo personalizzato per layerUS_us
                 symbol = QgsFillSymbol.createSimple({'color': 'transparent', 'outline_color': 'black'})
@@ -2935,7 +3020,9 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
             layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
@@ -3093,6 +3180,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", '',"gid")
             layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
 
@@ -3126,7 +3214,9 @@ class Pyarchinit_pyqgis(QDialog):
             conn.close()
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
             layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
+            self._stile_vista(layerUS_us, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
@@ -3166,6 +3256,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource("public", "pyarchinit_us_view", "the_geom", sing_layer, "id_us")
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", docstr, "id_us")
             layerUS = QgsVectorLayer(uri.uri(), "pyarchinit_doc_view_b", "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
                 #QMessageBox.warning(self, "WARNING", "OK layer ", QMessageBox.Ok)
@@ -3203,6 +3294,7 @@ class Pyarchinit_pyqgis(QDialog):
             conn.close()
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr, srid)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=False)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
@@ -4929,6 +5021,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerSITE = self._load_spatialite_view(db_file_path, 'pyarchinit_site_view', gidstr, srid)
+            self._stile_vista(layerSITE, 'pyarchinit_site_view', self._sito_corrente(), fallback=False)
 
             if layerSITE and layerSITE.isValid():
                 layerSITE.setName('pyarchinit_site_view')
@@ -5039,6 +5132,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_reperti_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_reperti_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
@@ -5126,6 +5220,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setDataSource("public", "pyarchinit_tomba_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
+            self._stile_vista(layerUS, 'pyarchinit_tomba_view', self._sito_corrente(), fallback=False)
 
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
@@ -5182,6 +5277,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerSTRUTTURA = self._load_spatialite_view(db_file_path, 'pyarchinit_strutture_view', string, srid)
+            self._stile_vista(layerSTRUTTURA, 'pyarchinit_strutture_view', self._sito_corrente(), fallback=False)
 
             if layerSTRUTTURA and layerSTRUTTURA.isValid():
                 layerSTRUTTURA.setName('pyarchinit_strutture_view')
@@ -5248,6 +5344,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerSTRUTTURA = self._load_spatialite_view(db_file_path, 'pyarchinit_strutture_view', gidstr, srid)
+            self._stile_vista(layerSTRUTTURA, 'pyarchinit_strutture_view', self._sito_corrente(), fallback=False)
 
             if layerSTRUTTURA and layerSTRUTTURA.isValid():
                 layerSTRUTTURA.setName('pyarchinit_strutture_view')
@@ -5314,6 +5411,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerIndividui = self._load_spatialite_view(db_file_path, 'pyarchinit_individui_view', gidstr, srid)
+            self._stile_vista(layerIndividui, 'pyarchinit_individui_view', self._sito_corrente(), fallback=False)
 
             if layerIndividui and layerIndividui.isValid():
                 layerIndividui.setName('pyarchinit_individui_view')
