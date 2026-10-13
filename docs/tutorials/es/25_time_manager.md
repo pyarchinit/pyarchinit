@@ -9,7 +9,7 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 - Visualización progresiva de los niveles estratigráficos
 - Control mediante dial/slider
 - Modo acumulativo o nivel individual
-- Generación automática de imágenes/video
+- Impresión automática de las láminas del atlas, una por nivel
 - Integración con Matrix de Harris
 
 ## Acceso
@@ -45,7 +45,9 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 +--------------------------------------------------+
 | [x] Modo Acumulativo (muestra <= nivel)         |
 +--------------------------------------------------+
-| [ ] Mostrar Matrix          [Stop] [Generar Video] |
+| [ ] Mostrar matriz                               |
+| [Atlas Imprimir Tablas de Período]               |
+| [Detener proceso de impresión]                   |
 +--------------------------------------------------+
 | [Preview Matrix/Imagen]                          |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 | Dial | Navega entre los niveles (rotación) |
 | SpinBox | Introducción directa del nivel |
 | Modo Acumulativo | Muestra todos los niveles hasta el seleccionado |
-| Mostrar Matrix | Visualiza Matrix de Harris sincronizado |
+| Mostrar matriz | Visualiza Matrix de Harris sincronizado |
 
 ## Campo order_layer
 
@@ -110,7 +112,7 @@ Checkbox **ACTIVO**:
 
 ### Visualización Sincronizada
 
-Con checkbox **"Mostrar Matrix"** activo:
+Con checkbox **"Mostrar matriz"** activo:
 - El Matrix de Harris aparece en el panel
 - Se actualiza en sincronía con el nivel
 - Resalta las UE del nivel actual
@@ -118,24 +120,28 @@ Con checkbox **"Mostrar Matrix"** activo:
 ### Generación de Imágenes
 
 El Time Manager puede generar:
-- Capturas de pantalla para cada nivel
-- Secuencia de imágenes
-- Video time-lapse
+- Una lámina por cada nivel, maquetada con la plantilla de layout elegida (imagen JPG)
+- La matriz de Harris de ese nivel dentro de la lámina, si **Mostrar matriz** está activo
 
-## Generación de Video/Imágenes
+## Impresión de las Láminas
 
 ### Proceso
 
 1. Seleccionar capas a incluir
-2. Configurar rango de niveles (mín-máx)
-3. Hacer clic en **"Generar Video"**
-4. Esperar el procesamiento
-5. Output en carpeta designada
+2. Activar **Mostrar matriz** si la matriz debe aparecer en las láminas (si no, la imagen de la matriz de la plantilla queda oculta)
+3. Hacer clic en **Atlas Imprimir Tablas de Período**
+4. En la ventana que se abre, elegir la plantilla de layout (véase la nota «Qué plantilla elegir» al final) y confirmar
+5. Elegir la carpeta donde guardar las láminas
+6. Responder a la pregunta de si abrir el Layout Designer para retocar la plantilla antes de empezar
+7. Esperar: una barra de progreso muestra la lámina en curso y, al terminar, un mensaje dice dónde se han guardado
+8. Para detener la generación, hacer clic en **Detener proceso de impresión**: las láminas ya escritas se quedan en la carpeta
 
 ### Output
 
-- Imágenes PNG para cada nivel
-- Opcional: video MP4 compilado
+- Una `Tavola_N.jpg` por cada nivel (N es el valor de `order_layer`), en la carpeta elegida: el mapa en ese nivel, en el modo activo (acumulativo o nivel individual)
+- El título «Tavola N» y la imagen de la matriz aparecen si la plantilla los prevé (la matriz solo con **Mostrar matriz** activo)
+- Los niveles en los que ninguna UE tiene la datación rellenada se omiten: esos números faltan en la secuencia de archivos
+- Con una plantilla de dos páginas cada nivel produce dos imágenes, la segunda es `Tavola_N_2.jpg` (véase la nota «Hacer apta cualquier plantilla» al final)
 
 **Etiquetas de la lámina.** Mientras genera las láminas del atlas, el Time Manager pone en las capas elegidas las etiquetas de la lámina —el número de la unidad en un círculo en las UE, la cota en los puntos— y las quita al terminar la generación, devolviendo las que había antes. Desde la 5.13.110-alpha las quita en cualquier caso, incluso si una lámina falla: antes, en ese caso, se quedaban en las capas del proyecto y acababan en el archivo del proyecto al guardarlo.
 
@@ -167,9 +173,9 @@ El Time Manager puede generar:
 ### 4. Documentación
 
 ```
-1. Activar "Mostrar Matrix"
-2. Generar capturas significativas
-3. Opcional: generar video
+1. Activar "Mostrar matriz"
+2. Imprimir las láminas con "Atlas Imprimir Tablas de Período"
+3. Revisar los archivos Tavola_N.jpg en la carpeta elegida
 ```
 
 ## Plantillas de Layout
@@ -183,10 +189,10 @@ El Time Manager soporta plantillas QGIS para:
 
 ### Plantillas Disponibles
 
-En la carpeta `resources/templates/`:
-- Plantilla base
-- Plantilla con Matrix
-- Plantilla para video
+La ventana de elección lista los archivos `.qpt` encontrados en la carpeta del plugin, en `resources/dbfiles/` y en `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: la plantilla del Time Manager, con el título «Tavola N» y la imagen de la matriz
+- las plantillas de impresión del perfil de pyArchInit (por ejemplo las «Modello adArte…»)
+- cualquier otro `.qpt`, elegido con el botón **Sfoglia...** (Examinar)
 
 ## Buenas Prácticas
 
@@ -206,7 +212,7 @@ En la carpeta `resources/templates/`:
 
 - Capturar pantalla en niveles significativos
 - Documentar cambios de fase
-- Generar video para memorias
+- Imprimir las láminas para las memorias (una por nivel)
 
 ## Resolución de Problemas
 

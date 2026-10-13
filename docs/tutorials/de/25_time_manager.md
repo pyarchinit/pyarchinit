@@ -9,7 +9,7 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 - Progressive Visualisierung der stratigraphischen Schichten
 - Steuerung über Drehregler/Schieberegler
 - Kumulativer Modus oder Einzelschicht
-- Automatische Bild-/Videogenerierung
+- Automatischer Druck der Atlasblätter, eines je Schicht
 - Integration mit Harris-Matrix
 
 ## Zugriff
@@ -45,7 +45,9 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 +--------------------------------------------------+
 | [x] Kumulativer Modus (zeigt <= Schicht)        |
 +--------------------------------------------------+
-| [ ] Matrix anzeigen      [Stop] [Video erzeugen] |
+| [ ] Matrix anzeigen                              |
+| [Atlas Druck Periodentabellen]                   |
+| [Druckvorgang stoppen]                           |
 +--------------------------------------------------+
 | [Matrix-/Bildvorschau]                           |
 +--------------------------------------------------+
@@ -118,24 +120,28 @@ Mit aktiviertem Checkbox **"Matrix anzeigen"**:
 ### Bildgenerierung
 
 Der Time Manager kann generieren:
-- Screenshots für jede Schicht
-- Bildsequenzen
-- Zeitraffer-Videos
+- Ein Blatt für jede Schicht, gestaltet mit der gewählten Layout-Vorlage (JPG-Bild)
+- Die Harris-Matrix dieser Schicht im Blatt, wenn **Matrix anzeigen** aktiviert ist
 
-## Video-/Bildgenerierung
+## Druck der Blätter
 
 ### Prozess
 
 1. Einzuschließende Layer auswählen
-2. Schichtbereich konfigurieren (min-max)
-3. Auf **"Video erzeugen"** klicken
-4. Verarbeitung abwarten
-5. Ausgabe im vorgesehenen Ordner
+2. **Matrix anzeigen** aktivieren, wenn die Matrix auf den Blättern erscheinen soll (sonst wird das Matrixbild der Vorlage ausgeblendet)
+3. Auf **Atlas Druck Periodentabellen** klicken
+4. Im sich öffnenden Fenster die Layout-Vorlage wählen (siehe die Anmerkung «Welche Vorlage» am Ende) und bestätigen
+5. Den Ordner wählen, in dem die Blätter gespeichert werden
+6. Die Frage beantworten, ob der Layout Designer geöffnet werden soll, um die Vorlage vor dem Start nachzubearbeiten
+7. Abwarten: Ein Fortschrittsbalken zeigt das Blatt in Arbeit, und am Ende nennt eine Meldung den Speicherort
+8. Zum Anhalten der Erzeugung auf **Druckvorgang stoppen** klicken: Die bereits geschriebenen Blätter bleiben im Ordner
 
 ### Ausgabe
 
-- PNG-Bilder für jede Schicht
-- Optional: Kompiliertes MP4-Video
+- Eine `Tavola_N.jpg` für jede Schicht (N ist der Wert von `order_layer`) im gewählten Ordner: die Karte auf dieser Schicht, im aktiven Modus (kumulativ oder Einzelschicht)
+- Der Titel «Tavola N» und das Matrixbild erscheinen, wenn die Vorlage sie vorsieht (die Matrix nur bei aktiviertem **Matrix anzeigen**)
+- Schichten, in denen keine SE eine ausgefüllte Datierung hat, werden übersprungen: In der Dateinummerierung entstehen deshalb Lücken
+- Bei einer zweiseitigen Vorlage entstehen je Schicht zwei Bilder, das zweite heißt `Tavola_N_2.jpg` (siehe die Anmerkung «Eine beliebige Vorlage tauglich machen» am Ende)
 
 **Beschriftungen des Blatts.** Beim Erzeugen der Atlasblätter setzt der Time Manager die Beschriftungen des Blatts auf die gewählten Layer — die Nummer der Einheit in einem Kreis bei den SE, die Höhe bei den Punkten — und entfernt sie am Ende der Erzeugung wieder, wobei er die vorherigen zurücksetzt. Seit 5.13.110-alpha entfernt er sie in jedem Fall, auch wenn ein Blatt scheitert: Früher blieben sie in diesem Fall auf den Layern des Projekts und landeten beim Speichern in der Projektdatei.
 
@@ -168,8 +174,8 @@ Der Time Manager kann generieren:
 
 ```
 1. "Matrix anzeigen" aktivieren
-2. Aussagekräftige Screenshots erstellen
-3. Optional: Video generieren
+2. Die Blätter mit "Atlas Druck Periodentabellen" drucken
+3. Die Dateien Tavola_N.jpg im gewählten Ordner prüfen
 ```
 
 ## Layout-Templates
@@ -183,10 +189,10 @@ Der Time Manager unterstützt QGIS-Templates für:
 
 ### Verfügbare Templates
 
-Im Ordner `resources/templates/`:
-- Basis-Template
-- Template mit Matrix
-- Template für Video
+Das Auswahlfenster listet die `.qpt`-Dateien auf, die im Plugin-Ordner, in `resources/dbfiles/` und in `~/pyarchinit_5/bin/profile/template/` gefunden werden:
+- `layout_TimeManager`: die Vorlage des Time Managers, mit dem Titel «Tavola N» und dem Matrixbild
+- die Drucklayouts des pyArchInit-Profils (zum Beispiel die «Modello adArte…»)
+- jede andere `.qpt`, gewählt mit der Schaltfläche **Sfoglia...** (Durchsuchen)
 
 ## Best Practices
 
@@ -206,7 +212,7 @@ Im Ordner `resources/templates/`:
 
 - Screenshots bei bedeutsamen Schichten erstellen
 - Phasenübergänge dokumentieren
-- Videos für Berichte generieren
+- Blätter für Berichte drucken (eines je Schicht)
 
 ## Fehlerbehebung
 

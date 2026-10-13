@@ -9,7 +9,7 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 - Visualizzazione progressiva dei livelli stratigrafici
 - Controllo tramite dial/slider
 - Modalita cumulativa o singolo livello
-- Generazione automatica di immagini/video
+- Stampa automatica delle tavole dell'atlante, una per livello
 - Integrazione con Matrix di Harris
 
 ## Accesso
@@ -45,7 +45,9 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 +--------------------------------------------------+
 | [x] Modalita Cumulativa (mostra <= livello)     |
 +--------------------------------------------------+
-| [ ] Mostra Matrix          [Stop] [Genera Video] |
+| [ ] Visualizza matrix                            |
+| [Atlas Stampa Tavole Periodo]                    |
+| [Arresta processo stampa]                        |
 +--------------------------------------------------+
 | [Preview Matrix/Immagine]                        |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 | Dial | Naviga tra i livelli (rotazione) |
 | SpinBox | Inserimento diretto livello |
 | Modalita Cumulativa | Mostra tutti i livelli fino al selezionato |
-| Mostra Matrix | Visualizza Matrix di Harris sincronizzato |
+| Visualizza matrix | Visualizza Matrix di Harris sincronizzato |
 
 ## Campo order_layer
 
@@ -110,7 +112,7 @@ Checkbox **ATTIVO**:
 
 ### Visualizzazione Sincronizzata
 
-Con checkbox **"Mostra Matrix"** attivo:
+Con checkbox **"Visualizza matrix"** attivo:
 - Il Matrix di Harris appare nel pannello
 - Si aggiorna in sincrono con il livello
 - Evidenzia le US del livello corrente
@@ -118,24 +120,28 @@ Con checkbox **"Mostra Matrix"** attivo:
 ### Generazione Immagini
 
 Il Time Manager puo generare:
-- Screenshot per ogni livello
-- Sequenza di immagini
-- Video time-lapse
+- Una tavola per ogni livello, impaginata con il modello di layout scelto (immagine JPG)
+- La Matrix di Harris di quel livello dentro la tavola, se **Visualizza matrix** è attivo
 
-## Generazione Video/Immagini
+## Stampa delle tavole
 
 ### Processo
 
 1. Selezionare layer da includere
-2. Configurare range livelli (min-max)
-3. Cliccare **"Genera Video"**
-4. Attendere elaborazione
-5. Output in cartella designata
+2. Attivare **Visualizza matrix** se la Matrix deve comparire nelle tavole (altrimenti l'immagine della Matrix del modello viene nascosta)
+3. Cliccare **Atlas Stampa Tavole Periodo**
+4. Nella finestra che si apre scegliere il modello di layout (vedi la nota «Quale template scegliere» in fondo) e confermare
+5. Scegliere la cartella dove salvare le tavole
+6. Rispondere alla domanda se aprire il Layout Designer per ritoccare il modello prima di cominciare
+7. Attendere: una barra di avanzamento mostra la tavola in lavorazione e, a lavoro finito, un messaggio dice dove sono state salvate
+8. Per fermare la generazione cliccare **Arresta processo stampa**: le tavole già scritte restano nella cartella
 
 ### Output
 
-- Immagini PNG per ogni livello
-- Opzionale: video MP4 compilato
+- Una `Tavola_N.jpg` per ogni livello (N è il valore di `order_layer`), nella cartella scelta: la mappa a quel livello, nella modalità attiva (cumulativa o singolo livello)
+- Il titolo «Tavola N» e l'immagine della Matrix compaiono se il modello li prevede (la Matrix solo con **Visualizza matrix** attivo)
+- I livelli in cui nessuna US ha la datazione compilata vengono saltati: nella sequenza dei file mancano quei numeri
+- Con un modello a due pagine escono due immagini per livello, la seconda è `Tavola_N_2.jpg` (vedi la nota «Rendere adatto un modello qualunque» in fondo)
 
 **Etichette della tavola.** Mentre genera le tavole dell'atlante, il Time Manager mette sui layer scelti le etichette della tavola — il numero dell'unità in un cerchio sulle US, la quota sui punti — e a generazione finita le toglie, rimettendo quelle che c'erano prima. Dalla 5.13.110-alpha le toglie comunque, anche se una tavola salta: prima, in quel caso, restavano sui layer del progetto e finivano nel file del progetto quando lo si salvava.
 
@@ -167,9 +173,9 @@ Il Time Manager puo generare:
 ### 4. Documentazione
 
 ```
-1. Attivare "Mostra Matrix"
-2. Generare screenshot significativi
-3. Opzionale: generare video
+1. Attivare "Visualizza matrix"
+2. Stampare le tavole con "Atlas Stampa Tavole Periodo"
+3. Controllare i file Tavola_N.jpg nella cartella scelta
 ```
 
 ## Templates di Layout
@@ -183,10 +189,10 @@ Il Time Manager supporta template QGIS per:
 
 ### Template Disponibili
 
-Nella cartella `resources/templates/`:
-- Template base
-- Template con Matrix
-- Template per video
+La finestra di scelta elenca i file `.qpt` trovati nella cartella del plugin, in `resources/dbfiles/` e in `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: il modello del Time Manager, con il titolo «Tavola N» e l'immagine della Matrix
+- i modelli di stampa del profilo pyArchInit (per esempio i «Modello adArte…»)
+- qualunque altro `.qpt`, scelto con il pulsante **Sfoglia...**
 
 ## Best Practices
 
@@ -206,7 +212,7 @@ Nella cartella `resources/templates/`:
 
 - Catturare screenshot ai livelli significativi
 - Documentare passaggi di fase
-- Generare video per relazioni
+- Stampare le tavole per le relazioni (una per livello)
 
 ## Risoluzione Problemi
 

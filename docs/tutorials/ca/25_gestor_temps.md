@@ -9,7 +9,7 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 - Visualització progressiva dels nivells estratigràfics
 - Control mitjançant dial/slider
 - Modalitat acumulativa o nivell individual
-- Generació automàtica d'imatges/vídeo
+- Impressió automàtica de les làmines de l'atles, una per nivell
 - Integració amb Matriu de Harris
 
 ## Accés
@@ -45,7 +45,9 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 +--------------------------------------------------+
 | [x] Modalitat Acumulativa (mostra <= nivell)    |
 +--------------------------------------------------+
-| [ ] Mostra Matrix          [Stop] [Genera Vídeo]|
+| [ ] Mostrar matriu                               |
+| [Atlas Impressió Taules Període]                 |
+| [Aturar procés d'impressió]                      |
 +--------------------------------------------------+
 | [Preview Matrix/Imatge]                          |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 | Dial | Navega entre els nivells (rotació) |
 | SpinBox | Inserció directa nivell |
 | Modalitat Acumulativa | Mostra tots els nivells fins al seleccionat |
-| Mostra Matrix | Visualitza Matriu de Harris sincronitzat |
+| Mostrar matriu | Visualitza Matriu de Harris sincronitzat |
 
 ## Camp order_layer
 
@@ -110,7 +112,7 @@ Checkbox **ACTIU**:
 
 ### Visualització Sincronitzada
 
-Amb checkbox **"Mostra Matrix"** actiu:
+Amb checkbox **"Mostrar matriu"** actiu:
 - El Matrix de Harris apareix al panell
 - S'actualitza en sincronia amb el nivell
 - Ressalta les US del nivell actual
@@ -118,24 +120,28 @@ Amb checkbox **"Mostra Matrix"** actiu:
 ### Generació Imatges
 
 El Gestor de Temps pot generar:
-- Captura de pantalla per a cada nivell
-- Seqüència d'imatges
-- Vídeo time-lapse
+- Una làmina per a cada nivell, maquetada amb la plantilla de layout triada (imatge JPG)
+- La matriu de Harris d'aquest nivell dins de la làmina, si **Mostrar matriu** està actiu
 
-## Generació Vídeo/Imatges
+## Impressió de les Làmines
 
 ### Procés
 
 1. Seleccionar capes a incloure
-2. Configurar rang nivells (min-max)
-3. Fer clic **"Genera Vídeo"**
-4. Esperar elaboració
-5. Sortida a carpeta designada
+2. Activar **Mostrar matriu** si la matriu ha d'aparèixer a les làmines (si no, la imatge de la matriu de la plantilla queda oculta)
+3. Fer clic a **Atlas Impressió Taules Període**
+4. A la finestra que s'obre, triar la plantilla de layout (vegeu la nota «Quina plantilla triar» al final) i confirmar
+5. Triar la carpeta on desar les làmines
+6. Respondre la pregunta de si cal obrir el Layout Designer per retocar la plantilla abans de començar
+7. Esperar: una barra de progrés mostra la làmina en curs i, en acabar, un missatge diu on s'han desat
+8. Per aturar la generació, fer clic a **Aturar procés d'impressió**: les làmines ja escrites es queden a la carpeta
 
 ### Sortida
 
-- Imatges PNG per a cada nivell
-- Opcional: vídeo MP4 compilat
+- Una `Tavola_N.jpg` per a cada nivell (N és el valor d'`order_layer`), a la carpeta triada: el mapa en aquest nivell, en la modalitat activa (acumulativa o nivell individual)
+- El títol «Tavola N» i la imatge de la matriu apareixen si la plantilla els preveu (la matriu només amb **Mostrar matriu** actiu)
+- Els nivells on cap US té la datació emplenada s'ometen: aquests números falten a la seqüència de fitxers
+- Amb una plantilla de dues pàgines cada nivell produeix dues imatges, la segona és `Tavola_N_2.jpg` (vegeu la nota «Fer apta qualsevol plantilla» al final)
 
 **Etiquetes de la làmina.** Mentre genera les làmines de l'atles, el Time Manager posa a les capes triades les etiquetes de la làmina —el número de la unitat dins d'un cercle a les US, la cota als punts— i les treu en acabar la generació, tornant a posar les que hi havia abans. Des de la 5.13.110-alpha les treu en qualsevol cas, fins i tot si una làmina falla: abans, en aquest cas, es quedaven a les capes del projecte i acabaven al fitxer del projecte en desar-lo.
 
@@ -167,9 +173,9 @@ El Gestor de Temps pot generar:
 ### 4. Documentació
 
 ```
-1. Activar "Mostra Matrix"
-2. Generar captures de pantalla significatives
-3. Opcional: generar vídeo
+1. Activar "Mostrar matriu"
+2. Imprimir les làmines amb "Atlas Impressió Taules Període"
+3. Revisar els fitxers Tavola_N.jpg a la carpeta triada
 ```
 
 ## Templates de Layout
@@ -183,10 +189,10 @@ El Gestor de Temps suporta templates QGIS per:
 
 ### Templates Disponibles
 
-A la carpeta `resources/templates/`:
-- Template base
-- Template amb Matrix
-- Template per vídeo
+La finestra d'elecció llista els fitxers `.qpt` trobats a la carpeta del plugin, a `resources/dbfiles/` i a `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: la plantilla del Time Manager, amb el títol «Tavola N» i la imatge de la matriu
+- les plantilles d'impressió del perfil de pyArchInit (per exemple les «Modello adArte…»)
+- qualsevol altre `.qpt`, triat amb el botó **Sfoglia...** (Cerca)
 
 ## Bones Pràctiques
 
@@ -206,7 +212,7 @@ A la carpeta `resources/templates/`:
 
 - Capturar screenshots als nivells significatius
 - Documentar passatges de fase
-- Generar vídeo per memòries
+- Imprimir les làmines per a les memòries (una per nivell)
 
 ## Resolució de Problemes
 

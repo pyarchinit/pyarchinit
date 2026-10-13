@@ -9,7 +9,7 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 - Visualizacao progressiva dos niveis estratigraficos
 - Controlo por dial/barra deslizante
 - Modo cumulativo ou nivel individual
-- Geracao automatica de imagens/video
+- Impressao automatica das pranchas do atlas, uma por nivel
 - Integracao com Harris Matrix
 
 ## Acesso
@@ -45,7 +45,9 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 +--------------------------------------------------+
 | [x] Modo Cumulativo (mostrar <= nivel)           |
 +--------------------------------------------------+
-| [ ] Mostrar Matrix    [Parar] [Gerar Video]      |
+| [ ] Mostrar matriz                               |
+| [Atlas Imprimir Período Tables]                  |
+| [Parar print process]                            |
 +--------------------------------------------------+
 | [Pre-visualizacao Matrix/Imagem]                  |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 | Dial | Navegar entre niveis (rotacao) |
 | SpinBox | Entrada direta do nivel |
 | Modo Cumulativo | Mostrar todos os niveis ate ao selecionado |
-| Mostrar Matrix | Apresentar Harris Matrix sincronizada |
+| Mostrar matriz | Apresentar Harris Matrix sincronizada |
 
 ## Campo order_layer
 
@@ -110,7 +112,7 @@ Caixa de selecao **ATIVA**:
 
 ### Visualizacao Sincronizada
 
-Com a caixa de selecao **"Mostrar Matrix"** ativa:
+Com a caixa de selecao **"Mostrar matriz"** ativa:
 - Harris Matrix aparece no painel
 - Atualiza em sincronia com o nivel
 - Destaca as UE do nivel atual
@@ -118,24 +120,28 @@ Com a caixa de selecao **"Mostrar Matrix"** ativa:
 ### Geracao de Imagens
 
 O Time Manager pode gerar:
-- Captura de ecra para cada nivel
-- Sequencia de imagens
-- Video time-lapse
+- Uma prancha por cada nivel, composta com o modelo de composicao escolhido (imagem JPG)
+- A matriz de Harris desse nivel dentro da prancha, se **Mostrar matriz** estiver ativa
 
-## Geracao de Video/Imagem
+## Impressao das Pranchas
 
 ### Processo
 
 1. Selecionar camadas a incluir
-2. Configurar intervalo de niveis (min-max)
-3. Clicar em **"Gerar Video"**
-4. Aguardar processamento
-5. Saida na pasta designada
+2. Ativar **Mostrar matriz** se a matriz deve aparecer nas pranchas (caso contrario, a imagem da matriz do modelo fica oculta)
+3. Clicar em **Atlas Imprimir Período Tables**
+4. Na janela que se abre, escolher o modelo de composicao (ver a nota «Que modelo escolher» no fim) e confirmar
+5. Escolher a pasta onde guardar as pranchas
+6. Responder a pergunta sobre abrir o Layout Designer para retocar o modelo antes de comecar
+7. Aguardar: uma barra de progresso mostra a prancha em curso e, no fim, uma mensagem indica onde foram guardadas
+8. Para parar a geracao, clicar em **Parar print process**: as pranchas ja escritas ficam na pasta
 
 ### Resultado
 
-- Imagens PNG para cada nivel
-- Opcional: video MP4 compilado
+- Uma `Tavola_N.jpg` por cada nivel (N e o valor de `order_layer`), na pasta escolhida: o mapa nesse nivel, no modo ativo (cumulativo ou nivel individual)
+- O titulo «Tavola N» e a imagem da matriz aparecem se o modelo os preve (a matriz so com **Mostrar matriz** ativa)
+- Os niveis em que nenhuma UE tem a datacao preenchida sao ignorados: esses numeros faltam na sequencia de ficheiros
+- Com um modelo de duas paginas cada nivel produz duas imagens, sendo a segunda `Tavola_N_2.jpg` (ver a nota «Tornar apto qualquer modelo» no fim)
 
 **Etiquetas da prancha.** Enquanto gera as pranchas do atlas, o Time Manager coloca nas camadas escolhidas as etiquetas da prancha — o número da unidade dentro de um círculo nas UE, a cota nos pontos — e retira-as no fim da geração, repondo as que lá estavam antes. Desde a 5.13.110-alpha retira-as em qualquer caso, mesmo que uma prancha falhe: antes, nesse caso, ficavam nas camadas do projeto e iam parar ao ficheiro do projeto quando este era guardado.
 
@@ -167,9 +173,9 @@ O Time Manager pode gerar:
 ### 4. Documentacao
 
 ```
-1. Ativar "Mostrar Matrix"
-2. Gerar capturas de ecra significativas
-3. Opcional: gerar video
+1. Ativar "Mostrar matriz"
+2. Imprimir as pranchas com "Atlas Imprimir Período Tables"
+3. Verificar os ficheiros Tavola_N.jpg na pasta escolhida
 ```
 
 ## Modelos de Composicao
@@ -183,10 +189,10 @@ O Time Manager suporta modelos QGIS para:
 
 ### Modelos Disponiveis
 
-Na pasta `resources/templates/`:
-- Modelo base
-- Modelo com Matrix
-- Modelo para video
+A janela de escolha lista os ficheiros `.qpt` encontrados na pasta do plugin, em `resources/dbfiles/` e em `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: o modelo do Time Manager, com o titulo «Tavola N» e a imagem da matriz
+- os modelos de impressao do perfil do pyArchInit (por exemplo os «Modello adArte…»)
+- qualquer outro `.qpt`, escolhido com o botao **Sfoglia...** (Procurar)
 
 ## Boas Praticas
 
@@ -206,7 +212,7 @@ Na pasta `resources/templates/`:
 
 - Capturar ecras em niveis significativos
 - Documentar transicoes de fase
-- Gerar video para relatorios
+- Imprimir as pranchas para os relatorios (uma por nivel)
 
 ## Resolucao de Problemas
 

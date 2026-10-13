@@ -9,7 +9,7 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 - Progressive visualization of stratigraphic levels
 - Control via dial/slider
 - Cumulative or single level mode
-- Automatic image/video generation
+- Automatic printing of the atlas sheets, one per level
 - Integration with Harris Matrix
 
 ## Access
@@ -45,7 +45,9 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 +--------------------------------------------------+
 | [x] Cumulative Mode (show <= level)             |
 +--------------------------------------------------+
-| [ ] Show Matrix          [Stop] [Generate Video] |
+| [ ] Display matrix                               |
+| [Atlas Print Period Tables]                      |
+| [Stop print process]                             |
 +--------------------------------------------------+
 | [Matrix/Image Preview]                           |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 | Dial | Navigate between levels (rotation) |
 | SpinBox | Direct level input |
 | Cumulative Mode | Show all levels up to selected |
-| Show Matrix | Display synchronized Harris Matrix |
+| Display matrix | Display synchronized Harris Matrix |
 
 ## order_layer Field
 
@@ -110,7 +112,7 @@ Checkbox **ACTIVE**:
 
 ### Synchronized Visualization
 
-With **"Show Matrix"** checkbox active:
+With **"Display matrix"** checkbox active:
 - Harris Matrix appears in panel
 - Updates in sync with level
 - Highlights current level SU
@@ -118,24 +120,28 @@ With **"Show Matrix"** checkbox active:
 ### Image Generation
 
 Time Manager can generate:
-- Screenshot for each level
-- Image sequence
-- Time-lapse video
+- A sheet for each level, laid out with the chosen layout template (JPG image)
+- The Harris Matrix of that level inside the sheet, if **Display matrix** is active
 
-## Video/Image Generation
+## Printing the Sheets
 
 ### Process
 
 1. Select layers to include
-2. Configure level range (min-max)
-3. Click **"Generate Video"**
-4. Wait for processing
-5. Output in designated folder
+2. Activate **Display matrix** if the Matrix must appear on the sheets (otherwise the template's Matrix picture is hidden)
+3. Click **Atlas Print Period Tables**
+4. In the window that opens, choose the layout template (see the note "Which template to pick" at the bottom) and confirm
+5. Choose the folder where the sheets will be saved
+6. Answer the question whether to open the Layout Designer to touch up the template before starting
+7. Wait: a progress bar shows the sheet being generated and, when it is done, a message says where the sheets were saved
+8. To stop the generation click **Stop print process**: the sheets already written stay in the folder
 
 ### Output
 
-- PNG images for each level
-- Optional: compiled MP4 video
+- One `Tavola_N.jpg` for each level (N is the `order_layer` value), in the chosen folder: the map at that level, in the active mode (cumulative or single level)
+- The «Tavola N» title and the Matrix picture appear if the template has them (the Matrix only with **Display matrix** active)
+- Levels where no SU has its dating filled in are skipped: those numbers are missing from the sequence of files
+- With a two-page template each level produces two images, the second one being `Tavola_N_2.jpg` (see the note "Making any template suitable" at the bottom)
 
 **Sheet labels.** While it generates the atlas sheets, the Time Manager puts the sheet labels on the chosen layers — the unit number in a circle on the SUs, the elevation on the points — and removes them when the generation ends, putting back the ones that were there before. Since 5.13.110-alpha it removes them in any case, even if a sheet fails: before, in that case, they stayed on the project's layers and ended up in the project file when it was saved.
 
@@ -167,9 +173,9 @@ Time Manager can generate:
 ### 4. Documentation
 
 ```
-1. Enable "Show Matrix"
-2. Generate significant screenshots
-3. Optional: generate video
+1. Enable "Display matrix"
+2. Print the sheets with "Atlas Print Period Tables"
+3. Check the Tavola_N.jpg files in the chosen folder
 ```
 
 ## Layout Templates
@@ -183,10 +189,10 @@ Time Manager supports QGIS templates for:
 
 ### Available Templates
 
-In `resources/templates/` folder:
-- Base template
-- Template with Matrix
-- Template for video
+The chooser window lists the `.qpt` files found in the plugin folder, in `resources/dbfiles/` and in `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: the Time Manager template, with the «Tavola N» title and the Matrix picture
+- the print templates of the pyArchInit profile (for example the «Modello adArte…» ones)
+- any other `.qpt`, picked with the **Sfoglia...** (Browse) button
 
 ## Best Practices
 
@@ -206,7 +212,7 @@ In `resources/templates/` folder:
 
 - Capture screenshots at significant levels
 - Document phase transitions
-- Generate video for reports
+- Print the sheets for reports (one per level)
 
 ## Troubleshooting
 

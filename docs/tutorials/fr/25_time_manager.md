@@ -9,7 +9,7 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 - Visualisation progressive des niveaux stratigraphiques
 - Contrôle via molette/curseur
 - Mode cumulatif ou niveau unique
-- Génération automatique d'images/vidéo
+- Impression automatique des planches de l'atlas, une par niveau
 - Intégration avec la Matrice de Harris
 
 ## Accès
@@ -45,7 +45,9 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 +--------------------------------------------------+
 | [x] Mode Cumulatif (affiche <= niveau)          |
 +--------------------------------------------------+
-| [ ] Afficher Matrice    [Stop] [Générer Vidéo]  |
+| [ ] Afficher la matrice                          |
+| [Atlas Impression Tableaux par Période]          |
+| [Arrêter le processus d'impression]              |
 +--------------------------------------------------+
 | [Aperçu Matrice/Image]                           |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 | Molette | Navigation entre les niveaux (rotation) |
 | SpinBox | Saisie directe du niveau |
 | Mode Cumulatif | Affiche tous les niveaux jusqu'au sélectionné |
-| Afficher Matrice | Visualise la Matrice de Harris synchronisée |
+| Afficher la matrice | Visualise la Matrice de Harris synchronisée |
 
 ## Champ order_layer
 
@@ -110,7 +112,7 @@ Case à cocher **ACTIVE** :
 
 ### Visualisation Synchronisée
 
-Avec la case **"Afficher Matrice"** active :
+Avec la case **"Afficher la matrice"** active :
 - La Matrice de Harris apparaît dans le panneau
 - Elle se met à jour en synchronisation avec le niveau
 - Elle met en évidence les US du niveau courant
@@ -118,24 +120,28 @@ Avec la case **"Afficher Matrice"** active :
 ### Génération d'Images
 
 Le Time Manager peut générer :
-- Captures d'écran pour chaque niveau
-- Séquence d'images
-- Vidéo time-lapse
+- Une planche par niveau, composée avec le modèle de mise en page choisi (image JPG)
+- La Matrice de Harris de ce niveau dans la planche, si **Afficher la matrice** est active
 
-## Génération Vidéo/Images
+## Impression des Planches
 
 ### Processus
 
 1. Sélectionner les couches à inclure
-2. Configurer la plage de niveaux (min-max)
-3. Cliquer sur **"Générer Vidéo"**
-4. Attendre le traitement
-5. Sortie dans le dossier désigné
+2. Activer **Afficher la matrice** si la Matrice doit apparaître sur les planches (sinon l'image de la Matrice du modèle est masquée)
+3. Cliquer sur **Atlas Impression Tableaux par Période**
+4. Dans la fenêtre qui s'ouvre, choisir le modèle de mise en page (voir la note « Quel modèle choisir » en bas) et confirmer
+5. Choisir le dossier où enregistrer les planches
+6. Répondre à la question : ouvrir ou non le Layout Designer pour retoucher le modèle avant de commencer
+7. Patienter : une barre de progression indique la planche en cours et, à la fin, un message dit où elles ont été enregistrées
+8. Pour arrêter la génération, cliquer sur **Arrêter le processus d'impression** : les planches déjà écrites restent dans le dossier
 
 ### Sortie
 
-- Images PNG pour chaque niveau
-- Optionnel : vidéo MP4 compilée
+- Un `Tavola_N.jpg` pour chaque niveau (N est la valeur de `order_layer`), dans le dossier choisi : la carte à ce niveau, dans le mode actif (cumulatif ou niveau unique)
+- Le titre « Tavola N » et l'image de la Matrice apparaissent si le modèle les prévoit (la Matrice seulement avec **Afficher la matrice** active)
+- Les niveaux où aucune US n'a de datation renseignée sont ignorés : ces numéros manquent dans la suite des fichiers
+- Avec un modèle à deux pages, chaque niveau produit deux images, la seconde étant `Tavola_N_2.jpg` (voir la note « Rendre apte n'importe quel modèle » en bas)
 
 **Étiquettes de la planche.** Pendant qu'il génère les planches de l'atlas, le Time Manager met sur les couches choisies les étiquettes de la planche — le numéro de l'unité dans un cercle sur les US, la cote sur les points — et les retire à la fin de la génération, en remettant celles qui y étaient avant. Depuis la 5.13.110-alpha, il les retire dans tous les cas, même si une planche échoue : auparavant, dans ce cas, elles restaient sur les couches du projet et finissaient dans le fichier du projet à l'enregistrement.
 
@@ -167,9 +173,9 @@ Le Time Manager peut générer :
 ### 4. Documentation
 
 ```
-1. Activer "Afficher Matrice"
-2. Générer des captures d'écran significatives
-3. Optionnel : générer une vidéo
+1. Activer "Afficher la matrice"
+2. Imprimer les planches avec "Atlas Impression Tableaux par Période"
+3. Vérifier les fichiers Tavola_N.jpg dans le dossier choisi
 ```
 
 ## Templates de Mise en Page
@@ -183,10 +189,10 @@ Le Time Manager prend en charge les templates QGIS pour :
 
 ### Templates Disponibles
 
-Dans le dossier `resources/templates/` :
-- Template de base
-- Template avec Matrice
-- Template pour vidéo
+La fenêtre de choix liste les fichiers `.qpt` trouvés dans le dossier du plugin, dans `resources/dbfiles/` et dans `~/pyarchinit_5/bin/profile/template/` :
+- `layout_TimeManager` : le modèle du Time Manager, avec le titre « Tavola N » et l'image de la Matrice
+- les modèles d'impression du profil pyArchInit (par exemple les « Modello adArte… »)
+- tout autre `.qpt`, choisi avec le bouton **Sfoglia...** (Parcourir)
 
 ## Bonnes Pratiques
 
@@ -206,7 +212,7 @@ Dans le dossier `resources/templates/` :
 
 - Capturer des écrans aux niveaux significatifs
 - Documenter les passages de phase
-- Générer des vidéos pour les rapports
+- Imprimer les planches pour les rapports (une par niveau)
 
 ## Résolution des Problèmes
 

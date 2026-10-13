@@ -9,7 +9,7 @@
 - Vizualizare progresiva a nivelurilor stratigrafice
 - Control prin disc/cursor
 - Mod cumulativ sau nivel individual
-- Generare automata de imagini/video
+- Tiparirea automata a planselor atlasului, una pe nivel
 - Integrare cu Harris Matrix
 
 ## Acces
@@ -45,7 +45,9 @@
 +--------------------------------------------------+
 | [x] Mod cumulativ (afiseaza <= nivel)            |
 +--------------------------------------------------+
-| [ ] Afisare Matrix    [Stop] [Generare video]    |
+| [ ] Vizualizare matrice                          |
+| [Plăci din perioada imprimării atlasului]        |
+| [Opriți procesul de imprimare]                   |
 +--------------------------------------------------+
 | [Previzualizare Matrix/Imagine]                  |
 +--------------------------------------------------+
@@ -59,7 +61,7 @@
 | Disc | Navigare intre niveluri (rotire) |
 | SpinBox | Introducere directa a nivelului |
 | Mod cumulativ | Afisare toate nivelurile pana la cel selectat |
-| Afisare Matrix | Afisare Harris Matrix sincronizata |
+| Vizualizare matrice | Afisare Harris Matrix sincronizata |
 
 ## Campul order_layer
 
@@ -110,7 +112,7 @@ Caseta de bifare **ACTIVATA**:
 
 ### Vizualizare sincronizata
 
-Cu caseta de bifare **"Afisare Matrix"** activata:
+Cu caseta de bifare **"Vizualizare matrice"** activata:
 - Harris Matrix apare in panou
 - Se actualizeaza sincronizat cu nivelul
 - Evidentiaza US nivelului curent
@@ -118,24 +120,28 @@ Cu caseta de bifare **"Afisare Matrix"** activata:
 ### Generare imagini
 
 Managerul Temporal poate genera:
-- Captura de ecran pentru fiecare nivel
-- Secventa de imagini
-- Video time-lapse
+- O plansa pentru fiecare nivel, alcatuita cu sablonul de macheta ales (imagine JPG)
+- Matricea Harris a acelui nivel in interiorul plansei, daca **Vizualizare matrice** este activata
 
-## Generare video/imagini
+## Tiparirea planselor
 
 ### Proces
 
 1. Selectati straturile de inclus
-2. Configurati intervalul de niveluri (min-max)
-3. Faceti clic pe **"Generare video"**
-4. Asteptati procesarea
-5. Iesire in folderul desemnat
+2. Activati **Vizualizare matrice** daca matricea trebuie sa apara pe planse (altfel imaginea matricei din sablon este ascunsa)
+3. Faceti clic pe **Plăci din perioada imprimării atlasului**
+4. In fereastra care se deschide, alegeti sablonul de macheta (vezi nota «Ce sablon sa alegi» de la final) si confirmati
+5. Alegeti folderul in care se salveaza plansele
+6. Raspundeti la intrebarea daca se deschide Layout Designer pentru a retusa sablonul inainte de a incepe
+7. Asteptati: o bara de progres arata plansa in lucru si, la sfarsit, un mesaj spune unde au fost salvate
+8. Pentru a opri generarea, faceti clic pe **Opriți procesul de imprimare**: plansele deja scrise raman in folder
 
 ### Iesire
 
-- Imagini PNG pentru fiecare nivel
-- Optional: video MP4 compilat
+- Un `Tavola_N.jpg` pentru fiecare nivel (N este valoarea `order_layer`), in folderul ales: harta la acel nivel, in modul activ (cumulativ sau nivel individual)
+- Titlul «Tavola N» si imaginea matricei apar daca sablonul le prevede (matricea doar cu **Vizualizare matrice** activata)
+- Nivelurile in care nicio US nu are datarea completata sunt omise: acele numere lipsesc din secventa de fisiere
+- Cu un sablon cu doua pagini fiecare nivel produce doua imagini, a doua fiind `Tavola_N_2.jpg` (vezi nota «A face apt orice sablon» de la final)
 
 **Etichetele plansei.** În timp ce generează plansele atlasului, Time Manager pune pe straturile alese etichetele plansei — numărul unității într-un cerc pe US, cota pe puncte — și le scoate la sfârșitul generării, repunându-le pe cele care erau înainte. Începând cu 5.13.110-alpha le scoate în orice caz, chiar dacă o planșă eșuează: înainte, în acest caz, rămâneau pe straturile proiectului și ajungeau în fișierul proiectului când acesta era salvat.
 
@@ -167,9 +173,9 @@ Managerul Temporal poate genera:
 ### 4. Documentatie
 
 ```
-1. Activati "Afisare Matrix"
-2. Generati capturi de ecran semnificative
-3. Optional: generati video
+1. Activati "Vizualizare matrice"
+2. Tipariti plansele cu "Plăci din perioada imprimării atlasului"
+3. Verificati fisierele Tavola_N.jpg din folderul ales
 ```
 
 ## Sabloane de macheta
@@ -183,10 +189,10 @@ Managerul Temporal suporta sabloane QGIS pentru:
 
 ### Sabloane disponibile
 
-In folderul `resources/templates/`:
-- Sablon de baza
-- Sablon cu Matrix
-- Sablon pentru video
+Fereastra de alegere listeaza fisierele `.qpt` gasite in folderul plugin-ului, in `resources/dbfiles/` si in `~/pyarchinit_5/bin/profile/template/`:
+- `layout_TimeManager`: sablonul Time Manager, cu titlul «Tavola N» si imaginea matricei
+- sabloanele de tiparire din profilul pyArchInit (de exemplu cele «Modello adArte…»)
+- orice alt `.qpt`, ales cu butonul **Sfoglia...** (Rasfoire)
 
 ## Bune practici
 
@@ -206,7 +212,7 @@ In folderul `resources/templates/`:
 
 - Capturati capturi de ecran la niveluri semnificative
 - Documentati tranzitiile de faze
-- Generati video pentru rapoarte
+- Tipariti plansele pentru rapoarte (una pe nivel)
 
 ## Depanare
 
