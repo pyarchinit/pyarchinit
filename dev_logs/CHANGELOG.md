@@ -5,6 +5,38 @@
 
 ---
 
+## [feat] - 2026-10-13 — Il Time Manager parla la lingua di QGIS: finestre della stampa delle tavole tradotte, anni fino al 2100, greco e portoghese completi; la vista delle quote porta la quota; tutorial 25 con la cronologia assoluta — 5.13.111-alpha
+
+> Branch `Stratigraph_00001`. Suite **2079 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The Time Manager speaks the QGIS language: the atlas printing dialogs are localised, the years reach 2100, Greek and Portuguese labels are complete; tutorial 25 documents the absolute chronology tab.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **la vista delle quote porta la quota** («e le etichette delle quote non compaiono», Enzo, dal video del 13 ottobre 2026). `atlas_labels.label_quote_view(layer)`: su un layer di punti con il campo della quota mette `quota_labeling` — il valore con due decimali sopra la linea orizzontale del simbolo, come nelle tavole dell'atlante; altrove torna `False` e non tocca niente. `pyarchinit_pyqgis.py` la chiama dopo **ogni** `loadNamedStyle` di `quote_us_view.qml` (otto punti di carico: scheda US, USM, periodi, su SQLite e PostgreSQL), perché quel QML non ha etichette e `loadNamedStyle` azzera quelle che c'erano (misurato: un layer con etichette, dopo il QML, `labelsEnabled()` False). Provato anche sulle viste vere da una copia di sola lettura del DB: 713 quote con `format_number("quota_q", 2)`, e la vista US da 4822 disegni etichettata una volta per unità in 0,9 s.
+- 🇬🇧 **EN**: the quote view now carries the elevation label on load (`label_quote_view` after every `quote_us_view.qml` style load, eight sites), with the atlas recipe; proven on the real views from a read-only copy of the database.
+
+#### Video delle etichette «0,00 ha» / The “0,00 ha” labels video
+- 🇮🇹 **IT**: il video mostra, su una vista US e una vista delle quote appena caricate in un progetto nuovo, l'etichetta «0,00 ha» su ogni elemento e i poligoni col solo contorno. Cercato: nessuna espressione con «ha», `$area` o ettari in tutto il plugin (codice, QML, UI, SQL), il modulo SAM non imposta etichette, il DB vivo (copia di sola lettura) non ha la tabella `layer_styles` né un `.qml` accanto, e le due viste aperte dal DB nascono senza etichette. Quell'etichetta non la scrive pyArchInit; con la 5.13.110/111 il plugin **sovrascrive** comunque le etichette delle due viste a ogni caricamento (numero cerchiato sulle US, quota sui punti), quindi dopo il ricaricamento del plugin non si vede più. Se compare su altri layer, è uno stile predefinito di QGIS (Proprietà del layer → Etichette).
+- 🇬🇧 **EN**: the “0,00 ha” label in the video is not written by pyArchInit (no such expression anywhere; the SAM module sets no labels; the live DB has no `layer_styles` and no sidecar `.qml`); from 5.13.110/111 the plugin overrides the labels of both views on every load, so it disappears once the plugin is reloaded.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **le finestre della stampa delle tavole** («vai procedi», Enzo, sui residui segnalati dagli agenti: «le finestre e i messaggi di `generate_images` sono tutti in italiano fisso, in qualunque lingua di QGIS»). I testi stanno ora in `modules/utility/time_manager_messages.py` (`MESSAGES` it/en, `tm(lang, key, **kw)`: it, o inglese per tutte le altre lingue; chiave sconosciuta → com'è) e `Gis_Time_controller._tm` li prende nella lingua della finestra (`self.L`): la scelta del modello («Scegli il modello di layout per l'atlante», la legenda ✓ • ✗, **Sfoglia…**, **Nuovo modello…**, **Usa il modello**, **Annulla**), sfoglia/nuovo/salva modello con i loro errori, il Layout Designer e la conferma «Continua l'atlante», la cartella delle tavole, il modello che non si carica, «Vuoi procedere lo stesso?», l'avanzamento («Generazione delle tavole in corso…»), gli esiti («Atlante completato / interrotto», le tavole NON scritte). `describe_missing(caps, self.L)` riceve la lingua anche nella scelta del modello. Un solo `print` di console reso neutro.
+- 🇬🇧 **EN**: the atlas printing dialogs of the Time Manager were hard-coded in Italian whatever the QGIS language; the texts now live in `modules/utility/time_manager_messages.py` (it/en table, `tm()`), picked by `Gis_Time_controller._tm` in the dialog's language: template chooser, browse/new/save, Layout Designer, folder, progress and outcomes.
+- 🇮🇹 **IT**: **gli anni della cronologia assoluta**: le due caselle «Cronologia iniziale/finale» di `gui/ui/Gis_Time_controller.ui` avevano massimo **2010** — il 2022 dell'età contemporanea del sito di prova non entrava; ora **2100** (minimo invariato, −4.000.000).
+- 🇬🇧 **EN**: the two year spin boxes of the absolute chronology tab capped at 2010; now 2100.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **greco e portoghese**: nei `.ts` le etichette del Time Manager erano mezze inglesi («Atlas Imprimir Período Tables», «Parar print process», «Atlas Εκτύπωση Περίοδος Tables», «Διακοπή print process», «Απόλυτη χρονολόγηση system», «Cronologia absoluta system», «Displays the time interval between the year:», «Initial/Final chronology»). Tradotte per intero in `i18n/pyarchinit_plugin_el_GR.ts` e `pt_PT.ts` (anche il titolo della finestra e, in portoghese, «Visualizza» → «Mostrar»), `.qm` ricompilati con `pyside6-lrelease` (2856 voci ciascuno, tutte finite).
+- 🇬🇧 **EN**: Greek and Portuguese Time Manager labels were half English in the `.ts` files; fully translated, `.qm` recompiled.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/sync/test_time_manager_i18n.py` (AST: nessuna frase italiana fissa nelle sei funzioni della stampa; la tabella ha le stesse chiavi e gli stessi segnaposto in it e en; `tm` formatta e cade sull'inglese; il massimo delle caselle degli anni ≥ 2100) e `tests/utility/test_i18n_time_manager.py` (i `.ts` el/pt: nove voci del Time Manager tradotte, senza parole inglesi dentro). Viste rosse prima e verdi dopo.
+- 🇬🇧 **EN**: two new test files: AST guard on the six printing functions, message table parity, `tm` fallback, year limits; `.ts` parsing for el/pt.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 25 in dieci lingue: il mockup mostra la modalità cumulativa **non** spuntata (nasce così), la scheda **«Absolute cronology system»** è documentata (due anni, **Visualizza**: i periodi la cui datazione si sovrappone all'intervallo, le loro US caricate sulla mappa con il caricatore della scheda US, gli avvisi), «Generazione video» nei contenuti del video diventa «Stampa delle tavole».
+- 🇬🇧 **EN**: tutorial 25 in ten languages: cumulative mode unchecked in the mockup, the absolute chronology tab documented, the video contents line fixed.
+
+---
+
 ## [feat] - 2026-10-13 — La Presentazione la scrive l'AI; la mappa preferisce la vista US alle quote; la vista US col numero in un cerchio; le etichette dell'atlante si rimettono sempre — 5.13.110-alpha
 
 > Branch `Stratigraph_00001`. Suite **2071 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The AI writes the Presentation; the map prefers the US view to the elevations view; the US view carries the unit number in a circle; the step that puts the atlas labels back now always runs.

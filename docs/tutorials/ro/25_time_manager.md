@@ -43,7 +43,7 @@
 |                                                  |
 |         Nivel: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
-| [x] Mod cumulativ (afiseaza <= nivel)            |
+| [ ] Mod cumulativ (afiseaza <= nivel)            |
 +--------------------------------------------------+
 | [ ] Vizualizare matrice                          |
 | [Plăci din perioada imprimării atlasului]        |
@@ -57,6 +57,7 @@
 
 | Control | Functie |
 |---------|---------|
+| File (sus) | **Sistem cronologic relativ** (lista straturilor, discul și nivelul) și **Sistem cronologic absolut** (căutare după ani, vezi «Cronologie absolută») |
 | Caseta strat | Selectare straturi de controlat |
 | Disc | Navigare intre niveluri (rotire) |
 | SpinBox | Introducere directa a nivelului |
@@ -107,6 +108,24 @@ Caseta de bifare **ACTIVATA**:
 - Afiseaza toate US de la nivelul 0 (cel mai vechi) pana la cel selectat
 - Arata formarea sitului, de la US cele mai vechi la cele mai recente
 - Vizualizare mai realista
+
+### Cronologie absolută
+
+A doua filă a ferestrei, **Sistem cronologic absolut**, lucrează cu ani în loc de nivelurile `order_layer`: se alege un interval de timp și se încarcă pe hartă unitățile stratigrafice (US) din perioadele care se suprapun cu acel interval. Cere ca Periodizarea să fie completată (vezi Tutorialul 04), cu **Cronologie inițială** și **Cronologie finală** pentru fiecare perioadă și fază: o perioadă fără ani nu este găsită.
+
+**Controale.**
+
+- **Cronologia inițială** și **Cronologia finală**: două casete numerice, care se citesc «Afișează intervalul de timp dintre an: … iar anul …». Anii pot fi între `-4.000.000` și `2100`: valorile negative sunt î.Hr. (268 î.Hr. = `-268`), cele pozitive d.Hr., fără semn (1400 d.Hr. = `1400`). Anul cel mai vechi se pune în Cronologia inițială.
+- Butonul **Vedere**: pornește căutarea.
+
+**Ce face butonul Vedere.**
+
+1. Caută în Periodizare (a tuturor siturilor din baza de date) perioadele și fazele a căror datare **se suprapune** cu intervalul, adică cele care nu se termină înainte de anul inițial și nu încep după anul final. Dacă nu găsește niciuna, avertizează «There are no Periods in this time interval» (mesajul apare în engleză) și se oprește.
+2. Preia unitățile stratigrafice (US) a căror perioadă inițială și fază inițială corespund cu cele găsite. Dacă nu există niciuna, avertizează «There are no geometries to display» (tot în engleză).
+3. Încarcă pe hartă straturile acestor US, cu același mecanism de încărcare ca formularul US (vezi Tutorialul 03).
+4. Actualizează previzualizarea matricei, dacă **Vizualizare matrice** este activată: previzualizarea urmează straturile bifate și nivelul filei relative, nu intervalul de ani.
+
+**Diferența față de fila relativă.** Discul și modul cumulativ **filtrează** straturile deja încărcate; **Vedere**, în schimb, **adaugă** în proiect un grup nou de straturi la fiecare clic (cele de dinainte rămân în proiect). Ca în formularul US, cu o bază de date PostgreSQL mecanismul de încărcare filtrează după sit și nu după fiecare US în parte: straturile arată tot situl.
 
 ## Integrarea cu Matrix
 
@@ -259,7 +278,7 @@ Fereastra de alegere listeaza fisierele `.qpt` gasite in folderul plugin-ului, i
 **Continut**:
 - Configurarea order_layer
 - Navigarea temporala
-- Generarea video
+- Tipărirea planșelor
 - Integrarea cu Matrix
 
 **Durata estimata**: 15-18 minute

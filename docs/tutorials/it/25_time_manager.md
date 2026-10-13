@@ -43,7 +43,7 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 |                                                  |
 |         Livello: [SpinBox: 0-N]                 |
 +--------------------------------------------------+
-| [x] Modalita Cumulativa (mostra <= livello)     |
+| [ ] Modalita Cumulativa (mostra <= livello)     |
 +--------------------------------------------------+
 | [ ] Visualizza matrix                            |
 | [Atlas Stampa Tavole Periodo]                    |
@@ -57,6 +57,7 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 
 | Controllo | Funzione |
 |-----------|----------|
+| Schede (in alto) | **Sistema cronologia relativa** (elenco dei layer, dial e livello) e **Sistema cronologia assoluta** (ricerca per anni, vedi «Cronologia assoluta») |
 | Checkbox Layer | Seleziona layer da controllare |
 | Dial | Naviga tra i livelli (rotazione) |
 | SpinBox | Inserimento diretto livello |
@@ -107,6 +108,24 @@ Checkbox **ATTIVO**:
 - Mostra tutte le US dal livello 0 (piu antico) a quello selezionato
 - Mostra la formazione del sito, dalle US piu antiche alle piu recenti
 - Visualizzazione piu realistica
+
+### Cronologia assoluta
+
+La seconda scheda della finestra, **Sistema cronologia assoluta**, lavora sugli anni invece che sui livelli di `order_layer`: si sceglie un intervallo di tempo e si caricano sulla mappa le US dei periodi che si sovrappongono a quell'intervallo. Richiede la Periodizzazione compilata (vedi Tutorial 04), con **Cronologia iniziale** e **Cronologia finale** di ogni periodo e fase: un periodo senza anni non viene trovato.
+
+**Controlli.**
+
+- **Cronologia iniziale** e **Cronologia finale**: due caselle numeriche, che si leggono «Visualizza l'intervallo di tempo compreso tra l'anno: … e l'anno …». Gli anni vanno da `-4.000.000` a `2100`: i valori negativi sono a.C. (268 a.C. = `-268`), i positivi d.C. senza segno (1400 d.C. = `1400`). L'anno più antico va in Cronologia iniziale.
+- Pulsante **Visualizza**: avvia la ricerca.
+
+**Cosa fa Visualizza.**
+
+1. Cerca nella Periodizzazione (di tutti i siti del database) i periodi e le fasi la cui datazione **si sovrappone** all'intervallo, cioè che non finiscono prima dell'anno iniziale e non cominciano dopo l'anno finale. Se non ne trova, avvisa «Non vi sono Periodizzazioni in questo intervallo di tempo» e si ferma.
+2. Prende le US il cui periodo iniziale e la cui fase iniziale corrispondono a quelli trovati. Se non ce n'è nessuna, avvisa «Non ci sono geometrie da visualizzare».
+3. Carica sulla mappa i layer di quelle US, con lo stesso caricatore della scheda US (vedi Tutorial 03).
+4. Aggiorna l'anteprima della Matrix, se **Visualizza matrix** è attivo: l'anteprima segue i layer spuntati e il livello della scheda relativa, non l'intervallo di anni.
+
+**Differenza con la scheda relativa.** Il dial e la modalità cumulativa **filtrano** i layer già caricati; **Visualizza** invece **aggiunge** al progetto un nuovo gruppo di layer a ogni clic (quelli di prima restano nel progetto). Come nella scheda US, con un database PostgreSQL il caricatore filtra per sito e non per singola US: i layer mostrano tutto il sito.
 
 ## Integrazione Matrix
 
@@ -259,7 +278,7 @@ La finestra di scelta elenca i file `.qpt` trovati nella cartella del plugin, in
 **Contenuti**:
 - Configurazione order_layer
 - Navigazione temporale
-- Generazione video
+- Stampa delle tavole
 - Integrazione Matrix
 
 **Durata prevista**: 15-18 minuti

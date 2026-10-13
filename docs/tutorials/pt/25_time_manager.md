@@ -43,11 +43,11 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 |                                                   |
 |         Nivel: [SpinBox: 0-N]                    |
 +--------------------------------------------------+
-| [x] Modo Cumulativo (mostrar <= nivel)           |
+| [ ] Modo Cumulativo (mostrar <= nivel)           |
 +--------------------------------------------------+
 | [ ] Mostrar matriz                               |
-| [Atlas Imprimir Período Tables]                  |
-| [Parar print process]                            |
+| [Atlas: imprimir pranchas por período]                  |
+| [Parar a impressão]                            |
 +--------------------------------------------------+
 | [Pre-visualizacao Matrix/Imagem]                  |
 +--------------------------------------------------+
@@ -57,6 +57,7 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 
 | Controlo | Funcao |
 |----------|--------|
+| Separadores (em cima) | **Sistema de cronologia relativa** (lista de camadas, dial e nível) e **Sistema de cronologia absoluta** (pesquisa por anos, ver «Cronologia absoluta») |
 | Caixa de selecao da camada | Selecionar camadas a controlar |
 | Dial | Navegar entre niveis (rotacao) |
 | SpinBox | Entrada direta do nivel |
@@ -108,6 +109,24 @@ Caixa de selecao **ATIVA**:
 - Mostra a formacao do sitio, das UE mais antigas as mais recentes
 - Visualizacao mais realista
 
+### Cronologia absoluta
+
+O segundo separador da janela, **Sistema de cronologia absoluta**, trabalha com anos em vez dos níveis do `order_layer`: escolhe-se um intervalo de tempo e carregam-se no mapa as UE dos períodos que se sobrepõem a esse intervalo. Exige a Periodização preenchida (ver Tutorial 04), com a **Cronologia inicial** e a **Cronologia final** de cada período e fase: um período sem anos não é encontrado.
+
+**Controlos.**
+
+- **Cronologia inicial** e **Cronologia final**: duas caixas numéricas, que se leem «Mostra o intervalo de tempo entre o ano: … e o ano …». Os anos vão de `-4.000.000` a `2100`: os valores negativos são a.C. (268 a.C. = `-268`), os positivos d.C. sem sinal (1400 d.C. = `1400`). O ano mais antigo vai em Cronologia inicial.
+- Botão **Mostrar**: inicia a pesquisa.
+
+**O que faz o botão Mostrar.**
+
+1. Procura na Periodização (de todos os sítios da base de dados) os períodos e as fases cuja datação **se sobrepõe** ao intervalo, isto é, que não terminam antes do ano inicial nem começam depois do ano final. Se não encontrar nenhum, avisa «There are no Periods in this time interval» (a mensagem aparece em inglês) e termina.
+2. Toma as UE cujo período inicial e fase inicial correspondem aos encontrados. Se não houver nenhuma, avisa «There are no geometries to display» (também em inglês).
+3. Carrega no mapa as camadas dessas UE, com o mesmo mecanismo de carga do Formulário UE (ver Tutorial 03).
+4. Atualiza a pré-visualização da matriz, se **Mostrar matriz** estiver ativa: a pré-visualização segue as camadas assinaladas e o nível do separador relativo, não o intervalo de anos.
+
+**Diferença em relação ao separador relativo.** O dial e o modo cumulativo **filtram** as camadas já carregadas; **Mostrar**, pelo contrário, **acrescenta** ao projeto um novo grupo de camadas em cada clique (os anteriores ficam no projeto). Tal como no Formulário UE, com uma base de dados PostgreSQL o mecanismo de carga filtra por sítio e não por UE individual: as camadas mostram todo o sítio.
+
 ## Integracao com Matrix
 
 ### Visualizacao Sincronizada
@@ -129,12 +148,12 @@ O Time Manager pode gerar:
 
 1. Selecionar camadas a incluir
 2. Ativar **Mostrar matriz** se a matriz deve aparecer nas pranchas (caso contrario, a imagem da matriz do modelo fica oculta)
-3. Clicar em **Atlas Imprimir Período Tables**
+3. Clicar em **Atlas: imprimir pranchas por período**
 4. Na janela que se abre, escolher o modelo de composicao (ver a nota «Que modelo escolher» no fim) e confirmar
 5. Escolher a pasta onde guardar as pranchas
 6. Responder a pergunta sobre abrir o Layout Designer para retocar o modelo antes de comecar
 7. Aguardar: uma barra de progresso mostra a prancha em curso e, no fim, uma mensagem indica onde foram guardadas
-8. Para parar a geracao, clicar em **Parar print process**: as pranchas ja escritas ficam na pasta
+8. Para parar a geracao, clicar em **Parar a impressão**: as pranchas ja escritas ficam na pasta
 
 ### Resultado
 
@@ -174,7 +193,7 @@ O Time Manager pode gerar:
 
 ```
 1. Ativar "Mostrar matriz"
-2. Imprimir as pranchas com "Atlas Imprimir Período Tables"
+2. Imprimir as pranchas com "Atlas: imprimir pranchas por período"
 3. Verificar os ficheiros Tavola_N.jpg na pasta escolhida
 ```
 
@@ -259,7 +278,7 @@ A janela de escolha lista os ficheiros `.qpt` encontrados na pasta do plugin, em
 **Conteudos**:
 - Configuracao do order_layer
 - Navegacao temporal
-- Geracao de video
+- Impressão das pranchas
 - Integracao com Matrix
 
 **Duracao prevista**: 15-18 minutos

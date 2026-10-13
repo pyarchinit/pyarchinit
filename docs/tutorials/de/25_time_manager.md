@@ -43,7 +43,7 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 |                                                   |
 |         Schicht: [SpinBox: 0-N]                  |
 +--------------------------------------------------+
-| [x] Kumulativer Modus (zeigt <= Schicht)        |
+| [ ] Kumulativer Modus (zeigt <= Schicht)        |
 +--------------------------------------------------+
 | [ ] Matrix anzeigen                              |
 | [Atlas Druck Periodentabellen]                   |
@@ -57,6 +57,7 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 
 | Steuerung | Funktion |
 |-----------|----------|
+| Reiter (oben) | **System der relativen Chronologie** (Layer-Liste, Drehregler und Schicht) und **Absolutes Chronologiesystem** (Suche nach Jahren, siehe "Absolute Chronologie") |
 | Layer-Checkbox | Layer zur Steuerung auswählen |
 | Drehregler | Durch Schichten navigieren (Drehung) |
 | SpinBox | Direkte Schichteingabe |
@@ -107,6 +108,24 @@ Checkbox **AKTIVIERT**:
 - Zeigt alle SE von Schicht 0 (älteste) bis zur ausgewählten
 - Zeigt die Entstehung des Fundorts, von den ältesten zu den jüngsten SE
 - Realistischere Darstellung
+
+### Absolute Chronologie
+
+Der zweite Reiter des Fensters, **Absolutes Chronologiesystem**, arbeitet mit Jahren statt mit den Schichten von `order_layer`: Man wählt ein Zeitintervall, und die SE der Perioden, die sich mit diesem Intervall überschneiden, werden auf die Karte geladen. Voraussetzung ist die ausgefüllte Periodisierung (siehe Tutorial 04) mit der **Anfangschronologie** und der **Endchronologie** jeder Periode und Phase: Eine Periode ohne Jahre wird nicht gefunden.
+
+**Steuerungen.**
+
+- **Anfängliche Chronologie** und **Abschließende Chronologie**: zwei Zahlenfelder, die sich so lesen: "Zeigt das Zeitintervall zwischen dem Jahr an: … und das jahr …". Die Jahre reichen von `-4.000.000` bis `2100`: Negative Werte sind v. Chr. (268 v. Chr. = `-268`), positive sind n. Chr. ohne Vorzeichen (1400 n. Chr. = `1400`). Das ältere Jahr kommt in die Anfängliche Chronologie.
+- Schaltfläche **Siehe**: startet die Suche.
+
+**Was die Schaltfläche Siehe tut.**
+
+1. Sie sucht in der Periodisierung (aller Fundorte der Datenbank) die Perioden und Phasen, deren Datierung sich mit dem Intervall **überschneidet**, also die nicht vor dem Anfangsjahr enden und nicht nach dem Endjahr beginnen. Findet sie keine, warnt sie "Es gibt keine Perioden in diesem Zeitintervall." und bricht ab.
+2. Sie nimmt die SE, deren Anfangsperiode und Anfangsphase den gefundenen entsprechen. Gibt es keine, warnt sie "es gibt keine Geometrien, die angezeigt werden können".
+3. Sie lädt die Layer dieser SE auf die Karte, mit derselben Ladefunktion wie das SE-Formular (siehe Tutorial 03).
+4. Sie aktualisiert die Matrix-Vorschau, wenn **Matrix anzeigen** aktiviert ist: Die Vorschau folgt den angehakten Layern und der Schicht des relativen Reiters, nicht dem Jahresintervall.
+
+**Unterschied zum relativen Reiter.** Der Drehregler und der kumulative Modus **filtern** bereits geladene Layer; **Siehe** dagegen **fügt** dem Projekt bei jedem Klick eine neue Layergruppe **hinzu** (die früheren bleiben im Projekt). Wie im SE-Formular filtert die Ladefunktion bei einer PostgreSQL-Datenbank nach Fundort und nicht nach einzelner SE: Die Layer zeigen den ganzen Fundort.
 
 ## Matrix-Integration
 
@@ -259,7 +278,7 @@ Das Auswahlfenster listet die `.qpt`-Dateien auf, die im Plugin-Ordner, in `reso
 **Inhalte**:
 - order_layer-Konfiguration
 - Zeitliche Navigation
-- Videogenerierung
+- Druck der Blätter
 - Matrix-Integration
 
 **Voraussichtliche Dauer**: 15-18 Minuten

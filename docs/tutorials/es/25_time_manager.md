@@ -43,7 +43,7 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 |                                                  |
 |         Nivel: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
-| [x] Modo Acumulativo (muestra <= nivel)         |
+| [ ] Modo Acumulativo (muestra <= nivel)         |
 +--------------------------------------------------+
 | [ ] Mostrar matriz                               |
 | [Atlas Imprimir Tablas de Período]               |
@@ -57,6 +57,7 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 
 | Control | Función |
 |---------|---------|
+| Pestañas (arriba) | **Sistema de cronología relativa** (lista de capas, dial y nivel) y **Sistema de cronología absoluta** (búsqueda por años, ver «Cronología absoluta») |
 | Checkbox Capa | Selecciona capa a controlar |
 | Dial | Navega entre los niveles (rotación) |
 | SpinBox | Introducción directa del nivel |
@@ -107,6 +108,24 @@ Checkbox **ACTIVO**:
 - Muestra todas las UE desde el nivel 0 (más antiguo) hasta el seleccionado
 - Muestra la formación del sitio, de las UE más antiguas a las más recientes
 - Visualización más realista
+
+### Cronología absoluta
+
+La segunda pestaña de la ventana, **Sistema de cronología absoluta**, trabaja con años en lugar de con los niveles de `order_layer`: se elige un intervalo de tiempo y se cargan en el mapa las UE de los periodos que se solapan con ese intervalo. Requiere la Periodización rellenada (ver Tutorial 04), con la **Cronología inicial** y la **Cronología final** de cada periodo y fase: un periodo sin años no se encuentra.
+
+**Controles.**
+
+- **Cronología inicial** y **Cronología final**: dos casillas numéricas, que se leen «Visualiza el intervalo de tiempo comprendido entre el año: … y el año …». Los años van de `-4.000.000` a `2100`: los valores negativos son a.C. (268 a.C. = `-268`), los positivos d.C. sin signo (1400 d.C. = `1400`). El año más antiguo va en Cronología inicial.
+- Botón **Visualizar**: inicia la búsqueda.
+
+**Qué hace Visualizar.**
+
+1. Busca en la Periodización (de todos los sitios de la base de datos) los periodos y las fases cuya datación **se solapa** con el intervalo, es decir, que no terminan antes del año inicial ni empiezan después del año final. Si no encuentra ninguno, avisa «There are no Periods in this time interval» (el mensaje aparece en inglés) y se detiene.
+2. Toma las UE cuyo periodo inicial y fase inicial coinciden con los encontrados. Si no hay ninguna, avisa «There are no geometries to display» (también en inglés).
+3. Carga en el mapa las capas de esas UE, con el mismo mecanismo de carga que la Ficha de UE (ver Tutorial 03).
+4. Actualiza la vista previa de la matriz, si **Mostrar matriz** está activo: la vista previa sigue las capas marcadas y el nivel de la pestaña relativa, no el intervalo de años.
+
+**Diferencia con la pestaña relativa.** El dial y el modo acumulativo **filtran** las capas ya cargadas; **Visualizar**, en cambio, **añade** al proyecto un grupo nuevo de capas en cada clic (los anteriores se quedan en el proyecto). Como en la Ficha de UE, con una base de datos PostgreSQL el mecanismo de carga filtra por sitio y no por UE individual: las capas muestran todo el sitio.
 
 ## Integración con Matrix
 
@@ -259,7 +278,7 @@ La ventana de elección lista los archivos `.qpt` encontrados en la carpeta del 
 **Contenidos**:
 - Configuración de order_layer
 - Navegación temporal
-- Generación de video
+- Impresión de las láminas
 - Integración con Matrix
 
 **Duración prevista**: 15-18 minutos

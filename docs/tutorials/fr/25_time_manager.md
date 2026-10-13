@@ -43,7 +43,7 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 |                                                  |
 |         Niveau : [SpinBox : 0-N]                |
 +--------------------------------------------------+
-| [x] Mode Cumulatif (affiche <= niveau)          |
+| [ ] Mode Cumulatif (affiche <= niveau)          |
 +--------------------------------------------------+
 | [ ] Afficher la matrice                          |
 | [Atlas Impression Tableaux par Période]          |
@@ -57,6 +57,7 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 
 | Contrôle | Fonction |
 |----------|----------|
+| Onglets (en haut) | **Système de chronologie relative** (liste des couches, molette et niveau) et **Système de chronologie absolue** (recherche par années, voir « Chronologie absolue ») |
 | Case à cocher Couche | Sélectionne les couches à contrôler |
 | Molette | Navigation entre les niveaux (rotation) |
 | SpinBox | Saisie directe du niveau |
@@ -107,6 +108,24 @@ Case à cocher **ACTIVE** :
 - Affiche toutes les US du niveau 0 (le plus ancien) au niveau sélectionné
 - Montre la formation du site, des US les plus anciennes aux plus récentes
 - Visualisation plus réaliste
+
+### Chronologie absolue
+
+Le second onglet de la fenêtre, **Système de chronologie absolue**, travaille sur des années plutôt que sur les niveaux de `order_layer` : on choisit un intervalle de temps et on charge sur la carte les US des périodes qui chevauchent cet intervalle. Il faut que la Périodisation soit remplie (voir Tutorial 04), avec la **Chronologie initiale** et la **Chronologie finale** de chaque période et phase : une période sans années n'est pas trouvée.
+
+**Contrôles.**
+
+- **Histoire initiale** (l'année de début) et **Chronologie finale** (l'année de fin) : deux champs numériques, qui se lisent « Affiche l'intervalle de temps entre l'année : … et l'année … ». Les années vont de `-4 000 000` à `2100` : les valeurs négatives sont av. J.-C. (268 av. J.-C. = `-268`), les positives apr. J.-C. sans signe (1400 apr. J.-C. = `1400`). L'année la plus ancienne va dans le premier champ.
+- Bouton **Voir** : lance la recherche.
+
+**Ce que fait le bouton Voir.**
+
+1. Il cherche dans la Périodisation (de tous les sites de la base de données) les périodes et les phases dont la datation **chevauche** l'intervalle, c'est-à-dire qui ne finissent pas avant l'année initiale et ne commencent pas après l'année finale. S'il n'en trouve aucune, il avertit « There are no Periods in this time interval » (le message s'affiche en anglais) et s'arrête.
+2. Il prend les US dont la période initiale et la phase initiale correspondent à celles trouvées. S'il n'y en a aucune, il avertit « There are no geometries to display » (en anglais aussi).
+3. Il charge les couches de ces US sur la carte, avec le même mécanisme de chargement que la fiche US (voir Tutorial 03).
+4. Il met à jour l'aperçu de la Matrice, si **Afficher la matrice** est active : l'aperçu suit les couches cochées et le niveau de l'onglet relatif, pas l'intervalle d'années.
+
+**Différence avec l'onglet relatif.** La molette et le mode cumulatif **filtrent** les couches déjà chargées ; le bouton **Voir**, lui, **ajoute** au projet un nouveau groupe de couches à chaque clic (les précédents restent dans le projet). Comme dans la fiche US, avec une base de données PostgreSQL le mécanisme de chargement filtre par site et non par US individuelle : les couches montrent tout le site.
 
 ## Intégration Matrice
 
@@ -259,7 +278,7 @@ La fenêtre de choix liste les fichiers `.qpt` trouvés dans le dossier du plugi
 **Contenus** :
 - Configuration de order_layer
 - Navigation temporelle
-- Génération de vidéo
+- Impression des planches
 - Intégration avec la Matrice
 
 **Durée prévue** : 15-18 minutes

@@ -43,7 +43,7 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 |                                                  |
 |         Level: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
-| [x] Cumulative Mode (show <= level)             |
+| [ ] Cumulative Mode (show <= level)             |
 +--------------------------------------------------+
 | [ ] Display matrix                               |
 | [Atlas Print Period Tables]                      |
@@ -57,6 +57,7 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 
 | Control | Function |
 |---------|----------|
+| Tabs (top) | **Relative chronology system** (layer list, dial and level) and **Absolute chronology system** (search by years, see "Absolute Chronology") |
 | Layer Checkbox | Select layers to control |
 | Dial | Navigate between levels (rotation) |
 | SpinBox | Direct level input |
@@ -107,6 +108,24 @@ Checkbox **ACTIVE**:
 - Shows all SU from level 0 (oldest) to the selected one
 - Shows the formation of the site, from the oldest SU to the most recent
 - More realistic visualization
+
+### Absolute Chronology
+
+The window's second tab, **Absolute chronology system**, works on years instead of the `order_layer` levels: you choose a time interval and the SU of the periods that overlap that interval are loaded onto the map. It requires the Periodization to be filled in (see Tutorial 04), with the **Initial Chronology** and **Final Chronology** of each period and phase: a period without years is not found.
+
+**Controls.**
+
+- **Initial chronology** and **Final chronology**: two numeric boxes, read as "Displays the time interval between the year: … and the year …". Years go from `-4,000,000` to `2100`: negative values are BC (268 BC = `-268`), positive values are AD with no sign (1400 AD = `1400`). The older year goes in Initial chronology.
+- **View** button: starts the search.
+
+**What View does.**
+
+1. It looks in the Periodization (of all the sites in the database) for the periods and phases whose dating **overlaps** the interval, that is, that do not end before the initial year and do not begin after the final year. If it finds none, it warns "There are no Periods in this time interval" and stops.
+2. It takes the SU whose initial period and initial phase match those found. If there are none, it warns "There are no geometries to display".
+3. It loads the layers of those SU onto the map, with the same loader as the SU form (see Tutorial 03).
+4. It refreshes the Matrix preview, if **Display matrix** is active: the preview follows the ticked layers and the level of the relative tab, not the year interval.
+
+**Difference from the relative tab.** The dial and the cumulative mode **filter** layers that are already loaded; **View**, instead, **adds** a new group of layers to the project at every click (the earlier ones stay in the project). As in the SU form, with a PostgreSQL database the loader filters by site and not by single SU: the layers show the whole site.
 
 ## Matrix Integration
 
@@ -259,7 +278,7 @@ The chooser window lists the `.qpt` files found in the plugin folder, in `resour
 **Contents**:
 - order_layer configuration
 - Temporal navigation
-- Video generation
+- Printing the sheets
 - Matrix integration
 
 **Expected duration**: 15-18 minutes

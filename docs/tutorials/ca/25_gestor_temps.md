@@ -43,7 +43,7 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 |                                                  |
 |         Nivell: [SpinBox: 0-N]                  |
 +--------------------------------------------------+
-| [x] Modalitat Acumulativa (mostra <= nivell)    |
+| [ ] Modalitat Acumulativa (mostra <= nivell)    |
 +--------------------------------------------------+
 | [ ] Mostrar matriu                               |
 | [Atlas Impressió Taules Període]                 |
@@ -57,6 +57,7 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 
 | Control | Funció |
 |---------|--------|
+| Pestanyes (a dalt) | **Sistema de cronologia relativa** (llista de capes, dial i nivell) i **Sistema de cronologia absoluta** (cerca per anys, vegeu «Cronologia absoluta») |
 | Checkbox Capa | Selecciona capa a controlar |
 | Dial | Navega entre els nivells (rotació) |
 | SpinBox | Inserció directa nivell |
@@ -107,6 +108,24 @@ Checkbox **ACTIU**:
 - Mostra totes les US des del nivell 0 (més antic) fins al seleccionat
 - Mostra la formació del lloc, de les US més antigues a les més recents
 - Visualització més realista
+
+### Cronologia absoluta
+
+La segona pestanya de la finestra, **Sistema de cronologia absoluta**, treballa amb anys en lloc dels nivells d'`order_layer`: es tria un interval de temps i es carreguen al mapa les US dels períodes que se superposen a aquest interval. Requereix la Periodització emplenada (vegeu el Tutorial 04), amb la **Cronologia inicial** i la **Cronologia final** de cada període i fase: un període sense anys no es troba.
+
+**Controls.**
+
+- **Cronologia inicial** i **Cronologia final**: dues caselles numèriques, que es llegeixen «Mostra l'interval de temps comprès entre l'any: … i l'any …». Els anys van de `-4.000.000` a `2100`: els valors negatius són aC (268 aC = `-268`), els positius dC sense signe (1400 dC = `1400`). L'any més antic va a Cronologia inicial.
+- Botó **Visualitza**: inicia la cerca.
+
+**Què fa el botó Visualitza.**
+
+1. Cerca a la Periodització (de tots els llocs de la base de dades) els períodes i les fases la datació dels quals **se superposa** a l'interval, és a dir, que no acaben abans de l'any inicial ni comencen després de l'any final. Si no en troba cap, avisa «There are no Periods in this time interval» (el missatge surt en anglès) i s'atura.
+2. Pren les US el període inicial i la fase inicial de les quals coincideixen amb els trobats. Si no n'hi ha cap, avisa «There are no geometries to display» (també en anglès).
+3. Carrega al mapa les capes d'aquestes US, amb el mateix mecanisme de càrrega que la Fitxa US (vegeu el Tutorial 03).
+4. Actualitza la previsualització de la matriu, si **Mostrar matriu** està actiu: la previsualització segueix les capes marcades i el nivell de la pestanya relativa, no l'interval d'anys.
+
+**Diferència amb la pestanya relativa.** El dial i la modalitat acumulativa **filtren** les capes ja carregades; **Visualitza**, en canvi, **afegeix** al projecte un grup nou de capes a cada clic (els anteriors es queden al projecte). Com a la Fitxa US, amb una base de dades PostgreSQL el mecanisme de càrrega filtra per lloc i no per US individual: les capes mostren tot el lloc.
 
 ## Integració Matrix
 
@@ -259,7 +278,7 @@ La finestra d'elecció llista els fitxers `.qpt` trobats a la carpeta del plugin
 **Continguts**:
 - Configuració order_layer
 - Navegació temporal
-- Generació vídeo
+- Impressió de les làmines
 - Integració Matrix
 
 **Durada prevista**: 15-18 minuts
