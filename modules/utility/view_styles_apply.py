@@ -157,6 +157,50 @@ def apply_recipe(layer, recipe: LabelRecipe, touch_when_off: bool = True,
     return True
 
 
+def periodization_rows(engine) -> list:
+    """Le righe ``(sito, periodo, fase, cron_iniziale, cont_per)`` di
+    ``periodizzazione_table``, per l'ordine per cronologia; ``[]`` se il
+    database non c'è o non si legge."""
+    if engine is None:
+        return []
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            return [tuple(r) for r in conn.execute(
+                text("SELECT sito, periodo, fase, cron_iniziale, cont_per FROM periodizzazione_table"))]
+    except Exception:                               # noqa: BLE001
+        return []
+
+
+def enforce_unit_order(layer, engine=None, periodization=None, view_name: Optional[str] = None) -> bool:
+    """L'ordine di disegno delle viste di unità come il Time Manager, sempre:
+    prima i periodi per cronologia quando la periodizzazione si legge, poi
+    ``order_layer`` dal più antico (0, sotto) al più recente (sopra), poi
+    l'indice stratigrafico — così spegnendo una categoria si vede quello
+    che sta sotto (Enzo, 13 ottobre 2026). L'ordine sta sul renderer,
+    quindi va rimesso dopo ogni QML, salvato o fornito. Vale solo per le
+    unità: con ``view_name`` la vista dev'essere del gruppo «unita»; senza,
+    il layer dev'essere di poligoni (le quote hanno ``order_layer`` anche
+    loro, ma sono punti)."""
+    try:
+        if layer is None or not layer.isValid() or "order_layer" not in layer.fields().names():
+            return False
+        if view_name is not None:
+            spec = view_by_name(view_name)
+            if spec is None or spec.group != "unita":
+                return False
+        else:
+            from qgis.core import QgsWkbTypes
+            if QgsWkbTypes.geometryType(layer.wkbType()) != QgsWkbTypes.GeometryType.PolygonGeometry:
+                return False
+        if periodization is None:
+            periodization = periodization_rows(engine)
+        from .create_style import apply_stratigraphic_order
+        return bool(apply_stratigraphic_order(layer, periodization or None, override=True))
+    except Exception:                               # noqa: BLE001
+        return False
+
+
 def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engine=None,
                      fallback: bool = True) -> str:
     """Chi comanda al caricamento: lo stile predefinito del sito, poi quello
@@ -177,8 +221,10 @@ def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engin
             # Il QML porta già etichette accese o spente e il loro carattere:
             # la ricetta rifà solo quello che è suo (revisione, I1 e I2).
             apply_recipe(layer, scelto.recipe, touch_when_off=False, keep_format=True)
+            enforce_unit_order(layer, engine, view_name=view_name)
             return "saved:%d" % int(scelto.id)
     if not fallback:
+        enforce_unit_order(layer, engine, view_name=view_name)
         return "none"
     qml = shipped_qml(spec)
     if qml:
@@ -190,4 +236,5 @@ def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engin
         except Exception:                           # noqa: BLE001
             qml = None
     apply_recipe(layer, default_recipe(spec), touch_when_off=False)
+    enforce_unit_order(layer, engine, view_name=view_name)
     return "shipped" if qml else "none"

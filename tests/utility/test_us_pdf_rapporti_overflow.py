@@ -67,8 +67,21 @@ def _install_stubs():
         sys.path.insert(0, str(_ROOT))
 
 
+_HOME_PRIMA = os.environ.get("PYARCHINIT_HOME")
 _install_stubs()
 pdfmod = pytest.importorskip("modules.utility.pyarchinit_exp_USsheet_pdf")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _ripristina_home():
+    """`_install_stubs` punta PYARCHINIT_HOME a una cartella temporanea
+    senza config.cfg: va rimesso a posto a fine modulo, o chi importa
+    `Settings` dopo (il modulo GIS) non trova il file."""
+    yield
+    if _HOME_PRIMA is None:
+        os.environ.pop("PYARCHINIT_HOME", None)
+    else:
+        os.environ["PYARCHINIT_HOME"] = _HOME_PRIMA
 
 from reportlab.lib.units import cm  # noqa: E402
 from reportlab.platypus import PageBreak, SimpleDocTemplate, Table  # noqa: E402

@@ -276,6 +276,8 @@ class ThesaurusStyler:
         if categories:
             renderer = QgsCategorizedSymbolRenderer(d_stratigrafica_field, categories)
             layer.setRenderer(renderer)
+            # l'ordine stratigrafico sta sul renderer: rimesso su quello nuovo
+            apply_stratigraphic_order(layer, override=True)
             print(f"Renderer applicato con {len(categories)} categorie")
         else:
             print("Nessuna categoria creata, il renderer non è stato applicato")

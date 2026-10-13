@@ -97,8 +97,9 @@ Die Texte des Fensters gibt es nur auf Italienisch und Englisch: Bei deutschspra
 
 ### Wo man es öffnet
 
-Das Fenster ist nicht modal: Es bleibt offen, während man auf der Karte arbeitet. Es lässt sich auf drei Wegen öffnen.
+Das Fenster ist nicht modal: Es bleibt offen, während man auf der Karte arbeitet. Es lässt sich auf vier Wegen öffnen.
 
+- **Aus der pyArchInit-Werkzeugleiste** (seit 5.13.113-alpha): die **vierte Schaltfläche**, mit dem Symbol der Farbpalette, gleich nach der von GPT («AI Query Database»). Ist der aktive Layer eine pyArchInit-Ansicht, öffnet sich das Fenster gleich auf dieser Ansicht, sonst auf der SE-Ansicht.
 - **Aus dem Plugin-Menü**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Stile der Ansichten; bei italienischem QGIS heißt der Eintrag «Stili delle viste…»). Ist der aktive Layer eine pyArchInit-Ansicht, öffnet sich das Fenster gleich auf dieser Ansicht, sonst auf der SE-Ansicht.
 - **Aus dem Layer-Menü**: Rechtsklick auf einen Vektor-Layer im QGIS-Layer-Bedienfeld → **View styles…**. Es ist derselbe Eintrag mit demselben Namen und derselben Regel: Ist der Layer eine pyArchInit-Ansicht, öffnet sich das Fenster gleich auf ihr.
 - **Aus dem SE-Formular**: die Schaltfläche **Style…** (bei italienischem QGIS **Stile…**), neben der Schaltfläche, die die Layer lädt. Sie öffnet das Fenster auf der SE-Ansicht, mit dem Fundort des Formulars.
@@ -187,7 +188,9 @@ Damit ein Stil bei jedem Laden zu sehen ist: (1) die Ansicht wählen; (2) Symbol
 2. sonst den **Standardstil für alle Fundorte**;
 3. sonst, für die Ansichten SE, USM und Höhen, den mit pyArchInit gelieferten Stil mit eingekreister Nummer beziehungsweise Höhe über dem Symbol (wie seit 5.13.110-alpha und 5.13.111-alpha); die übrigen Ansichten werden wie bisher ohne Stil geladen.
 
-Das dreistufige Fenster **Style Choice** (Absatz «Stilauswahl (SE und USM)», oben) erscheint **nur, wenn für diese Ansicht kein Standardstil gespeichert ist**; mit einem Standardstil lädt das SE-Formular einfach, und ein von Hand gewählter Stil überschreibt ihn nicht. «Eine Beschriftung pro Einheit» wird bei jedem Laden neu berechnet, auf den Zeichnungen des Filters dieses Moments: Sie hängt nicht von dem Filter ab, mit dem der Stil gespeichert wurde.
+Das dreistufige Fenster **Style Choice** (Absatz «Stilauswahl (SE und USM)», oben) erscheint **nur, wenn für diese Ansicht kein Standardstil gespeichert ist**; mit einem Standardstil lädt das SE-Formular einfach, und ein von Hand gewählter Stil überschreibt ihn nicht. «Eine Beschriftung pro Einheit» wird bei jedem Laden neu berechnet, auf den Zeichnungen des Filters dieses Moments: Sie hängt nicht von dem Filter ab, mit dem der Stil gespeichert wurde. Auch der Tab **Map preview** des SE-Formulars berücksichtigt den gespeicherten Standardstil (mit SQLite seit 5.13.113-alpha, davor trat ein Fehler auf; mit PostgreSQL schon seit 5.13.112-alpha); ohne Standardstil zeigt er wie bisher seine automatische Symbologie, und auch dort bleiben die Polygone in stratigraphischer Reihenfolge.
+
+**Die Zeichenreihenfolge ist immer die stratigraphische** (seit 5.13.113-alpha). Bei den Ansichten der Einheiten (SE, USM, negative SE) werden die Polygone von der ältesten Einheit, unten, bis zur jüngsten, oben, gezeichnet: als Erstes die Perioden nach Chronologie, wenn sich die Periodisierung des Fundorts lesen lässt (die Einheiten ohne Periode vorweg), dann `order_layer` aufsteigend (0 = die älteste, zuerst gezeichnet), dann der stratigraphische Index, wie im Time Manager (Tutorial 25). Das gilt für jeden Stil — den gespeicherten Standardstil, das gelieferte QML, ein importiertes QML, den in der Vorschau zusammengestellten Stil — auch bei **Auf geladene Layer anwenden** (*Apply to loaded layers*) und in der Vorschau des Fensters. So sieht man, wenn man in der QGIS-Legende das Häkchen bei einer Kategorie entfernt, was darunter liegt. Die anderen Ansichten (Höhen, Dokumentation, Strukturen…) erhalten keine Reihenfolge.
 
 ### Exportieren und Importieren
 

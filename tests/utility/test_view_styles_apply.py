@@ -224,3 +224,68 @@ def test_il_qml_fornito_che_non_si_carica_non_finge(qgs, monkeypatch):
                            "Quote", "memory")
     monkeypatch.setattr(va, "shipped_qml", lambda spec: "/percorso/che/non/esiste.qml")
     assert va.apply_view_style(quote, "pyarchinit_quote_view") == "none"
+
+
+ORDER_FIELDS = (US_FIELDS + "&field=order_layer:integer&field=periodo_iniziale:string"
+                "&field=fase_iniziale:string&field=cont_per:string")
+
+
+def _poligoni_ordinati(nome="US"):
+    layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + ORDER_FIELDS, nome, "memory")
+    layer.dataProvider().addAttributes([])
+    prov = layer.dataProvider()
+    for k, (us, ordine) in enumerate((("1", 2), ("2", 1), ("3", 0))):
+        f = QgsFeature(layer.fields())
+        f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
+        f.setAttributes(["Scavo", "1", us, 1, "Scavo", "Strato", ordine, "", "", ""])
+        prov.addFeature(f)
+    layer.updateExtents()
+    return layer
+
+
+def test_le_viste_di_unita_si_disegnano_dal_piu_antico_al_piu_recente(qgs, tmp_path):
+    """Enzo, 13 ottobre 2026: «l'ordine di visualizzazione dei poligoni deve
+    seguire sempre dal più recente al più antico, in modo che quando spengo i
+    checkbox visualizzo quello sottostante». Il ripiego, uno stile salvato
+    e un QML importato lasciano tutti l'ordine come il Time Manager:
+    order_layer crescente (0 = più antica, disegnata per prima, sotto)."""
+    from sqlalchemy import create_engine
+    from modules.utility import view_styles_store as store
+    from modules.utility.view_styles import SavedStyle, LabelRecipe
+    layer = _poligoni_ordinati()
+    assert va.apply_view_style(layer, "pyarchinit_us_view", None, engine=None, fallback=True) == "shipped"
+    r = layer.renderer()
+    assert r.orderByEnabled() and "order_layer" in r.orderBy().dump()
+    # uno stile salvato senza ordine nel QML: l'ordine c'è lo stesso
+    engine = create_engine("sqlite:///%s" % (tmp_path / "stili.sqlite"))
+    store.ensure_table(engine)
+    senza = _poligoni_ordinati("senza")
+    stile = SavedStyle(None, "pyarchinit_us_view", None, "piatto", va.export_qml_text(senza), LabelRecipe(), True)
+    store.save_style(engine, stile)
+    store.set_default(engine, stile.id)
+    altro = _poligoni_ordinati("altro")
+    assert va.apply_view_style(altro, "pyarchinit_us_view", None, engine=engine).startswith("saved:")
+    assert altro.renderer().orderByEnabled() and "order_layer" in altro.renderer().orderBy().dump()
+    # le quote hanno order_layer anche loro (viste vere) ma sono punti, non unità: nessun ordine
+    quote = QgsVectorLayer("Point?crs=EPSG:32633&field=sito_q:string&field=us_q:string&field=quota_q:double"
+                           "&field=order_layer:integer", "Quote", "memory")
+    va.apply_view_style(quote, "pyarchinit_quote_view", None, engine=None, fallback=True)
+    assert not quote.renderer().orderByEnabled()
+
+
+def test_la_simbologia_nidificata_e_lo_styler_del_thesaurus_tengono_l_ordine(qgs):
+    """Dove il renderer si rifà da capo dopo il ripiego — la simbologia
+    nidificata (Map preview su SQLite, schede Deteta/Detsesso, caricatori
+    dalla matrice) e lo styler del thesaurus (Map preview su PostgreSQL) —
+    l'ordine stratigrafico va rimesso (dubbio 4 dell'agente dei tutorial)."""
+    import types
+    from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+    from modules.utility.create_style import ThesaurusStyler
+    layer = _poligoni_ordinati("nidificata")
+    stub = types.SimpleNamespace(_engine_stili=lambda: None)
+    assert Pyarchinit_pyqgis.create_us_nested_symbology(stub, layer, None) is True
+    assert layer.renderer().orderByEnabled() and "order_layer" in layer.renderer().orderBy().dump()
+    altro = _poligoni_ordinati("thesaurus")
+    ThesaurusStyler("/nessun/posto.qml").apply_style_to_layer(altro, "tipo_us_s", {"Strato": "S"})
+    assert altro.renderer().type() == "categorizedSymbol"
+    assert altro.renderer().orderByEnabled() and "order_layer" in altro.renderer().orderBy().dump()

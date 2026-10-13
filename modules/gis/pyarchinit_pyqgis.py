@@ -48,7 +48,7 @@ import urllib.request
 import urllib.error
 
 from ..utility.create_style import ThesaurusStyler, USViewStyler, apply_stratigraphic_order
-from ..utility.view_styles_apply import apply_view_style
+from ..utility.view_styles_apply import apply_view_style, enforce_unit_order
 
 #: I motori SQLAlchemy per leggere gli stili delle viste, uno per connessione.
 _MOTORI_STILI = {}
@@ -824,6 +824,10 @@ class Pyarchinit_pyqgis(QDialog):
             # Apply the renderer
             renderer = QgsRuleBasedRenderer(root_rule)
             layer.setRenderer(renderer)
+            # l'ordine stratigrafico sta sul renderer: va rimesso su quello nuovo
+            # (dal più antico, sotto, al più recente, sopra — Stili delle viste)
+            motore = getattr(self, "_engine_stili", None)
+            enforce_unit_order(layer, motore() if callable(motore) else None)
             layer.triggerRepaint()
 
             print(f"Created nested symbology for {len(us_strat_combinations)} US units")
@@ -932,7 +936,8 @@ class Pyarchinit_pyqgis(QDialog):
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, gidstr)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -967,7 +972,8 @@ class Pyarchinit_pyqgis(QDialog):
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, gidstr)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -1056,7 +1062,8 @@ class Pyarchinit_pyqgis(QDialog):
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
@@ -1097,7 +1104,8 @@ class Pyarchinit_pyqgis(QDialog):
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
@@ -1582,7 +1590,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 layerUS.setName(name_layer_s)
                 # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, doc_from_us_str)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, doc_from_us_str)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
@@ -1598,7 +1607,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUSM and layerUSM.isValid():
                 layerUSM.setName(name_layer_sw)
                 # Applica simbologia nidificata USM/stratigraph_index
-                self.create_us_nested_symbology(layerUSM, doc_from_us_str)
+                if not self._stile_salvato(layerUSM):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUSM, doc_from_us_str)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUSM))
                 QgsProject.instance().addMapLayers([layerUSM], False)
 
@@ -3006,14 +3016,15 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
-            self._stile_vista(layerUS, 'pyarchinit_us_view', sito_filter, fallback=False)
+            self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
             layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
 
                 # Applica la simbologia nidificata per US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                if not self._stile_salvato(layerUS):        # un predefinito salvato comanda (Stili delle viste)
+                    self.create_us_nested_symbology(layerUS, gidstr)
 
                 # Imposta l'opacità per layerUS
                 self.set_layer_opacity(layerUS, 0.6)

@@ -2907,9 +2907,21 @@ class PyArchInitPlugin(object):
                 else "View styles…",
                 self.iface.mainWindow())
             self.actionViewStyles.triggered.connect(self._run_view_styles)
+            self.actionViewStyles.setIcon(QIcon(os.path.join(filepath, 'resources', 'icons', 'view_styles.png')))
+            self.actionViewStyles.setToolTip(
+                "Stili delle viste - simbologia, etichette e stili salvati delle viste di pyArchInit"
+                if self.actionViewStyles.text().startswith("Stili") else
+                "View styles - symbology, labels and saved styles of the pyArchInit views")
             self.iface.addPluginToMenu(
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionViewStyles)
+            # Sulla toolbar come quarto bottone, subito dopo GPT (Enzo, 13 ottobre 2026)
+            try:
+                azioni = self.toolBar.actions()
+                dopo = azioni[self.toolBar.actions().index(self.actionAIQuery) + 1]
+                self.toolBar.insertAction(dopo, self.actionViewStyles)
+            except Exception:                               # noqa: BLE001
+                self.toolBar.addAction(self.actionViewStyles)
             try:
                 from qgis.core import QgsMapLayer
                 self.iface.addCustomActionForLayerType(self.actionViewStyles, None,

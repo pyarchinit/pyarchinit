@@ -97,8 +97,9 @@ Os textos da janela só existem em italiano e em inglês: com o QGIS em portugu�
 
 ### De onde se abre
 
-A janela não é modal: fica aberta enquanto se trabalha no mapa. Abre-se de três maneiras.
+A janela não é modal: fica aberta enquanto se trabalha no mapa. Abre-se de quatro maneiras.
 
+- **Na barra de ferramentas do pyArchInit** (desde a 5.13.113-alpha): o **quarto botão**, com o ícone da paleta, logo a seguir ao do GPT («AI Query Database»). Se a camada ativa é uma vista do pyArchInit, a janela abre-se já nessa vista; caso contrário, na vista US.
 - **No menu do plugin**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Estilos das vistas; com o QGIS em italiano a entrada chama-se «Stili delle viste…»). Se a camada ativa é uma vista do pyArchInit, a janela abre-se já nessa vista; caso contrário, na vista US.
 - **No menu da camada**: clique com o botão direito numa camada vetorial no painel de camadas do QGIS → **View styles…**. É a mesma entrada, com o mesmo nome e a mesma regra: se a camada é uma vista do pyArchInit, a janela abre-se já nela.
 - **Na ficha UE**: o botão **Style…** (com o QGIS em italiano, **Stile…**), ao lado do botão que carrega as camadas. Abre a janela na vista US, com o sítio da ficha.
@@ -187,7 +188,9 @@ Para que um estilo seja o que se vê em cada carregamento: (1) escolher a vista;
 2. caso contrário, o estilo **por omissão para todos os sítios**;
 3. caso contrário, para as vistas US, USM e das cotas, o estilo fornecido com o pyArchInit com o número em círculo ou a cota acima do símbolo (como desde a 5.13.110-alpha e a 5.13.111-alpha); as outras vistas carregam-se como antes, sem estilo.
 
-A janela de três passos **Style Choice** (parágrafo «Escolha do Estilo (UE e USM)», acima) aparece **só se para essa vista não houver nenhum estilo por omissão guardado**; com um estilo por omissão, a ficha UE limita-se a carregar, e um estilo escolhido à mão não o substitui. «Uma etiqueta por unidade» recalcula-se a cada carregamento, sobre os desenhos do filtro desse momento: não depende do filtro com que o estilo foi guardado.
+A janela de três passos **Style Choice** (parágrafo «Escolha do Estilo (UE e USM)», acima) aparece **só se para essa vista não houver nenhum estilo por omissão guardado**; com um estilo por omissão, a ficha UE limita-se a carregar, e um estilo escolhido à mão não o substitui. «Uma etiqueta por unidade» recalcula-se a cada carregamento, sobre os desenhos do filtro desse momento: não depende do filtro com que o estilo foi guardado. O separador **Map preview** da ficha UE também respeita o estilo por omissão guardado (com o SQLite desde a 5.13.113-alpha, antes dava um erro; com o PostgreSQL já desde a 5.13.112-alpha); sem estilo por omissão mostra, como antes, a sua simbologia automática, e também aí os polígonos ficam em ordem estratigráfica.
+
+**A ordem de desenho é sempre a estratigráfica** (desde a 5.13.113-alpha). Nas vistas das unidades (US, USM, US negativas) os polígonos desenham-se da unidade mais antiga, por baixo, à mais recente, por cima: primeiro os períodos por cronologia, se a periodização do sítio se consegue ler (começando pelas unidades sem período), depois `order_layer` crescente (0 = a mais antiga, desenhada primeiro), depois o índice estratigráfico, como no Time Manager (tutorial 25). Aplica-se seja qual for o estilo — o estilo por omissão guardado, o QML fornecido, um QML importado, o estilo composto na pré-visualização — também em **Aplicar às camadas carregadas** (*Apply to loaded layers*) e na pré-visualização da janela. Assim, ao desmarcar uma categoria na legenda do QGIS, vê-se o que está por baixo. As outras vistas (cotas, documentação, estruturas…) não recebem nenhuma ordem.
 
 ### Exportar e importar
 

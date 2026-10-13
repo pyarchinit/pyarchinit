@@ -45,3 +45,15 @@ def test_la_scheda_us_ha_il_bottone_stile_accanto_a_quello_dei_layer():
     assert "getItemPosition(indice)" in sorgente                                  # nella griglia, la cella accanto
     corpo = _corpo(SCHEDA, "_apri_stili_delle_viste")
     assert "open_view_styles(" in corpo and "pyarchinit_us_view" in corpo
+
+
+def test_il_bottone_degli_stili_sta_sulla_toolbar_quarto_dopo_gpt():
+    """Enzo, 13 ottobre 2026: «la scheda degli stili deve stare anche sulla
+    toolbar vicino la scheda GPT, quindi la 4 in ordine»: icona sua,
+    inserita subito dopo actionAIQuery (pyArchInit, Tutorial, GPT, Stili)."""
+    sorgente = (_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    assert (_ROOT / "resources" / "icons" / "view_styles.png").is_file()
+    assert "view_styles.png" in sorgente
+    assert re.search(r"self\.actionViewStyles\.setIcon\(QIcon\(", sorgente)
+    assert re.search(r"self\.toolBar\.insertAction\(\s*\w+,\s*self\.actionViewStyles\)", sorgente)
+    assert "self.toolBar.actions().index(self.actionAIQuery)" in sorgente

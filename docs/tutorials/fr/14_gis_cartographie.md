@@ -97,8 +97,9 @@ Les textes de la fenêtre n'existent qu'en italien et en anglais : avec QGIS en 
 
 ### D'où on l'ouvre
 
-La fenêtre n'est pas modale : elle reste ouverte pendant qu'on travaille sur la carte. Elle s'ouvre de trois façons.
+La fenêtre n'est pas modale : elle reste ouverte pendant qu'on travaille sur la carte. Elle s'ouvre de quatre façons.
 
+- **Depuis la barre d'outils de pyArchInit** (à partir de la 5.13.113-alpha) : le **quatrième bouton**, avec l'icône de la palette, juste après celui de GPT (« AI Query Database »). Si la couche active est une vue de pyArchInit, la fenêtre s'ouvre déjà sur cette vue ; sinon, sur la vue US.
 - **Depuis le menu du plugin** : **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Styles des vues ; avec QGIS en italien, l'entrée s'appelle « Stili delle viste… »). Si la couche active est une vue de pyArchInit, la fenêtre s'ouvre déjà sur cette vue ; sinon, sur la vue US.
 - **Depuis le menu de la couche** : clic droit sur une couche vectorielle dans le panneau des couches de QGIS → **View styles…**. C'est la même entrée, avec le même nom et la même règle : si la couche est une vue de pyArchInit, la fenêtre s'ouvre déjà sur elle.
 - **Depuis la fiche US** : le bouton **Style…** (avec QGIS en italien, **Stile…**), à côté du bouton qui charge les couches. Il ouvre la fenêtre sur la vue US, avec le site de la fiche.
@@ -187,7 +188,9 @@ Pour qu'un style soit celui que l'on voit à chaque chargement : (1) choisir la 
 2. sinon, le style **par défaut pour tous les sites** ;
 3. sinon, pour les vues US, USM et des cotes, le style fourni avec pyArchInit avec le numéro cerclé ou la cote au-dessus du symbole (comme depuis la 5.13.110-alpha et la 5.13.111-alpha) ; les autres vues se chargent comme avant, sans style.
 
-La fenêtre en trois étapes **Style Choice** (paragraphe « Choix du Style (US et USM) », ci-dessus) n'apparaît **que si la vue n'a aucun style par défaut enregistré** ; avec un style par défaut, la fiche US charge simplement, et un style choisi à la main ne l'écrase pas. « Une étiquette par unité » est recalculée à chaque chargement, sur les dessins du filtre de ce moment : elle ne dépend pas de celui avec lequel le style a été enregistré.
+La fenêtre en trois étapes **Style Choice** (paragraphe « Choix du Style (US et USM) », ci-dessus) n'apparaît **que si la vue n'a aucun style par défaut enregistré** ; avec un style par défaut, la fiche US charge simplement, et un style choisi à la main ne l'écrase pas. « Une étiquette par unité » est recalculée à chaque chargement, sur les dessins du filtre de ce moment : elle ne dépend pas de celui avec lequel le style a été enregistré. L'onglet **Map preview** de la fiche US respecte lui aussi le style par défaut enregistré (avec SQLite depuis la 5.13.113-alpha, auparavant il donnait une erreur ; avec PostgreSQL déjà depuis la 5.13.112-alpha) ; sans style par défaut, il montre comme avant sa symbologie automatique, et là aussi les polygones restent dans l'ordre stratigraphique.
+
+**L'ordre de dessin est toujours l'ordre stratigraphique** (depuis la 5.13.113-alpha). Sur les vues des unités (US, USM, US négatives), les polygones sont dessinés de l'unité la plus ancienne, dessous, à la plus récente, dessus : d'abord selon la chronologie des périodes, si la périodisation du site peut être lue (en commençant par les unités sans période), puis selon `order_layer` croissant (0 = la plus ancienne, dessinée en premier), puis selon l'index stratigraphique, comme dans le Time Manager (tutoriel 25). Cela vaut quel que soit le style — le style par défaut enregistré, le QML fourni, un QML importé, le style composé dans l'aperçu — y compris dans **Appliquer aux couches chargées** (*Apply to loaded layers*) et dans l'aperçu de la fenêtre. Ainsi, en décochant une catégorie dans la légende de QGIS, on voit ce qui se trouve en dessous. Les autres vues (cotes, documentation, structures…) ne reçoivent aucun ordre.
 
 ### Exporter et importer
 

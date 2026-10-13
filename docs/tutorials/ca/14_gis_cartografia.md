@@ -97,8 +97,9 @@ Els textos de la finestra només existeixen en italià i en anglès: amb QGIS en
 
 ### Des d'on s'obre
 
-La finestra no és modal: roman oberta mentre es treballa al mapa. S'obre de tres maneres.
+La finestra no és modal: roman oberta mentre es treballa al mapa. S'obre de quatre maneres.
 
+- **Des de la barra d'eines de pyArchInit** (a partir de la 5.13.113-alpha): el **quart botó**, amb la icona de la paleta, just després del de GPT («AI Query Database»). Si la capa activa és una vista de pyArchInit, la finestra s'obre ja sobre aquella vista; si no, sobre la vista US.
 - **Des del menú del connector**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Estils de les vistes; amb QGIS en italià l'entrada es diu «Stili delle viste…»). Si la capa activa és una vista de pyArchInit, la finestra s'obre ja sobre aquella vista; si no, sobre la vista US.
 - **Des del menú de la capa**: clic dret sobre una capa vectorial al tauler de capes de QGIS → **View styles…**. És la mateixa entrada, amb el mateix nom i la mateixa regla: si la capa és una vista de pyArchInit, la finestra s'obre ja sobre aquella.
 - **Des de la fitxa US**: el botó **Style…** (amb QGIS en italià, **Stile…**), al costat del botó que carrega les capes. Obre la finestra sobre la vista US, amb el lloc de la fitxa.
@@ -187,7 +188,9 @@ Perquè un estil sigui el que es veu a cada càrrega: (1) tria la vista; (2) com
 2. si no, l'estil **per defecte per a tots els llocs**;
 3. si no, per a les vistes US, USM i de cotes, l'estil subministrat amb pyArchInit amb el número en cercle o la cota sobre el símbol (com des de la 5.13.110-alpha i la 5.13.111-alpha); les altres vistes es carreguen com abans, sense estil.
 
-La finestra de tres passos **Style Choice** (paràgraf «Elecció de l'Estil (US i USM)», a dalt) apareix **només si per a aquella vista no hi ha cap estil per defecte desat**; amb un estil per defecte la fitxa US simplement carrega, i un estil triat a mà no el sobreescriu. «Una etiqueta per unitat» es recalcula a cada càrrega, sobre els dibuixos del filtre d'aquell moment: no depèn del filtre amb què es va desar l'estil.
+La finestra de tres passos **Style Choice** (paràgraf «Elecció de l'Estil (US i USM)», a dalt) apareix **només si per a aquella vista no hi ha cap estil per defecte desat**; amb un estil per defecte la fitxa US simplement carrega, i un estil triat a mà no el sobreescriu. «Una etiqueta per unitat» es recalcula a cada càrrega, sobre els dibuixos del filtre d'aquell moment: no depèn del filtre amb què es va desar l'estil. La pestanya **Map preview** de la fitxa US també respecta l'estil per defecte desat (amb SQLite des de la 5.13.113-alpha, abans donava un error; amb PostgreSQL ja des de la 5.13.112-alpha); sense estil per defecte mostra, com abans, la seva simbologia automàtica, i també allà els polígons queden en ordre estratigràfic.
+
+**L'ordre de dibuix és sempre l'estratigràfic** (des de la 5.13.113-alpha). A les vistes de les unitats (US, USM, US negatives) els polígons es dibuixen de la unitat més antiga, a sota, a la més recent, a sobre: primer els períodes per cronologia, si la periodització del lloc es pot llegir (començant per les unitats sense període), després `order_layer` creixent (0 = la més antiga, dibuixada primer), després l'índex estratigràfic, com al Time Manager (tutorial 25). Val sigui quin sigui l'estil — l'estil per defecte desat, el QML inclòs, un QML importat, l'estil compost a la previsualització — també a **Aplica a les capes carregades** (*Apply to loaded layers*) i a la previsualització de la finestra. Així, en desmarcar una categoria a la llegenda de QGIS, es veu el que hi ha a sota. Les altres vistes (cotes, documentació, estructures…) no reben cap ordre.
 
 ### Exportar i importar
 

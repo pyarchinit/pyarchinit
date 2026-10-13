@@ -31,7 +31,8 @@ if _ROOT not in sys.path:
 from modules.utility.view_styles import (GROUPS, PLACEMENTS, PRESETS, VIEWS, LabelRecipe,  # noqa: E402
                                          SavedStyle, ViewSpec, choose_style, default_recipe,
                                          group_label, view_by_name, view_label)
-from modules.utility.view_styles_apply import (apply_recipe, export_qml_text,  # noqa: E402
+from modules.utility.view_styles_apply import (apply_recipe, enforce_unit_order, export_qml_text,  # noqa: E402
+                                               periodization_rows,
                                                import_qml_text, recipe_from_layer, shipped_qml)
 from modules.utility import view_styles_store as store  # noqa: E402
 
@@ -782,6 +783,9 @@ class ViewStylesDialog(QDialog):
     # ---- anteprima ---------------------------------------------------
     def _aggiorna_anteprima(self):
         if self._layer is not None:
+            # l'ordine sta sul renderer: dopo ogni cambio di simbologia va rimesso
+            enforce_unit_order(self._layer, periodization=self._periodizzazione(),
+                               view_name=self._spec.name if self._spec is not None else None)
             self._layer.triggerRepaint()
         self.anteprima.refresh()
 
@@ -1032,9 +1036,17 @@ class ViewStylesDialog(QDialog):
         for layer in project_layers_of_view(self._spec.name):
             if import_qml_text(layer, qml):
                 apply_recipe(layer, ricetta, touch_when_off=False, keep_format=True)
+                enforce_unit_order(layer, periodization=self._periodizzazione(), view_name=self._spec.name)
                 layer.triggerRepaint()
                 quanti += 1
         return quanti
+
+    def _periodizzazione(self) -> list:
+        """Le righe della periodizzazione, lette una volta per finestra:
+        servono all'ordine di disegno per cronologia."""
+        if getattr(self, "_periodi", None) is None:
+            self._periodi = periodization_rows(self._engine)
+        return self._periodi
 
     def _applica_al_progetto(self):
         n = self.apply_to_project()

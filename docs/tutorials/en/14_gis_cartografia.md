@@ -97,8 +97,9 @@ The texts of the window are in Italian if QGIS is in Italian and in English with
 
 ### Where to open it
 
-The window is not modal: it stays open while you work on the map. It opens in three ways.
+The window is not modal: it stays open while you work on the map. It opens in four ways.
 
+- **From the pyArchInit toolbar** (since 5.13.113-alpha): the **fourth button**, with the palette icon, right after the GPT one («AI Query Database»). If the active layer is a pyArchInit view the window opens on that view, otherwise on the SU view.
 - **From the plugin menu**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (with QGIS in Italian the entry is called «Stili delle viste…»). If the active layer is a pyArchInit view the window opens on that view, otherwise on the SU view.
 - **From the layer menu**: right-click on a vector layer in the QGIS layers panel → **View styles…**. It is the same entry, with the same name and the same rule: if the layer is a pyArchInit view the window opens on it.
 - **From the SU form**: the **Style…** button (**Stile…** with QGIS in Italian), next to the button that loads the layers. It opens the window on the SU view, with the form's site.
@@ -187,7 +188,9 @@ To make a style the one you see at every load: (1) choose the view; (2) compose 
 2. otherwise the **default for all sites**;
 3. otherwise, for the SU, USM and elevation views, the style shipped with pyArchInit with the circled number or the elevation above the symbol (as from 5.13.110-alpha and 5.13.111-alpha); the other views load as before, with no style.
 
-The three-step **Style Choice** window (paragraph «Style Choice (SU and USM)», above) appears **only if the view has no saved default style**; with a default the SU form simply loads, and a style chosen by hand does not overwrite it. «One label per unit» is recomputed at every load, on the drawings of the filter of that moment: it does not depend on the one the style was saved with.
+The three-step **Style Choice** window (paragraph «Style Choice (SU and USM)», above) appears **only if the view has no saved default style**; with a default the SU form simply loads, and a style chosen by hand does not overwrite it. «One label per unit» is recomputed at every load, on the drawings of the filter of that moment: it does not depend on the one the style was saved with. The **Map preview** tab of the SU form also respects the saved default (with SQLite since 5.13.113-alpha, before that it gave an error; with PostgreSQL already since 5.13.112-alpha); with no default it shows, as before, its automatic symbology, and there too the polygons stay in stratigraphic order.
+
+**The drawing order is always the stratigraphic one** (since 5.13.113-alpha). On the unit views (SU, USM, negative SUs) the polygons are drawn from the oldest, underneath, to the most recent, on top: first the periods by chronology, if the site's periodization can be read (units without a period come first), then `order_layer` ascending (0 = the oldest, drawn first), then the stratigraphic index, as in the Time Manager (tutorial 25). It applies whatever the style is — the saved default, the shipped QML, an imported QML, the style composed in the preview — also in **Apply to loaded layers** and in the window's preview. So, by unchecking a category in the QGIS legend, you see what lies beneath. The other views (elevations, documentation, structures…) get no order.
 
 ### Exporting and importing
 

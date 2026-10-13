@@ -97,8 +97,9 @@ I testi della finestra sono in italiano se QGIS è in italiano, in inglese con t
 
 ### Da dove si apre
 
-La finestra non è modale: resta aperta mentre si lavora sulla mappa. Si apre in tre modi.
+La finestra non è modale: resta aperta mentre si lavora sulla mappa. Si apre in quattro modi.
 
+- **Dalla toolbar di pyArchInit** (dalla 5.13.113-alpha): il **quarto bottone**, con l'icona della tavolozza, subito dopo quello di GPT («AI Query Database»). Se il layer attivo è una vista di pyArchInit la finestra si apre già su quella vista, altrimenti sulla vista US.
 - **Dal menu del plugin**: **Plugins → pyArchInit - Archaeological GIS Tools → Stili delle viste…** («Stili delle viste…» con QGIS in italiano, «View styles…» con le altre lingue). Se il layer attivo è una vista di pyArchInit la finestra si apre già su quella vista, altrimenti sulla vista US.
 - **Dal menu del layer**: tasto destro su un layer vettoriale nel pannello dei layer di QGIS → **Stili delle viste…**. È la stessa voce, con lo stesso nome e la stessa regola: se il layer è una vista di pyArchInit la finestra si apre già su quella.
 - **Dalla scheda US**: il bottone **Stile…** (*Style…* con QGIS in una lingua diversa dall'italiano), accanto al bottone che carica i layer. Apre la finestra sulla vista US, con il sito della scheda.
@@ -187,7 +188,9 @@ Per far diventare uno stile quello che si vede a ogni caricamento: (1) scegli la
 2. altrimenti lo stile **predefinito per tutti i siti**;
 3. altrimenti, per le viste US, USM e delle quote, lo stile fornito con pyArchInit con il numero cerchiato o la quota sopra il simbolo (come dalla 5.13.110-alpha e dalla 5.13.111-alpha); le altre viste si caricano come prima, senza stile.
 
-La finestra in tre passi **Scelta Stile** (paragrafo «Scelta dello Stile (US e USM)», sopra) compare **solo se per quella vista non c'è nessuno stile predefinito salvato**; con un predefinito la scheda US carica e basta, e uno stile scelto a mano non lo sovrascrive. «Una etichetta per unità» si ricalcola a ogni caricamento, sui disegni del filtro di quel momento: non dipende da quello con cui lo stile fu salvato.
+La finestra in tre passi **Scelta Stile** (paragrafo «Scelta dello Stile (US e USM)», sopra) compare **solo se per quella vista non c'è nessuno stile predefinito salvato**; con un predefinito la scheda US carica e basta, e uno stile scelto a mano non lo sovrascrive. «Una etichetta per unità» si ricalcola a ogni caricamento, sui disegni del filtro di quel momento: non dipende da quello con cui lo stile fu salvato. Anche il tab **Map preview** della scheda US rispetta il predefinito salvato (con SQLite dalla 5.13.113-alpha, prima dava un errore; con PostgreSQL già dalla 5.13.112-alpha); senza predefinito mostra come prima la sua simbologia automatica, e anche lì i poligoni restano in ordine stratigrafico.
+
+**L'ordine di disegno è sempre quello stratigrafico** (dalla 5.13.113-alpha). Sulle viste delle unità (US, USM, US negative) i poligoni si disegnano dal più antico, sotto, al più recente, sopra: prima i periodi per cronologia, se la periodizzazione del sito si legge (le unità senza periodo per prime), poi `order_layer` crescente (0 = la più antica, disegnata per prima), poi l'indice stratigrafico, come nel Time Manager (tutorial 25). Vale qualunque sia lo stile — il predefinito salvato, il QML fornito, un QML importato, lo stile composto nell'anteprima — anche in **Applica ai layer caricati** e nell'anteprima della finestra. Così, togliendo il segno di spunta a una categoria nella legenda di QGIS, si vede quello che sta sotto. Le altre viste (quote, documentazione, strutture…) non prendono nessun ordine.
 
 ### Esportare e importare
 

@@ -123,8 +123,88 @@ def test_nessun_qml_legacy_sovrascrive_lo_stile_risolto():
                 break
             if x.strip().startswith("#"):
                 continue
-            if "%s.loadNamedStyle(" % var in x:
+            if "%s.loadNamedStyle(" % var in x or "create_us_nested_symbology(%s" % var in x:
                 blocco = "\n".join(righe[i + 1:j + 1])
                 assert not (ripiego and any(q in blocco for q in LEGACY)), (j + 1, x.strip())
                 prima = [y for y in righe[i + 1:j] if y.strip() and not y.strip().startswith("#")]
                 assert any("self._stile_salvato(%s)" % var in y for y in prima), (j + 1, x.strip())
+
+
+def _percorso(istruzioni, chiamata):
+    """[(blocco, indice, istruzione)] dal corpo della funzione fino
+    all'istruzione che contiene la chiamata, seguendo solo il ramo preso."""
+    for i, st in enumerate(istruzioni):
+        if not any(n is chiamata for n in ast.walk(st)):
+            continue
+        sotto = []
+        blocchi = [getattr(st, c) for c in ("body", "orelse", "finalbody")
+                   if isinstance(getattr(st, c, None), list)]
+        if isinstance(st, ast.Try):
+            blocchi += [h.body for h in st.handlers]
+        for blocco in blocchi:
+            if blocco and isinstance(blocco[0], ast.stmt):
+                sotto = _percorso(blocco, chiamata)
+                if sotto:
+                    break
+        return [(istruzioni, i, st)] + sotto
+    return []
+
+
+def _bersagli(nodo):
+    """I nomi che un'istruzione lega, senza entrare nei rami che
+    potrebbero non essere eseguiti (if, for, while)."""
+    nomi = set()
+    for n in ast.walk(nodo):
+        if isinstance(n, (ast.If, ast.For, ast.While)) and n is not nodo:
+            continue
+        if isinstance(n, ast.Assign):
+            for t in n.targets:
+                nomi |= {x.id for x in ast.walk(t) if isinstance(x, ast.Name)}
+        elif isinstance(n, (ast.AugAssign, ast.AnnAssign, ast.NamedExpr)):
+            nomi |= {x.id for x in ast.walk(n.target) if isinstance(x, ast.Name)}
+        elif isinstance(n, ast.withitem) and n.optional_vars is not None:
+            nomi |= {x.id for x in ast.walk(n.optional_vars) if isinstance(x, ast.Name)}
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            nomi.add(n.name)
+    return nomi
+
+
+def _legati_prima(fn, chiamata):
+    """Parametri più i nomi legati dalle istruzioni che precedono la
+    chiamata lungo il suo percorso (un `if` fratello non conta: il ramo
+    preso potrebbe essere l'altro, come in loadMapPreview_new)."""
+    nomi = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
+    for blocco, i, st in _percorso(fn.body, chiamata):
+        for prima in blocco[:i]:
+            if isinstance(prima, (ast.If, ast.For, ast.While)):
+                continue                                  # ramo non garantito
+            nomi |= _bersagli(prima)
+        if isinstance(st, ast.For):
+            nomi |= {x.id for x in ast.walk(st.target) if isinstance(x, ast.Name)}
+        elif isinstance(st, ast.With):
+            for it in st.items:
+                if it.optional_vars is not None:
+                    nomi |= {x.id for x in ast.walk(it.optional_vars) if isinstance(x, ast.Name)}
+        elif isinstance(st, ast.Try):
+            nomi |= {h.name for h in st.handlers if h.name}
+    return nomi
+
+
+def test_il_sito_passato_a_stile_vista_e_legato_prima_della_chiamata():
+    """`UnboundLocalError: sito_filter` in `loadMapPreview_new` (Enzo,
+    13 ottobre 2026): un nome di sito passato a `_stile_vista` deve essere
+    un parametro o un nome legato prima, lungo il ramo che porta alla
+    chiamata, nella stessa funzione."""
+    albero = ast.parse(SRC.read_text(encoding="utf-8"))
+    errori = []
+    for fn in ast.walk(albero):
+        if not isinstance(fn, ast.FunctionDef):
+            continue
+        for nodo in ast.walk(fn):
+            if not (isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Attribute)
+                    and nodo.func.attr == "_stile_vista" and len(nodo.args) >= 3):
+                continue
+            sito = nodo.args[2]
+            if isinstance(sito, ast.Name) and sito.id not in _legati_prima(fn, nodo):
+                errori.append((nodo.lineno, fn.name, sito.id))
+    assert not errori, errori

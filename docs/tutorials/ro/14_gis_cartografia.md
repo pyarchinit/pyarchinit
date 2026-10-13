@@ -97,8 +97,9 @@ Textele ferestrei există doar în italiană și în engleză: cu QGIS în româ
 
 ### De unde se deschide
 
-Fereastra nu este modală: rămâne deschisă cât timp se lucrează pe hartă. Se deschide în trei moduri.
+Fereastra nu este modală: rămâne deschisă cât timp se lucrează pe hartă. Se deschide în patru moduri.
 
+- **Din bara de instrumente pyArchInit** (începând cu 5.13.113-alpha): al **patrulea buton**, cu pictograma paletei, imediat după cel al GPT («AI Query Database»). Dacă stratul activ este o vedere pyArchInit, fereastra se deschide direct pe acea vedere; altfel, pe vederea US.
 - **Din meniul pluginului**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Stilurile vederilor; cu QGIS în italiană intrarea se numește «Stili delle viste…»). Dacă stratul activ este o vedere pyArchInit, fereastra se deschide direct pe acea vedere; altfel, pe vederea US.
 - **Din meniul stratului**: clic dreapta pe un strat vectorial în panoul straturilor din QGIS → **View styles…**. Este aceeași intrare, cu același nume și aceeași regulă: dacă stratul este o vedere pyArchInit, fereastra se deschide direct pe ea.
 - **Din fișa US**: butonul **Style…** (cu QGIS în italiană, **Stile…**), lângă butonul care încarcă straturile. Deschide fereastra pe vederea US, cu situl fișei.
@@ -187,7 +188,9 @@ Pentru ca un stil să fie cel pe care îl vezi la fiecare încărcare: (1) alege
 2. altfel, stilul **implicit pentru toate siturile**;
 3. altfel, pentru vederile US, USM și ale cotelor, stilul furnizat cu pyArchInit cu numărul încercuit sau cota deasupra simbolului (ca începând cu 5.13.110-alpha și 5.13.111-alpha); celelalte vederi se încarcă ca înainte, fără stil.
 
-Fereastra în trei pași **Style Choice** (paragraful «Alegerea Stilului (US și USM)», mai sus) apare **doar dacă pentru acea vedere nu există niciun stil implicit salvat**; cu un stil implicit, fișa US doar încarcă, iar un stil ales de mână nu îl suprascrie. «O etichetă pe unitate» se recalculează la fiecare încărcare, pe desenele filtrului din acel moment: nu depinde de filtrul cu care a fost salvat stilul.
+Fereastra în trei pași **Style Choice** (paragraful «Alegerea Stilului (US și USM)», mai sus) apare **doar dacă pentru acea vedere nu există niciun stil implicit salvat**; cu un stil implicit, fișa US doar încarcă, iar un stil ales de mână nu îl suprascrie. «O etichetă pe unitate» se recalculează la fiecare încărcare, pe desenele filtrului din acel moment: nu depinde de filtrul cu care a fost salvat stilul. De asemenea, fila **Map preview** a fișei US respectă stilul implicit salvat (cu SQLite începând cu 5.13.113-alpha, înainte dădea o eroare; cu PostgreSQL deja începând cu 5.13.112-alpha); fără stil implicit arată, ca înainte, simbologia sa automată, iar și acolo poligoanele rămân în ordine stratigrafică.
+
+**Ordinea de desenare este întotdeauna cea stratigrafică** (începând cu 5.13.113-alpha). Pe vederile unităților (US, USM, US negative), poligoanele se desenează de la unitatea cea mai veche, dedesubt, la cea mai recentă, deasupra: mai întâi după cronologia perioadelor, dacă periodizarea sitului poate fi citită (începând cu unitățile fără perioadă), apoi după `order_layer` crescător (0 = cea mai veche, desenată prima), apoi după indexul stratigrafic, ca în Time Manager (tutorialul 25). Se aplică oricare ar fi stilul — stilul implicit salvat, QML-ul livrat, un QML importat, stilul compus în previzualizare — inclusiv în **Aplică pe straturile încărcate** (*Apply to loaded layers*) și în previzualizarea ferestrei. Astfel, debifând o categorie din legenda QGIS, se vede ce se află dedesubt. Celelalte vederi (cote, documentație, structuri…) nu primesc nicio ordine.
 
 ### Exportul și importul
 
