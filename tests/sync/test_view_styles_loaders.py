@@ -100,3 +100,31 @@ def test_i_metodi_dello_stile_esistono():
     albero = ast.parse(SRC.read_text(encoding="utf-8"))
     nomi = {n.name for n in ast.walk(albero) if isinstance(n, ast.FunctionDef)}
     assert {"_stile_vista", "_stile_salvato", "_engine_stili", "_sito_corrente"} <= nomi
+
+
+LEGACY = ("stile_quote.qml", "quote_view.qml", "us_caratterizzazioni.qml")
+
+
+def test_nessun_qml_legacy_sovrascrive_lo_stile_risolto():
+    """Dopo `_stile_vista` un `loadNamedStyle` dello stesso layer può esserci
+    solo sotto `if not self._stile_salvato(var)`, e mai con un QML legacy
+    dopo un ripiego (`fallback=True`): un QML senza `<labeling>` caricato
+    dopo cancella il predefinito salvato e le etichette (trovato leggendo i
+    caricatori PostgreSQL, 13 ottobre 2026)."""
+    righe = _righe()
+    for i, r in enumerate(righe):
+        if "self._stile_vista(" not in r or r.strip().startswith("#"):
+            continue
+        var = re.search(r"_stile_vista\((\w+),", r).group(1)
+        ripiego = "fallback=True" in r
+        for j in range(i + 1, min(i + 16, len(righe))):
+            x = righe[j]
+            if "self._stile_vista(" in x or re.match(r"^\s*def ", x):
+                break
+            if x.strip().startswith("#"):
+                continue
+            if "%s.loadNamedStyle(" % var in x:
+                blocco = "\n".join(righe[i + 1:j + 1])
+                assert not (ripiego and any(q in blocco for q in LEGACY)), (j + 1, x.strip())
+                prima = [y for y in righe[i + 1:j] if y.strip() and not y.strip().startswith("#")]
+                assert any("self._stile_salvato(%s)" % var in y for y in prima), (j + 1, x.strip())

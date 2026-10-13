@@ -64,6 +64,8 @@ PyArchInit este integrat profund cu **QGIS**, valorificând toate funcționalit�
 
 ### Alegerea Stilului (US și USM)
 
+Începând cu **5.13.112-alpha**, fereastra **Style Choice** descrisă mai jos apare **doar dacă vederea nu are niciun stil implicit salvat**: cu un stil implicit (pentru sit sau pentru toate siturile), fișa încarcă vederea, îl aplică și nu întreabă nimic. Stilurile implicite se creează în fereastra **View styles** (vezi secțiunea «Stilurile vederilor», mai jos).
+
 Când US sau US de zidărie (USM) din rezultatele căutării sunt încărcate pe hartă, apare fereastra **Style Choice** („How do you want to manage the layer style?"). Butoanele sunt afișate în engleză:
 
 | Buton | Efect |
@@ -79,9 +81,120 @@ Cu **Save new style**, **Load existing style** și **Use temporary style** se al
 
 **Ordinea de desenare.** Începând cu 5.13.19-alpha, unitățile sunt desenate în ordinea folosită de Manager Temporal (Time Manager): mai întâi cele fără perioadă, apoi după cronologia perioadei (din periodizarea perioadei/fazei inițiale a US sau din `cont_per`), apoi după `order_layer` (0 = cea mai veche) și, la final, tăierea deasupra umpluturii sale, astfel încât unitățile cele mai recente sunt deasupra. Se aplică tuturor opțiunilor de stil, inclusiv **Single symbol (outline only)**. Când straturile sunt încărcate perioadă cu perioadă, stilul este cerut o singură dată și folosit pentru toate perioadele.
 
-**Etichete.** Începând cu 5.13.110-alpha, odată cu stilul ales, vederea US (și USM) primește și **etichetele** ei: numărul unității **îngroșat, într-un cerc alb cu bordură roșu închis**, **câte una pentru fiecare unitate**, pe desenul ei cel mai mare dacă se vede (neacoperit în întregime de unul de nivel superior), cu aceeași rețetă ca la planșele atlasului din Time Manager (tutorialul 25). Când două numere s-ar acoperi, unul este mutat, iar o linie de legătură îl unește cu desenul său. Se aplică la US și USM, cu SQLite și cu PostgreSQL, și la toate opțiunile de stil, inclusiv **Single symbol (outline only)**; dacă stilul încărcat cu **Load existing style** avea deja etichete, numărul încercuit le ia locul. Straturile de puncte nu primesc numărul încercuit. Începând cu 5.13.111-alpha, însă, **vederea cotelor** (punctele de cotă, stratul „Elevation view”), imediat ce este încărcată din fișa US, poartă **eticheta cu valoarea cotei** (două zecimale, de exemplu „12,35”), plasată **deasupra liniei orizontale a simbolului**, cu aceeași rețetă ca la planșele atlasului din Time Manager. Se aplică la toate comenzile care o încarcă, cu SQLite și cu PostgreSQL, și nu depinde de stilul ales; straturile care nu sunt de puncte sau care nu au câmpul cotei nu primesc această etichetă.
+**Etichete.** Începând cu 5.13.110-alpha, odată cu stilul ales, vederea US (și USM) primește și **etichetele** ei: numărul unității **îngroșat, într-un cerc alb cu bordură roșu închis**, **câte una pentru fiecare unitate**, pe desenul ei cel mai mare dacă se vede (neacoperit în întregime de unul de nivel superior), cu aceeași rețetă ca la planșele atlasului din Time Manager (tutorialul 25). Când două numere s-ar acoperi, unul este mutat, iar o linie de legătură îl unește cu desenul său. Se aplică la US și USM, cu SQLite și cu PostgreSQL, și la toate opțiunile de stil, inclusiv **Single symbol (outline only)**; dacă stilul încărcat cu **Load existing style** avea deja etichete, numărul încercuit le ia locul. Straturile de puncte nu primesc numărul încercuit. Începând cu 5.13.111-alpha, însă, **vederea cotelor** (punctele de cotă, stratul „Elevation view”), imediat ce este încărcată din fișa US, poartă **eticheta cu valoarea cotei** (două zecimale, de exemplu „12,35”), plasată **deasupra liniei orizontale a simbolului**, cu aceeași rețetă ca la planșele atlasului din Time Manager. Se aplică la toate comenzile care o încarcă, cu SQLite și cu PostgreSQL, și nu depinde de stilul ales; straturile care nu sunt de puncte sau care nu au câmpul cotei nu primesc această etichetă. Începând cu 5.13.112-alpha, numărul încercuit și cota sunt **presetările de pornire** ale etichetelor: în fila **Etichete** (*Labels*) a ferestrei **View styles** (vezi secțiunea cu același nume, mai jos) pot fi schimbate și salvate ca stil implicit, care la încărcare le ia locul.
 
 Începând cu 5.13.18-alpha, stilul ales (și câmpul de categorizare) este respectat și cu bazele de date SQLite, atât pentru US, cât și pentru USM; înainte harta apărea întotdeauna cu o culoare pentru fiecare US.
+
+## Stilurile vederilor
+
+Începând cu versiunea **5.13.112-alpha**, o singură fereastră, **View styles** (Stilurile vederilor), servește la compunerea stilului — **simbologie și etichete** — fiecărei vederi pyArchInit: vederile US și USM, cotele, documentația, structurile și mormintele, UT, siturile, descoperirile, secțiunile. Stilul se vede imediat într-o **previzualizare** cu datele sitului, se salvează cu un nume în baza de date și poate deveni stilul **implicit** al unui sit sau al tuturor: din acel moment, fișele care încarcă vederea îl aplică singure, fără să întrebe nimic.
+
+<!-- IMMAGINE: Captură de ecran a ferestrei «View styles»: în stânga lista vederilor și a stilurilor salvate, cu butoanele lor; în dreapta previzualizarea și filele Symbology și Labels; jos Apply to loaded layers, Save, Save as… și Close -->
+![Fereastra View styles](images/14_gis_cartografia/01_stili_delle_viste.png)
+*Figura 1: Fereastra «View styles»*
+
+Textele ferestrei există doar în italiană și în engleză: cu QGIS în română apare în engleză. În continuare, fiecare etichetă tradusă este urmată de cea engleză între paranteze. La fel și intrarea de meniu: cu QGIS în română se numește «View styles…».
+
+### De unde se deschide
+
+Fereastra nu este modală: rămâne deschisă cât timp se lucrează pe hartă. Se deschide în trei moduri.
+
+- **Din meniul pluginului**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Stilurile vederilor; cu QGIS în italiană intrarea se numește «Stili delle viste…»). Dacă stratul activ este o vedere pyArchInit, fereastra se deschide direct pe acea vedere; altfel, pe vederea US.
+- **Din meniul stratului**: clic dreapta pe un strat vectorial în panoul straturilor din QGIS → **View styles…**. Este aceeași intrare, cu același nume și aceeași regulă: dacă stratul este o vedere pyArchInit, fereastra se deschide direct pe ea.
+- **Din fișa US**: butonul **Style…** (cu QGIS în italiană, **Stile…**), lângă butonul care încarcă straturile. Deschide fereastra pe vederea US, cu situl fișei.
+
+Previzualizarea arată geometriile unui **sit**: cel al fișei, dacă fereastra se deschide din butonul «Style…»; altfel, **situl activ** stabilit în configurarea pyArchInit (tutorialul 01). Fără sit activ, arată toate siturile.
+
+### Vederile și stilurile salvate
+
+Coloana din stânga are două liste.
+
+**Vederi** (*Views*). Vederile pyArchInit, pe grupe:
+
+| Grup | Vederi |
+|------|--------|
+| «Unități stratigrafice» (*Stratigraphic units*) | US, USM, US negative |
+| «Cote» (*Elevations*) | cotele US, cotele USM |
+| «Documentație» (*Documentation*) | documentație (două vederi) |
+| «Structuri și morminte» (*Structures and burials*) | structuri, morminte, indivizi |
+| «Unități topografice» (*Topographic units*) | UT punctuale, liniare, poligonale |
+| «Situri» (*Sites*) | situri punctuale, situri poligonale |
+| «Descoperiri» (*Finds*) | descoperiri |
+| «Secțiuni» (*Sections*) | secțiuni de săpătură |
+
+Chiar și vederile care până acum se încărcau fără stil (documentația, structurile și mormintele, UT, siturile, descoperirile, secțiunile) au aici unul. O vedere care nu se află în baza de date devine **gri** când este aleasă, iar linia de stare spune «Vedere absentă din această bază de date» (*View not present in this database.*).
+
+**Stiluri salvate** (*Saved styles*). Dedesubt, stilurile salvate pentru vederea aleasă, câte unul pe rând: *nume · sit (sau «toate siturile») · «✓ implicit»* (*all sites*, *✓ default*). Un clic pe un stil îl încarcă în previzualizare și în file, ca să fie privit sau retușat. Stilurile pe care QGIS le-a salvat în baza de date pentru acel strat apar ca *nume · Salvat cu QGIS* (*Saved with QGIS*): pot fi încărcate, dar pyArchInit nu le rescrie; pentru a păstra o copie printre stilurile sale se folosește **Salvează ca…** (*Save as…*). Butoanele de sub listă:
+
+| Buton | Ce face |
+|-------|---------|
+| **Nou** (*New*) | Pornește de la un stil de compus: doar contur, cu etichetele de pornire ale vederii. Numele se cere la primul **Salvează** (*Save*) |
+| **Duplică** (*Duplicate*) | Copiază stilul ales cu numele «… (2)»; copia nu este implicită |
+| **Redenumește…** (*Rename…*) | Schimbă numele stilului ales |
+| **Șterge** (*Delete*) | Șterge stilul ales, după o confirmare |
+| **Implicit pentru acest sit** (*Default for this site*) | Stilul ales devine cel aplicat la încărcarea vederii pentru situl curent (dacă stilul este pentru «toate siturile», face o copie pentru situl curent și o face implicită pe aceasta; originalul rămâne cum este) |
+| **Implicit pentru toate siturile** (*Default for all sites*) | Devine cel aplicat siturilor care nu au unul propriu (dacă stilul este al unui sit, face o copie pentru toate siturile și o face implicită pe aceasta; originalul rămâne cum este) |
+| **Exportă QML…** (*Export QML…*), **Importă QML…** (*Import QML…*) | Vezi «Exportul și importul» |
+
+Pentru fiecare vedere există un singur stil implicit pe sit și unul singur pentru toate siturile: dacă alt stil devine implicit, precedentului i se șterge semnul «✓ implicit». Duplică, Redenumește, Șterge și cele două «Implicit» acționează asupra stilului ales în listă; dacă nu este ales niciunul, apare avertismentul «Alege mai întâi un stil salvat» (*Choose a saved style first.*).
+
+### Previzualizare, simbologie și etichete
+
+**Previzualizare.** În dreapta sus, o hartă arată vederea aleasă, citită din baza de date și filtrată pe situl curent: orice modificare a stilului se vede imediat. **Încadrează** (*Zoom to data*) duce harta pe toate geometriile. Linia de stare de sub hartă spune câte sunt (*482 geometrii ale sitului «Scavo 2026».*, *482 geometries of site “Scavo 2026”.*) sau, dacă situl nu are niciuna în acea vedere, «Nicio geometrie pentru situl curent» (*No geometry for the current site.*): stilul poate fi compus oricum. Previzualizarea este un strat aparte, **neadăugat în proiect**: straturile proiectului QGIS nu se schimbă până nu se apasă **Aplică pe straturile încărcate** (*Apply to loaded layers*). Când se alege o vedere, previzualizarea pornește de la ce i-ar aplica pyArchInit în acel moment la încărcare (vezi «Stiluri implicite și încărcare»).
+
+Sub hartă sunt două file: **Simbologie** (*Symbology*) și **Etichete** (*Labels*).
+
+**Fila Simbologie.** Sus, lista derulantă **Preset** (*Preset:*):
+
+| Preset | Efect |
+|--------|-------|
+| «— lasă neschimbat —» (*— keep as is —*) | Nu schimbă nimic |
+| «Doar contur» (*Outline only*) | Poligoane fără umplere și cu marginea gri închis, linii subțiri, puncte ca mici cercuri goale |
+| «Stil furnizat cu pyArchInit» (*Style shipped with pyArchInit*) | QML-ul care însoțește pluginul: există pentru vederile US și USM și pentru cote |
+| «Categorii după „câmp”» (*Categories by “field”*) | O categorie, cu culoarea ei, pentru fiecare valoare a câmpului. Există o intrare pentru fiecare dintre câmpurile potrivite acelei vederi pe care stratul le are: pentru unități `d_stratigrafica`, `tipo_us_s`, `d_interpretativa` și `cont_per`; pentru celelalte vederi, de exemplu, `tipo_doc`, `tipologia_struttura` sau `tipo_reperto` |
+
+Sub listă se află **editorul de simbologie al QGIS**, același cu cel din proprietățile stratului (simbol unic, categorizat, gradual, bazat pe reguli…): presetul este punctul de plecare și de acolo se retușează totul; orice modificare se vede imediat în previzualizare.
+
+**Fila Etichete.**
+
+| Control | Ce face |
+|---------|---------|
+| **Etichete active** (*Labels on*) | Pornește și oprește etichetele vederii |
+| **Ce se scrie** (*What to write:*) | «Nicio etichetă» (*No label*); «Numărul unității într-un cerc» (*Unit number in a circle*: numărul îngroșat, într-un cerc alb cu bordură roșu închis, ca la planșele atlasului din Time Manager, tutorialul 25); «Cotă deasupra simbolului» (*Elevation above the symbol*: valoarea cotei deasupra liniei orizontale a simbolului); «Un câmp sau o expresie» (*A field or an expression*) |
+| **Câmp** (*Field:*), **Expresie** (*Expression:*) | Pentru ultima intrare: câmpul vederii care se scrie sau o expresie QGIS (dacă este scrisă, are prioritate față de câmp) |
+| **Poziție** (*Placement:*), **Decalaj (mm)** (*Offset (mm):*) | Pentru ultima intrare: «Centrat» (*Centred*), «În jurul punctului» (*Around the point*) sau «Deasupra simbolului» (*Above the symbol*); decalajul ridică eticheta cu atâția milimetri și se aplică la «Deasupra simbolului» |
+| **O etichetă pe unitate (pe cel mai mare desen vizibil)** (*One label per unit (on the largest visible drawing)*) | Pentru numărul unității: o singură etichetă pe unitate, pe cel mai mare desen al ei care se vede (neacoperit în întregime de unul de nivel superior); oprită, fiecare desen are eticheta lui |
+| **Font și fundal** (*Font and background*) | Font, **Dimensiune (mm)** (*Size (mm):*), **Îngroșat** (*Bold*), **Culoare…** (*Colour…*) a textului, **Halou alb** (*White buffer*), **Fundal circular** (*Circle background*) cu **Umplere…** (*Fill…*) și **Contur…** (*Stroke…*) |
+
+Numărul unității într-un cerc este presetul de pornire al vederilor US și USM, cota deasupra simbolului cel al vederilor cotelor: sunt etichetele paragrafului **Etichete** din «Alegerea Stilului (US și USM)» (mai sus), care aici pot fi schimbate. Celelalte vederi nu au etichete la început. Panoul este cel al pyArchInit, mai simplu decât editorul de etichete al QGIS (bazat pe reguli etc.), care nu poate fi deschis în afara proprietăților stratului.
+
+### Stiluri implicite și încărcare
+
+Jos sunt patru butoane:
+
+| Buton | Ce face |
+|-------|---------|
+| **Aplică pe straturile încărcate** (*Apply to loaded layers*) | Aplică stilul care se vede în previzualizare — simbologie și etichete — straturilor proiectului QGIS care provin din acea vedere; linia de stare spune «Stil aplicat la N straturi ale proiectului» (*Style applied to N project layers.*) sau «Niciun strat al acestei vederi în proiect» (*No layer of this view in the project.*). Nu salvează nimic în baza de date |
+| **Salvează** (*Save*) | Salvează peste stilul curent (cel ales în listă); dacă nu există niciunul, cere numele și creează un stil nou |
+| **Salvează ca…** (*Save as…*) | Cere numele și salvează un stil nou, pentru toate siturile: «Stilul „nume” a fost salvat» (*Style “name” saved.*) |
+| **Închide** (*Close*) | Închide fereastra |
+
+Pentru ca un stil să fie cel pe care îl vezi la fiecare încărcare: (1) alege vederea; (2) compune simbologia și etichetele uitându-te la previzualizare; (3) **Salvează ca…** cu un nume; (4) **Implicit pentru acest sit** sau **Implicit pentru toate siturile**; (5) dacă straturile sunt deja în proiect, **Aplică pe straturile încărcate**.
+
+**La încărcare comandă stilul implicit.** Când o fișă pyArchInit (de exemplu fișa US) încarcă o vedere, aplică în ordine:
+
+1. stilul **implicit al sitului pentru care se încarcă vederea** (dacă există): fișa US transmite situl fișei, încărcătoarele pe perioade (Time Manager) situl pe care îl desenează; acolo unde încărcătorul nu cunoaște situl, valorează situl activ din configurarea pyArchInit (tutorialul 01);
+2. altfel, stilul **implicit pentru toate siturile**;
+3. altfel, pentru vederile US, USM și ale cotelor, stilul furnizat cu pyArchInit cu numărul încercuit sau cota deasupra simbolului (ca începând cu 5.13.110-alpha și 5.13.111-alpha); celelalte vederi se încarcă ca înainte, fără stil.
+
+Fereastra în trei pași **Style Choice** (paragraful «Alegerea Stilului (US și USM)», mai sus) apare **doar dacă pentru acea vedere nu există niciun stil implicit salvat**; cu un stil implicit, fișa US doar încarcă, iar un stil ales de mână nu îl suprascrie. «O etichetă pe unitate» se recalculează la fiecare încărcare, pe desenele filtrului din acel moment: nu depinde de filtrul cu care a fost salvat stilul.
+
+### Exportul și importul
+
+- **Exportă QML…** scrie într-un fișier `.qml` stilul așa cum se vede în previzualizare — simbologie și etichete —; numele propus este cel al vederii (de exemplu `pyarchinit_us_view.qml`). Servește la păstrarea unei copii sau la folosirea lui într-o altă bază de date ori în QGIS.
+- **Importă QML…** citește un fișier `.qml`, îl arată în previzualizare și îl salvează ca stil nou, pentru toate siturile, cu numele fișierului. Dacă fișierul nu se citește ca QML, un avertisment o spune, cu numele fișierului (*“name.qml” does not read as QML.*), și nu se scrie nimic.
+- Stilurile salvate trăiesc în **baza de date conectată** la pyArchInit, în tabela `pyarchinit_view_styles`, care se creează singură, cu SQLite și cu PostgreSQL: cu PostgreSQL le văd toți utilizatorii aceleiași baze de date. Pentru a le muta într-o altă bază de date, se exportă și se importă ca QML.
+- Dacă baza de date nu este conectată (sau tabela stilurilor nu poate fi creată, de exemplu pe PostgreSQL fără permisiunea de a crea tabele), stilurile salvate nu sunt disponibile și se poate doar exporta: linia de stare de sub previzualizare o spune după numărul geometriilor, cu «Bază de date neconectată: stilurile pot fi doar exportate» (*Database not connected: styles can only be exported.*) sau «Tabela stilurilor nu poate fi creată în această bază de date: stilurile pot fi doar exportate» (*The styles table cannot be created in this database: styles can only be exported.*).
 
 ## Stilizarea Straturilor
 

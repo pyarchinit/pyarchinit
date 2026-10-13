@@ -64,6 +64,8 @@ PyArchInit is deeply integrated with **QGIS**, leveraging all its GIS functional
 
 ### Style Choice (SU and USM)
 
+Since **5.13.112-alpha** the **Style Choice** window described below appears **only when the view has no saved default style**: with a default (for the site or for all sites) the form loads the view, applies it and asks nothing. Defaults are created in the **View styles** window (see the «View styles» section below).
+
 When the SUs or wall SUs (USM) of the search results are loaded on the map, the **Style Choice** window appears ("How do you want to manage the layer style?"):
 
 | Button | Effect |
@@ -79,9 +81,120 @@ With **Save new style**, **Load existing style** and **Use temporary style** you
 
 **Drawing order.** Since 5.13.19-alpha the units are drawn in the order used by the Time Manager: first those without a period, then by period chronology (from the periodization of the SU's initial period/phase, or from `cont_per`), then by `order_layer` (0 = oldest), and finally the cut over its fill, so the most recent units are on top. This applies to every style option, including **Single symbol (outline only)**. When the layers are loaded period by period, the style is asked only once and used for all periods.
 
-**Labels.** Since 5.13.110-alpha, with the chosen style the SU (and USM) view also receives its **labels**: the unit number in **bold inside a white circle with a dark red border**, **one per unit**, on its largest drawing if that one shows (not entirely covered by one of a higher level), with the same recipe as the Time Manager atlas sheets (tutorial 25). When two numbers would overlap, one is moved and a leader line links it to its drawing. This applies to SUs and USMs, with SQLite and PostgreSQL, and to every style option, including **Single symbol (outline only)**; if the style loaded with **Load existing style** already had labels, the circled number takes their place. Point layers do not get the circled number. Since 5.13.111-alpha, however, the **elevations view** (the elevation points, layer "Elevation view"), as soon as it is loaded from the SU form, carries the **label with the elevation value** (two decimals, for example "12.35"), placed **above the horizontal line of the symbol**, with the same recipe as the Time Manager atlas sheets. This applies to every command that loads it, with SQLite and PostgreSQL, and does not depend on the chosen style; layers that are not points, or that lack the elevation field, do not get this label.
+**Labels.** Since 5.13.110-alpha, with the chosen style the SU (and USM) view also receives its **labels**: the unit number in **bold inside a white circle with a dark red border**, **one per unit**, on its largest drawing if that one shows (not entirely covered by one of a higher level), with the same recipe as the Time Manager atlas sheets (tutorial 25). When two numbers would overlap, one is moved and a leader line links it to its drawing. This applies to SUs and USMs, with SQLite and PostgreSQL, and to every style option, including **Single symbol (outline only)**; if the style loaded with **Load existing style** already had labels, the circled number takes their place. Point layers do not get the circled number. Since 5.13.111-alpha, however, the **elevations view** (the elevation points, layer "Elevation view"), as soon as it is loaded from the SU form, carries the **label with the elevation value** (two decimals, for example "12.35"), placed **above the horizontal line of the symbol**, with the same recipe as the Time Manager atlas sheets. This applies to every command that loads it, with SQLite and PostgreSQL, and does not depend on the chosen style; layers that are not points, or that lack the elevation field, do not get this label. Since 5.13.112-alpha the circled number and the elevation value are the **starting presets** of the labels: in the **Labels** tab of the **View styles** window (see the section of the same name below) they can be changed and saved as a default style, which takes their place at load time.
 
 Since 5.13.18-alpha the chosen style (and the categorization field) is also respected with SQLite databases, for both SUs and USMs; previously the map always came out with one color per SU.
+
+## View styles
+
+Since version **5.13.112-alpha** a single window, **View styles**, composes the style — **symbology and labels** — of every pyArchInit view: the SU and USM views, the elevations, the documentation, the structures and burials, the TUs, the sites, the finds, the sections. The style is seen at once on a **preview** with the site's data, is saved under a name in the database and can be made the **default** for one site or for all of them: from then on the forms that load the view apply it by themselves, asking nothing.
+
+<!-- IMMAGINE: Screenshot of the «View styles» window: on the left the list of views and the saved styles with their buttons; on the right the preview and the Symbology and Labels tabs; at the bottom Apply to loaded layers, Save, Save as… and Close -->
+![The View styles window](images/14_gis_cartografia/01_stili_delle_viste.png)
+*Figure 1: The «View styles» window*
+
+The texts of the window are in Italian if QGIS is in Italian and in English with every other language.
+
+### Where to open it
+
+The window is not modal: it stays open while you work on the map. It opens in three ways.
+
+- **From the plugin menu**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (with QGIS in Italian the entry is called «Stili delle viste…»). If the active layer is a pyArchInit view the window opens on that view, otherwise on the SU view.
+- **From the layer menu**: right-click on a vector layer in the QGIS layers panel → **View styles…**. It is the same entry, with the same name and the same rule: if the layer is a pyArchInit view the window opens on it.
+- **From the SU form**: the **Style…** button (**Stile…** with QGIS in Italian), next to the button that loads the layers. It opens the window on the SU view, with the form's site.
+
+The preview shows the geometries of one **site**: the form's site if the window is opened from the «Style…» button, otherwise the **active site** set in the pyArchInit configuration (tutorial 01). With no active site it shows all sites.
+
+### The views and the saved styles
+
+The left column has two lists.
+
+**Views.** The pyArchInit views, in groups:
+
+| Group | Views |
+|-------|-------|
+| Stratigraphic units | SU, USM, negative SUs |
+| Elevations | SU elevations, USM elevations |
+| Documentation | documentation (two views) |
+| Structures and burials | structures, burials, individuals |
+| Topographic units | TU points, lines, polygons |
+| Sites | point sites, areal sites |
+| Finds | finds |
+| Sections | excavation sections |
+
+Even the views that used to load with no style (documentation, structures and burials, TUs, sites, finds, sections) have one here. A view that is not in the database turns **grey** when you choose it, and the status line says «View not present in this database.».
+
+**Saved styles.** Below, the styles saved for the chosen view, one per row: *name · site (or «all sites») · «✓ default»*. A click on a style loads it into the preview and the panels, to look at it or touch it up. The styles that QGIS saved in the database for that layer appear as *name · Saved with QGIS*: they can be loaded, but pyArchInit does not rewrite them; to keep a copy among its own styles use **Save as…**. The buttons under the list:
+
+| Button | What it does |
+|--------|--------------|
+| **New** | Starts from a style to compose: outline only, with the view's starting labels. The name is asked at the first **Save** |
+| **Duplicate** | Copies the chosen style, named «… (2)»; the copy is not a default |
+| **Rename…** | Changes the name of the chosen style |
+| **Delete** | Deletes the chosen style, after a confirmation |
+| **Default for this site** | The chosen style becomes the one applied when the view is loaded for the current site (if the style is for «all sites», it makes a copy for the current site and makes the copy the default; the original stays as it is) |
+| **Default for all sites** | It becomes the one applied to the sites that have no default of their own (if the style belongs to a site, it makes a copy for all sites and makes the copy the default; the original stays as it is) |
+| **Export QML…**, **Import QML…** | See «Exporting and importing» |
+
+For each view there is only one default per site and only one for all sites: making another style the default removes the «✓ default» mark from the previous one. Duplicate, Rename, Delete and the two Default buttons act on the style chosen in the list; if none is chosen the warning «Choose a saved style first.» appears.
+
+### Preview, symbology and labels
+
+**Preview.** At the top right a map shows the chosen view, read from the database and filtered on the current site: every change to the style is seen at once. **Zoom to data** takes the map to all the geometries. The status line under the map says how many there are (*482 geometries of site “Scavo 2026”.*) or, if the site has none in that view, «No geometry for the current site.»: the style can be composed all the same. The preview is a separate layer, **not added to the project**: the layers of the QGIS project do not change until you press **Apply to loaded layers**. When a view is chosen the preview starts from what pyArchInit would apply to it at load time (see «Defaults and loading»).
+
+Under the map there are two tabs: **Symbology** and **Labels**.
+
+**Symbology tab.** At the top, the **Preset** drop-down:
+
+| Preset | Effect |
+|--------|--------|
+| *— keep as is —* | Changes nothing |
+| *Outline only* | Polygons with no fill and a dark grey border, thin lines, points as empty circles |
+| *Style shipped with pyArchInit* | The QML that comes with the plugin: it exists for the SU and USM views and for the elevations |
+| *Categories by “field”* | One category, with its own colour, for each value of the field. There is one entry for each of the fields that make sense for that view and that the layer has: for the units `d_stratigrafica`, `tipo_us_s`, `d_interpretativa` and `cont_per`; for the other views, for example, `tipo_doc`, `tipologia_struttura` or `tipo_reperto` |
+
+Under the drop-down is the **QGIS symbology editor**, the same as in the layer properties (single symbol, categorized, graduated, rule-based…): the preset is the starting point and everything can be touched up from there; every change is seen at once in the preview.
+
+**Labels tab.**
+
+| Control | What it does |
+|---------|--------------|
+| **Labels on** | Turns the view's labels on and off |
+| **What to write** | *No label*; *Unit number in a circle* (the number in bold inside a white circle with a dark red border, like on the Time Manager atlas sheets, tutorial 25); *Elevation above the symbol* (the elevation value above the horizontal line of the symbol); *A field or an expression* |
+| **Field**, **Expression** | For the last entry: the view's field to write, or a QGIS expression (if one is typed, it takes precedence over the field) |
+| **Placement**, **Offset (mm)** | For the last entry: *Centred*, *Around the point* or *Above the symbol*; the offset raises the label by that many millimetres and applies to *Above the symbol* |
+| **One label per unit (on the largest visible drawing)** | For the unit number: a single label per unit, on its largest drawing that shows (not entirely covered by one of a higher level); when it is off, every drawing has its own |
+| **Font and background** | Font, **Size (mm)**, **Bold**, text **Colour…**, **White buffer**, **Circle background** with **Fill…** and **Stroke…** |
+
+The unit number in a circle is the starting preset of the SU and USM views, the elevation above the symbol that of the elevation views: they are the labels of the **Labels** paragraph of «Style Choice (SU and USM)» (above), which can be changed here. The other views have no labels to begin with. The panel is pyArchInit's own, simpler than QGIS's label editor (rule-based and so on), which cannot be opened outside the layer properties.
+
+### Defaults and loading
+
+At the bottom there are four buttons:
+
+| Button | What it does |
+|--------|--------------|
+| **Apply to loaded layers** | Applies the style seen in the preview — symbology and labels — to the layers of the QGIS project that come from that view; the status line says «Style applied to N project layers.» or «No layer of this view in the project.». It saves nothing in the database |
+| **Save** | Saves onto the current style (the one chosen in the list); if there is none, it asks for a name and creates a new style |
+| **Save as…** | Asks for a name and saves a new style, for all sites: «Style “name” saved.» |
+| **Close** | Closes the window |
+
+To make a style the one you see at every load: (1) choose the view; (2) compose symbology and labels while watching the preview; (3) **Save as…** with a name; (4) **Default for this site** or **Default for all sites**; (5) if the layers are already in the project, **Apply to loaded layers**.
+
+**At load time the default rules.** When a pyArchInit form (for example the SU form) loads a view, it applies, in this order:
+
+1. the **default of the site the view is being loaded for** (if there is one): the SU form passes the form's site, the by-period loaders (Time Manager) the site they are drawing; where the loader does not know the site, the active site of the pyArchInit configuration applies (tutorial 01);
+2. otherwise the **default for all sites**;
+3. otherwise, for the SU, USM and elevation views, the style shipped with pyArchInit with the circled number or the elevation above the symbol (as from 5.13.110-alpha and 5.13.111-alpha); the other views load as before, with no style.
+
+The three-step **Style Choice** window (paragraph «Style Choice (SU and USM)», above) appears **only if the view has no saved default style**; with a default the SU form simply loads, and a style chosen by hand does not overwrite it. «One label per unit» is recomputed at every load, on the drawings of the filter of that moment: it does not depend on the one the style was saved with.
+
+### Exporting and importing
+
+- **Export QML…** writes the style as seen in the preview — symbology and labels — to a `.qml` file; the proposed name is the view's (for example `pyarchinit_us_view.qml`). It serves to keep a copy or to use it in another database or in QGIS.
+- **Import QML…** reads a `.qml` file, shows it in the preview and saves it as a new style, for all sites, named after the file. If the file does not read as QML a warning says so with the file name (*“name.qml” does not read as QML.*) and nothing is written.
+- The saved styles live in the **database connected** to pyArchInit, in the `pyarchinit_view_styles` table, which creates itself, with SQLite and with PostgreSQL: with PostgreSQL all the users of the same database see them. To move them to another database, export and import them as QML.
+- If the database is not connected (or the styles table cannot be created, for example on PostgreSQL without the permission to create tables) the saved styles are not available and you can only export: the status line under the preview says so after the geometry count, with «Database not connected: styles can only be exported.» or «The styles table cannot be created in this database: styles can only be exported.»
 
 ## Layer Styling
 

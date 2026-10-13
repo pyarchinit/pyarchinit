@@ -64,6 +64,8 @@ PyArchInit està profundament integrat amb **QGIS**, aprofitant totes les seves 
 
 ### Elecció de l'Estil (US i USM)
 
+Des de la **5.13.112-alpha** la finestra **Style Choice** descrita tot seguit apareix **només si la vista no té cap estil per defecte desat**: amb un estil per defecte (per al lloc o per a tots els llocs) la fitxa carrega la vista, l'aplica i no pregunta res. Els estils per defecte es creen a la finestra **View styles** (vegeu la secció «Estils de les vistes», més avall).
+
 Quan les US o les US muràries (USM) dels resultats de cerca es carreguen al mapa apareix la finestra **Style Choice** ("How do you want to manage the layer style?"). Els botons es mostren en anglès:
 
 | Botó | Efecte |
@@ -79,9 +81,120 @@ Amb **Save new style**, **Load existing style** i **Use temporary style** despr�
 
 **Ordre de dibuix.** Des de la 5.13.19-alpha les unitats es dibuixen en l'ordre que fa servir el Gestor de Temps (Time Manager): primer les que no tenen període, després per cronologia del període (segons la periodització del període/fase inicial de la US, o segons `cont_per`), després per `order_layer` (0 = el més antic) i finalment el tall sobre el seu farciment, de manera que les unitats més recents queden a sobre. Val per a totes les opcions d'estil, també per a **Single symbol (outline only)**. Quan les capes es carreguen període per període, l'estil es demana una sola vegada i es fa servir per a tots els períodes.
 
-**Etiquetes.** Des de la 5.13.110-alpha, amb l'estil triat la vista US (i USM) rep també les seves **etiquetes**: el número de la unitat en **negreta dins d'un cercle blanc amb vora vermella fosca**, **una per unitat**, en el seu dibuix més gran si es veu (no cobert del tot per un de nivell superior), amb la mateixa recepta de les làmines de l'atles del Time Manager (tutorial 25). Quan dos números es taparien, un es desplaça i una línia de crida l'uneix al seu dibuix. Val per a les US i les USM, amb SQLite i amb PostgreSQL, i per a totes les opcions d'estil, també per a **Single symbol (outline only)**; si l'estil carregat amb **Load existing style** ja tenia etiquetes, el número en cercle ocupa el seu lloc. Les capes de punts no reben el número en cercle. Des de la 5.13.111-alpha, però, la **vista de cotes** (els punts de cota, capa «Elevation view»), tan bon punt es carrega des de la fitxa US, porta l'**etiqueta amb el valor de la cota** (dos decimals, per exemple «12,35»), col·locada **sobre la línia horitzontal del símbol**, amb la mateixa recepta de les làmines de l'atles del Time Manager. Val per a totes les opcions que la carreguen, amb SQLite i amb PostgreSQL, i no depèn de l'estil triat; les capes que no són de punts, o que no tenen el camp de la cota, no reben aquesta etiqueta.
+**Etiquetes.** Des de la 5.13.110-alpha, amb l'estil triat la vista US (i USM) rep també les seves **etiquetes**: el número de la unitat en **negreta dins d'un cercle blanc amb vora vermella fosca**, **una per unitat**, en el seu dibuix més gran si es veu (no cobert del tot per un de nivell superior), amb la mateixa recepta de les làmines de l'atles del Time Manager (tutorial 25). Quan dos números es taparien, un es desplaça i una línia de crida l'uneix al seu dibuix. Val per a les US i les USM, amb SQLite i amb PostgreSQL, i per a totes les opcions d'estil, també per a **Single symbol (outline only)**; si l'estil carregat amb **Load existing style** ja tenia etiquetes, el número en cercle ocupa el seu lloc. Les capes de punts no reben el número en cercle. Des de la 5.13.111-alpha, però, la **vista de cotes** (els punts de cota, capa «Elevation view»), tan bon punt es carrega des de la fitxa US, porta l'**etiqueta amb el valor de la cota** (dos decimals, per exemple «12,35»), col·locada **sobre la línia horitzontal del símbol**, amb la mateixa recepta de les làmines de l'atles del Time Manager. Val per a totes les opcions que la carreguen, amb SQLite i amb PostgreSQL, i no depèn de l'estil triat; les capes que no són de punts, o que no tenen el camp de la cota, no reben aquesta etiqueta. Des de la 5.13.112-alpha el número en cercle i la cota són els **presets de partida** de les etiquetes: a la pestanya **Etiquetes** (*Labels*) de la finestra **View styles** (vegeu la secció del mateix nom, més avall) es poden canviar i desar com a estil per defecte, que en carregar ocupa el seu lloc.
 
 Des de la 5.13.18-alpha l'estil triat (i el camp de categorització) es respecta també amb les bases de dades SQLite, tant per a les US com per a les USM; abans el mapa sortia sempre amb un color per a cada US.
+
+## Estils de les vistes
+
+Des de la versió **5.13.112-alpha** una sola finestra, **View styles** (Estils de les vistes), serveix per compondre l'estil —**simbologia i etiquetes**— de cada vista de pyArchInit: les vistes de les US i de les USM, les cotes, la documentació, les estructures i les tombes, les UT, els llocs, les troballes, les seccions. L'estil es veu a l'instant en una **previsualització** amb les dades del lloc, es desa amb un nom a la base de dades i es pot fer **per defecte** per a un lloc o per a tots: a partir d'aquell moment les fitxes que carreguen la vista l'apliquen soles, sense preguntar res.
+
+<!-- IMMAGINE: Captura de pantalla de la finestra «View styles»: a l'esquerra la llista de vistes i d'estils desats amb els seus botons; a la dreta la previsualització i les pestanyes Symbology i Labels; a baix Apply to loaded layers, Save, Save as… i Close -->
+![La finestra View styles](images/14_gis_cartografia/01_stili_delle_viste.png)
+*Figura 1: La finestra «View styles»*
+
+Els textos de la finestra només existeixen en italià i en anglès: amb QGIS en català apareix en anglès. A continuació, cada etiqueta traduïda va seguida de l'anglesa entre parèntesis. El mateix val per a l'entrada de menú: amb QGIS en català es diu «View styles…».
+
+### Des d'on s'obre
+
+La finestra no és modal: roman oberta mentre es treballa al mapa. S'obre de tres maneres.
+
+- **Des del menú del connector**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Estils de les vistes; amb QGIS en italià l'entrada es diu «Stili delle viste…»). Si la capa activa és una vista de pyArchInit, la finestra s'obre ja sobre aquella vista; si no, sobre la vista US.
+- **Des del menú de la capa**: clic dret sobre una capa vectorial al tauler de capes de QGIS → **View styles…**. És la mateixa entrada, amb el mateix nom i la mateixa regla: si la capa és una vista de pyArchInit, la finestra s'obre ja sobre aquella.
+- **Des de la fitxa US**: el botó **Style…** (amb QGIS en italià, **Stile…**), al costat del botó que carrega les capes. Obre la finestra sobre la vista US, amb el lloc de la fitxa.
+
+La previsualització mostra les geometries d'un **lloc**: el de la fitxa si la finestra s'obre des del botó «Style…»; si no, el **lloc actiu** establert a la configuració de pyArchInit (tutorial 01). Sense lloc actiu mostra tots els llocs.
+
+### Les vistes i els estils desats
+
+La columna de l'esquerra té dues llistes.
+
+**Vistes** (*Views*). Les vistes de pyArchInit, per grups:
+
+| Grup | Vistes |
+|------|--------|
+| «Unitats estratigràfiques» (*Stratigraphic units*) | US, USM, US negatives |
+| «Cotes» (*Elevations*) | cotes de les US, cotes de les USM |
+| «Documentació» (*Documentation*) | documentació (dues vistes) |
+| «Estructures i tombes» (*Structures and burials*) | estructures, tombes, individus |
+| «Unitats topogràfiques» (*Topographic units*) | UT puntuals, lineals, poligonals |
+| «Llocs» (*Sites*) | llocs puntuals, llocs poligonals |
+| «Troballes» (*Finds*) | troballes |
+| «Seccions» (*Sections*) | seccions d'excavació |
+
+També les vistes que fins ara es carregaven sense estil (documentació, estructures i tombes, UT, llocs, troballes, seccions) en tenen aquí un. Una vista que no és a la base de dades es torna **grisa** quan se la tria, i la línia d'estat diu «Vista no present en aquesta base de dades» (*View not present in this database.*).
+
+**Estils desats** (*Saved styles*). Sota, els estils desats per a la vista triada, un per fila: *nom · lloc (o «tots els llocs») · «✓ per defecte»* (*all sites*, *✓ default*). Un clic en un estil el carrega a la previsualització i a les pestanyes, per mirar-lo o retocar-lo. Els estils que QGIS ha desat a la base de dades per a aquella capa apareixen com a *nom · Desat amb QGIS* (*Saved with QGIS*): es poden carregar, però pyArchInit no els reescriu; per conservar-ne una còpia entre els seus propis estils s'usa **Desa com a…** (*Save as…*). Els botons sota la llista:
+
+| Botó | Què fa |
+|------|--------|
+| **Nou** (*New*) | Parteix d'un estil per compondre: només contorn, amb les etiquetes de partida de la vista. El nom es demana al primer **Desa** (*Save*) |
+| **Duplica** (*Duplicate*) | Copia l'estil triat amb el nom «… (2)»; la còpia no és per defecte |
+| **Canvia el nom…** (*Rename…*) | Canvia el nom de l'estil triat |
+| **Elimina** (*Delete*) | Elimina l'estil triat, després d'una confirmació |
+| **Per defecte per a aquest lloc** (*Default for this site*) | L'estil triat passa a ser el que s'aplica en carregar la vista per al lloc actual (si l'estil és de «tots els llocs», en fa una còpia per al lloc actual i fa per defecte la còpia; l'original queda com està) |
+| **Per defecte per a tots els llocs** (*Default for all sites*) | Passa a ser el que s'aplica als llocs que no en tenen un de propi (si l'estil és d'un lloc, en fa una còpia per a tots els llocs i fa per defecte la còpia; l'original queda com està) |
+| **Exporta QML…** (*Export QML…*), **Importa QML…** (*Import QML…*) | Vegeu «Exportar i importar» |
+
+Per a cada vista hi ha un sol estil per defecte per lloc i un sol per a tots els llocs: fer per defecte un altre estil treu la marca «✓ per defecte» a l'anterior. Duplica, Canvia el nom, Elimina i els dos «Per defecte» actuen sobre l'estil triat a la llista; si no n'hi ha cap de triat, apareix l'avís «Tria primer un estil desat» (*Choose a saved style first.*).
+
+### Previsualització, simbologia i etiquetes
+
+**Previsualització.** A dalt a la dreta, un mapa mostra la vista triada, llegida de la base de dades i filtrada pel lloc actual: cada canvi a l'estil es veu a l'instant. **Enquadra** (*Zoom to data*) porta el mapa a totes les geometries. La línia d'estat sota el mapa diu quantes són (*482 geometries del lloc «Scavo 2026».*, *482 geometries of site “Scavo 2026”.*) o, si el lloc no en té cap en aquella vista, «Cap geometria per al lloc actual» (*No geometry for the current site.*): l'estil es pot compondre igualment. La previsualització és una capa a part, **no afegida al projecte**: les capes del projecte de QGIS no canvien fins que es prem **Aplica a les capes carregades** (*Apply to loaded layers*). En triar una vista, la previsualització parteix d'allò que pyArchInit li aplicaria en aquell moment en carregar-la (vegeu «Estils per defecte i càrrega»).
+
+Sota el mapa hi ha dues pestanyes: **Simbologia** (*Symbology*) i **Etiquetes** (*Labels*).
+
+**Pestanya Simbologia.** A dalt, la llista desplegable **Preset** (*Preset:*):
+
+| Preset | Efecte |
+|--------|--------|
+| «— deixa com està —» (*— keep as is —*) | No canvia res |
+| «Només contorn» (*Outline only*) | Polígons sense farciment i amb la vora gris fosca, línies fines, punts com a cercles buits |
+| «Estil subministrat amb pyArchInit» (*Style shipped with pyArchInit*) | El QML que acompanya el connector: existeix per a les vistes US i USM i per a les cotes |
+| «Categories per “camp”» (*Categories by “field”*) | Una categoria, amb el seu color, per a cada valor del camp. Hi ha una entrada per a cadascun dels camps amb sentit per a aquella vista que la capa té: per a les unitats `d_stratigrafica`, `tipo_us_s`, `d_interpretativa` i `cont_per`; per a les altres vistes, per exemple, `tipo_doc`, `tipologia_struttura` o `tipo_reperto` |
+
+Sota la llista hi ha l'**editor de simbologia de QGIS**, el mateix de les propietats de la capa (símbol únic, categoritzat, graduat, basat en regles…): el preset és el punt de partida i des d'allà es retoca tot; cada canvi es veu a l'instant a la previsualització.
+
+**Pestanya Etiquetes.**
+
+| Control | Què fa |
+|---------|--------|
+| **Etiquetes actives** (*Labels on*) | Encén i apaga les etiquetes de la vista |
+| **Què s'escriu** (*What to write:*) | «Cap etiqueta» (*No label*); «Número de la unitat en un cercle» (*Unit number in a circle*: el número en negreta dins d'un cercle blanc amb vora vermella fosca, com a les làmines de l'atles del Time Manager, tutorial 25); «Cota sobre el símbol» (*Elevation above the symbol*: el valor de la cota sobre la línia horitzontal del símbol); «Un camp o una expressió» (*A field or an expression*) |
+| **Camp** (*Field:*), **Expressió** (*Expression:*) | Per a l'última entrada: el camp de la vista que s'escriu o una expressió de QGIS (si n'hi ha una d'escrita, té prioritat sobre el camp) |
+| **Posició** (*Placement:*), **Desplaçament (mm)** (*Offset (mm):*) | Per a l'última entrada: «Al centre» (*Centred*), «Al voltant del punt» (*Around the point*) o «Sobre el símbol» (*Above the symbol*); el desplaçament puja l'etiqueta aquests mil·límetres i val per a «Sobre el símbol» |
+| **Una etiqueta per unitat (sobre el dibuix més gran que es veu)** (*One label per unit (on the largest visible drawing)*) | Per al número de la unitat: una sola etiqueta per unitat, sobre el seu dibuix més gran que es veu (no cobert del tot per un de nivell superior); apagada, cada dibuix té la seva |
+| **Tipus de lletra i fons** (*Font and background*) | Tipus de lletra, **Mida (mm)** (*Size (mm):*), **Negreta** (*Bold*), **Color…** (*Colour…*) del text, **Halo blanc** (*White buffer*), **Fons circular** (*Circle background*) amb **Farciment…** (*Fill…*) i **Vora…** (*Stroke…*) |
+
+El número de la unitat en un cercle és el preset de partida de les vistes US i USM, la cota sobre el símbol el de les vistes de cotes: són les etiquetes del paràgraf **Etiquetes** d'«Elecció de l'Estil (US i USM)» (a dalt), que aquí es poden canviar. Les altres vistes, de partida, no tenen etiquetes. El panell és el de pyArchInit, més simple que l'editor d'etiquetes de QGIS (basat en regles i la resta), que no es pot obrir fora de les propietats de la capa.
+
+### Estils per defecte i càrrega
+
+A baix hi ha quatre botons:
+
+| Botó | Què fa |
+|------|--------|
+| **Aplica a les capes carregades** (*Apply to loaded layers*) | Aplica l'estil que es veu a la previsualització —simbologia i etiquetes— a les capes del projecte de QGIS que vénen d'aquella vista; la línia d'estat diu «Estil aplicat a N capes del projecte» (*Style applied to N project layers.*) o «Cap capa d'aquesta vista al projecte» (*No layer of this view in the project.*). No desa res a la base de dades |
+| **Desa** (*Save*) | Desa sobre l'estil actual (el triat a la llista); si no n'hi ha cap, demana el nom i crea un estil nou |
+| **Desa com a…** (*Save as…*) | Demana el nom i desa un estil nou, per a tots els llocs: «Estil “nom” desat» (*Style “name” saved.*) |
+| **Tanca** (*Close*) | Tanca la finestra |
+
+Perquè un estil sigui el que es veu a cada càrrega: (1) tria la vista; (2) compon simbologia i etiquetes mirant la previsualització; (3) **Desa com a…** amb un nom; (4) **Per defecte per a aquest lloc** o **Per defecte per a tots els llocs**; (5) si les capes ja són al projecte, **Aplica a les capes carregades**.
+
+**En carregar mana l'estil per defecte.** Quan una fitxa de pyArchInit (per exemple la fitxa US) carrega una vista, aplica per ordre:
+
+1. l'estil **per defecte del lloc per al qual es carrega la vista** (si n'hi ha): la fitxa US passa el lloc de la fitxa, els carregadors per període (Time Manager) el lloc que estan dibuixant; on el carregador no coneix el lloc val el lloc actiu de la configuració de pyArchInit (tutorial 01);
+2. si no, l'estil **per defecte per a tots els llocs**;
+3. si no, per a les vistes US, USM i de cotes, l'estil subministrat amb pyArchInit amb el número en cercle o la cota sobre el símbol (com des de la 5.13.110-alpha i la 5.13.111-alpha); les altres vistes es carreguen com abans, sense estil.
+
+La finestra de tres passos **Style Choice** (paràgraf «Elecció de l'Estil (US i USM)», a dalt) apareix **només si per a aquella vista no hi ha cap estil per defecte desat**; amb un estil per defecte la fitxa US simplement carrega, i un estil triat a mà no el sobreescriu. «Una etiqueta per unitat» es recalcula a cada càrrega, sobre els dibuixos del filtre d'aquell moment: no depèn del filtre amb què es va desar l'estil.
+
+### Exportar i importar
+
+- **Exporta QML…** escriu en un fitxer `.qml` l'estil tal com es veu a la previsualització —simbologia i etiquetes—; el nom proposat és el de la vista (per exemple `pyarchinit_us_view.qml`). Serveix per conservar-ne una còpia o per usar-lo en una altra base de dades o a QGIS.
+- **Importa QML…** llegeix un fitxer `.qml`, el mostra a la previsualització i el desa com a estil nou, per a tots els llocs, amb el nom del fitxer. Si el fitxer no es llegeix com a QML, un avís ho diu amb el nom del fitxer (*“name.qml” does not read as QML.*) i no s'escriu res.
+- Els estils desats viuen a la **base de dades connectada** a pyArchInit, a la taula `pyarchinit_view_styles`, que es crea sola, amb SQLite i amb PostgreSQL: amb PostgreSQL els veuen tots els usuaris de la mateixa base de dades. Per passar-los a una altra base de dades, s'exporten i s'importen com a QML.
+- Si la base de dades no està connectada (o la taula dels estils no es pot crear, per exemple a PostgreSQL sense permís per crear taules), els estils desats no estan disponibles i només es pot exportar: la línia d'estat sota la previsualització ho diu després del recompte de geometries, amb «Base de dades no connectada: els estils només es poden exportar» (*Database not connected: styles can only be exported.*) o «La taula dels estils no es pot crear en aquesta base de dades: els estils només es poden exportar» (*The styles table cannot be created in this database: styles can only be exported.*).
 
 ## Estilització de les Capes
 

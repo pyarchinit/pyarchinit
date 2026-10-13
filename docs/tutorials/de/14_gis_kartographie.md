@@ -64,6 +64,8 @@ PyArchInit ist tief in **QGIS** integriert und nutzt dessen vollständige GIS-Fu
 
 ### Stilauswahl (SE und USM)
 
+Seit **5.13.112-alpha** erscheint das unten beschriebene Fenster **Style Choice** **nur, wenn für die Ansicht kein Standardstil gespeichert ist**: Mit einem Standardstil (für den Fundort oder für alle Fundorte) lädt das Formular die Ansicht, wendet ihn an und fragt nichts. Standardstile werden im Fenster **View styles** angelegt (siehe den Abschnitt «Stile der Ansichten» weiter unten).
+
 Werden die SE oder die Mauerwerks-SE (USM) der Suchergebnisse auf die Karte geladen, erscheint das Fenster **Style Choice** ("How do you want to manage the layer style?"). Die Schaltflächen erscheinen auf Englisch:
 
 | Schaltfläche | Wirkung |
@@ -79,9 +81,120 @@ Bei **Save new style**, **Load existing style** und **Use temporary style** wird
 
 **Zeichenreihenfolge.** Seit 5.13.19-alpha werden die Einheiten in der Reihenfolge gezeichnet, die der Time Manager verwendet: zuerst die ohne Periode, dann nach der Chronologie der Periode (aus der Periodisierung der Anfangsperiode/-phase der SE oder aus `cont_per`), dann nach `order_layer` (0 = älteste) und schließlich der Schnitt über seiner Verfüllung, sodass die jüngsten Einheiten oben liegen. Das gilt für alle Stiloptionen, auch für **Single symbol (outline only)**. Werden die Layer Periode für Periode geladen, wird der Stil nur einmal abgefragt und für alle Perioden verwendet.
 
-**Beschriftungen.** Seit 5.13.110-alpha erhält die SE-Ansicht (und die USM-Ansicht) mit dem gewählten Stil auch ihre **Beschriftungen**: die Nummer der Einheit in **Fettschrift in einem weißen Kreis mit dunkelrotem Rand**, **eine je Einheit**, auf ihrer größten Zeichnung, sofern diese sichtbar ist (nicht vollständig von einer Zeichnung höherer Ebene bedeckt), nach demselben Rezept wie die Atlasblätter des Time Managers (Tutorial 25). Würden sich zwei Nummern überdecken, wird eine verschoben und eine Hilfslinie verbindet sie mit ihrer Zeichnung. Das gilt für SE und USM, mit SQLite und mit PostgreSQL, und für alle Stiloptionen, auch für **Single symbol (outline only)**; hatte der mit **Load existing style** geladene Stil schon Beschriftungen, nimmt die eingekreiste Nummer deren Platz ein. Punkt-Layer erhalten die eingekreiste Nummer nicht. Seit 5.13.111-alpha trägt dagegen die **Höhenansicht** (die Höhenpunkte, Layer «Hoch view») unmittelbar nach dem Laden aus dem SE-Formular die **Beschriftung mit dem Höhenwert** (zwei Nachkommastellen, zum Beispiel «12,35»), platziert **über der waagerechten Linie des Symbols**, nach demselben Rezept wie die Atlasblätter des Time Managers. Das gilt für alle Befehle, die sie laden, mit SQLite und mit PostgreSQL, und hängt nicht vom gewählten Stil ab; Layer, die keine Punkte sind oder das Höhenfeld nicht haben, erhalten diese Beschriftung nicht.
+**Beschriftungen.** Seit 5.13.110-alpha erhält die SE-Ansicht (und die USM-Ansicht) mit dem gewählten Stil auch ihre **Beschriftungen**: die Nummer der Einheit in **Fettschrift in einem weißen Kreis mit dunkelrotem Rand**, **eine je Einheit**, auf ihrer größten Zeichnung, sofern diese sichtbar ist (nicht vollständig von einer Zeichnung höherer Ebene bedeckt), nach demselben Rezept wie die Atlasblätter des Time Managers (Tutorial 25). Würden sich zwei Nummern überdecken, wird eine verschoben und eine Hilfslinie verbindet sie mit ihrer Zeichnung. Das gilt für SE und USM, mit SQLite und mit PostgreSQL, und für alle Stiloptionen, auch für **Single symbol (outline only)**; hatte der mit **Load existing style** geladene Stil schon Beschriftungen, nimmt die eingekreiste Nummer deren Platz ein. Punkt-Layer erhalten die eingekreiste Nummer nicht. Seit 5.13.111-alpha trägt dagegen die **Höhenansicht** (die Höhenpunkte, Layer «Hoch view») unmittelbar nach dem Laden aus dem SE-Formular die **Beschriftung mit dem Höhenwert** (zwei Nachkommastellen, zum Beispiel «12,35»), platziert **über der waagerechten Linie des Symbols**, nach demselben Rezept wie die Atlasblätter des Time Managers. Das gilt für alle Befehle, die sie laden, mit SQLite und mit PostgreSQL, und hängt nicht vom gewählten Stil ab; Layer, die keine Punkte sind oder das Höhenfeld nicht haben, erhalten diese Beschriftung nicht. Seit 5.13.112-alpha sind die eingekreiste Nummer und der Höhenwert die **Ausgangs-Voreinstellungen** der Beschriftungen: Im Tab **Beschriftungen** (*Labels*) des Fensters **View styles** (siehe den gleichnamigen Abschnitt weiter unten) lassen sie sich ändern und als Standardstil speichern, der beim Laden ihren Platz einnimmt.
 
 Seit 5.13.18-alpha wird der gewählte Stil (und das Kategorisierungsfeld) auch bei SQLite-Datenbanken berücksichtigt, sowohl für die SE als auch für die USM; vorher erschien die Karte immer mit einer Farbe pro SE.
+
+## Stile der Ansichten
+
+Seit Version **5.13.112-alpha** dient ein einziges Fenster, **View styles** (Stile der Ansichten), dazu, den Stil — **Symbologie und Beschriftungen** — jeder pyArchInit-Ansicht zusammenzustellen: die Ansichten der SE und der USM, die Höhen, die Dokumentation, die Strukturen und Gräber, die UT, die Fundorte, die Funde, die Schnitte. Der Stil ist sofort in einer **Vorschau** mit den Daten des Fundorts zu sehen, wird unter einem Namen in der Datenbank gespeichert und kann für einen Fundort oder für alle zum **Standard** gemacht werden: Von da an wenden die Formulare, die die Ansicht laden, ihn von selbst an, ohne etwas zu fragen.
+
+<!-- IMMAGINE: Screenshot des Fensters «View styles»: links die Liste der Ansichten und der gespeicherten Stile mit ihren Schaltflächen; rechts die Vorschau und die Tabs Symbology und Labels; unten Apply to loaded layers, Save, Save as… und Close -->
+![Das Fenster View styles](images/14_gis_kartographie/01_stili_delle_viste.png)
+*Abbildung 1: Das Fenster «View styles»*
+
+Die Texte des Fensters gibt es nur auf Italienisch und Englisch: Bei deutschsprachigem QGIS erscheint es auf Englisch. Im Folgenden steht nach jeder übersetzten Beschriftung die englische in Klammern. Dasselbe gilt für den Menüeintrag: Bei deutschsprachigem QGIS heißt er «View styles…».
+
+### Wo man es öffnet
+
+Das Fenster ist nicht modal: Es bleibt offen, während man auf der Karte arbeitet. Es lässt sich auf drei Wegen öffnen.
+
+- **Aus dem Plugin-Menü**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Stile der Ansichten; bei italienischem QGIS heißt der Eintrag «Stili delle viste…»). Ist der aktive Layer eine pyArchInit-Ansicht, öffnet sich das Fenster gleich auf dieser Ansicht, sonst auf der SE-Ansicht.
+- **Aus dem Layer-Menü**: Rechtsklick auf einen Vektor-Layer im QGIS-Layer-Bedienfeld → **View styles…**. Es ist derselbe Eintrag mit demselben Namen und derselben Regel: Ist der Layer eine pyArchInit-Ansicht, öffnet sich das Fenster gleich auf ihr.
+- **Aus dem SE-Formular**: die Schaltfläche **Style…** (bei italienischem QGIS **Stile…**), neben der Schaltfläche, die die Layer lädt. Sie öffnet das Fenster auf der SE-Ansicht, mit dem Fundort des Formulars.
+
+Die Vorschau zeigt die Geometrien eines **Fundorts**: den des Formulars, wenn das Fenster über die Schaltfläche «Style…» geöffnet wird, sonst den **aktiven Fundort** aus der pyArchInit-Konfiguration (Tutorial 01). Ohne aktiven Fundort zeigt sie alle Fundorte.
+
+### Die Ansichten und die gespeicherten Stile
+
+Die linke Spalte enthält zwei Listen.
+
+**Ansichten** (*Views*). Die pyArchInit-Ansichten, nach Gruppen:
+
+| Gruppe | Ansichten |
+|--------|-----------|
+| «Stratigraphische Einheiten» (*Stratigraphic units*) | SE, USM, negative SE |
+| «Höhen» (*Elevations*) | Höhen der SE, Höhen der USM |
+| «Dokumentation» (*Documentation*) | Dokumentation (zwei Ansichten) |
+| «Strukturen und Gräber» (*Structures and burials*) | Strukturen, Gräber, Individuen |
+| «Topographische Einheiten» (*Topographic units*) | UT als Punkte, Linien, Polygone |
+| «Fundorte» (*Sites*) | punktförmige Fundorte, flächige Fundorte |
+| «Funde» (*Finds*) | Funde |
+| «Schnitte» (*Sections*) | Grabungsschnitte |
+
+Auch die Ansichten, die bisher ohne Stil geladen wurden (Dokumentation, Strukturen und Gräber, UT, Fundorte, Funde, Schnitte), haben hier einen. Eine Ansicht, die nicht in der Datenbank ist, wird **grau**, sobald man sie wählt, und die Statuszeile sagt «Ansicht in dieser Datenbank nicht vorhanden» (*View not present in this database.*).
+
+**Gespeicherte Stile** (*Saved styles*). Darunter die für die gewählte Ansicht gespeicherten Stile, einer pro Zeile: *Name · Fundort (oder «alle Fundorte») · «✓ Standard»* (*all sites*, *✓ default*). Ein Klick auf einen Stil lädt ihn in die Vorschau und in die Tabs, zum Ansehen oder Nachbessern. Die Stile, die QGIS für diesen Layer in der Datenbank gespeichert hat, erscheinen als *Name · Mit QGIS gespeichert* (*Saved with QGIS*): Sie lassen sich laden, werden von pyArchInit aber nicht neu geschrieben; um eine Kopie unter den eigenen Stilen zu behalten, verwendet man **Speichern unter…** (*Save as…*). Die Schaltflächen unter der Liste:
+
+| Schaltfläche | Was sie tut |
+|--------------|-------------|
+| **Neu** (*New*) | Beginnt mit einem Stil, der noch zusammenzustellen ist: nur Umriss, mit den Ausgangsbeschriftungen der Ansicht. Der Name wird beim ersten **Speichern** (*Save*) abgefragt |
+| **Duplizieren** (*Duplicate*) | Kopiert den gewählten Stil unter dem Namen «… (2)»; die Kopie ist kein Standard |
+| **Umbenennen…** (*Rename…*) | Ändert den Namen des gewählten Stils |
+| **Löschen** (*Delete*) | Löscht den gewählten Stil nach einer Bestätigung |
+| **Standard für diesen Fundort** (*Default for this site*) | Der gewählte Stil wird der, der beim Laden der Ansicht für den aktuellen Fundort angewendet wird (ist der Stil einer für «alle Fundorte», legt das Fenster davon eine Kopie für den aktuellen Fundort an und macht die Kopie zum Standard; das Original bleibt, wie es ist) |
+| **Standard für alle Fundorte** (*Default for all sites*) | Er wird der, der auf die Fundorte angewendet wird, die keinen eigenen haben (gehört der Stil zu einem Fundort, legt das Fenster davon eine Kopie für alle Fundorte an und macht die Kopie zum Standard; das Original bleibt, wie es ist) |
+| **QML exportieren…** (*Export QML…*), **QML importieren…** (*Import QML…*) | Siehe «Exportieren und Importieren» |
+
+Für jede Ansicht gibt es nur einen Standardstil je Fundort und nur einen für alle Fundorte: Wird ein anderer Stil zum Standard, verliert der vorherige die Markierung «✓ Standard». Duplizieren, Umbenennen, Löschen und die beiden «Standard» wirken auf den in der Liste gewählten Stil; ist keiner gewählt, erscheint der Hinweis «Wählen Sie zuerst einen gespeicherten Stil» (*Choose a saved style first.*).
+
+### Vorschau, Symbologie und Beschriftungen
+
+**Vorschau.** Oben rechts zeigt eine Karte die gewählte Ansicht, aus der Datenbank gelesen und auf den aktuellen Fundort gefiltert: Jede Änderung am Stil ist sofort zu sehen. **Auf Daten zoomen** (*Zoom to data*) bringt die Karte auf alle Geometrien. Die Statuszeile unter der Karte sagt, wie viele es sind (*482 Geometrien des Fundorts „Scavo 2026“.*, *482 geometries of site “Scavo 2026”.*) oder, wenn der Fundort in dieser Ansicht keine hat, «Keine Geometrie für den aktuellen Fundort» (*No geometry for the current site.*): Der Stil lässt sich trotzdem zusammenstellen. Die Vorschau ist ein eigener Layer, **nicht zum Projekt hinzugefügt**: Die Layer des QGIS-Projekts ändern sich nicht, bis man **Auf geladene Layer anwenden** (*Apply to loaded layers*) drückt. Wenn eine Ansicht gewählt wird, geht die Vorschau von dem aus, was pyArchInit ihr in diesem Moment beim Laden anwenden würde (siehe «Standardstile und Laden»).
+
+Unter der Karte gibt es zwei Tabs: **Symbologie** (*Symbology*) und **Beschriftungen** (*Labels*).
+
+**Tab Symbologie.** Oben die Auswahlliste **Voreinstellung** (*Preset:*):
+
+| Voreinstellung | Wirkung |
+|----------------|---------|
+| «— unverändert lassen —» (*— keep as is —*) | Ändert nichts |
+| «Nur Umriss» (*Outline only*) | Polygone ohne Füllung und mit dunkelgrauem Rand, dünne Linien, Punkte als leere Kreise |
+| «Mit pyArchInit gelieferter Stil» (*Style shipped with pyArchInit*) | Das QML, das dem Plugin beiliegt: Es gibt es für die Ansichten SE und USM und für die Höhen |
+| «Kategorien nach „Feld“» (*Categories by “field”*) | Eine Kategorie mit eigener Farbe für jeden Wert des Feldes. Es gibt einen Eintrag für jedes der für diese Ansicht sinnvollen Felder, die der Layer besitzt: für die Einheiten `d_stratigrafica`, `tipo_us_s`, `d_interpretativa` und `cont_per`; für die anderen Ansichten zum Beispiel `tipo_doc`, `tipologia_struttura` oder `tipo_reperto` |
+
+Unter der Liste steht der **Symbologie-Editor von QGIS**, derselbe wie in den Layer-Eigenschaften (einzelnes Symbol, kategorisiert, abgestuft, regelbasiert…): Die Voreinstellung ist der Ausgangspunkt, und von dort aus lässt sich alles nachbessern; jede Änderung ist sofort in der Vorschau zu sehen.
+
+**Tab Beschriftungen.**
+
+| Steuerelement | Was es tut |
+|---------------|------------|
+| **Beschriftungen aktiv** (*Labels on*) | Schaltet die Beschriftungen der Ansicht ein und aus |
+| **Was geschrieben wird** (*What to write:*) | «Keine Beschriftung» (*No label*); «Nummer der Einheit in einem Kreis» (*Unit number in a circle*: die Nummer in Fettschrift in einem weißen Kreis mit dunkelrotem Rand, wie auf den Atlasblättern des Time Managers, Tutorial 25); «Höhe über dem Symbol» (*Elevation above the symbol*: der Höhenwert über der waagerechten Linie des Symbols); «Ein Feld oder ein Ausdruck» (*A field or an expression*) |
+| **Feld** (*Field:*), **Ausdruck** (*Expression:*) | Für den letzten Eintrag: das zu schreibende Feld der Ansicht oder ein QGIS-Ausdruck (ist einer eingetragen, hat er Vorrang vor dem Feld) |
+| **Position** (*Placement:*), **Versatz (mm)** (*Offset (mm):*) | Für den letzten Eintrag: «Zentriert» (*Centred*), «Um den Punkt» (*Around the point*) oder «Über dem Symbol» (*Above the symbol*); der Versatz hebt die Beschriftung um so viele Millimeter an und gilt für «Über dem Symbol» |
+| **Eine Beschriftung pro Einheit (auf der größten sichtbaren Zeichnung)** (*One label per unit (on the largest visible drawing)*) | Für die Nummer der Einheit: eine einzige Beschriftung pro Einheit, auf ihrer größten Zeichnung, die zu sehen ist (nicht vollständig von einer höheren Ebene bedeckt); ausgeschaltet, hat jede Zeichnung ihre eigene |
+| **Schrift und Hintergrund** (*Font and background*) | Schriftart, **Größe (mm)** (*Size (mm):*), **Fett** (*Bold*), **Farbe…** (*Colour…*) des Textes, **Weißer Puffer** (*White buffer*), **Kreisförmiger Hintergrund** (*Circle background*) mit **Füllung…** (*Fill…*) und **Umrandung…** (*Stroke…*) |
+
+Die Nummer der Einheit in einem Kreis ist die Ausgangs-Voreinstellung der Ansichten SE und USM, die Höhe über dem Symbol die der Höhenansichten: Es sind die Beschriftungen des Absatzes **Beschriftungen** in «Stilauswahl (SE und USM)» (oben), die hier geändert werden können. Die anderen Ansichten haben anfangs keine Beschriftungen. Das Bedienfeld ist das von pyArchInit, einfacher als der Beschriftungs-Editor von QGIS (regelbasiert und so weiter), der sich nur in den Layer-Eigenschaften öffnen lässt.
+
+### Standardstile und Laden
+
+Unten gibt es vier Schaltflächen:
+
+| Schaltfläche | Was sie tut |
+|--------------|-------------|
+| **Auf geladene Layer anwenden** (*Apply to loaded layers*) | Wendet den in der Vorschau sichtbaren Stil — Symbologie und Beschriftungen — auf die Layer des QGIS-Projekts an, die aus dieser Ansicht stammen; die Statuszeile sagt «Stil auf N Projekt-Layer angewendet» (*Style applied to N project layers.*) oder «Kein Layer dieser Ansicht im Projekt» (*No layer of this view in the project.*). Es wird nichts in der Datenbank gespeichert |
+| **Speichern** (*Save*) | Speichert auf den aktuellen Stil (den in der Liste gewählten); ist keiner da, fragt es nach dem Namen und legt einen neuen Stil an |
+| **Speichern unter…** (*Save as…*) | Fragt nach dem Namen und speichert einen neuen Stil, für alle Fundorte: «Stil „Name“ gespeichert» (*Style “name” saved.*) |
+| **Schließen** (*Close*) | Schließt das Fenster |
+
+Damit ein Stil bei jedem Laden zu sehen ist: (1) die Ansicht wählen; (2) Symbologie und Beschriftungen zusammenstellen und dabei die Vorschau beobachten; (3) **Speichern unter…** mit einem Namen; (4) **Standard für diesen Fundort** oder **Standard für alle Fundorte**; (5) wenn die Layer schon im Projekt sind, **Auf geladene Layer anwenden**.
+
+**Beim Laden gilt der Standardstil.** Wenn ein pyArchInit-Formular (zum Beispiel das SE-Formular) eine Ansicht lädt, wendet es der Reihe nach an:
+
+1. den **Standardstil des Fundorts, für den die Ansicht geladen wird** (falls vorhanden): Das SE-Formular übergibt den Fundort des Formulars, die Lader nach Perioden (Time Manager) den Fundort, den sie gerade zeichnen; wo der Lader den Fundort nicht kennt, gilt der aktive Fundort der pyArchInit-Konfiguration (Tutorial 01);
+2. sonst den **Standardstil für alle Fundorte**;
+3. sonst, für die Ansichten SE, USM und Höhen, den mit pyArchInit gelieferten Stil mit eingekreister Nummer beziehungsweise Höhe über dem Symbol (wie seit 5.13.110-alpha und 5.13.111-alpha); die übrigen Ansichten werden wie bisher ohne Stil geladen.
+
+Das dreistufige Fenster **Style Choice** (Absatz «Stilauswahl (SE und USM)», oben) erscheint **nur, wenn für diese Ansicht kein Standardstil gespeichert ist**; mit einem Standardstil lädt das SE-Formular einfach, und ein von Hand gewählter Stil überschreibt ihn nicht. «Eine Beschriftung pro Einheit» wird bei jedem Laden neu berechnet, auf den Zeichnungen des Filters dieses Moments: Sie hängt nicht von dem Filter ab, mit dem der Stil gespeichert wurde.
+
+### Exportieren und Importieren
+
+- **QML exportieren…** schreibt den Stil, wie er in der Vorschau zu sehen ist — Symbologie und Beschriftungen —, in eine `.qml`-Datei; der vorgeschlagene Name ist der der Ansicht (zum Beispiel `pyarchinit_us_view.qml`). Das dient dazu, eine Kopie aufzubewahren oder ihn in einer anderen Datenbank oder in QGIS zu verwenden.
+- **QML importieren…** liest eine `.qml`-Datei, zeigt sie in der Vorschau und speichert sie als neuen Stil, für alle Fundorte, mit dem Dateinamen. Lässt sich die Datei nicht als QML lesen, sagt das eine Warnung mit dem Dateinamen (*“name.qml” does not read as QML.*), und es wird nichts geschrieben.
+- Die gespeicherten Stile liegen in der mit pyArchInit **verbundenen Datenbank**, in der Tabelle `pyarchinit_view_styles`, die sich von selbst anlegt, mit SQLite und mit PostgreSQL: Mit PostgreSQL sehen sie alle Benutzer derselben Datenbank. Um sie in eine andere Datenbank zu übertragen, exportiert und importiert man sie als QML.
+- Ist die Datenbank nicht verbunden (oder lässt sich die Stiltabelle nicht anlegen, zum Beispiel auf PostgreSQL ohne die Berechtigung, Tabellen anzulegen), sind die gespeicherten Stile nicht verfügbar und man kann nur exportieren: Die Statuszeile unter der Vorschau sagt es nach der Anzahl der Geometrien, mit «Datenbank nicht verbunden: Stile können nur exportiert werden» (*Database not connected: styles can only be exported.*) oder «Die Stiltabelle lässt sich in dieser Datenbank nicht anlegen: Stile können nur exportiert werden» (*The styles table cannot be created in this database: styles can only be exported.*).
 
 ## Layer-Styling
 

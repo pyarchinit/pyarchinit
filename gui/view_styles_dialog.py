@@ -546,6 +546,14 @@ class ViewStylesDialog(QDialog):
             self._vista_scelta(voce)
         return True
 
+    def _mostra_stato(self, testo: str):
+        """La riga di stato; senza il motore degli stili porta anche il perché
+        (prima i due messaggi del database venivano coperti dal conteggio
+        alla prima vista scelta, cioè sempre)."""
+        if self._engine is None:
+            testo = "%s %s" % (testo, _t(getattr(self, "_motivo_senza_motore", "no_db"), self.lang))
+        self.stato.setText(testo)
+
     def _vista_scelta(self, voce):
         if voce is None or not voce.data(0, Qt.ItemDataRole.UserRole):
             return
@@ -558,17 +566,17 @@ class ViewStylesDialog(QDialog):
         self._layer = load_view_layer(self.conn_str, spec, self.site, self.lang)
         if self._layer is None:
             voce.setForeground(0, Qt.GlobalColor.gray)
-            self.stato.setText(_t("not_in_db", self.lang))
+            self._mostra_stato(_t("not_in_db", self.lang))
             self.anteprima.setLayers([])
             self.anteprima.refresh()
         else:
             n = self._layer.featureCount()
             if n <= 0:
-                self.stato.setText(_t("no_geom", self.lang))
+                self._mostra_stato(_t("no_geom", self.lang))
             elif self.site and spec.site_field:
-                self.stato.setText(_t("loaded", self.lang, n=n, site=self.site))
+                self._mostra_stato(_t("loaded", self.lang, n=n, site=self.site))
             else:
-                self.stato.setText(_t("loaded_all", self.lang, n=n))
+                self._mostra_stato(_t("loaded_all", self.lang, n=n))
             from modules.utility.view_styles_apply import apply_view_style
             apply_view_style(self._layer, spec.name, self.site, engine=self._engine)
             self.anteprima.setDestinationCrs(self._layer.crs())
@@ -943,7 +951,8 @@ class ViewStylesDialog(QDialog):
     def set_default(self, scope: str = "site") -> bool:
         """Lo stile corrente diventa il predefinito del sito corrente
         (``scope="site"``) o di tutti i siti (``"all"``): se il suo ambito
-        è diverso, prima si sposta."""
+        è diverso, il predefinito nuovo è una copia nell'ambito nuovo e
+        l'originale resta dov'è."""
         if self._engine is None:
             return False
         stile = self._stile_corrente_o_avviso()

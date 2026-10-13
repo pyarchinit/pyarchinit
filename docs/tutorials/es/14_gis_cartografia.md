@@ -64,6 +64,8 @@ PyArchInit está profundamente integrado con **QGIS**, aprovechando todas sus fu
 
 ### Elección del Estilo (UE y USM)
 
+Desde la **5.13.112-alpha** la ventana **Style Choice** descrita a continuación aparece **solo si la vista no tiene ningún estilo predeterminado guardado**: con un predeterminado (para el sitio o para todos los sitios) la ficha carga la vista, aplica ese estilo y no pregunta nada. Los predeterminados se crean en la ventana **View styles** (véase la sección «Estilos de las vistas», más abajo).
+
 Cuando las UE o las UE murarias (USM) de los resultados de búsqueda se cargan en el mapa aparece la ventana **Style Choice** ("How do you want to manage the layer style?"). Los botones se muestran en inglés:
 
 | Botón | Efecto |
@@ -79,9 +81,120 @@ Con **Save new style**, **Load existing style** y **Use temporary style** se eli
 
 **Orden de dibujo.** Desde la 5.13.19-alpha las unidades se dibujan en el orden que usa el Time Manager: primero las que no tienen período, luego por cronología del período (según la periodización del período/fase inicial de la UE, o según `cont_per`), después por `order_layer` (0 = más antiguo) y por último el corte sobre su relleno, de modo que las unidades más recientes quedan encima. Vale para todas las opciones de estilo, también para **Single symbol (outline only)**. Cuando las capas se cargan período por período, el estilo se pide una sola vez y se usa para todos los períodos.
 
-**Etiquetas.** Desde la 5.13.110-alpha, con el estilo elegido la vista US (y USM) recibe también sus **etiquetas**: el número de la unidad en **negrita dentro de un círculo blanco con borde rojo oscuro**, **una por unidad**, en su dibujo más grande si se ve (no cubierto por entero por uno de nivel superior), con la misma receta de las láminas del atlas del Time Manager (tutorial 25). Cuando dos números se taparían, uno se desplaza y una línea de llamada lo une a su dibujo. Vale para UE y USM, con SQLite y con PostgreSQL, y para todas las opciones de estilo, también para **Single symbol (outline only)**; si el estilo cargado con **Load existing style** ya tenía etiquetas, el número en círculo ocupa su lugar. Las capas de puntos no reciben el número en círculo. Desde la 5.13.111-alpha, en cambio, la **vista de cotas** (los puntos de cota, capa «Elevation view»), nada más cargarse desde la ficha de UE, lleva la **etiqueta con el valor de la cota** (dos decimales, por ejemplo «12,35»), colocada **encima de la línea horizontal del símbolo**, con la misma receta de las láminas del atlas del Time Manager. Vale para todas las opciones que la cargan, con SQLite y con PostgreSQL, y no depende del estilo elegido; las capas que no son de puntos, o que no tienen el campo de la cota, no reciben esta etiqueta.
+**Etiquetas.** Desde la 5.13.110-alpha, con el estilo elegido la vista US (y USM) recibe también sus **etiquetas**: el número de la unidad en **negrita dentro de un círculo blanco con borde rojo oscuro**, **una por unidad**, en su dibujo más grande si se ve (no cubierto por entero por uno de nivel superior), con la misma receta de las láminas del atlas del Time Manager (tutorial 25). Cuando dos números se taparían, uno se desplaza y una línea de llamada lo une a su dibujo. Vale para UE y USM, con SQLite y con PostgreSQL, y para todas las opciones de estilo, también para **Single symbol (outline only)**; si el estilo cargado con **Load existing style** ya tenía etiquetas, el número en círculo ocupa su lugar. Las capas de puntos no reciben el número en círculo. Desde la 5.13.111-alpha, en cambio, la **vista de cotas** (los puntos de cota, capa «Elevation view»), nada más cargarse desde la ficha de UE, lleva la **etiqueta con el valor de la cota** (dos decimales, por ejemplo «12,35»), colocada **encima de la línea horizontal del símbolo**, con la misma receta de las láminas del atlas del Time Manager. Vale para todas las opciones que la cargan, con SQLite y con PostgreSQL, y no depende del estilo elegido; las capas que no son de puntos, o que no tienen el campo de la cota, no reciben esta etiqueta. Desde la 5.13.112-alpha el número en círculo y la cota son los **presets de partida** de las etiquetas: en la pestaña **Etiquetas** (*Labels*) de la ventana **View styles** (véase la sección del mismo nombre, más abajo) se pueden cambiar y guardar como estilo predeterminado, que al cargar ocupa su lugar.
 
 Desde la 5.13.18-alpha el estilo elegido (y el campo de categorización) se respeta también con las bases de datos SQLite, tanto para las UE como para las USM; antes el mapa salía siempre con un color para cada UE.
+
+## Estilos de las vistas
+
+Desde la versión **5.13.112-alpha** una sola ventana, **View styles** (Estilos de las vistas), sirve para componer el estilo —**simbología y etiquetas**— de cada vista de pyArchInit: las vistas de las UE y de las USM, las cotas, la documentación, las estructuras y las tumbas, las UT, los sitios, los hallazgos, las secciones. El estilo se ve al instante en una **vista previa** con los datos del sitio, se guarda con un nombre en la base de datos y puede hacerse **predeterminado** para un sitio o para todos: desde ese momento las fichas que cargan la vista lo aplican por sí solas, sin preguntar nada.
+
+<!-- IMMAGINE: Captura de pantalla de la ventana «View styles»: a la izquierda la lista de vistas y de estilos guardados con sus botones; a la derecha la vista previa y las pestañas Symbology y Labels; abajo Apply to loaded layers, Save, Save as… y Close -->
+![La ventana View styles](images/14_gis_cartografia/01_stili_delle_viste.png)
+*Figura 1: La ventana «View styles»*
+
+Los textos de la ventana solo existen en italiano y en inglés: con QGIS en español aparece en inglés. A continuación, cada etiqueta traducida va seguida de la inglesa entre paréntesis. Lo mismo vale para la entrada de menú: con QGIS en español se llama «View styles…».
+
+### Desde dónde se abre
+
+La ventana no es modal: queda abierta mientras se trabaja en el mapa. Se abre de tres maneras.
+
+- **Desde el menú del plugin**: **Plugins → pyArchInit - Archaeological GIS Tools → View styles…** (Estilos de las vistas; con QGIS en italiano la entrada se llama «Stili delle viste…»). Si la capa activa es una vista de pyArchInit, la ventana se abre ya sobre esa vista; si no, sobre la vista US.
+- **Desde el menú de la capa**: clic derecho sobre una capa vectorial en el panel de capas de QGIS → **View styles…**. Es la misma entrada, con el mismo nombre y la misma regla: si la capa es una vista de pyArchInit, la ventana se abre ya sobre ella.
+- **Desde la ficha UE**: el botón **Style…** (con QGIS en italiano, **Stile…**), junto al botón que carga las capas. Abre la ventana sobre la vista US, con el sitio de la ficha.
+
+La vista previa muestra las geometrías de un **sitio**: el de la ficha si la ventana se abre desde el botón «Style…»; si no, el **sitio activo** establecido en la configuración de pyArchInit (tutorial 01). Sin sitio activo muestra todos los sitios.
+
+### Las vistas y los estilos guardados
+
+La columna de la izquierda tiene dos listas.
+
+**Vistas** (*Views*). Las vistas de pyArchInit, en grupos:
+
+| Grupo | Vistas |
+|-------|--------|
+| «Unidades estratigráficas» (*Stratigraphic units*) | US, USM, US negativas |
+| «Cotas» (*Elevations*) | cotas de las US, cotas de las USM |
+| «Documentación» (*Documentation*) | documentación (dos vistas) |
+| «Estructuras y tumbas» (*Structures and burials*) | estructuras, tumbas, individuos |
+| «Unidades topográficas» (*Topographic units*) | UT puntuales, lineales, poligonales |
+| «Sitios» (*Sites*) | sitios puntuales, sitios poligonales |
+| «Hallazgos» (*Finds*) | hallazgos |
+| «Secciones» (*Sections*) | secciones de excavación |
+
+También las vistas que hasta ahora se cargaban sin estilo (documentación, estructuras y tumbas, UT, sitios, hallazgos, secciones) tienen aquí el suyo. Una vista que no está en la base de datos se vuelve **gris** al elegirla, y la línea de estado dice «Vista no presente en esta base de datos» (*View not present in this database.*).
+
+**Estilos guardados** (*Saved styles*). Debajo, los estilos guardados para la vista elegida, uno por fila: *nombre · sitio (o «todos los sitios») · «✓ predeterminado»* (*all sites*, *✓ default*). Un clic en un estilo lo carga en la vista previa y en los paneles, para verlo o retocarlo. Los estilos que QGIS guardó en la base de datos para esa capa aparecen como *nombre · Guardado con QGIS* (*Saved with QGIS*): se pueden cargar, pero pyArchInit no los reescribe; para conservar una copia entre sus propios estilos se usa **Guardar como…** (*Save as…*). Los botones bajo la lista:
+
+| Botón | Qué hace |
+|-------|----------|
+| **Nuevo** (*New*) | Parte de un estilo por componer: solo contorno, con las etiquetas de partida de la vista. El nombre se pide en el primer **Guardar** (*Save*) |
+| **Duplicar** (*Duplicate*) | Copia el estilo elegido con el nombre «… (2)»; la copia no es predeterminada |
+| **Renombrar…** (*Rename…*) | Cambia el nombre del estilo elegido |
+| **Eliminar** (*Delete*) | Elimina el estilo elegido, tras una confirmación |
+| **Predeterminado para este sitio** (*Default for this site*) | El estilo elegido pasa a ser el que se aplica al cargar la vista para el sitio actual (si el estilo es de «todos los sitios», hace una copia para el sitio actual y convierte en predeterminada la copia; el original queda como está) |
+| **Predeterminado para todos los sitios** (*Default for all sites*) | Pasa a ser el que se aplica a los sitios que no tienen uno propio (si el estilo es de un sitio, hace una copia para todos los sitios y convierte en predeterminada la copia; el original queda como está) |
+| **Exportar QML…** (*Export QML…*), **Importar QML…** (*Import QML…*) | Véase «Exportar e importar» |
+
+Para cada vista hay un solo predeterminado por sitio y uno solo para todos los sitios: hacer predeterminado a otro estilo quita la marca «✓ predeterminado» al anterior. Duplicar, Renombrar, Eliminar y los dos Predeterminado actúan sobre el estilo elegido en la lista; si no hay ninguno elegido, aparece el aviso «Elige primero un estilo guardado» (*Choose a saved style first.*).
+
+### Vista previa, simbología y etiquetas
+
+**Vista previa.** Arriba a la derecha, un mapa muestra la vista elegida, leída de la base de datos y filtrada por el sitio actual: cada cambio en el estilo se ve al instante. **Encuadrar** (*Zoom to data*) lleva el mapa a todas las geometrías. La línea de estado bajo el mapa dice cuántas son (*482 geometrías del sitio «Scavo 2026».*, *482 geometries of site “Scavo 2026”.*) o, si el sitio no tiene ninguna en esa vista, «Ninguna geometría para el sitio actual» (*No geometry for the current site.*): el estilo se puede componer igualmente. La vista previa es una capa aparte, **no añadida al proyecto**: las capas del proyecto de QGIS no cambian hasta que se pulsa **Aplicar a las capas cargadas** (*Apply to loaded layers*). Al elegir una vista, la vista previa parte de lo que pyArchInit le aplicaría en ese momento al cargarla (véase «Predeterminados y carga»).
+
+Bajo el mapa hay dos pestañas: **Simbología** (*Symbology*) y **Etiquetas** (*Labels*).
+
+**Pestaña Simbología.** Arriba, la lista desplegable **Preset** (*Preset:*):
+
+| Preset | Efecto |
+|--------|--------|
+| «— dejar como está —» (*— keep as is —*) | No cambia nada |
+| «Solo contorno» (*Outline only*) | Polígonos sin relleno y con el borde gris oscuro, líneas finas, puntos como circulitos vacíos |
+| «Estilo suministrado con pyArchInit» (*Style shipped with pyArchInit*) | El QML que acompaña al plugin: existe para las vistas US y USM y para las cotas |
+| «Categorías por “campo”» (*Categories by “field”*) | Una categoría, con su color, por cada valor del campo. Hay una entrada por cada uno de los campos con sentido para esa vista que la capa posee: para las unidades `d_stratigrafica`, `tipo_us_s`, `d_interpretativa` y `cont_per`; para las demás vistas, por ejemplo, `tipo_doc`, `tipologia_struttura` o `tipo_reperto` |
+
+Bajo la lista está el **editor de simbología de QGIS**, el mismo de las propiedades de la capa (símbolo único, categorizado, graduado, basado en reglas…): el preset es el punto de partida y desde ahí se retoca todo; cada cambio se ve al instante en la vista previa.
+
+**Pestaña Etiquetas.**
+
+| Control | Qué hace |
+|---------|----------|
+| **Etiquetas activas** (*Labels on*) | Enciende y apaga las etiquetas de la vista |
+| **Qué escribir** (*What to write:*) | «Ninguna etiqueta» (*No label*); «Número de la unidad en un círculo» (*Unit number in a circle*: el número en negrita dentro de un círculo blanco con borde rojo oscuro, como en las láminas del atlas del Time Manager, tutorial 25); «Cota encima del símbolo» (*Elevation above the symbol*: el valor de la cota encima de la línea horizontal del símbolo); «Un campo o una expresión» (*A field or an expression*) |
+| **Campo** (*Field:*), **Expresión** (*Expression:*) | Para la última entrada: el campo de la vista que se escribe o una expresión de QGIS (si se escribe, tiene prioridad sobre el campo) |
+| **Posición** (*Placement:*), **Desplazamiento (mm)** (*Offset (mm):*) | Para la última entrada: «Centrada» (*Centred*), «Alrededor del punto» (*Around the point*) o «Encima del símbolo» (*Above the symbol*); el desplazamiento sube la etiqueta esos milímetros y vale para «Encima del símbolo» |
+| **Una etiqueta por unidad (en el dibujo más grande visible)** (*One label per unit (on the largest visible drawing)*) | Para el número de la unidad: una sola etiqueta por unidad, en su dibujo más grande que se ve (no cubierto por entero por uno de nivel superior); apagada, cada dibujo tiene la suya |
+| **Fuente y fondo** (*Font and background*) | Fuente, **Tamaño (mm)** (*Size (mm):*), **Negrita** (*Bold*), **Color…** (*Colour…*) del texto, **Halo blanco** (*White buffer*), **Fondo circular** (*Circle background*) con **Relleno…** (*Fill…*) y **Borde…** (*Stroke…*) |
+
+El número de la unidad en círculo es el preset de partida de las vistas US y USM, la cota encima del símbolo el de las vistas de cotas: son las etiquetas del párrafo **Etiquetas** de «Elección del Estilo (UE y USM)» (arriba), que aquí se pueden cambiar. Las demás vistas, de partida, no tienen etiquetas. El panel es el de pyArchInit, más sencillo que el editor de etiquetas de QGIS (basado en reglas y demás), que no se puede abrir fuera de las propiedades de la capa.
+
+### Predeterminados y carga
+
+Abajo hay cuatro botones:
+
+| Botón | Qué hace |
+|-------|----------|
+| **Aplicar a las capas cargadas** (*Apply to loaded layers*) | Aplica el estilo que se ve en la vista previa —simbología y etiquetas— a las capas del proyecto de QGIS que vienen de esa vista; la línea de estado dice «Estilo aplicado a N capas del proyecto» (*Style applied to N project layers.*) o «Ninguna capa de esta vista en el proyecto» (*No layer of this view in the project.*). No guarda nada en la base de datos |
+| **Guardar** (*Save*) | Guarda sobre el estilo actual (el elegido en la lista); si no hay ninguno, pide el nombre y crea un estilo nuevo |
+| **Guardar como…** (*Save as…*) | Pide el nombre y guarda un estilo nuevo, para todos los sitios: «Estilo “nombre” guardado» (*Style “name” saved.*) |
+| **Cerrar** (*Close*) | Cierra la ventana |
+
+Para que un estilo sea el que se ve en cada carga: (1) elige la vista; (2) compón simbología y etiquetas mirando la vista previa; (3) **Guardar como…** con un nombre; (4) **Predeterminado para este sitio** o **Predeterminado para todos los sitios**; (5) si las capas ya están en el proyecto, **Aplicar a las capas cargadas**.
+
+**Al cargar manda el predeterminado.** Cuando una ficha de pyArchInit (por ejemplo la ficha UE) carga una vista, aplica por orden:
+
+1. el estilo **predeterminado del sitio para el que se carga la vista** (si lo hay): la ficha UE pasa el sitio de la ficha, los cargadores por periodo (Time Manager) el sitio que están dibujando; donde el cargador no conoce el sitio vale el sitio activo de la configuración de pyArchInit (tutorial 01);
+2. si no, el estilo **predeterminado para todos los sitios**;
+3. si no, para las vistas US, USM y de cotas, el estilo suministrado con pyArchInit con el número en círculo o la cota encima del símbolo (como desde la 5.13.110-alpha y la 5.13.111-alpha); las demás vistas se cargan como antes, sin estilo.
+
+La ventana de tres pasos **Style Choice** (párrafo «Elección del Estilo (UE y USM)», arriba) aparece **solo si para esa vista no hay ningún estilo predeterminado guardado**; con un predeterminado la ficha UE simplemente carga, y un estilo elegido a mano no lo sobrescribe. «Una etiqueta por unidad» se recalcula en cada carga, sobre los dibujos del filtro de ese momento: no depende del filtro con el que se guardó el estilo.
+
+### Exportar e importar
+
+- **Exportar QML…** escribe en un archivo `.qml` el estilo tal como se ve en la vista previa —simbología y etiquetas—; el nombre propuesto es el de la vista (por ejemplo `pyarchinit_us_view.qml`). Sirve para conservar una copia o para usarlo en otra base de datos o en QGIS.
+- **Importar QML…** lee un archivo `.qml`, lo muestra en la vista previa y lo guarda como estilo nuevo, para todos los sitios, con el nombre del archivo. Si el archivo no se lee como QML, un aviso lo dice con el nombre del archivo (*“name.qml” does not read as QML.*) y no se escribe nada.
+- Los estilos guardados viven en la **base de datos conectada** a pyArchInit, en la tabla `pyarchinit_view_styles`, que se crea sola, con SQLite y con PostgreSQL: con PostgreSQL los ven todos los usuarios de la misma base de datos. Para pasarlos a otra base de datos se exportan e importan como QML.
+- Si la base de datos no está conectada (o la tabla de estilos no se puede crear, por ejemplo en PostgreSQL sin permiso para crear tablas), los estilos guardados no están disponibles y solo se puede exportar: la línea de estado bajo la vista previa lo dice después del recuento de geometrías, con «Base de datos no conectada: los estilos solo se pueden exportar» (*Database not connected: styles can only be exported.*) o «La tabla de estilos no se puede crear en esta base de datos: los estilos solo se pueden exportar» (*The styles table cannot be created in this database: styles can only be exported.*).
 
 ## Estilos de las Capas
 

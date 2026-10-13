@@ -129,6 +129,19 @@ def test_un_motore_assente_lascia_solo_esportare(qgs, db, tmp_path):
     dlg.close()
 
 
+def test_senza_motore_il_messaggio_del_database_resta_dopo_il_conteggio(qgs, db):
+    """Collegato ma senza la tabella degli stili (PostgreSQL senza permesso):
+    la riga di stato dice il conteggio E il perché, invece di coprire il
+    messaggio alla prima vista scelta (revisione dei tutorial)."""
+    conn, sito, _ = db
+    dlg = vsd.ViewStylesDialog(None, conn, sito, lang="en")
+    dlg._engine = None
+    dlg._motivo_senza_motore = "no_table"
+    assert dlg.select_view("pyarchinit_quote_view") and dlg.current_layer() is not None
+    assert "geometries" in dlg.stato.text() and "styles table cannot be created" in dlg.stato.text()
+    dlg.close()
+
+
 def test_open_view_styles_apre_sulla_vista_del_layer_attivo(qgs, db):
     conn, sito, percorso = db
     layer = QgsVectorLayer("%s|layername=pyarchinit_quote_view" % percorso, "Quote view", "ogr")

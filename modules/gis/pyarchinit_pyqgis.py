@@ -978,8 +978,6 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
 
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
 
                     unique_name = self.unique_layer_name(name_layer_q)
@@ -1082,8 +1080,6 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -1884,8 +1880,6 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2038,8 +2032,6 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2380,8 +2372,6 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 #crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
                 #layerQUOTE.setCrs(crs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2394,9 +2384,9 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                if not self._stile_salvato(layerUS):
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                    layerUS.loadNamedStyle(style_path)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -2464,8 +2454,6 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE and layerQUOTE.isValid():
                 layerQUOTE.setName(layer_name_label_quote)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
@@ -2496,8 +2484,6 @@ class Pyarchinit_pyqgis(QDialog):
             self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self.sito_p, fallback=True)
             if layerQUOTE.isValid():
                 #layerQUOTE.setCrs(srs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2510,9 +2496,9 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                if not self._stile_salvato(layerUS):
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                    layerUS.loadNamedStyle(style_path)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -2668,8 +2654,6 @@ class Pyarchinit_pyqgis(QDialog):
                 self._stile_vista(layerQUOTE, 'pyarchinit_quote_view', self.sito_p, fallback=True)
                 if layerQUOTE.isValid():
                     #layerQUOTE.setCrs(srs)
-                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                    layerQUOTE.loadNamedStyle(style_path)
                     try:
                         group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                         QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2830,8 +2814,6 @@ class Pyarchinit_pyqgis(QDialog):
             self._stile_vista(layerQUOTE, 'pyarchinit_quote_usm_view', self.sito_p, fallback=True)
             if layerQUOTE.isValid():
                 #layerQUOTE.setCrs(srs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
                 try:
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
@@ -2844,9 +2826,9 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                if not self._stile_salvato(layerUS):
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                    layerUS.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
