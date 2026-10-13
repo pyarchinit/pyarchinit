@@ -47,9 +47,7 @@ from qgis.PyQt.QtXml import QDomDocument
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
-from ..modules.utility.atlas_labels import (labelled_ids,
-                                            quota_labeling,
-                                            us_labeling)
+from ..modules.utility.atlas_labels import (labelled_ids, quota_labeling, remember_labeling, restore_labeling, us_labeling)
 from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_name,
                                               base_map_uri,
@@ -1154,8 +1152,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     continue
                 if nuove is None:
                     continue
+                # In copia: `layer.labeling()` è il puntatore che il
+                # `setLabeling` qui sotto distrugge (13 ottobre 2026).
                 self._etichette_di_prima.append(
-                    (layer, layer.labeling(), layer.labelsEnabled()))
+                    (layer, remember_labeling(layer)))
                 layer.setLabeling(nuove)
                 layer.setLabelsEnabled(True)
             except Exception as e:                  # noqa: BLE001
@@ -1192,12 +1192,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
     def _togli_le_etichette(self):
         """Rimette le etichette com'erano prima della generazione."""
-        for layer, prima, attive in getattr(self, "_etichette_di_prima", []) or []:
+        for layer, ricordo in getattr(self, "_etichette_di_prima", []) or []:
             try:
-                layer.setLabeling(prima)
-                layer.setLabelsEnabled(attive)
-            except Exception:                       # noqa: BLE001
-                continue
+                restore_labeling(layer, ricordo)
+            except Exception as e:                  # noqa: BLE001
+                QgsMessageLog.logMessage(
+                    "Etichette non rimesse su %s: %s" % (layer.name(), e),
+                    "PyArchInit", Qgis.MessageLevel.Warning)
         self._etichette_di_prima = []
 
     def _gruppo_dell_inserto(self):

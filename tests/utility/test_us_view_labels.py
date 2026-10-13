@@ -90,3 +90,36 @@ def test_lo_stile_scelto_della_vista_us_porta_anche_le_etichette():
             assert "label_us_view" in chiamate
             return
     raise AssertionError("USViewStyler.apply_style_to_layer")
+
+
+def _mostra(layer) -> str:
+    """L'espressione «quali disegni etichettare». Ogni oggetto di PyQGIS
+    tenuto in una variabile: la catena di temporanei va in segfault."""
+    etichettatura = layer.labeling()
+    impostazioni = etichettatura.settings()
+    proprieta = impostazioni.dataDefinedProperties()
+    mostra = proprieta.property(QgsPalLayerSettings.Property.Show)
+    return mostra.expressionString()
+
+
+def test_le_etichette_di_prima_sopravvivono_alla_tavola_dell_atlante(qgs):
+    """`setLabeling` distrugge l'etichettatura vecchia: chi se la tiene
+    com'era (il Time Manager, per rimetterla a fine tavola) deve tenerne
+    una copia, o rimette un puntatore morto — RuntimeError ingoiato, o
+    segfault salvando il progetto (misurato il 13 ottobre 2026)."""
+    from modules.utility.atlas_labels import remember_labeling, restore_labeling, us_labeling
+    layer = _vista_us()
+    assert label_us_view(layer)
+    di_prima = _mostra(layer)
+    ricordo = remember_labeling(layer)
+    layer.setLabeling(us_labeling([f.name() for f in layer.fields()], None))   # la tavola: tutte etichettate
+    layer.setLabelsEnabled(True)
+    restore_labeling(layer, ricordo)
+    assert layer.labelsEnabled()
+    assert _mostra(layer) == di_prima
+    nudo = QgsVectorLayer("Polygon?crs=EPSG:32633&" + FIELDS, "senza", "memory")
+    ricordo = remember_labeling(nudo)
+    nudo.setLabeling(us_labeling([f.name() for f in nudo.fields()], None))
+    nudo.setLabelsEnabled(True)
+    restore_labeling(nudo, ricordo)
+    assert nudo.labeling() is None and not nudo.labelsEnabled()

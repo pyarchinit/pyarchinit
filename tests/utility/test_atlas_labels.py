@@ -109,7 +109,8 @@ def test_the_project_is_left_as_it_was_found():
     src = TM.read_text(encoding="utf-8")
     assert "def _togli_le_etichette" in src
     corpo = _corpo("_metti_le_etichette")
-    assert "layer.labeling(), layer.labelsEnabled()" in corpo
+    assert "remember_labeling(layer)" in corpo          # in copia: il puntatore vecchio muore con setLabeling
+    assert "restore_labeling(layer, ricordo)" in _corpo("_togli_le_etichette")
     generazione = _corpo("generate_images")
     assert "self._metti_le_etichette()" in generazione
     assert "self._togli_le_etichette()" in generazione

@@ -319,3 +319,22 @@ def label_us_view(layer) -> bool:
     layer.setLabeling(nuove)
     layer.setLabelsEnabled(True)
     return True
+
+
+def remember_labeling(layer):
+    """Com'è etichettato il layer adesso, in **copia**: ``(etichettatura
+    o None, attive)``. ``layer.labeling()`` è il puntatore all'oggetto
+    che il prossimo ``setLabeling`` distrugge — tenerlo e rimetterlo dava
+    un RuntimeError ingoiato (etichette nate in Python) o un segfault al
+    salvataggio del progetto (etichette da uno stile), 13 ottobre 2026."""
+    etichette = layer.labeling()
+    copia = etichette.clone() if etichette is not None else None
+    return copia, bool(layer.labelsEnabled())
+
+
+def restore_labeling(layer, remembered) -> None:
+    """Rimette quello che :func:`remember_labeling` ha tenuto; il ricordo
+    resta valido, perché al layer va un'altra copia."""
+    prima, attive = remembered
+    layer.setLabeling(prima.clone() if prima is not None else None)
+    layer.setLabelsEnabled(bool(attive))
