@@ -812,7 +812,7 @@ def site_briefing(graph, narrative) -> Dict[str, Any]:
         quante = sum(1 for a in archi if a.edge_target == e.node_id
                      and a.edge_type in ("has_first_epoch", "survive_in_epoch"))
         epoche.append({"name": str(e.name), "start": getattr(e, "start_time", None),
-                       "end": getattr(e, "end_time", None), "units": quante})
+                       "end": getattr(e, "end_time", None), "units_present": quante})
     toponimi, luoghi = [], {}
     for n in nodi:
         if not isinstance(n, LocationNodeGroup):
@@ -832,7 +832,11 @@ def site_briefing(graph, narrative) -> Dict[str, Any]:
         "site": _site_name(graph),
         "toponyms": toponimi,
         "places": {k: sorted(v) for k, v in luoghi.items()},
+        # «units_present»: nate o sopravvissute in quell'epoca — una unità vive
+        # in più epoche, quindi la somma supera il totale (il modello lo
+        # prendeva per un'incoerenza da segnalare, 13 ottobre 2026).
         "epochs": epoche,
+        "epochs_note": "a unit can be present in more than one epoch: the sums exceed the total",
         "units": {"total": len(unita), "by_type": per_tipo, "relations": rapporti},
         "documents": documenti,
         "authors": [nome for _, nome in human_authors(graph)],
@@ -872,7 +876,9 @@ _SYSTEM_PRESENTATION = {
            "modello segnate come tali finché una persona non le convalida; e su quali fonti "
            "si appoggia: le schede delle unità con i loro rapporti stratigrafici, i documenti "
            "elencati, le fotografie. Usa solo i dati del briefing: non inventare date, "
-           "luoghi o fatti. Non usare le doppie parentesi quadre."),
+           "luoghi o fatti. Presenta, non revisionare: se un dato ti sembra strano o "
+           "incoerente, lascia fuori quel dettaglio invece di commentarlo. Non usare le "
+           "doppie parentesi quadre."),
     "en": ("You are an archaeologist introducing an excavation site to someone about to "
            "read its story, reconstructed from the stratigraphic matrix. Write in English, "
            "continuous prose, two to four paragraphs. Say what the site is and where it "
@@ -881,8 +887,9 @@ _SYSTEM_PRESENTATION = {
            "epoch and one per activity, units cited by name, and drafts written by a model "
            "marked as such until a person endorses them; and which sources it rests on: the "
            "unit records with their stratigraphic relations, the documents listed, the "
-           "photographs. Use only the briefing: invent no dates, places or facts. Do not "
-           "use double square brackets."),
+           "photographs. Use only the briefing: invent no dates, places or facts. Present, "
+           "do not review: if a datum looks odd or inconsistent, leave that detail out "
+           "rather than commenting on it. Do not use double square brackets."),
 }
 _PRESENTATION_HEAD = {
     "it": "Presentazione del sito «{site}». Briefing in JSON:\n",
