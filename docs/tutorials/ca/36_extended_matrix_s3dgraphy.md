@@ -42,30 +42,11 @@ En prémer **Esporta** es demana la **carpeta de destinació**.
 
 Autors, llicències, embargaments i grups es gestionen a la finestra **"Manage paradata"** (§3).
 
-### 2.2.1 Sondeigs: un sol graf o un per sondeig
+### 2.2.1 Sondeigs: un sol graf per a tot el lloc
 
-Un grup de tres opcions, a la mateixa finestra, decideix **com dividir
-l'em.json** quan l'excavació té diversos sondeigs:
+A partir de la versió **5.13.109-alpha**, l'em.json porta **un sol graf**, amb les unitats de tots els sondeigs: no hi ha res a triar. La finestra «Esporta Extended Matrix» ja no té el grup «Saggi» (sondeigs), i les entrades de menú **Esporta sito in em.json…** i **Vedi la matrice…** només demanen el lloc.
 
-- **Automàtic**: un sol graf si el lloc té un sondeig, un graf per
-  sondeig si en té més. És l'opció de partida.
-- **Un sol graf per a tot el lloc**: tota l'excavació en un graf, com
-  sempre.
-- **Un graf per sondeig**: **un sol fitxer**, que porta dins un graf per
-  a cada sondeig, més un per a les unitats que no l'han omplert. Les
-  relacions que **surten** del sondeig no es perden: queden al fitxer
-  com a enllaços entre grafs (`graph.links`).
-
-> **L'EMStudio 1.6.0 en mostra un cada vegada.** El fitxer és correcte
-> —el lector de la biblioteca rellegeix tots els grafs, sense avisos—
-> però l'EMStudio obre el graf declarat a `active_graph_id`, el primer
-> sondeig, i no té un selector per als altres. La matriu dins del QGIS,
-> **Mostra la matriu**, els uneix tots i dibuixa l'excavació sencera.
-> Mesurat el 2026-10-12 al lloc d'exemple: 4 grafs (52/49/56/51 nodes),
-> 32 enllaços entre sondeigs, 51 unitats a la matriu unida.
-
-El sondeig és el camp **Saggio** de la fitxa US: les unitats que el tenen
-buit acaben en un graf a part, dins del mateix fitxer.
+El sondeig és el camp **Saggio** de la fitxa US: continua sent un camp com els altres, que es pot fer servir com a dimensió per agrupar les unitats (`saggio`, §4) i que passa al *dossier* de la narrativa (§10.4), però ja no divideix el fitxer. Un fitxer exportat amb les versions anteriors (fins a la 5.13.108-alpha), amb un graf per sondeig, encara s'obre al panell de la matriu (§10.8).
 
 ### 2.3 Clica "Esporta"
 
@@ -478,21 +459,16 @@ Els noms de les pestanyes i dels botons de la pestanya **Narrative** existeixen 
 
 1. Obre el menú **Plugins → pyArchInit - Archaeological GIS Tools** i tria l'entrada **Extended Matrix → Vedi la matrice…** (Mostra la matriu).
 2. Tria el **lloc**.
-3. Si el lloc té **sondeigs** (*saggi*), pyArchInit pregunta «Il sito ha N saggi. Come divido il file?» (El lloc té N sondeigs. Com divideixo el fitxer?) amb dues respostes: «Un grafo per ogni saggio (…)» (un graf per sondeig), que és la proposada per defecte, o «Un grafo solo per tutto il sito» (un sol graf per a tot el lloc). És la mateixa elecció que al §2.2.1 i a l'entrada «Esporta sito in em.json…»: les dues entrades escriuen **el mateix fitxer**, amb la mateixa forma.
-4. pyArchInit exporta el lloc de la base de dades a `<home>/pyarchinit_EM_folder/<lloc>.em.json` —`<home>` és `~/pyarchinit_5`, o la carpeta indicada per la variable d'entorn `PYARCHINIT_HOME`— i obre el panell **«Matrice — `<lloc>`»**, ancorat a la dreta de la finestra del QGIS. El nom del fitxer és el del lloc, amb els caràcters especials substituïts per «_» (per exemple, «Scavo 1» passa a ser `Scavo_1.em.json`).
-5. A la columna de la dreta del panell, clica la pestanya **Narrative**.
+3. pyArchInit exporta el lloc de la base de dades a `<home>/pyarchinit_EM_folder/<lloc>.em.json` —`<home>` és `~/pyarchinit_5`, o la carpeta indicada per la variable d'entorn `PYARCHINIT_HOME`— i obre el panell **«Matrice — `<lloc>`»**, ancorat a la dreta de la finestra del QGIS. El nom del fitxer és el del lloc, amb els caràcters especials substituïts per «_» (per exemple, «Scavo 1» passa a ser `Scavo_1.em.json`).
+4. A la columna de la dreta del panell, clica la pestanya **Narrative**.
 
 <!-- IMMAGINE: Captura de pantalla del menú Plugins → pyArchInit - Archaeological GIS Tools amb l'entrada «Extended Matrix → Vedi la matrice…» -->
 ![Menú Mostra la matriu](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figura 1: L'entrada «Extended Matrix → Vedi la matrice…» al menú del connector*
 
-<!-- IMMAGINE: Captura de pantalla de la pregunta sobre els sondeigs amb les dues respostes -->
-![Pregunta sobre els sondeigs](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figura 2: La pregunta sobre els sondeigs: un graf per sondeig o un sol graf*
-
 <!-- IMMAGINE: Captura de pantalla del panell de la matriu ancorat a la dreta, amb les pestanyes Units i Narrative -->
 ![Panell amb dues pestanyes](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figura 3: El panell de la matriu amb les pestanyes Units i Narrative*
+*Figura 2: El panell de la matriu amb les pestanyes Units i Narrative*
 
 El fitxer és **un per lloc i resta al disc**: ja no viu en una carpeta temporal. És el fitxer que obre EMStudio i és on s'escriu la narrativa. Cada vegada que tries «Vedi la matrice…», el lloc **s'exporta de nou de la base de dades** i el fitxer es torna a escriure; la narrativa que ja hi havia es conserva (§10.8).
 
@@ -540,12 +516,12 @@ Els proveïdors són els dels selectors «Provider AI» (proveïdor d'IA): **Ope
 
 <!-- IMMAGINE: Captura de pantalla de la pestanya Narrative amb la llista de capítols, el text del capítol triat i els set botons -->
 ![Pestanya Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figura 4: La pestanya Narrative*
+*Figura 3: La pestanya Narrative*
 
 De dalt a baix:
 
 - **la línia d'estat**: el model en ús (§10.2) i el recordatori *«If EMStudio has the file open, close it first: the last writer wins.»* (si EMStudio té el fitxer obert, tanca'l abans: guanya qui escriu l'últim);
-- **la llista de capítols**, una fila per capítol: *Títol — estat*. Amb l'exportació per sondeigs (§2.2.1) cada sondeig té la seva pròpia narrativa i cada fila va precedida del nom del sondeig entre claudàtors, per exemple `[Saggio A] 15th century — AI draft`;
+- **la llista de capítols**, una fila per capítol: *Títol — estat*. Un fitxer d'una versió anterior, dividit per sondeigs, mostra tots els grafs: cada fila va precedida del nom del graf entre claudàtors, per exemple `[Saggio A] 15th century — AI draft`;
 - **el text del capítol triat**: la prosa, amb les unitats citades pel nom; els noms són **enllaços**: un clic mostra la unitat al mapa (§10.10); sota el paràgraf en què una unitat es nomena per primera vegada apareixen fins a dues fotos seves (§10.11). Si el capítol encara no té prosa, hi veus el seu marcador de posició «[to be written: …]»;
 - **la línia de progrés**, només durant la generació: «Chapter 3 of 9 · 15th century»;
 - **els botons**, en dues files.
@@ -569,7 +545,7 @@ Quan el fitxer **encara no té narrativa**, la llista és buida i un text diu: *
 | Botó (en) | En italià | Què fa |
 |-----------|-----------|--------|
 | **Generate with AI** | Genera con l'AI | Escriu, **un per un**, tots els capítols d'època (i d'activitat) que encara són «to be written»; els que ja estan escrits no es toquen. Si encara no hi ha narrativa, crea primer l'esquema. Mostra el progrés i el botó **Cancel**. Activat només amb un fitxer obert i una IA configurada. |
-| **Regenerate chapter** | Rigenera capitolo | Reescriu **el capítol triat** a la llista (amb diversos sondeigs, només el del sondeig triat): l'esborrany d'IA no validat es substitueix —però només quan el model ha respost: si la crida falla, l'esborrany d'abans es queda— i els blocs ja validats es conserven. S'activa quan tries un capítol d'època o d'activitat i hi ha una IA configurada; per a «Presentation» i «Where it is» continua desactivat. |
+| **Regenerate chapter** | Rigenera capitolo | Reescriu **el capítol triat** a la llista: l'esborrany d'IA no validat es substitueix —però només quan el model ha respost: si la crida falla, l'esborrany d'abans es queda— i els blocs ja validats es conserven. S'activa quan tries un capítol d'època o d'activitat i hi ha una IA configurada; per a «Presentation» i «Where it is» continua desactivat. |
 | **Endorse…** | Convalida… | Obre un menú amb «This chapter» i «All chapters» (aquest capítol, tots els capítols) i després pregunta qui valida (§10.6). Activat quan hi ha una narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Crea **només l'esquema** dels capítols, sense IA: funciona encara que no hi hagi cap IA configurada, perquè puguis escriure a mà a EMStudio. No toca la prosa ja escrita i afegeix els capítols de les èpoques noves. Resultat: «Chapters prepared: N.» |
 | **Show on the map** | Mostra sulla mappa | Selecciona i enquadra al mapa, **totes alhora**, les unitats de què parla el capítol triat (§10.10): les citades a la prosa o, si el capítol encara no està escrit, totes les de la seva banda. Activat només si almenys una de les unitats de què parla el capítol triat és una fila de la fitxa US. |
@@ -611,7 +587,7 @@ Durant la generació tots els botons estan desactivats excepte **Cancel**.
 
 <!-- IMMAGINE: Captura de pantalla de la generació en curs: la línia de progrés «Chapter 3 of 9 · …» i el botó Cancel -->
 ![Generació en curs](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figura 5: Generació en curs, amb la línia de progrés i el botó Cancel*
+*Figura 4: Generació en curs, amb la línia de progrés i el botó Cancel*
 
 Un capítol que falla no atura els altres: el resum diu quins. Per tornar-ho a provar, només cal clicar de nou **Generate with AI**, que escriu només els capítols que encara són «to be written».
 
@@ -620,18 +596,18 @@ Un capítol que falla no atura els altres: el resum diu quins. Per tornar-ho a p
 Validar vol dir que una **persona** es fa responsable del text escrit pel model. No passa mai per si sol: ni en generar, ni en desar.
 
 1. Clica **Endorse…**. S'obre un petit menú: **«This chapter»** (aquest capítol) —activat només si el capítol triat és un «AI draft»— o **«All chapters»** (tots els capítols), és a dir, tots els esborranys d'IA que encara no s'han validat, a tots els grafs del fitxer.
-2. Una finestra pregunta **«Who endorses? Pick an author or type a new name.»** (qui valida? Tria un autor o escriu un nom nou). La llista conté els **autors humans que ja són al graf** —les persones esmentades a la fitxa US com a compilador (*schedatore*), director US i responsable US— i pots escriure un nom nou, que passa a ser un autor nou del graf (amb diversos sondeigs, a cada graf que té esborranys per signar).
+2. Una finestra pregunta **«Who endorses? Pick an author or type a new name.»** (qui valida? Tria un autor o escriu un nom nou). La llista conté els **autors humans que ja són al graf** —les persones esmentades a la fitxa US com a compilador (*schedatore*), director US i responsable US— i pots escriure un nom nou, que passa a ser un autor nou del graf.
 3. La barra de missatges diu **«N blocks endorsed by `<name>`.»** (N blocs validats per la persona triada), o «Nothing to endorse.» (no hi ha res per validar). El fitxer es desa.
 
 <!-- IMMAGINE: Captura de pantalla del menú Endorse… («This chapter» / «All chapters») i de la finestra per triar l'autor -->
 ![Valida](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figura 6: Validar: el menú i l'elecció de l'autor*
+*Figura 5: Validar: el menú i l'elecció de l'autor*
 
 Els blocs passen de «AI draft» a «endorsed». Al document exportat la persona apareix entre els responsables («a cura di», a cura de) i el model com a assistent («con l'assistenza di», amb l'assistència de), i els paràgrafs validats ja no porten la marca ⚠. Regenerar no esborra els blocs validats: una signatura és un acte, i no es perd en reescriure.
 
 ### 10.7 Exportar a HTML, DOCX o PDF
 
-Clica **Export…**: s'obre la finestra de desament amb tres formats: «HTML page» (pàgina HTML; `.html`), «Word document» (document Word; `.docx`) i «Printable PDF» (PDF imprimible; `.pdf`). El nom proposat és `<lloc>_narrativa`, sense extensió, a la carpeta de l'em.json: l'extensió l'hi posa el format triat al filtre de la finestra; una extensió escrita a mà (`.html`, `.docx` o `.pdf`) preval sobre el filtre. Amb l'exportació per sondeigs s'escriu **un fitxer per sondeig**, afegint el nom del sondeig al nom triat. La barra de missatges ho confirma: «Narrative exported to `<path>`» (narrativa exportada a la ruta del fitxer).
+Clica **Export…**: s'obre la finestra de desament amb tres formats: «HTML page» (pàgina HTML; `.html`), «Word document» (document Word; `.docx`) i «Printable PDF» (PDF imprimible; `.pdf`). El nom proposat és `<lloc>_narrativa`, sense extensió, a la carpeta de l'em.json: l'extensió l'hi posa el format triat al filtre de la finestra; una extensió escrita a mà (`.html`, `.docx` o `.pdf`) preval sobre el filtre. La barra de missatges ho confirma: «Narrative exported to `<path>`» (narrativa exportada a la ruta del fitxer).
 
 El document conté:
 
@@ -641,7 +617,7 @@ El document conté:
 
 Coses que convé saber:
 
-- **els esborranys no validats hi entren**, cadascun precedit de «⚠︎ non validato da una persona» (no validat per una persona), i la capçalera diu quants blocs hi ha en aquest estat. Per a un document sense marques, valida primer (§10.6);
+- **els esborranys no validats hi entren**, cadascun precedit de «⚠︎ non validato da una persona» (no validat per una persona), i la capçalera diu quants blocs hi ha en aquest estat. Per a un document sense marques, valida primer (§10.6). A l'HTML l'esborrany es llegeix com la resta del text, amb la mateixa tipografia i el mateix fons: damunt del paràgraf hi ha la línia d'avís i a l'esquerra un filet ambre. Al Word i al PDF l'avís va davant del paràgraf (al PDF, en una línia pròpia i sense el signe ⚠, §10.11);
 - **hi entren tots els capítols**, fins i tot els que encara són «to be written»: el seu marcador de posició «[to be written: …]» es queda al text;
 - la prosa va **al principi** del capítol, abans de la llista de les unitats; en una narrativa escrita amb una versió anterior pot ser encara al final, i es posa al seu lloc tornant a exportar el lloc (§10.8) o amb **Prepare the chapters** (Prepara els capítols);
 - les figures que un autor ha previst a EMStudio (per exemple, la matriu d'una època) no les dibuixa l'exportació de pyArchInit: al document hi queda un marcador de posició;
@@ -649,7 +625,7 @@ Coses que convé saber:
 
 <!-- IMMAGINE: Captura de pantalla del document HTML exportat: un capítol amb un esborrany precedit de «⚠︎ non validato da una persona» -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figura 7: El document HTML exportat, amb un esborrany no validat marcat*
+*Figura 6: El document HTML exportat, amb un esborrany no validat marcat*
 
 ### 10.8 Tornar a exportar el lloc: la narrativa es conserva
 
@@ -659,7 +635,7 @@ Els **altres canvis** fets al fitxer des d'EMStudio —posicions dels nodes, des
 
 Abans de reescriure un fitxer que conté una narrativa, pyArchInit en fa una **còpia de seguretat** al costat: `<lloc>.em.json.bak` (cada nova exportació substitueix la còpia anterior).
 
-Si canvies la forma del fitxer —de «Un grafo per ogni saggio» a «Un grafo solo per tutto il sito», o al revés— els grafs canvien de nom i la narrativa **no pot passar** al fitxer nou. Un avís ho diu: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»*. El text no es perd: és a la còpia `.bak`, que, però, es substitueix en la propera exportació d'un fitxer que conté una narrativa —posa-la en lloc segur—. Per recuperar-lo, reanomena la còpia a `.em.json` i torna a exportar amb l'elecció d'abans.
+Si el fitxer d'abans estava dividit per sondeigs (les versions fins a la 5.13.108-alpha podien exportar un graf per sondeig), a la primera reexportació el fitxer nou té **un sol graf** per a tot el lloc: els grafs tenen noms diferents i la narrativa **no pot passar** al fitxer nou. Un avís ho diu: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»*. El text no es perd: és a la còpia `.bak`, que, però, es substitueix en la propera exportació d'un fitxer que conté una narrativa —posa-la en lloc segur—. Si necessites la narrativa vella, obre aquesta còpia (reanomenant-la com a fitxer `.em.json` amb un altre nom); si no, torna a generar els capítols al fitxer nou (§10.5). Des de la 5.13.109-alpha el fitxer té sempre un sol graf i la narrativa passa d'una reexportació a la següent.
 
 Si el fitxer anterior no es pot llegir (per exemple, un fitxer que ha quedat a mig escriure), l'exportació continua igualment: el fitxer il·legible es **reanomena** `<lloc>.em.json.broken` i un avís diu *«The previous file cannot be read (…): its narrative, if any, was not kept.»*
 
@@ -667,7 +643,7 @@ Si el fitxer anterior no es pot llegir (per exemple, un fitxer que ha quedat a m
 
 ### 10.9 Des de l'entrada «Esporta sito in em.json…»
 
-L'entrada **Extended Matrix → Esporta sito in em.json…** fa la mateixa pregunta sobre els sondeigs i escriu el mateix fitxer `<lloc>.em.json` a `pyarchinit_EM_folder`. Al final mostra «Esportato `<path>`» (Exportat), amb els recomptes de nodes, arestes i avisos (el text dels avisos és als detalls de la finestra), i **tres botons**:
+L'entrada **Extended Matrix → Esporta sito in em.json…** escriu el mateix fitxer `<lloc>.em.json` a `pyarchinit_EM_folder`. Al final mostra «Esportato `<path>`» (Exportat), amb els recomptes de nodes, arestes i avisos (el text dels avisos és als detalls de la finestra), i **tres botons**:
 
 | Botó | Què fa |
 |------|--------|
@@ -677,7 +653,7 @@ L'entrada **Extended Matrix → Esporta sito in em.json…** fa la mateixa pregu
 
 <!-- IMMAGINE: Captura de pantalla de la finestra final de «Esporta sito in em.json…» amb els tres botons -->
 ![Exporta el lloc a em.json: tres botons](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figura 8: La finestra final de «Esporta sito in em.json…»*
+*Figura 7: La finestra final de «Esporta sito in em.json…»*
 
 ### 10.10 Les unitats al mapa
 
@@ -688,7 +664,7 @@ A partir de la versió **5.13.108-alpha**, la pestanya **Narrative** porta al **
 
 <!-- IMMAGINE: Captura de pantalla del QGIS amb les unitats del capítol seleccionades al mapa i, a dalt, la barra de missatges «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
 ![Les unitats del capítol al mapa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figura 9: Les unitats de què parla un capítol, seleccionades al mapa, i la barra de missatges*
+*Figura 8: Les unitats de què parla un capítol, seleccionades al mapa, i la barra de missatges*
 
 Cal que una capa amb les geometries de les US ja estigui carregada al projecte, per exemple la **vista US** de pyArchInit: la pestanya la busca entre les capes carregades, com el botó «Zoom sulla geometria» (Zoom a la geometria) de la pestanya **Units** (tutorial 01), tot reconeixent les unitats pels camps `sito`, `area` i `us`. **El projecte no es modifica**: no s'afegeix cap capa, només canvien la selecció i l'enquadrament del mapa.
 
@@ -708,13 +684,13 @@ A partir de la versió **5.13.108-alpha**, la narrativa mostra també les **foto
 
 <!-- IMMAGINE: Captures de pantalla una al costat de l'altra: el text d'un capítol amb les miniatures sota la primera menció d'una unitat i una pàgina del PDF imprimible amb la tira de fotos i el peu -->
 ![Fotos de les unitats al text i al PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figura 10: Les fotos de les unitats al text del capítol i en una pàgina del PDF*
+*Figura 9: Les fotos de les unitats al text del capítol i en una pàgina del PDF*
 
 **Què cal.** Les fotos no són a l'em.json: es llegeixen de la base de dades i de les carpetes del projecte. Cal, doncs, la base de dades vinculada (la matriu oberta des del projecte), les rutes **Thumbnail path** i **Image resize** fixades a la configuració (tutorial 01) i els fitxers al disc; per al text n'hi ha prou amb la carpeta de miniatures. Les imatges en un magatzem remot no s'usen. Si falta alguna cosa no hi ha cap missatge: les fotos simplement no apareixen i l'exportació funciona igualment (§10.13).
 
 ### 10.12 Advertències
 
-- **Tanca EMStudio abans de generar o validar.** Si EMStudio té el fitxer obert, guanya qui escriu l'últim. Amb diversos sondeigs, EMStudio mostra un graf cada vegada (nota del §2.2.1): la pestanya **Narrative** els mostra tots.
+- **Tanca EMStudio abans de generar o validar.** Si EMStudio té el fitxer obert, guanya qui escriu l'últim.
 - **Una IA escriu només a partir del que troba al graf, i es pot equivocar.** Les regles la frenen, no la fan infal·lible: llegeix cada capítol abans de validar-lo.
 - **Amb un proveïdor en línia les dades surten de l'ordinador.** El dossier de cada capítol (noms, definicions, descripcions i relacions de les unitats) s'envia al servei triat; amb Ollama o LM Studio es queda en local.
 - **El fitxer s'escriu al final.** La generació desa quan acaba, encara que l'hagis cancel·lada: no tanquis el QGIS mentre la IA està escrivint. El desament és segur: el fitxer s'escriu al costat, es torna a llegir i només aleshores substitueix el veritable; si alguna cosa va malament, **el fitxer anterior es queda tal com era**.
@@ -732,7 +708,7 @@ A partir de la versió **5.13.108-alpha**, la narrativa mostra també les **foto
 | «truncated» / «troncato» al costat de l'estat | El model s'ha aturat al límit de longitud i el text queda tallat a la meitat. | Abans de validar, **Regenerate chapter**; si es repeteix, completa el capítol a EMStudio. |
 | «N chapters generated, M failed: `<title>` — `<reason>`» / «N capitoli generati, M falliti: …» | El proveïdor ha rebutjat la petició (clau no vàlida, quota, model no disponible) o el servidor local no respon. «the model wrote nothing» vol dir que la resposta era buida. | Elimina la causa i clica de nou **Generate with AI**: escriu només els capítols que han quedat «to be written». |
 | «The previous file cannot be read (…)» / «Il file precedente non si legge (…)» | En tornar a exportar, el fitxer existent no era un em.json que es pogués llegir. | L'exportació ha continuat: el fitxer il·legible s'ha conservat al costat del nou com a `….broken`, i la narrativa que contenia, si n'hi havia, no ha passat al fitxer nou. Si la necessites, recupera-la d'aquest fitxer o d'una còpia de seguretat. |
-| «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Has canviat la forma del fitxer (un graf per sondeig ↔ un sol graf): els grafs tenen noms diferents i la narrativa no pot passar. | El fitxer d'abans és a la còpia `.bak`: reanomena-la a `.em.json` i torna a exportar amb l'elecció d'abans. |
+| «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | El fitxer d'abans estava dividit per sondeigs (versions fins a la 5.13.108-alpha): els grafs tenen noms diferents i la narrativa no pot passar. | El fitxer d'abans és a la còpia `.bak`: obre-la si necessites la narrativa vella, o torna a generar els capítols al fitxer nou. |
 | «Could not write … The previous file is intact.» / «Non sono riuscito a scrivere … Il file precedente è intatto.» | El desament ha fallat (disc ple, fitxer bloquejat, permisos). | Soluciona-ho i repeteix: els capítols generats en aquella sessió no s'havien desat. |
 | «DocX export needs python-docx — install the extra: …» (sempre en anglès) | El paquet `python-docx` no està instal·lat al Python del QGIS: només cal per al DOCX. | Instal·la `python-docx` (és un dels requisits del connector), o exporta a HTML, que no necessita res. |
 | «None of the loaded layers has the fields to recognise the units…» / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | El projecte obert no té cap capa amb els camps `sito`, `area` i `us` de les unitats (per exemple, la vista US de pyArchInit): la pestanya només cerca entre les capes ja carregades. | **Carrega la vista US** de pyArchInit (o una capa amb els mateixos camps) al projecte i clica de nou el nom o **Show on the map** (Mostra al mapa). La pestanya no afegeix capes per si sola. |

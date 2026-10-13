@@ -42,30 +42,11 @@ Ao premir **Esporta** é pedida a **pasta de destino**.
 
 Autores, licenças, embargos e grupos gerem-se na janela **"Manage paradata"** (§3).
 
-### 2.2.1 Sondagens: um unico grafo ou um por sondagem
+### 2.2.1 Sondagens: um único grafo para todo o sítio
 
-Um grupo de tres escolhas, na mesma janela, decide **como dividir o
-em.json** quando a escavacao tem varias sondagens:
+A partir da versão **5.13.109-alpha**, o em.json leva **um único grafo**, com as unidades de todas as sondagens: não há nada a escolher. A janela «Esporta Extended Matrix» já não tem o grupo «Saggi» (sondagens), e as entradas de menu **Esporta sito in em.json…** e **Vedi la matrice…** só pedem o sítio.
 
-- **Automatico**: um unico grafo se o sitio tem uma sondagem, um grafo
-  por sondagem se tem varias. E a escolha de partida.
-- **Um unico grafo para todo o sitio**: toda a escavacao num grafo, como
-  sempre.
-- **Um grafo por sondagem**: **um unico ficheiro**, que leva dentro um
-  grafo para cada sondagem, mais um para as unidades que o tem vazio. As
-  relacoes que **saem** da sondagem nao se perdem: ficam no ficheiro
-  como ligacoes entre grafos (`graph.links`).
-
-> **O EMStudio 1.6.0 mostra um de cada vez.** O ficheiro esta correto —
-> o leitor da biblioteca volta a ler todos os grafos, sem avisos — mas o
-> EMStudio abre o grafo declarado em `active_graph_id`, a primeira
-> sondagem, e nao tem um seletor para os outros. A matriz dentro do
-> QGIS, **Mostrar matriz**, une-os todos e desenha a escavacao inteira.
-> Medido em 2026-10-12 no sitio de exemplo: 4 grafos (52/49/56/51 nos),
-> 32 ligacoes entre sondagens, 51 unidades na matriz unida.
-
-A sondagem e o campo **Saggio** da ficha UE: as unidades que o tem vazio
-acabam num grafo separado, dentro do mesmo ficheiro.
+A sondagem é o campo **Saggio** da ficha UE: continua a ser um campo como os outros, que se pode usar como dimensão para agrupar as unidades (`saggio`, §4) e que entra no *briefing* da narrativa (§10.4), mas já não divide o ficheiro. Um ficheiro exportado com as versões anteriores (até à 5.13.108-alpha), com um grafo por sondagem, ainda se abre no painel da matriz (§10.8).
 
 ### 2.3 Clica em "Esporta"
 
@@ -478,21 +459,16 @@ Os nomes dos separadores e dos botões do separador Narrative existem em italian
 
 1. Abra o menu **Plugins → pyArchInit - Archaeological GIS Tools** e escolha a entrada **Extended Matrix → Vedi la matrice…** (Ver a matriz).
 2. Escolha o **sítio**.
-3. Se o sítio tiver **sondagens** (*saggi*), o pyArchInit pergunta «Il sito ha N saggi. Come divido il file?» (O sítio tem N sondagens. Como divido o ficheiro?) com duas respostas: «Un grafo per ogni saggio (…)» (um grafo por sondagem), a predefinida, ou «Un grafo solo per tutto il sito» (um único grafo para todo o sítio). É a mesma escolha da §2.2.1 e da entrada «Esporta sito in em.json…»: as duas entradas escrevem o **mesmo ficheiro**, com a mesma forma.
-4. O pyArchInit exporta o sítio da base de dados para `<home>/pyarchinit_EM_folder/<sítio>.em.json` — `<home>` é `~/pyarchinit_5`, ou a pasta indicada pela variável de ambiente `PYARCHINIT_HOME` — e abre o painel **«Matrice — `<site>`»**, acoplado à direita da janela do QGIS. O nome do ficheiro é o do sítio, com os caracteres especiais substituídos por «_» (por exemplo, «Scavo 1» dá `Scavo_1.em.json`).
-5. Na coluna da direita do painel, clique no separador **Narrative**.
+3. O pyArchInit exporta o sítio da base de dados para `<home>/pyarchinit_EM_folder/<sítio>.em.json` — `<home>` é `~/pyarchinit_5`, ou a pasta indicada pela variável de ambiente `PYARCHINIT_HOME` — e abre o painel **«Matrice — `<site>`»**, acoplado à direita da janela do QGIS. O nome do ficheiro é o do sítio, com os caracteres especiais substituídos por «_» (por exemplo, «Scavo 1» dá `Scavo_1.em.json`).
+4. Na coluna da direita do painel, clique no separador **Narrative**.
 
 <!-- IMMAGINE: Captura de ecrã do menu Plugins → pyArchInit - Archaeological GIS Tools com a entrada «Extended Matrix → Vedi la matrice…» -->
 ![Menu Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figura 1: A entrada «Extended Matrix → Vedi la matrice…» no menu do plugin*
 
-<!-- IMMAGINE: Captura de ecrã da pergunta sobre as sondagens com as duas respostas -->
-![Pergunta sobre as sondagens](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figura 2: A pergunta sobre as sondagens: um grafo por sondagem ou um único grafo*
-
 <!-- IMMAGINE: Captura de ecrã do painel da matriz acoplado à direita, com os separadores Units e Narrative -->
 ![Painel com dois separadores](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figura 3: O painel da matriz com os separadores Units e Narrative*
+*Figura 2: O painel da matriz com os separadores Units e Narrative*
 
 O ficheiro é **um por sítio e fica no disco**: já não está numa pasta temporária. É o ficheiro que o EMStudio abre e é nele que a narrativa é escrita. Sempre que escolhe «Vedi la matrice…», o sítio é **exportado de novo da base de dados** e o ficheiro é reescrito; a narrativa que já lá estiver é mantida (§10.8).
 
@@ -540,12 +516,12 @@ Os fornecedores são os dos seletores «Provider AI»: **OpenAI** e **Anthropic 
 
 <!-- IMMAGINE: Captura de ecrã do separador Narrative com a lista de capítulos, o texto do capítulo escolhido e os sete botões -->
 ![Separador Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figura 4: O separador Narrative*
+*Figura 3: O separador Narrative*
 
 De cima para baixo:
 
 - **a linha de estado**: o modelo em uso (§10.2) e o lembrete *«If EMStudio has the file open, close it first: the last writer wins.»* (se o EMStudio tiver o ficheiro aberto, feche-o primeiro: prevalece quem escrever por último);
-- **a lista de capítulos**, uma linha por capítulo: *Título — estado*. Com a exportação por sondagens (§2.2.1), cada sondagem tem a sua narrativa e cada linha é precedida do nome da sondagem entre parênteses retos, por exemplo `[Saggio A] 15th century — AI draft`;
+- **a lista de capítulos**, uma linha por capítulo: *Título — estado*. Um ficheiro de uma versão anterior, dividido por sondagens, mostra todos os grafos: cada linha é precedida do nome do grafo entre parênteses retos, por exemplo `[Saggio A] 15th century — AI draft`;
 - **o texto do capítulo escolhido**: a prosa, com as unidades citadas pelo nome — os nomes são **hiperligações**: um clique mostra a unidade no mapa (§10.10); sob o parágrafo em que uma unidade é nomeada pela primeira vez aparecem até duas fotos suas (§10.11). Se o capítulo ainda não tiver prosa, vê o respetivo marcador de posição «[to be written: …]»;
 - **a linha de progresso**, só durante a geração: «Chapter 3 of 9 · 15th century» (capítulo 3 de 9 · século XV);
 - **os botões**, em duas linhas.
@@ -569,7 +545,7 @@ Quando o ficheiro **ainda não tem narrativa**, a lista fica vazia e um texto di
 | Botão (en) | Em italiano | O que faz |
 |------------|-------------|-----------|
 | **Generate with AI** | Genera con l'AI | Escreve, **um de cada vez**, todos os capítulos de época (e de atividade) ainda «to be written»; os que já estão escritos não são alterados. Se ainda não houver narrativa, cria primeiro o esquema. Mostra o progresso e o botão **Cancel**. Ativo apenas com um ficheiro aberto e uma IA configurada. |
-| **Regenerate chapter** | Rigenera capitolo | Reescreve **o capítulo escolhido** na lista (com várias sondagens, só o da sondagem escolhida): o rascunho da IA não validado é substituído — mas só depois de o modelo ter respondido: se a chamada falhar, o rascunho anterior permanece — e os blocos já validados mantêm-se. Ativa-se quando se escolhe um capítulo de época ou de atividade e há uma IA configurada; para «Presentation» (Apresentação) e «Where it is» (Onde se encontra) fica desativado. |
+| **Regenerate chapter** | Rigenera capitolo | Reescreve **o capítulo escolhido** na lista: o rascunho da IA não validado é substituído — mas só depois de o modelo ter respondido: se a chamada falhar, o rascunho anterior permanece — e os blocos já validados mantêm-se. Ativa-se quando se escolhe um capítulo de época ou de atividade e há uma IA configurada; para «Presentation» (Apresentação) e «Where it is» (Onde se encontra) fica desativado. |
 | **Endorse…** | Convalida… | Abre um menu com «This chapter» e «All chapters» e depois pergunta quem valida (§10.6). Ativo quando há uma narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Cria **apenas o esquema** dos capítulos, sem IA: serve mesmo que não haja nenhuma IA configurada, para escrever à mão no EMStudio. Não toca na prosa já escrita e acrescenta os capítulos das épocas novas. Resultado: «Chapters prepared: N.» (capítulos preparados: N). |
 | **Show on the map** | Mostra sulla mappa | Seleciona e enquadra no mapa, **todas em conjunto**, as unidades de que fala o capítulo escolhido (§10.10): as citadas na prosa ou, se o capítulo ainda não estiver escrito, todas as da sua faixa. Ativo apenas se pelo menos uma das unidades de que fala o capítulo escolhido for uma linha da ficha UE. |
@@ -611,7 +587,7 @@ Durante a geração, todos os botões ficam desativados, exceto **Cancel**.
 
 <!-- IMMAGINE: Captura de ecrã da geração em curso: a linha de progresso «Chapter 3 of 9 · …» e o botão Cancel -->
 ![Geração em curso](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figura 5: Geração em curso, com a linha de progresso e o botão Cancel*
+*Figura 4: Geração em curso, com a linha de progresso e o botão Cancel*
 
 Um capítulo que falha não impede os outros: o resumo diz quais. Para tentar de novo, basta clicar outra vez em **Generate with AI**, que escreve apenas os capítulos ainda «to be written».
 
@@ -620,18 +596,18 @@ Um capítulo que falha não impede os outros: o resumo diz quais. Para tentar de
 Validar quer dizer que uma **pessoa** assume a responsabilidade pelo texto que o modelo escreveu. Nunca acontece sozinho: nem ao gerar, nem ao guardar.
 
 1. Clique em **Endorse…**. Abre-se um pequeno menu: **«This chapter»** (este capítulo) — ativo só se o capítulo escolhido estiver em «AI draft» — ou **«All chapters»** (todos os capítulos), isto é, todos os rascunhos da IA ainda não validados, em todos os grafos do ficheiro.
-2. Uma janela pergunta **«Who endorses? Pick an author or type a new name.»** (Quem valida? Escolha um autor ou escreva um nome novo.) A lista contém os **autores humanos já presentes no grafo** — as pessoas nomeadas na ficha UE como compilador (*schedatore*), diretor da UE e responsável pela UE — e pode escrever um nome novo, que passa a ser um novo autor do grafo (com várias sondagens, em cada grafo que tenha rascunhos por assinar).
+2. Uma janela pergunta **«Who endorses? Pick an author or type a new name.»** (Quem valida? Escolha um autor ou escreva um nome novo.) A lista contém os **autores humanos já presentes no grafo** — as pessoas nomeadas na ficha UE como compilador (*schedatore*), diretor da UE e responsável pela UE — e pode escrever um nome novo, que passa a ser um novo autor do grafo.
 3. A barra de mensagens diz **«N blocks endorsed by `<name>`.»** (N blocos validados pelo autor indicado), ou «Nothing to endorse.» (nada para validar). O ficheiro é guardado.
 
 <!-- IMMAGINE: Captura de ecrã do menu Endorse… («This chapter» / «All chapters») e da janela para escolher o autor -->
 ![Validar](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figura 6: Validar: o menu e a escolha do autor*
+*Figura 5: Validar: o menu e a escolha do autor*
 
 Os blocos passam de «AI draft» a «endorsed». No documento exportado, a pessoa aparece entre os responsáveis («a cura di», editado por) e o modelo como assistente («con l'assistenza di», com a assistência de), e os parágrafos validados deixam de levar a marca ⚠. Regenerar não apaga os blocos validados: uma assinatura é um ato e não se perde ao reescrever.
 
 ### 10.7 Exportar para HTML, DOCX ou PDF
 
-Clique em **Export…**: abre-se a janela para guardar o ficheiro, com três formatos: «HTML page» (página HTML; `.html`), «Word document» (documento Word; `.docx`) e «Printable PDF» (PDF para impressão; `.pdf`). O nome sugerido é `<sítio>_narrativa`, sem extensão, na pasta do em.json: a extensão é acrescentada pelo formato escolhido no filtro da janela; uma extensão escrita à mão (`.html`, `.docx` ou `.pdf`) prevalece sobre o filtro. Com a exportação por sondagens é escrito **um ficheiro por sondagem**, acrescentando o nome da sondagem ao nome escolhido. A barra de mensagens confirma: «Narrative exported to `<path>`» (narrativa exportada para o caminho do ficheiro).
+Clique em **Export…**: abre-se a janela para guardar o ficheiro, com três formatos: «HTML page» (página HTML; `.html`), «Word document» (documento Word; `.docx`) e «Printable PDF» (PDF para impressão; `.pdf`). O nome sugerido é `<sítio>_narrativa`, sem extensão, na pasta do em.json: a extensão é acrescentada pelo formato escolhido no filtro da janela; uma extensão escrita à mão (`.html`, `.docx` ou `.pdf`) prevalece sobre o filtro. A barra de mensagens confirma: «Narrative exported to `<path>`» (narrativa exportada para o caminho do ficheiro).
 
 O documento contém:
 
@@ -641,7 +617,7 @@ O documento contém:
 
 Algumas coisas que convém saber:
 
-- **os rascunhos não validados entram**, cada um precedido de «⚠︎ non validato da una persona» (não validado por uma pessoa), e o cabeçalho diz quantos blocos estão neste estado. Para um documento sem marcas, valide primeiro (§10.6);
+- **os rascunhos não validados entram**, cada um precedido de «⚠︎ non validato da una persona» (não validado por uma pessoa), e o cabeçalho diz quantos blocos estão neste estado. Para um documento sem marcas, valide primeiro (§10.6). No HTML o rascunho lê-se como o resto do texto, com o mesmo tipo de letra e o mesmo fundo: por cima do parágrafo fica a linha de aviso e, à esquerda, um filete âmbar. No Word e no PDF o aviso vem antes do parágrafo (no PDF, numa linha própria e sem o sinal ⚠, §10.11);
 - **entram todos os capítulos**, mesmo os que ainda estão «to be written»: o respetivo marcador de posição «[to be written: …]» fica no texto;
 - a prosa fica **no início** do capítulo, antes da lista das unidades; numa narrativa escrita com uma versão anterior pode ainda estar no fim, e põe-se no sítio certo exportando de novo o sítio (§10.8) ou com **Prepare the chapters** (Preparar os capítulos);
 - as figuras que um autor previu no EMStudio (por exemplo a matriz de uma época) não são desenhadas pela exportação do pyArchInit: no documento fica um marcador de posição;
@@ -649,7 +625,7 @@ Algumas coisas que convém saber:
 
 <!-- IMMAGINE: Captura de ecrã do documento HTML exportado: um capítulo com um rascunho precedido de «⚠︎ non validato da una persona» -->
 ![Documento HTML exportado](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figura 7: O documento HTML exportado, com um rascunho não validado assinalado*
+*Figura 6: O documento HTML exportado, com um rascunho não validado assinalado*
 
 ### 10.8 Exportar de novo o sítio: a narrativa mantém-se
 
@@ -659,7 +635,7 @@ As **outras alterações** feitas ao ficheiro no EMStudio — posições dos nó
 
 Antes de reescrever um ficheiro que contém uma narrativa, o pyArchInit faz uma **cópia de segurança** ao lado: `<sítio>.em.json.bak` (cada nova exportação substitui a cópia anterior).
 
-Se mudar a forma do ficheiro (de «Un grafo per ogni saggio» para «Un grafo solo per tutto il sito», ou ao contrário), os grafos mudam de nome e a narrativa **não pode passar** para o ficheiro novo. Um aviso di-lo: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»* (a narrativa do ficheiro anterior, com a lista de grafos, não passou para o ficheiro novo: a forma do ficheiro mudou; cópia de segurança em …). O texto não se perde: está na cópia `.bak`, que, no entanto, é substituída pela próxima exportação de um ficheiro que contenha uma narrativa — ponha-a num lugar seguro. Para a recuperar, renomeie a cópia para `.em.json` e exporte de novo com a escolha anterior.
+Se o ficheiro anterior estava dividido por sondagens (as versões até à 5.13.108-alpha podiam exportar um grafo por sondagem), na primeira reexportação o ficheiro novo tem **um único grafo** para todo o sítio: os grafos têm nomes diferentes e a narrativa **não pode passar** para o ficheiro novo. Um aviso di-lo: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»* (a narrativa do ficheiro anterior, com a lista de grafos, não passou para o ficheiro novo: a forma do ficheiro mudou; cópia de segurança em …). O texto não se perde: está na cópia `.bak`, que, no entanto, é substituída pela próxima exportação de um ficheiro que contenha uma narrativa — ponha-a num lugar seguro. Se precisar da narrativa antiga, abra essa cópia (renomeando-a para um ficheiro `.em.json` com outro nome); caso contrário, gere de novo os capítulos no ficheiro novo (§10.5). A partir da 5.13.109-alpha o ficheiro tem sempre um único grafo e a narrativa passa de uma exportação para a seguinte.
 
 Se o ficheiro anterior não puder ser lido (por exemplo, um ficheiro cuja escrita ficou a meio), a exportação continua na mesma: o ficheiro ilegível é **renomeado** para `<sítio>.em.json.broken` e um aviso diz *«The previous file cannot be read (…): its narrative, if any, was not kept.»* (o ficheiro anterior não se consegue ler e a sua narrativa, se existia, não foi mantida).
 
@@ -667,7 +643,7 @@ Se o ficheiro anterior não puder ser lido (por exemplo, um ficheiro cuja escrit
 
 ### 10.9 A partir da entrada «Esporta sito in em.json…»
 
-A entrada **Extended Matrix → Esporta sito in em.json…** faz a mesma pergunta sobre as sondagens e escreve o mesmo ficheiro `<sítio>.em.json` em `pyarchinit_EM_folder`. No fim mostra «Esportato `<path>`» (Exportado), com os totais de nós, arestas e avisos (o texto dos avisos está nos detalhes da janela), e **três botões**:
+A entrada **Extended Matrix → Esporta sito in em.json…** escreve o mesmo ficheiro `<sítio>.em.json` em `pyarchinit_EM_folder`. No fim mostra «Esportato `<path>`» (Exportado), com os totais de nós, arestas e avisos (o texto dos avisos está nos detalhes da janela), e **três botões**:
 
 | Botão | O que faz |
 |-------|-----------|
@@ -677,7 +653,7 @@ A entrada **Extended Matrix → Esporta sito in em.json…** faz a mesma pergunt
 
 <!-- IMMAGINE: Captura de ecrã da janela final de «Esporta sito in em.json…» com os três botões -->
 ![Exportar sítio para em.json: três botões](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figura 8: A janela final de «Esporta sito in em.json…»*
+*Figura 7: A janela final de «Esporta sito in em.json…»*
 
 ### 10.10 As unidades no mapa
 
@@ -688,7 +664,7 @@ A partir da versão **5.13.108-alpha**, o separador Narrative leva para o **mapa
 
 <!-- IMMAGINE: Captura de ecrã do QGIS com as unidades do capítulo selecionadas no mapa e, em cima, a barra de mensagens «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
 ![As unidades do capítulo no mapa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figura 9: As unidades de que fala um capítulo, selecionadas no mapa, e a barra de mensagens*
+*Figura 8: As unidades de que fala um capítulo, selecionadas no mapa, e a barra de mensagens*
 
 É preciso que uma camada com as geometrias das UE já esteja carregada no projeto, por exemplo a **vista US** do pyArchInit: o separador procura-a entre as camadas carregadas, como o botão «Zoom sulla geometria» (Zoom na geometria) do separador Units (tutorial 01), reconhecendo as unidades pelos campos `sito`, `area` e `us`. **O projeto não é modificado**: não se acrescenta nenhuma camada, mudam apenas a seleção e o enquadramento do mapa.
 
@@ -708,13 +684,13 @@ A partir da versão **5.13.108-alpha**, a narrativa mostra também as **fotos** 
 
 <!-- IMMAGINE: Capturas de ecrã lado a lado: o texto de um capítulo com as miniaturas sob a primeira menção de uma unidade e uma página do PDF para impressão com a faixa de fotos e a legenda -->
 ![Fotos das unidades no texto e no PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figura 10: As fotos das unidades no texto do capítulo e numa página do PDF*
+*Figura 9: As fotos das unidades no texto do capítulo e numa página do PDF*
 
 **O que é preciso.** As fotos não estão no em.json: lêem-se da base de dados e das pastas do projeto. É preciso, por isso, a base de dados ligada (a matriz aberta a partir do projeto), os caminhos **Thumbnail path** e **Image resize** definidos na configuração (tutorial 01) e os ficheiros no disco; para o texto basta a pasta das miniaturas. As imagens num armazenamento remoto não se usam. Se faltar algo, não há nenhuma mensagem: as fotos simplesmente não aparecem, e a exportação resulta na mesma (§10.13).
 
 ### 10.12 Avisos
 
-- **Feche o EMStudio antes de gerar ou validar.** Se o EMStudio tiver o ficheiro aberto, prevalece quem escrever por último. Com várias sondagens, o EMStudio mostra um grafo de cada vez (nota na §2.2.1): o separador Narrative mostra-os todos.
+- **Feche o EMStudio antes de gerar ou validar.** Se o EMStudio tiver o ficheiro aberto, prevalece quem escrever por último.
 - **Uma IA escreve apenas a partir do que encontra no grafo, e pode enganar-se.** As regras mantêm-na sob controlo, mas não a tornam infalível: leia cada capítulo antes de o validar.
 - **Com um fornecedor remoto, os dados saem do seu computador.** O briefing de cada capítulo (nomes, definições, descrições e relações das unidades) é enviado para o serviço escolhido; com o Ollama ou o LM Studio fica local.
 - **O ficheiro é escrito no fim.** A geração guarda quando termina, mesmo que a tenha cancelado: não feche o QGIS enquanto a IA está a escrever. A gravação é segura: o ficheiro é escrito ao lado, relido, e só então substitui o verdadeiro; se algo correr mal, **o ficheiro anterior fica como estava**.
@@ -732,7 +708,7 @@ A partir da versão **5.13.108-alpha**, a narrativa mostra também as **fotos** 
 | "truncated" / «troncato» junto ao estado | O modelo interrompeu-se no limite de comprimento e o texto acaba a meio. | Antes de validar, use **Regenerate chapter**; se voltar a acontecer, termine o capítulo no EMStudio. |
 | "N chapters generated, M failed: `<title>` — `<reason>`" / «N capitoli generati, M falliti: …» | O fornecedor recusou o pedido (chave inválida, quota, modelo não disponível) ou o servidor local não responde. «the model wrote nothing» (o modelo não escreveu nada) quer dizer que a resposta veio vazia. | Elimine a causa e clique de novo em **Generate with AI**: só escreve os capítulos que ficaram «to be written». |
 | "The previous file cannot be read (…)" / «Il file precedente non si legge (…)» | Na reexportação, o ficheiro existente não era um em.json legível. | A exportação continuou: o ficheiro ilegível foi conservado ao lado do novo como `….broken`, e a narrativa que continha, se existia, não passou para o ficheiro novo. Se precisar dela, recupere-a desse ficheiro ou de uma cópia de segurança. |
-| "The previous file's narrative (graphs: …) did not travel into the new file…" / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Mudou a forma do ficheiro (um grafo por sondagem ↔ um único grafo): os grafos têm nomes diferentes e a narrativa não pode passar. | O ficheiro anterior está na cópia `.bak`: renomeie-a para `.em.json` e exporte de novo com a escolha anterior. |
+| "The previous file's narrative (graphs: …) did not travel into the new file…" / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | O ficheiro anterior estava dividido por sondagens (versões até à 5.13.108-alpha): os grafos têm nomes diferentes e a narrativa não pode passar. | O ficheiro anterior está na cópia `.bak`: abra-a se precisar da narrativa antiga, ou gere de novo os capítulos no ficheiro novo. |
 | "Could not write … The previous file is intact." / «Non sono riuscito a scrivere … Il file precedente è intatto.» | A gravação falhou (disco cheio, ficheiro bloqueado, permissões). | Corrija e repita: os capítulos gerados nessa sessão não tinham sido guardados. |
 | "DocX export needs python-docx — install the extra: …" (sempre em inglês) | O pacote `python-docx` não está instalado no Python do QGIS: só é necessário para o DOCX. | Instale `python-docx` (é um dos requisitos do plugin) ou exporte para HTML, que não precisa de nada. |
 | "None of the loaded layers has the fields to recognise the units…" / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | O projeto aberto não tem nenhuma camada com os campos `sito`, `area` e `us` das unidades (por exemplo, a vista US do pyArchInit): o separador procura apenas entre as camadas já carregadas. | **Carregue a vista US** do pyArchInit (ou uma camada com os mesmos campos) no projeto e clique de novo no nome ou em **Show on the map** (Mostrar no mapa). O separador não acrescenta camadas por si só. |

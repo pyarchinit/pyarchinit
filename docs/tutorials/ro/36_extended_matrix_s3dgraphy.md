@@ -42,30 +42,11 @@ La apăsarea pe **Esporta** se cere **dosarul de destinație**.
 
 Autorii, licențele, embargourile și grupurile se gestionează în fereastra **"Manage paradata"** (§3).
 
-### 2.2.1 Sondaje: un singur graf sau unul pe sondaj
+### 2.2.1 Sondaje: un singur graf pentru tot situl
 
-Un grup de trei alegeri, in aceeasi fereastra, decide **cum se imparte
-em.json** cand situl are mai multe sondaje:
+Începând cu versiunea **5.13.109-alpha**, em.json conține **un singur graf**, cu unitățile tuturor sondajelor: nu e nimic de ales. Fereastra „Esporta Extended Matrix” nu mai are grupul „Saggi” (sondaje), iar intrările de meniu **Esporta sito in em.json…** și **Vedi la matrice…** cer doar situl.
 
-- **Automat**: un singur graf daca situl are un sondaj, un graf pe
-  sondaj daca are mai multe. Este alegerea de pornire.
-- **Un singur graf pentru tot situl**: tot situl intr-un graf, ca pana
-  acum.
-- **Un graf pe sondaj**: **un singur fisier**, care duce in el un graf
-  pentru fiecare sondaj, plus unul pentru unitatile care l-au lasat gol.
-  Relatiile care **ies** din sondaj nu se pierd: rama in fisier ca
-  legaturi intre grafuri (`graph.links`).
-
-> **EMStudio 1.6.0 arata unul pe rand.** Fisierul este corect — cititorul
-> bibliotecii reciteste toate grafurile, fara avertismente — dar
-> EMStudio deschide graful declarat in `active_graph_id`, primul sondaj,
-> si nu are un selector pentru celelalte. Matricea din QGIS, **Arata
-> matricea**, le uneste pe toate si deseneaza tot situl. Masurat la
-> 2026-10-12 pe situl de exemplu: 4 grafuri (52/49/56/51 noduri), 32 de
-> legaturi intre sondaje, 51 de unitati in matricea unita.
-
-Sondajul este campul **Saggio** din fisa US: unitatile care l-au lasat gol
-ajung intr-un graf separat, in acelasi fisier.
+Sondajul este câmpul **Saggio** din fișa US: rămâne un câmp ca celelalte, care poate fi folosit ca dimensiune pentru gruparea unităților (`saggio`, §4) și care ajunge în *briefing*-ul narațiunii (§10.4), dar nu mai împarte fișierul. Un fișier exportat cu versiunile anterioare (până la 5.13.108-alpha), cu un graf pe sondaj, se deschide în continuare în panoul matricei (§10.8).
 
 ### 2.3 Click pe "Esporta"
 
@@ -478,21 +459,16 @@ Numele filelor și ale butoanelor din fila Narrative există în italiană și �
 
 1. Deschide meniul **Plugins → pyArchInit - Archaeological GIS Tools** și alege intrarea **Extended Matrix → Vedi la matrice…** (Vezi matricea).
 2. Alege **situl**.
-3. Dacă situl are **sondaje** (*saggi*), pyArchInit întreabă „Il sito ha N saggi. Come divido il file?” (Situl are N sondaje. Cum împart fișierul?) cu două răspunsuri: „Un grafo per ogni saggio (…)” (un graf pentru fiecare sondaj), cel propus implicit, sau „Un grafo solo per tutto il sito” (un singur graf pentru tot situl). Este aceeași alegere ca în §2.2.1 și în intrarea „Esporta sito in em.json…”: cele două intrări scriu **același fișier**, cu aceeași formă.
-4. pyArchInit exportă situl din baza de date în `<home>/pyarchinit_EM_folder/<sit>.em.json` — `<home>` este `~/pyarchinit_5`, sau folderul indicat de variabila de mediu `PYARCHINIT_HOME` — și deschide panoul **„Matrice — `<sit>`”**, ancorat în dreapta ferestrei QGIS. Numele fișierului este numele sitului, cu caracterele speciale înlocuite cu „_” (de exemplu „Scavo 1” devine `Scavo_1.em.json`).
-5. În coloana din dreapta a panoului, apasă fila **Narrative**.
+3. pyArchInit exportă situl din baza de date în `<home>/pyarchinit_EM_folder/<sit>.em.json` — `<home>` este `~/pyarchinit_5`, sau folderul indicat de variabila de mediu `PYARCHINIT_HOME` — și deschide panoul **„Matrice — `<sit>`”**, ancorat în dreapta ferestrei QGIS. Numele fișierului este numele sitului, cu caracterele speciale înlocuite cu „_” (de exemplu „Scavo 1” devine `Scavo_1.em.json`).
+4. În coloana din dreapta a panoului, apasă fila **Narrative**.
 
 <!-- IMMAGINE: Captură de ecran a meniului Plugins → pyArchInit - Archaeological GIS Tools cu intrarea „Extended Matrix → Vedi la matrice…” -->
 ![Meniul Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figura 1: Intrarea „Extended Matrix → Vedi la matrice…” în meniul pluginului*
 
-<!-- IMMAGINE: Captură de ecran a întrebării despre sondaje, cu cele două răspunsuri -->
-![Întrebarea despre sondaje](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figura 2: Întrebarea despre sondaje: un graf pentru fiecare sondaj sau un singur graf*
-
 <!-- IMMAGINE: Captură de ecran a panoului matricei ancorat în dreapta, cu filele Units și Narrative -->
 ![Panou cu două file](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figura 3: Panoul matricei cu filele Units și Narrative*
+*Figura 2: Panoul matricei cu filele Units și Narrative*
 
 Fișierul este **unul pentru fiecare sit și rămâne pe disc**: nu se mai află într-un folder temporar. Este fișierul pe care îl deschide EMStudio și în el se scrie narațiunea. De fiecare dată când alegi „Vedi la matrice…”, situl este **exportat din nou din baza de date** și fișierul este rescris; narațiunea deja prezentă în el se păstrează (§10.8).
 
@@ -540,12 +516,12 @@ Furnizorii sunt cei din selectoarele „Provider AI”: **OpenAI** și **Anthrop
 
 <!-- IMMAGINE: Captură de ecran a filei Narrative, cu lista capitolelor, textul capitolului ales și cele șapte butoane -->
 ![Fila Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figura 4: Fila Narrative*
+*Figura 3: Fila Narrative*
 
 De sus în jos:
 
 - **linia de stare**: modelul folosit (§10.2) și reamintirea *„If EMStudio has the file open, close it first: the last writer wins.”* (dacă EMStudio are fișierul deschis, închide-l mai întâi: cine scrie ultimul câștigă);
-- **lista capitolelor**, un rând pentru fiecare capitol: *Titlu — stare*. Cu exportul pe sondaje (§2.2.1), fiecare sondaj are propria narațiune, iar fiecare rând este precedat de numele sondajului între paranteze drepte, de exemplu `[Saggio A] 15th century — AI draft`;
+- **lista capitolelor**, un rând pentru fiecare capitol: *Titlu — stare*. Un fișier dintr-o versiune anterioară, împărțit pe sondaje, arată toate grafurile: fiecare rând este precedat de numele grafului între paranteze drepte, de exemplu `[Saggio A] 15th century — AI draft`;
 - **textul capitolului ales**: textul narativ, cu unitățile citate pe nume — numele sunt **linkuri**: un clic arată unitatea pe hartă (§10.10); sub paragraful în care o unitate este numită prima dată apar până la două fotografii ale ei (§10.11). Dacă capitolul nu are încă text, vezi substituentul său „[to be written: …]”;
 - **linia de progres**, doar în timpul generării: „Chapter 3 of 9 · 15th century”;
 - **butoanele**, pe două rânduri.
@@ -569,7 +545,7 @@ Când fișierul **nu are încă o narațiune**, lista este goală și un text sp
 | Buton (en) | În italiană | Ce face |
 |------------|-------------|---------|
 | **Generate with AI** | Genera con l'AI | Scrie, **pe rând**, toate capitolele de epocă (și de activitate) încă „to be written”; cele deja scrise nu sunt atinse. Dacă narațiunea nu există încă, creează mai întâi scheletul. Arată progresul și butonul **Cancel**. Activ doar cu un fișier deschis și un AI configurat. |
-| **Regenerate chapter** | Rigenera capitolo | Rescrie **capitolul ales** în listă (cu mai multe sondaje, doar cel al sondajului ales): ciorna AI nevalidată este înlocuită — dar numai după ce modelul a răspuns: dacă apelul eșuează, ciorna de dinainte rămâne — iar blocurile deja validate rămân. Se activează când alegi un capitol de epocă sau de activitate și un AI este configurat; pentru „Presentation” și „Where it is” rămâne dezactivat. |
+| **Regenerate chapter** | Rigenera capitolo | Rescrie **capitolul ales** în listă: ciorna AI nevalidată este înlocuită — dar numai după ce modelul a răspuns: dacă apelul eșuează, ciorna de dinainte rămâne — iar blocurile deja validate rămân. Se activează când alegi un capitol de epocă sau de activitate și un AI este configurat; pentru „Presentation” și „Where it is” rămâne dezactivat. |
 | **Endorse…** | Convalida… | Deschide un meniu cu „This chapter” și „All chapters”, apoi întreabă cine validează (§10.6). Activ când există o narațiune. |
 | **Prepare the chapters** | Prepara i capitoli | Creează **doar scheletul** capitolelor, fără AI: funcționează chiar dacă nu este configurat niciun AI, ca să poți scrie manual în EMStudio. Nu atinge textul deja scris și adaugă capitolele epocilor noi. Rezultat: „Chapters prepared: N.” (Capitole pregătite: N.) |
 | **Show on the map** | Mostra sulla mappa | Selectează și încadrează pe hartă, **toate împreună**, unitățile despre care vorbește capitolul ales (§10.10): cele citate în text sau, dacă capitolul nu este încă scris, toate cele din banda lui. Activ doar dacă cel puțin una dintre unitățile despre care vorbește capitolul ales este un rând al fișei US. |
@@ -611,7 +587,7 @@ Când fișierul **nu are încă o narațiune**, lista este goală și un text sp
 
 <!-- IMMAGINE: Captură de ecran a generării în curs: linia de progres „Chapter 3 of 9 · …” și butonul Cancel -->
 ![Generare în curs](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figura 5: Generare în curs, cu linia de progres și butonul Cancel*
+*Figura 4: Generare în curs, cu linia de progres și butonul Cancel*
 
 Un capitol care eșuează nu le oprește pe celelalte: rezumatul spune care. Pentru a reîncerca, este suficient să apeși din nou **Generate with AI**, care scrie doar capitolele încă „to be written”.
 
@@ -620,18 +596,18 @@ Un capitol care eșuează nu le oprește pe celelalte: rezumatul spune care. Pen
 A valida înseamnă că o **persoană** își asumă răspunderea pentru textul scris de model. Nu se întâmplă niciodată de la sine: nici prin generare, nici prin salvare.
 
 1. Apasă **Endorse…**. Se deschide un meniu mic: **„This chapter”** (Acest capitol) — activ doar dacă capitolul ales este „AI draft” — sau **„All chapters”** (Toate capitolele), adică toate ciornele AI încă nevalidate, în toate grafurile fișierului.
-2. O fereastră întreabă **„Who endorses? Pick an author or type a new name.”** (Cine validează? Alege un autor sau scrie un nume nou.) Lista conține **autorii umani deja existenți în graf** — persoanele numite în fișa US drept compilator (*schedatore*), director US și responsabil US — și poți scrie un nume nou, care devine un nou autor al grafului (cu mai multe sondaje, în fiecare graf care are ciorne de semnat).
+2. O fereastră întreabă **„Who endorses? Pick an author or type a new name.”** (Cine validează? Alege un autor sau scrie un nume nou.) Lista conține **autorii umani deja existenți în graf** — persoanele numite în fișa US drept compilator (*schedatore*), director US și responsabil US — și poți scrie un nume nou, care devine un nou autor al grafului.
 3. Bara de mesaje spune **„N blocks endorsed by `<name>`.”** (N blocuri validate de autorul ales.) sau „Nothing to endorse.” (Nimic de validat.) Fișierul este salvat.
 
 <!-- IMMAGINE: Captură de ecran a meniului Endorse… („This chapter” / „All chapters”) și a ferestrei de alegere a autorului -->
 ![Validare](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figura 6: Validarea: meniul și alegerea autorului*
+*Figura 5: Validarea: meniul și alegerea autorului*
 
 Blocurile trec de la „AI draft” la „endorsed”. În documentul exportat, persoana apare printre responsabili („a cura di”, îngrijit de), modelul apare ca asistent („con l'assistenza di”, cu asistența), iar paragrafele validate nu mai poartă semnul ⚠. Regenerarea nu șterge blocurile validate: o semnătură este un act și nu se pierde prin rescriere.
 
 ### 10.7 Exportul în HTML, DOCX sau PDF
 
-Apasă **Export…**: se deschide fereastra de salvare, cu trei formate: „HTML page” (pagină HTML; `.html`), „Word document” (document Word; `.docx`) și „Printable PDF” (PDF de tipărit; `.pdf`). Numele propus este `<sit>_narrativa`, fără extensie, în folderul fișierului em.json: extensia o pune formatul ales în filtrul ferestrei; o extensie scrisă de mână (`.html`, `.docx` sau `.pdf`) are prioritate față de filtru. Cu exportul pe sondaje se scrie **un fișier pentru fiecare sondaj**, adăugând numele sondajului la numele ales. Bara de mesaje confirmă: „Narrative exported to `<path>`” (Narațiune exportată în fișierul ales).
+Apasă **Export…**: se deschide fereastra de salvare, cu trei formate: „HTML page” (pagină HTML; `.html`), „Word document” (document Word; `.docx`) și „Printable PDF” (PDF de tipărit; `.pdf`). Numele propus este `<sit>_narrativa`, fără extensie, în folderul fișierului em.json: extensia o pune formatul ales în filtrul ferestrei; o extensie scrisă de mână (`.html`, `.docx` sau `.pdf`) are prioritate față de filtru. Bara de mesaje confirmă: „Narrative exported to `<path>`” (Narațiune exportată în fișierul ales).
 
 Documentul conține:
 
@@ -641,7 +617,7 @@ Documentul conține:
 
 Câteva lucruri de știut:
 
-- **ciornele nevalidate intră în document**, fiecare precedată de „⚠︎ non validato da una persona” (nevalidat de o persoană), iar antetul spune câte blocuri se află în această stare. Pentru un document fără semne, validează mai întâi (§10.6);
+- **ciornele nevalidate intră în document**, fiecare precedată de „⚠︎ non validato da una persona” (nevalidat de o persoană), iar antetul spune câte blocuri se află în această stare. Pentru un document fără semne, validează mai întâi (§10.6). În HTML ciorna se citește ca restul textului, cu același font și același fundal: deasupra paragrafului rămâne rândul de avertizare, iar în stânga apare un filet chihlimbariu. În Word și în PDF avertizarea stă înaintea paragrafului (în PDF, pe un rând separat, fără semnul ⚠, §10.11);
 - **intră toate capitolele**, chiar și cele încă „to be written”: substituentul lor „[to be written: …]” rămâne în text;
 - textul stă **la începutul** capitolului, înaintea listei unităților; într-o narațiune scrisă cu o versiune anterioară poate fi încă la sfârșit și se pune la loc reexportând situl (§10.8) sau cu **Prepare the chapters** (Pregătește capitolele);
 - figurile pe care un autor le-a prevăzut în EMStudio (de exemplu matricea unei epoci) nu sunt desenate de exportul pyArchInit: în document rămâne un substituent;
@@ -649,7 +625,7 @@ Câteva lucruri de știut:
 
 <!-- IMMAGINE: Captură de ecran a documentului HTML exportat: un capitol cu o ciornă precedată de „⚠︎ non validato da una persona” -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figura 7: Documentul HTML exportat, cu o ciornă nevalidată marcată*
+*Figura 6: Documentul HTML exportat, cu o ciornă nevalidată marcată*
 
 ### 10.8 Reexportarea sitului: narațiunea rămâne
 
@@ -659,7 +635,7 @@ Reexportarea sitului din baza de date — cu **Vedi la matrice…**, cu **Esport
 
 Înainte de a rescrie un fișier care conține o narațiune, pyArchInit face o **copie de siguranță** alături de el: `<sit>.em.json.bak` (fiecare reexportare nouă înlocuiește copia precedentă).
 
-Dacă schimbi forma fișierului — treci de la „Un grafo per ogni saggio” la „Un grafo solo per tutto il sito” sau invers — grafurile își schimbă numele, iar narațiunea **nu poate trece** în fișierul nou. O notificare o spune: *„The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …”* (Narațiunea fișierului anterior (grafuri: …) nu a trecut în fișierul nou (grafuri: …): forma fișierului s-a schimbat. Copie de siguranță în …). Textul nu este pierdut: se află în copia `.bak`, care însă este înlocuită la următoarea reexportare a unui fișier care conține o narațiune — pune-o într-un loc sigur. Pentru a-l recupera, redenumește copia în `.em.json` și exportă din nou cu alegerea de dinainte.
+Dacă fișierul de dinainte era împărțit pe sondaje (versiunile până la 5.13.108-alpha puteau exporta un graf pentru fiecare sondaj), la prima reexportare fișierul nou are **un singur graf** pentru tot situl: grafurile au nume diferite, iar narațiunea **nu poate trece** în fișierul nou. O notificare o spune: *„The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …”* (Narațiunea fișierului anterior (grafuri: …) nu a trecut în fișierul nou (grafuri: …): forma fișierului s-a schimbat. Copie de siguranță în …). Textul nu este pierdut: se află în copia `.bak`, care însă este înlocuită la următoarea reexportare a unui fișier care conține o narațiune — pune-o într-un loc sigur. Dacă ai nevoie de narațiunea veche, deschide acea copie (redenumind-o într-un fișier `.em.json` cu alt nume); altfel, regenerează capitolele în fișierul nou (§10.5). Din versiunea 5.13.109-alpha fișierul are mereu un singur graf, iar narațiunea trece de la o reexportare la alta.
 
 Dacă fișierul anterior nu poate fi citit (de exemplu un fișier rămas scris pe jumătate), exportul merge înainte oricum: fișierul necitibil este **redenumit** `<sit>.em.json.broken`, iar o notificare spune *„The previous file cannot be read (…): its narrative, if any, was not kept.”* (Fișierul anterior nu poate fi citit (…): narațiunea lui, dacă exista, nu a fost păstrată.)
 
@@ -667,7 +643,7 @@ Dacă fișierul anterior nu poate fi citit (de exemplu un fișier rămas scris p
 
 ### 10.9 Din intrarea „Esporta sito in em.json…”
 
-Intrarea **Extended Matrix → Esporta sito in em.json…** pune aceeași întrebare despre sondaje și scrie același fișier `<sit>.em.json` în `pyarchinit_EM_folder`. La final afișează „Esportato `<cale>`” (Exportat), cu numărul de noduri, muchii și notificări (textul notificărilor se află în detaliile ferestrei), și **trei butoane**:
+Intrarea **Extended Matrix → Esporta sito in em.json…** scrie același fișier `<sit>.em.json` în `pyarchinit_EM_folder`. La final afișează „Esportato `<cale>`” (Exportat), cu numărul de noduri, muchii și notificări (textul notificărilor se află în detaliile ferestrei), și **trei butoane**:
 
 | Buton | Ce face |
 |-------|---------|
@@ -677,7 +653,7 @@ Intrarea **Extended Matrix → Esporta sito in em.json…** pune aceeași între
 
 <!-- IMMAGINE: Captură de ecran a ferestrei finale „Esporta sito in em.json…” cu cele trei butoane -->
 ![Esporta sito in em.json: trei butoane](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figura 8: Fereastra finală a intrării „Esporta sito in em.json…”*
+*Figura 7: Fereastra finală a intrării „Esporta sito in em.json…”*
 
 ### 10.10 Unitățile pe hartă
 
@@ -688,7 +664,7 @@ Intrarea **Extended Matrix → Esporta sito in em.json…** pune aceeași între
 
 <!-- IMMAGINE: Captură de ecran din QGIS cu unitățile capitolului selectate pe hartă și, sus, bara de mesaje „Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.” -->
 ![Unitățile capitolului pe hartă](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figura 9: Unitățile despre care vorbește un capitol, selectate pe hartă, și bara de mesaje*
+*Figura 8: Unitățile despre care vorbește un capitol, selectate pe hartă, și bara de mesaje*
 
 Este nevoie ca un strat cu geometriile US să fie deja încărcat în proiect, de exemplu **vederea US** din pyArchInit: fila îl caută printre straturile încărcate, ca butonul „Zoom sulla geometria” (Zoom pe geometrie) din fila Units (tutorialul 01), recunoscând unitățile după câmpurile `sito`, `area` și `us`. **Proiectul nu este modificat**: nu se adaugă niciun strat, se schimbă doar selecția și încadrarea hărții.
 
@@ -708,13 +684,13 @@ Un clic pe un nume care nu este un rând al fișei US nu găsește nimic, iar ba
 
 <!-- IMMAGINE: Capturi de ecran alăturate: textul unui capitol cu miniaturile sub prima mențiune a unei unități și o pagină a PDF-ului de tipărit cu banda de fotografii și legenda -->
 ![Fotografiile unităților în text și în PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figura 10: Fotografiile unităților în textul capitolului și într-o pagină a PDF-ului*
+*Figura 9: Fotografiile unităților în textul capitolului și într-o pagină a PDF-ului*
 
 **Ce este necesar.** Fotografiile nu se află în em.json: se citesc din baza de date și din folderele proiectului. Sunt deci necesare baza de date conectată (matricea deschisă din proiect), căile **Thumbnail path** și **Image resize** setate în configurare (tutorialul 01) și fișierele pe disc; pentru text este suficient folderul de miniaturi. Imaginile de pe o arhivă la distanță nu se folosesc. Dacă lipsește ceva, nu apare niciun mesaj: fotografiile pur și simplu nu apar, iar exportul reușește oricum (§10.13).
 
 ### 10.12 Avertismente
 
-- **Închide EMStudio înainte de a genera sau a valida.** Dacă EMStudio are fișierul deschis, cine scrie ultimul câștigă. Cu mai multe sondaje, EMStudio arată câte un graf pe rând (nota din §2.2.1): fila Narrative le arată pe toate.
+- **Închide EMStudio înainte de a genera sau a valida.** Dacă EMStudio are fișierul deschis, cine scrie ultimul câștigă.
 - **Un AI scrie doar din ceea ce găsește în graf și poate greși.** Regulile îl țin în frâu, dar nu îl fac infailibil: citește fiecare capitol înainte de a-l valida.
 - **Cu un furnizor online, datele ies din computerul tău.** Briefingul fiecărui capitol (numele, definițiile, descrierile și relațiile unităților) este trimis serviciului ales; cu Ollama sau LM Studio rămâne local.
 - **Fișierul se scrie la final.** Generarea salvează când se termină, chiar dacă ai anulat-o: nu închide QGIS cât timp AI-ul scrie. Salvarea este sigură: fișierul este scris alături, recitit și abia apoi înlocuiește fișierul real; dacă ceva merge prost, **fișierul anterior rămâne așa cum era**.
@@ -732,7 +708,7 @@ Un clic pe un nume care nu este un rând al fișei US nu găsește nimic, iar ba
 | „truncated” / «troncato» lângă stare | Modelul s-a oprit la limita de lungime, iar textul se termină la jumătate. | Înainte de a valida, folosește **Regenerate chapter**; dacă se repetă, termină capitolul în EMStudio. |
 | „N chapters generated, M failed: `<title>` — `<reason>`” / «N capitoli generati, M falliti: …» | Furnizorul a refuzat cererea (cheie nevalidă, cotă depășită, model indisponibil) sau serverul local nu răspunde. „the model wrote nothing” (modelul nu a scris nimic) înseamnă că răspunsul era gol. | Elimină cauza și apasă din nou **Generate with AI**: scrie doar capitolele rămase „to be written”. |
 | „The previous file cannot be read (…)” / «Il file precedente non si legge (…)» | La reexportare, fișierul existent nu era un em.json care să poată fi citit. | Exportul a mers înainte: fișierul necitibil a fost păstrat lângă cel nou ca `….broken`, iar narațiunea pe care o conținea, dacă exista, nu a trecut în fișierul nou. Dacă ai nevoie de ea, recuperează-o din acel fișier sau dintr-un backup. |
-| „The previous file's narrative (graphs: …) did not travel into the new file…” / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Ai schimbat forma fișierului (un graf pentru fiecare sondaj ↔ un singur graf): grafurile au nume diferite și narațiunea nu poate trece. | Fișierul de dinainte se află în copia `.bak`: redenumește-o în `.em.json` și exportă din nou cu alegerea de dinainte. |
+| „The previous file's narrative (graphs: …) did not travel into the new file…” / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Fișierul de dinainte era împărțit pe sondaje (versiuni până la 5.13.108-alpha): grafurile au nume diferite și narațiunea nu poate trece. | Fișierul de dinainte se află în copia `.bak`: deschide-o dacă ai nevoie de narațiunea veche, sau regenerează capitolele în fișierul nou. |
 | „Could not write … The previous file is intact.” / «Non sono riuscito a scrivere … Il file precedente è intatto.» | Salvarea a eșuat (disc plin, fișier blocat, permisiuni). | Rezolvă problema și repetă: capitolele generate în acea sesiune nu fuseseră salvate. |
 | „DocX export needs python-docx — install the extra: …” (întotdeauna în engleză) | Pachetul `python-docx` nu este instalat în Python-ul QGIS: este necesar doar pentru DOCX. | Instalează `python-docx` (face parte din cerințele pluginului) sau exportă în HTML, care nu necesită nimic. |
 | „None of the loaded layers has the fields to recognise the units…” / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | Proiectul deschis nu are niciun strat cu câmpurile `sito`, `area` și `us` ale unităților (de exemplu vederea US din pyArchInit): fila caută doar printre straturile deja încărcate. | **Încarcă vederea US** din pyArchInit (sau un strat cu aceleași câmpuri) în proiect, apoi apasă din nou pe nume sau pe **Show on the map** (Arată pe hartă). Fila nu adaugă straturi de la sine. |

@@ -42,32 +42,11 @@ En appuyant sur **Esporta**, le **dossier de destination** est demandé.
 
 Auteurs, licences, embargos et groupes se gèrent dans la fenêtre **"Manage paradata"** (§3).
 
-### 2.2.1 Sondages : un seul graphe ou un par sondage
+### 2.2.1 Sondages : un seul graphe pour tout le site
 
-Un groupe de trois choix, dans la même fenêtre, décide **comment diviser
-l'em.json** quand le chantier a plusieurs sondages :
+À partir de la version **5.13.109-alpha**, l'em.json porte **un seul graphe**, avec les unités de tous les sondages : il n'y a rien à choisir. La fenêtre « Esporta Extended Matrix » n'a plus le groupe « Saggi » (sondages), et les entrées de menu **Esporta sito in em.json…** et **Vedi la matrice…** ne demandent plus que le site.
 
-- **Automatique** : un seul graphe si le site a un sondage, un graphe
-  par sondage s'il en a plusieurs. C'est le choix de départ.
-- **Un seul graphe pour tout le site** : tout le chantier dans un
-  graphe, comme toujours.
-- **Un graphe par sondage** : **un seul fichier**, qui porte un graphe
-  pour chaque sondage, plus un pour les unités qui n'ont pas rempli le
-  champ. Les relations qui **sortent** du sondage ne sont pas perdues :
-  elles restent dans le fichier comme liens entre graphes
-  (`graph.links`).
-
-> **EMStudio 1.6.0 en montre un à la fois.** Le fichier est juste — le
-> lecteur de la bibliothèque relit tous les graphes, sans avertissement
-> — mais EMStudio ouvre le graphe déclaré dans `active_graph_id`, le
-> premier sondage, et n'a pas de sélecteur pour les autres. La matrice
-> dans QGIS, **Afficher la matrice**, les réunit tous et dessine le
-> chantier entier. Mesuré le 2026-10-12 sur le site d'exemple : 4
-> graphes (52/49/56/51 nœuds), 32 liens entre sondages, 51 unités dans
-> la matrice réunie.
-
-Le sondage est le champ **Saggio** de la fiche US : les unités qui l'ont
-laissé vide finissent dans un graphe à part, dans le même fichier.
+Le sondage est le champ **Saggio** de la fiche US : il reste un champ comme les autres, qui peut servir de dimension pour regrouper les unités (`saggio`, §4) et qui entre dans le *briefing* de la narration (§10.4), mais il ne divise plus le fichier. Un fichier exporté avec les versions précédentes (jusqu'à la 5.13.108-alpha), avec un graphe par sondage, s'ouvre encore dans le panneau de la matrice (§10.8).
 
 ### 2.3 Cliquer sur "Esporta"
 
@@ -480,21 +459,16 @@ Les noms des onglets et des boutons de l'onglet Narrative existent en italien et
 
 1. Ouvrez le menu **Plugins → pyArchInit - Archaeological GIS Tools** et choisissez l'entrée **Extended Matrix → Vedi la matrice…** (Voir la matrice).
 2. Choisissez le **site**.
-3. Si le site a des **sondages** (*saggi*), pyArchInit demande « Il sito ha N saggi. Come divido il file? » (Le site a N sondages. Comment dois-je diviser le fichier ?) avec deux réponses : « Un grafo per ogni saggio (…) » (un graphe par sondage), qui est le choix de départ, ou « Un grafo solo per tutto il sito » (un seul graphe pour tout le site). C'est le même choix qu'au §2.2.1 et que dans l'entrée « Esporta sito in em.json… » : les deux entrées écrivent le **même fichier**, de même forme.
-4. pyArchInit exporte le site de la base de données vers `<home>/pyarchinit_EM_folder/<site>.em.json` — `<home>` est `~/pyarchinit_5`, ou le dossier indiqué par la variable d'environnement `PYARCHINIT_HOME` — et ouvre le panneau **« Matrice — `<site>` »**, ancré à droite de la fenêtre de QGIS. Le nom du fichier est celui du site, avec les caractères spéciaux remplacés par « _ » (par exemple « Scavo 1 » devient `Scavo_1.em.json`).
-5. Dans la colonne de droite du panneau, cliquez sur l'onglet **Narrative**.
+3. pyArchInit exporte le site de la base de données vers `<home>/pyarchinit_EM_folder/<site>.em.json` — `<home>` est `~/pyarchinit_5`, ou le dossier indiqué par la variable d'environnement `PYARCHINIT_HOME` — et ouvre le panneau **« Matrice — `<site>` »**, ancré à droite de la fenêtre de QGIS. Le nom du fichier est celui du site, avec les caractères spéciaux remplacés par « _ » (par exemple « Scavo 1 » devient `Scavo_1.em.json`).
+4. Dans la colonne de droite du panneau, cliquez sur l'onglet **Narrative**.
 
 <!-- IMMAGINE: Capture d'écran du menu Plugins → pyArchInit - Archaeological GIS Tools avec l'entrée « Extended Matrix → Vedi la matrice… » -->
 ![Menu Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figure 1 : L'entrée « Extended Matrix → Vedi la matrice… » dans le menu du plugin*
 
-<!-- IMMAGINE: Capture d'écran de la question sur les sondages avec les deux réponses -->
-![Question sur les sondages](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figure 2 : La question sur les sondages : un graphe par sondage ou un seul graphe*
-
 <!-- IMMAGINE: Capture d'écran du panneau de la matrice ancré à droite, avec les onglets Units et Narrative -->
 ![Panneau à deux onglets](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figure 3 : Le panneau de la matrice avec les onglets Units et Narrative*
+*Figure 2 : Le panneau de la matrice avec les onglets Units et Narrative*
 
 Il y a **un fichier par site, et il reste sur le disque** : il ne se trouve plus dans un dossier temporaire. C'est le fichier qu'ouvre EMStudio, et c'est là que la narration est écrite. Chaque fois que vous choisissez « Vedi la matrice… », le site est **réexporté depuis la base de données** et le fichier est réécrit ; la narration déjà présente est conservée (§10.8).
 
@@ -542,12 +516,12 @@ Les fournisseurs sont ceux des sélecteurs « Provider AI » : **OpenAI** et **A
 
 <!-- IMMAGINE: Capture d'écran de l'onglet Narrative avec la liste des chapitres, le texte du chapitre choisi et les sept boutons -->
 ![Onglet Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figure 4 : L'onglet Narrative*
+*Figure 3 : L'onglet Narrative*
 
 De haut en bas :
 
 - **la ligne d'état** : le modèle utilisé (§10.2) et le rappel *« If EMStudio has the file open, close it first: the last writer wins. »* (si EMStudio a le fichier ouvert, fermez-le d'abord : c'est le dernier qui écrit qui l'emporte) ;
-- **la liste des chapitres**, une ligne par chapitre : *Titre — état*. Avec l'export par sondage (§2.2.1), chaque sondage a sa propre narration et chaque ligne est précédée du nom du sondage entre crochets, par exemple `[Saggio A] 15th century — AI draft` ;
+- **la liste des chapitres**, une ligne par chapitre : *Titre — état*. Un fichier d'une version précédente, divisé par sondage, montre tous les graphes : chaque ligne est précédée du nom du graphe entre crochets, par exemple `[Saggio A] 15th century — AI draft` ;
 - **le texte du chapitre choisi** : la prose, avec les unités citées par leur nom — les noms sont des **liens** : un clic montre l'unité sur la carte (§10.10) ; sous le paragraphe où une unité est nommée pour la première fois apparaissent jusqu'à deux de ses photos (§10.11). Si le chapitre n'a pas encore de prose, vous voyez son espace réservé « [to be written: …] » ;
 - **la ligne de progression**, seulement pendant la génération : « Chapter 3 of 9 · 15th century » ;
 - **les boutons**, sur deux lignes.
@@ -571,7 +545,7 @@ Quand le fichier **n'a pas encore de narration**, la liste est vide et un texte 
 | Bouton (en) | En italien | Ce qu'il fait |
 |-------------|------------|---------------|
 | **Generate with AI** | Genera con l'AI | Écrit, **un à la fois**, tous les chapitres d'époque (et d'activité) encore « to be written » ; ceux qui sont déjà écrits ne sont pas touchés. S'il n'y a pas encore de narration, il crée d'abord le plan. Affiche la progression et le bouton **Cancel**. Actif seulement avec un fichier ouvert et une IA configurée. |
-| **Regenerate chapter** | Rigenera capitolo | Réécrit **le chapitre choisi** dans la liste (avec plusieurs sondages, seulement celui du sondage choisi) : le brouillon IA non validé est remplacé — mais seulement une fois que le modèle a répondu : si l'appel échoue, le brouillon d'avant reste — et les blocs déjà validés restent. Il s'active quand vous choisissez un chapitre d'époque ou d'activité et qu'une IA est configurée ; pour « Presentation » et « Where it is », il reste désactivé. |
+| **Regenerate chapter** | Rigenera capitolo | Réécrit **le chapitre choisi** dans la liste : le brouillon IA non validé est remplacé — mais seulement une fois que le modèle a répondu : si l'appel échoue, le brouillon d'avant reste — et les blocs déjà validés restent. Il s'active quand vous choisissez un chapitre d'époque ou d'activité et qu'une IA est configurée ; pour « Presentation » et « Where it is », il reste désactivé. |
 | **Endorse…** | Convalida… | Ouvre un menu avec « This chapter » (Ce chapitre) et « All chapters » (Tous les chapitres), puis demande qui valide (§10.6). Actif quand il y a une narration. |
 | **Prepare the chapters** | Prepara i capitoli | Crée **seulement le plan** des chapitres, sans IA : il fonctionne même si aucune IA n'est configurée, pour que vous puissiez écrire à la main dans EMStudio. Il ne touche pas à la prose déjà écrite et ajoute les chapitres des nouvelles époques. Résultat : « Chapters prepared: N. » |
 | **Show on the map** | Mostra sulla mappa | Sélectionne et cadre sur la carte, **toutes ensemble**, les unités dont parle le chapitre choisi (§10.10) : celles citées dans la prose ou, si le chapitre n'est pas encore écrit, toutes celles de sa bande. Actif seulement si au moins une des unités dont parle le chapitre choisi est une ligne de la fiche US. |
@@ -613,7 +587,7 @@ Pendant la génération, tous les boutons sont désactivés sauf **Cancel**.
 
 <!-- IMMAGINE: Capture d'écran de la génération en cours : la ligne de progression « Chapter 3 of 9 · … » et le bouton Cancel -->
 ![Génération en cours](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figure 5 : Génération en cours, avec la ligne de progression et le bouton Cancel*
+*Figure 4 : Génération en cours, avec la ligne de progression et le bouton Cancel*
 
 Un chapitre qui échoue n'arrête pas les autres : le récapitulatif dit lequel. Pour réessayer, il suffit de cliquer de nouveau sur **Generate with AI**, qui n'écrit que les chapitres encore « to be written ».
 
@@ -622,18 +596,18 @@ Un chapitre qui échoue n'arrête pas les autres : le récapitulatif dit lequel.
 Valider (bouton **Endorse…**) signifie qu'une **personne** assume la responsabilité du texte écrit par le modèle. Cela n'arrive jamais tout seul : ni en générant, ni en enregistrant.
 
 1. Cliquez sur **Endorse…**. Un petit menu s'ouvre : **« This chapter »** — actif seulement si le chapitre choisi est un « AI draft » — ou **« All chapters »**, c'est-à-dire tous les brouillons IA pas encore validés, dans tous les graphes du fichier.
-2. Une fenêtre demande **« Who endorses? Pick an author or type a new name. »** (Qui valide ? Choisissez un auteur ou saisissez un nouveau nom.) La liste contient les **auteurs humains déjà présents dans le graphe** — les personnes nommées dans la fiche US comme compilateur (*schedatore*), directeur US et responsable US — et vous pouvez saisir un nouveau nom, qui devient un nouvel auteur du graphe (avec plusieurs sondages, dans chaque graphe qui a des brouillons à signer).
+2. Une fenêtre demande **« Who endorses? Pick an author or type a new name. »** (Qui valide ? Choisissez un auteur ou saisissez un nouveau nom.) La liste contient les **auteurs humains déjà présents dans le graphe** — les personnes nommées dans la fiche US comme compilateur (*schedatore*), directeur US et responsable US — et vous pouvez saisir un nouveau nom, qui devient un nouvel auteur du graphe.
 3. La barre de messages dit **« N blocks endorsed by `<name>`. »** (N blocs validés par le nom choisi), ou « Nothing to endorse. » (Rien à valider.) Le fichier est enregistré.
 
 <!-- IMMAGINE: Capture d'écran du menu Endorse… (« This chapter » / « All chapters ») et de la fenêtre de choix de l'auteur -->
 ![Valider](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figure 6 : Valider : le menu et le choix de l'auteur*
+*Figure 5 : Valider : le menu et le choix de l'auteur*
 
 Les blocs passent de « AI draft » à « endorsed ». Dans le document exporté, la personne figure parmi les responsables (« a cura di », édité par) et le modèle comme assistant (« con l'assistenza di », avec l'assistance de), et les paragraphes validés ne portent plus la marque ⚠. Régénérer ne supprime pas les blocs validés : une signature est un acte, et elle ne se perd pas en réécrivant.
 
 ### 10.7 Exporter en HTML, en DOCX ou en PDF
 
-Cliquez sur **Export…** : la fenêtre d'enregistrement s'ouvre avec trois formats : « HTML page » (page HTML ; `.html`), « Word document » (document Word ; `.docx`) et « Printable PDF » (PDF imprimable ; `.pdf`). Le nom proposé est `<site>_narrativa`, sans extension, dans le dossier de l'em.json : l'extension est ajoutée par le format choisi dans le filtre de la fenêtre ; une extension saisie à la main (`.html`, `.docx` ou `.pdf`) l'emporte sur le filtre. Avec l'export par sondage, **un fichier par sondage** est écrit, en ajoutant le nom du sondage au nom choisi. La barre de messages le confirme : « Narrative exported to `<path>` » (Narration exportée vers le chemin du fichier).
+Cliquez sur **Export…** : la fenêtre d'enregistrement s'ouvre avec trois formats : « HTML page » (page HTML ; `.html`), « Word document » (document Word ; `.docx`) et « Printable PDF » (PDF imprimable ; `.pdf`). Le nom proposé est `<site>_narrativa`, sans extension, dans le dossier de l'em.json : l'extension est ajoutée par le format choisi dans le filtre de la fenêtre ; une extension saisie à la main (`.html`, `.docx` ou `.pdf`) l'emporte sur le filtre. La barre de messages le confirme : « Narrative exported to `<path>` » (Narration exportée vers le chemin du fichier).
 
 Le document contient :
 
@@ -643,7 +617,7 @@ Le document contient :
 
 Quelques points à connaître :
 
-- les **brouillons non validés sont inclus**, chacun précédé de « ⚠︎ non validato da una persona » (non validé par une personne), et l'en-tête dit combien de blocs sont dans cet état. Pour un document sans marques, validez d'abord (§10.6) ;
+- les **brouillons non validés sont inclus**, chacun précédé de « ⚠︎ non validato da una persona » (non validé par une personne), et l'en-tête dit combien de blocs sont dans cet état. Pour un document sans marques, validez d'abord (§10.6). Dans le HTML, le brouillon se lit comme le reste du texte, avec la même police et le même fond : au-dessus du paragraphe figure la ligne d'avertissement et, à gauche, un filet ambre. Dans Word et dans le PDF, l'avertissement précède le paragraphe (dans le PDF, sur une ligne à part, sans le signe ⚠, §10.11) ;
 - **tous les chapitres sont inclus**, même ceux qui sont encore « to be written » : leur espace réservé « [to be written: …] » reste dans le texte ;
 - la prose est **en tête** du chapitre, avant la liste des unités ; dans une narration écrite avec une version précédente, elle peut encore être à la fin, et elle se remet à sa place en réexportant le site (§10.8) ou avec **Prepare the chapters** (Préparer les chapitres) ;
 - les figures qu'un auteur a prévues dans EMStudio (par exemple la matrice d'une époque) ne sont pas dessinées par l'export de pyArchInit : un espace réservé reste dans le document ;
@@ -651,7 +625,7 @@ Quelques points à connaître :
 
 <!-- IMMAGINE: Capture d'écran du document HTML exporté : un chapitre avec un brouillon précédé de « ⚠︎ non validato da una persona » -->
 ![Document HTML exporté](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figure 7 : Le document HTML exporté, avec un brouillon non validé signalé*
+*Figure 6 : Le document HTML exporté, avec un brouillon non validé signalé*
 
 ### 10.8 Réexporter le site : la narration reste
 
@@ -661,7 +635,7 @@ Les **autres modifications** faites au fichier dans EMStudio — positions des n
 
 Avant de réécrire un fichier qui contient une narration, pyArchInit en fait une **copie de sécurité** à côté : `<site>.em.json.bak` (chaque nouvel export remplace la copie précédente).
 
-Si vous changez la forme du fichier — en passant de « Un grafo per ogni saggio » à « Un grafo solo per tutto il sito », ou l'inverse — les graphes changent de nom et la narration **ne peut pas passer** dans le nouveau fichier. Un avertissement le dit : *« The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in … »* (La narration du fichier précédent (graphes : …) n'est pas passée dans le nouveau fichier (graphes : …) : la forme du fichier a changé. Copie de sauvegarde dans …). Le texte n'est pas perdu : il est dans la copie `.bak`, qui est toutefois remplacée par le prochain export d'un fichier qui contient une narration — mettez-la en lieu sûr. Pour le récupérer, renommez la copie en `.em.json` et réexportez avec le choix d'avant.
+Si le fichier d'avant était divisé par sondage (les versions jusqu'à la 5.13.108-alpha pouvaient exporter un graphe par sondage), à la première réexportation le nouveau fichier a **un seul graphe** pour tout le site : les graphes ont des noms différents et la narration **ne peut pas passer** dans le nouveau fichier. Un avertissement le dit : *« The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in … »* (La narration du fichier précédent (graphes : …) n'est pas passée dans le nouveau fichier (graphes : …) : la forme du fichier a changé. Copie de sauvegarde dans …). Le texte n'est pas perdu : il est dans la copie `.bak`, qui est toutefois remplacée par le prochain export d'un fichier qui contient une narration — mettez-la en lieu sûr. Si vous avez besoin de l'ancienne narration, ouvrez cette copie (renommée en un fichier `.em.json` portant un autre nom) ; sinon, régénérez les chapitres dans le nouveau fichier (§10.5). À partir de la 5.13.109-alpha, le fichier a toujours un seul graphe et la narration passe d'un export à l'autre.
 
 Si le fichier précédent ne peut pas être lu (par exemple un fichier resté à moitié écrit), l'export se poursuit quand même : le fichier illisible est **renommé** `<site>.em.json.broken` et un avertissement dit *« The previous file cannot be read (…): its narrative, if any, was not kept. »* (Le fichier précédent est illisible (…) : sa narration, s'il y en avait une, n'a pas été conservée.)
 
@@ -669,7 +643,7 @@ Si le fichier précédent ne peut pas être lu (par exemple un fichier resté à
 
 ### 10.9 Depuis l'entrée « Esporta sito in em.json… »
 
-L'entrée **Extended Matrix → Esporta sito in em.json…** pose la même question sur les sondages et écrit le même fichier `<site>.em.json` dans `pyarchinit_EM_folder`. À la fin, elle affiche « Esportato `<path>` » (Exporté), avec le décompte des nœuds, des arcs et des avertissements (le texte des avertissements se trouve dans les détails de la fenêtre), et **trois boutons** :
+L'entrée **Extended Matrix → Esporta sito in em.json…** écrit le même fichier `<site>.em.json` dans `pyarchinit_EM_folder`. À la fin, elle affiche « Esportato `<path>` » (Exporté), avec le décompte des nœuds, des arcs et des avertissements (le texte des avertissements se trouve dans les détails de la fenêtre), et **trois boutons** :
 
 | Bouton | Ce qu'il fait |
 |--------|---------------|
@@ -679,7 +653,7 @@ L'entrée **Extended Matrix → Esporta sito in em.json…** pose la même quest
 
 <!-- IMMAGINE: Capture d'écran de la fenêtre finale de « Esporta sito in em.json… » avec les trois boutons -->
 ![Exporter le site en em.json : trois boutons](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figure 8 : La fenêtre finale de « Esporta sito in em.json… »*
+*Figure 7 : La fenêtre finale de « Esporta sito in em.json… »*
 
 ### 10.10 Les unités sur la carte
 
@@ -690,7 +664,7 @@ L'entrée **Extended Matrix → Esporta sito in em.json…** pose la même quest
 
 <!-- IMMAGINE: Capture d'écran de QGIS avec les unités du chapitre sélectionnées sur la carte et, en haut, la barre de messages « Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9. » -->
 ![Les unités du chapitre sur la carte](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figure 9 : Les unités dont parle un chapitre, sélectionnées sur la carte, et la barre de messages*
+*Figure 8 : Les unités dont parle un chapitre, sélectionnées sur la carte, et la barre de messages*
 
 Il faut qu'une couche contenant les géométries des US soit déjà chargée dans le projet, par exemple la **vue US** de pyArchInit : l'onglet la cherche parmi les couches chargées, comme le bouton « Zoom sulla geometria » (Zoom sur la géométrie) de l'onglet Units (tutoriel 01), en reconnaissant les unités grâce aux champs `sito`, `area` et `us`. **Le projet n'est pas modifié** : aucune couche n'est ajoutée, seuls la sélection et le cadrage de la carte changent.
 
@@ -710,13 +684,13 @@ Un clic sur un nom qui n'est pas une ligne de la fiche US ne trouve rien, et la 
 
 <!-- IMMAGINE: Captures d'écran côte à côte : le texte d'un chapitre avec les vignettes sous la première mention d'une unité, et une page du PDF imprimable avec la bande de photos et sa légende -->
 ![Photos des unités dans le texte et dans le PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figure 10 : Les photos des unités dans le texte du chapitre et dans une page du PDF*
+*Figure 9 : Les photos des unités dans le texte du chapitre et dans une page du PDF*
 
 **Ce qu'il faut.** Les photos ne sont pas dans l'em.json : elles se lisent dans la base de données et les dossiers du projet. Il faut donc la base de données reliée (la matrice ouverte depuis le projet), les chemins **Thumbnail path** et **Image resize** réglés dans la configuration (tutoriel 01) et les fichiers sur le disque ; pour le texte, le dossier des vignettes suffit. Les images sur un stockage distant ne sont pas utilisées. S'il manque quelque chose, il n'y a aucun message : les photos n'apparaissent simplement pas, et l'export réussit quand même (§10.13).
 
 ### 10.12 Mises en garde
 
-- **Fermez EMStudio avant de générer ou de valider.** Si EMStudio a le fichier ouvert, c'est celui qui écrit en dernier qui l'emporte. Avec plusieurs sondages, EMStudio montre un graphe à la fois (note du §2.2.1) : l'onglet Narrative les montre tous.
+- **Fermez EMStudio avant de générer ou de valider.** Si EMStudio a le fichier ouvert, c'est celui qui écrit en dernier qui l'emporte.
 - **Une IA n'écrit qu'à partir de ce qu'elle trouve dans le graphe, et elle peut se tromper.** Les règles l'encadrent, elles ne la rendent pas infaillible : lisez chaque chapitre avant de le valider.
 - **Avec un fournisseur en ligne, les données quittent votre ordinateur.** Le briefing de chaque chapitre (noms, définitions, descriptions et rapports des unités) est envoyé au service choisi ; avec Ollama ou LM Studio, il reste en local.
 - **Le fichier est écrit à la fin.** La génération enregistre quand elle se termine, même si vous l'avez annulée : ne fermez pas QGIS pendant que l'IA écrit. L'enregistrement est sûr : le fichier est écrit à côté, relu, et ce n'est qu'alors qu'il remplace le vrai ; si quelque chose se passe mal, **le fichier précédent reste tel qu'il était**.
@@ -734,7 +708,7 @@ Un clic sur un nom qui n'est pas une ligne de la fiche US ne trouve rien, et la 
 | « truncated » / « troncato » à côté de l'état | Le modèle s'est arrêté à la limite de longueur et le texte s'arrête à mi-chemin. | Avant de valider, cliquez sur **Regenerate chapter** ; si cela se reproduit, terminez le chapitre dans EMStudio. |
 | « N chapters generated, M failed: `<title>` — `<reason>` » / « N capitoli generati, M falliti: … » | Le fournisseur a refusé la requête (clé non valide, quota, modèle non disponible) ou le serveur local ne répond pas. « the model wrote nothing » signifie que la réponse était vide. | Éliminez la cause et cliquez de nouveau sur **Generate with AI** : il n'écrit que les chapitres restés « to be written ». |
 | « The previous file cannot be read (…) » / « Il file precedente non si legge (…) » | Lors du réexport, le fichier existant n'était pas un em.json lisible. | L'export s'est poursuivi : le fichier illisible a été conservé à côté du nouveau sous le nom `….broken`, et la narration qu'il contenait, s'il y en avait une, n'est pas passée dans le nouveau fichier. Si vous en avez besoin, récupérez-la depuis ce fichier ou depuis une sauvegarde. |
-| « The previous file's narrative (graphs: …) did not travel into the new file… » / « La narrativa del file precedente (grafi: …) non è passata nel file nuovo… » | Vous avez changé la forme du fichier (un graphe par sondage ↔ un seul graphe) : les graphes ont des noms différents et la narration ne peut pas passer. | Le fichier d'avant se trouve dans la copie `.bak` : renommez-la en `.em.json` et réexportez avec le choix d'avant. |
+| « The previous file's narrative (graphs: …) did not travel into the new file… » / « La narrativa del file precedente (grafi: …) non è passata nel file nuovo… » | Le fichier d'avant était divisé par sondage (versions jusqu'à la 5.13.108-alpha) : les graphes ont des noms différents et la narration ne peut pas passer. | Le fichier d'avant se trouve dans la copie `.bak` : ouvrez-la si vous avez besoin de l'ancienne narration, ou régénérez les chapitres dans le nouveau fichier. |
 | « Could not write … The previous file is intact. » / « Non sono riuscito a scrivere … Il file precedente è intatto. » | L'enregistrement a échoué (disque plein, fichier verrouillé, autorisations). | Corrigez le problème et recommencez : les chapitres générés pendant cette session n'avaient pas été enregistrés. |
 | « DocX export needs python-docx — install the extra: … » (toujours en anglais) | Le paquet `python-docx` n'est pas installé dans le Python de QGIS : il n'est nécessaire que pour le DOCX. | Installez `python-docx` (c'est l'une des dépendances du plugin), ou exportez en HTML, qui n'a besoin de rien. |
 | « None of the loaded layers has the fields to recognise the units… » / « Nessuno dei layer caricati porta i campi per riconoscere le unità… » | Le projet ouvert n'a aucune couche portant les champs `sito`, `area` et `us` des unités (par exemple la vue US de pyArchInit) : l'onglet ne cherche que parmi les couches déjà chargées. | **Chargez la vue US** de pyArchInit (ou une couche avec les mêmes champs) dans le projet, puis cliquez de nouveau sur le nom ou sur **Show on the map** (Afficher sur la carte). L'onglet n'ajoute pas de couches de lui-même. |

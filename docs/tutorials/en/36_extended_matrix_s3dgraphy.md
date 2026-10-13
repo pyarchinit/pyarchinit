@@ -42,30 +42,11 @@ Pressing **Esporta** asks for the **destination folder**.
 
 Authors, licences, embargoes and groups are handled in the **"Manage paradata"** window (§3).
 
-### 2.2.1 Trenches: a single graph or one per trench
+### 2.2.1 Trenches: a single graph for the whole site
 
-A group of three choices, in the same window, decides **how to split the
-em.json** when the dig has several trenches:
+Starting with **5.13.109-alpha**, the em.json carries **a single graph**, with the units of all the trenches: there is nothing to choose. The "Esporta Extended Matrix" window no longer has the "Saggi" (trenches) group, and the menu entries **Esporta sito in em.json…** and **Vedi la matrice…** ask only for the site.
 
-- **Automatic**: one graph if the site has a single trench, one graph
-  per trench if it has more. This is the starting choice.
-- **A single graph for the whole site**: the whole dig in one graph, the
-  way it has always been done.
-- **One graph per trench**: **a single file**, carrying one graph for
-  each trench plus one for the units that left the field empty.
-  Relationships that **leave** the trench are not lost: they stay in the
-  file as links between graphs (`graph.links`).
-
-> **EMStudio 1.6.0 shows one at a time.** The file is right — the
-> library's own loader reads every graph back, with no warning — but
-> EMStudio opens the graph named in `active_graph_id`, the first trench,
-> and has no switcher for the others. The matrix inside QGIS, **Show
-> matrix**, merges them all and draws the whole dig. Measured on
-> 2026-10-12 on the example site: 4 graphs (52/49/56/51 nodes), 32
-> cross-trench links, 51 units in the merged matrix.
-
-The trench is the **Saggio** field of the US form: units that have it
-empty end up in a graph of their own, inside the same file.
+The trench is the **Saggio** field of the US form: it stays a field like the others, which can be used as a dimension to group the units (`saggio`, §4) and which goes into the narrative's *briefing* (§10.4), but it no longer splits the file. A file exported by earlier versions (up to 5.13.108-alpha), with one graph per trench, still opens in the matrix panel (§10.8).
 
 ### 2.3 Click "Esporta"
 
@@ -478,21 +459,16 @@ The names of the tabs and buttons of the Narrative tab exist in Italian and in E
 
 1. Open the menu **Plugins → pyArchInit - Archaeological GIS Tools** and choose the entry **Extended Matrix → Vedi la matrice…** (View the matrix).
 2. Choose the **site**.
-3. If the site has **trenches** (*saggi*), pyArchInit asks "Il sito ha N saggi. Come divido il file?" (The site has N trenches. How do I split the file?) with two answers: "Un grafo per ogni saggio (…)" (one graph per trench), the default, or "Un grafo solo per tutto il sito" (a single graph for the whole site). It is the same choice as in §2.2.1 and in the "Esporta sito in em.json…" entry: the two entries write the **same file**, with the same shape.
-4. pyArchInit exports the site from the database to `<home>/pyarchinit_EM_folder/<site>.em.json` — `<home>` is `~/pyarchinit_5`, or the folder named by the `PYARCHINIT_HOME` environment variable — and opens the panel **"Matrice — `<site>`"**, docked to the right of the QGIS window. The file name is the site name, with special characters replaced by "_" (for example "Scavo 1" becomes `Scavo_1.em.json`).
-5. In the right-hand column of the panel, click the **Narrative** tab.
+3. pyArchInit exports the site from the database to `<home>/pyarchinit_EM_folder/<site>.em.json` — `<home>` is `~/pyarchinit_5`, or the folder named by the `PYARCHINIT_HOME` environment variable — and opens the panel **"Matrice — `<site>`"**, docked to the right of the QGIS window. The file name is the site name, with special characters replaced by "_" (for example "Scavo 1" becomes `Scavo_1.em.json`).
+4. In the right-hand column of the panel, click the **Narrative** tab.
 
 <!-- IMMAGINE: Screenshot of the Plugins → pyArchInit - Archaeological GIS Tools menu with the entry "Extended Matrix → Vedi la matrice…" -->
 ![View the matrix menu](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figure 1: The "Extended Matrix → Vedi la matrice…" entry in the plugin menu*
 
-<!-- IMMAGINE: Screenshot of the trench question with the two answers -->
-![Trench question](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figure 2: The trench question: one graph per trench or a single graph*
-
 <!-- IMMAGINE: Screenshot of the matrix panel docked on the right, with the Units and Narrative tabs -->
 ![Panel with two tabs](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figure 3: The matrix panel with the Units and Narrative tabs*
+*Figure 2: The matrix panel with the Units and Narrative tabs*
 
 The file is **one per site and stays on disk**: it no longer lives in a temporary folder. It is the file EMStudio opens, and it is where the narrative is written. Every time you choose "Vedi la matrice…" the site is **exported again from the database** and the file is rewritten; the narrative already in it is kept (§10.8).
 
@@ -540,12 +516,12 @@ The providers are those of the "Provider AI" selectors: **OpenAI** and **Anthrop
 
 <!-- IMMAGINE: Screenshot of the Narrative tab with the chapter list, the text of the chosen chapter and the seven buttons -->
 ![Narrative tab](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figure 4: The Narrative tab*
+*Figure 3: The Narrative tab*
 
 From top to bottom:
 
 - **the status line**: the model in use (§10.2) and the reminder *"If EMStudio has the file open, close it first: the last writer wins."*;
-- **the chapter list**, one row per chapter: *Title — state*. With the per-trench export (§2.2.1) each trench has its own narrative and each row is preceded by the trench name in square brackets, for example `[Saggio A] 15th century — AI draft`;
+- **the chapter list**, one row per chapter: *Title — state*. A file from an earlier version, split by trench, shows all the graphs: each row is preceded by the graph name in square brackets, for example `[Saggio A] 15th century — AI draft`;
 - **the text of the chosen chapter**: the prose, with units quoted by name — the names are **links**: a click shows the unit on the map (§10.10); under the paragraph where a unit is first named, up to two of its photos appear (§10.11). If the chapter has no prose yet you see its placeholder "[to be written: …]";
 - **the progress line**, only while generating: "Chapter 3 of 9 · 15th century";
 - **the buttons**, in two rows.
@@ -569,7 +545,7 @@ When the file **has no narrative yet** the list is empty and a text says: *"No n
 | Button (en) | In Italian | What it does |
 |-------------|------------|--------------|
 | **Generate with AI** | Genera con l'AI | Writes, **one at a time**, all the epoch (and activity) chapters still "to be written"; those already written are left alone. If there is no narrative yet, it first builds the outline. Shows the progress and the **Cancel** button. On only with a file open and an AI set up. |
-| **Regenerate chapter** | Rigenera capitolo | Rewrites **the chapter chosen** in the list (with several trenches, only the one of the chosen trench): the unendorsed AI draft is replaced — but only once the model has answered: if the call fails, the earlier draft stays — and blocks already endorsed stay. It turns on when you choose an epoch or activity chapter and an AI is set up; for "Presentation" and "Where it is" it stays off. |
+| **Regenerate chapter** | Rigenera capitolo | Rewrites **the chapter chosen** in the list: the unendorsed AI draft is replaced — but only once the model has answered: if the call fails, the earlier draft stays — and blocks already endorsed stay. It turns on when you choose an epoch or activity chapter and an AI is set up; for "Presentation" and "Where it is" it stays off. |
 | **Endorse…** | Convalida… | Opens a menu with "This chapter" and "All chapters", then asks who endorses (§10.6). On when there is a narrative. |
 | **Prepare the chapters** | Prepara i capitoli | Builds **only the outline** of the chapters, without AI: it works even if no AI is set up, so you can write by hand in EMStudio. It does not touch prose already written, and adds the chapters of new epochs. Result: "Chapters prepared: N." |
 | **Show on the map** | Mostra sulla mappa | Selects and frames on the map, **all together**, the units the chosen chapter talks about (§10.10): those quoted in the prose or, if the chapter is not written yet, all those of its band. On only if at least one of the units the chosen chapter talks about is a row of the US form. |
@@ -611,7 +587,7 @@ While generating, every button is off except **Cancel**.
 
 <!-- IMMAGINE: Screenshot of generation in progress: the progress line "Chapter 3 of 9 · …" and the Cancel button -->
 ![Generation in progress](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figure 5: Generation in progress, with the progress line and the Cancel button*
+*Figure 4: Generation in progress, with the progress line and the Cancel button*
 
 A chapter that fails does not stop the others: the summary says which. To retry, just click **Generate with AI** again, which writes only the chapters still "to be written".
 
@@ -620,18 +596,18 @@ A chapter that fails does not stop the others: the summary says which. To retry,
 Endorsing means that a **person** takes responsibility for the text the model wrote. It never happens on its own: not by generating, not by saving.
 
 1. Click **Endorse…**. A small menu opens: **"This chapter"** — on only if the chosen chapter is an "AI draft" — or **"All chapters"**, that is all the AI drafts not yet endorsed, in every graph of the file.
-2. A window asks **"Who endorses? Pick an author or type a new name."** The list holds the **human authors already in the graph** — the people named in the US form as compiler (*schedatore*), US director and US supervisor — and you can type a new name, which becomes a new author of the graph (with several trenches, in every graph that has drafts to sign).
+2. A window asks **"Who endorses? Pick an author or type a new name."** The list holds the **human authors already in the graph** — the people named in the US form as compiler (*schedatore*), US director and US supervisor — and you can type a new name, which becomes a new author of the graph.
 3. The message bar says **"N blocks endorsed by `<name>`."**, or "Nothing to endorse." The file is saved.
 
 <!-- IMMAGINE: Screenshot of the Endorse… menu ("This chapter" / "All chapters") and of the window for choosing the author -->
 ![Endorse](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figure 6: Endorse: the menu and the choice of author*
+*Figure 5: Endorse: the menu and the choice of author*
 
 The blocks go from "AI draft" to "endorsed". In the exported document the person appears among those responsible ("a cura di", edited by) and the model as assistant ("con l'assistenza di", with the assistance of), and endorsed paragraphs no longer carry the ⚠ mark. Regenerating does not delete endorsed blocks: a signature is an act, and is not lost by rewriting.
 
 ### 10.7 Exporting to HTML, DOCX or PDF
 
-Click **Export…**: the save window opens with three formats: "HTML page" (`.html`), "Word document" (`.docx`) and "Printable PDF" (`.pdf`). The suggested name is `<site>_narrativa`, with no extension, in the folder of the em.json: the extension is added by the format chosen in the window's filter; an extension typed by hand (`.html`, `.docx` or `.pdf`) wins over the filter. With the per-trench export **one file per trench** is written, adding the trench name to the name you chose. The message bar confirms: "Narrative exported to `<path>`".
+Click **Export…**: the save window opens with three formats: "HTML page" (`.html`), "Word document" (`.docx`) and "Printable PDF" (`.pdf`). The suggested name is `<site>_narrativa`, with no extension, in the folder of the em.json: the extension is added by the format chosen in the window's filter; an extension typed by hand (`.html`, `.docx` or `.pdf`) wins over the filter. The message bar confirms: "Narrative exported to `<path>`".
 
 The document contains:
 
@@ -641,7 +617,7 @@ The document contains:
 
 Things worth knowing:
 
-- **unendorsed drafts go in**, each preceded by "⚠︎ non validato da una persona" (not validated by a person), and the header says how many blocks are in this state. For a document without marks, endorse first (§10.6);
+- **unendorsed drafts go in**, each preceded by "⚠︎ non validato da una persona" (not validated by a person), and the header says how many blocks are in this state. For a document without marks, endorse first (§10.6). In the HTML the draft reads like the rest of the text, with the same font and background: above the paragraph there is the notice line and on the left an amber rule. In Word and in the PDF the notice sits in front of the paragraph (in the PDF on a line of its own, without the ⚠ sign, §10.11);
 - **all chapters go in**, even those still "to be written": their "[to be written: …]" placeholder stays in the text;
 - the prose sits **at the head** of the chapter, before the list of the units; in a narrative written with an earlier version it may still be at the bottom, and it is put right by exporting the site again (§10.8) or with **Prepare the chapters**;
 - figures an author planned in EMStudio (for example the matrix of an epoch) are not drawn by pyArchInit's export: a placeholder stays in the document;
@@ -649,7 +625,7 @@ Things worth knowing:
 
 <!-- IMMAGINE: Screenshot of the exported HTML document: a chapter with a draft preceded by "⚠︎ non validato da una persona" -->
 ![Exported HTML document](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figure 7: The exported HTML document, with an unendorsed draft marked*
+*Figure 6: The exported HTML document, with an unendorsed draft marked*
 
 ### 10.8 Exporting the site again: the narrative stays
 
@@ -659,7 +635,7 @@ Exporting the site again from the database — with **Vedi la matrice…**, with
 
 Before rewriting a file that holds a narrative, pyArchInit makes a **safety copy** next to it: `<site>.em.json.bak` (every new export replaces the previous copy).
 
-If you change the shape of the file — from "Un grafo per ogni saggio" to "Un grafo solo per tutto il sito", or the other way round — the graphs change names and the narrative **cannot travel** into the new file. A notice says so: *"The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …"*. The text is not lost: it is in the `.bak` copy, which however is replaced by the next export of a file that holds a narrative — put it somewhere safe. To recover it, rename the copy to `.em.json` and export again with the earlier choice.
+If the earlier file was split by trench (versions up to 5.13.108-alpha could export one graph per trench), at the first re-export the new file has **a single graph** for the whole site: the graphs have different names and the narrative **cannot travel** into the new file. A notice says so: *"The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …"*. The text is not lost: it is in the `.bak` copy, which however is replaced by the next export of a file that holds a narrative — put it somewhere safe. If you need the old narrative, open that copy (renamed to an `.em.json` file with a different name); otherwise generate the chapters again in the new file (§10.5). From 5.13.109-alpha on, the file always has a single graph and the narrative travels from one export to the next.
 
 If the previous file cannot be read (for example a file left half-written), the export goes ahead anyway: the unreadable file is **renamed** `<site>.em.json.broken` and a notice says *"The previous file cannot be read (…): its narrative, if any, was not kept."*
 
@@ -667,7 +643,7 @@ If the previous file cannot be read (for example a file left half-written), the 
 
 ### 10.9 From the "Esporta sito in em.json…" entry
 
-The entry **Extended Matrix → Esporta sito in em.json…** asks the same trench question and writes the same file `<site>.em.json` in `pyarchinit_EM_folder`. At the end it shows "Esportato `<path>`" (Exported), with the counts of nodes, edges and notices (the text of the notices is in the details of the window), and **three buttons**:
+The entry **Extended Matrix → Esporta sito in em.json…** writes the same file `<site>.em.json` in `pyarchinit_EM_folder`. At the end it shows "Esportato `<path>`" (Exported), with the counts of nodes, edges and notices (the text of the notices is in the details of the window), and **three buttons**:
 
 | Button | What it does |
 |--------|--------------|
@@ -677,7 +653,7 @@ The entry **Extended Matrix → Esporta sito in em.json…** asks the same trenc
 
 <!-- IMMAGINE: Screenshot of the final window of "Esporta sito in em.json…" with the three buttons -->
 ![Export site to em.json: three buttons](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figure 8: The final window of "Esporta sito in em.json…"*
+*Figure 7: The final window of "Esporta sito in em.json…"*
 
 ### 10.10 The units on the map
 
@@ -688,7 +664,7 @@ Starting with **5.13.108-alpha**, the Narrative tab brings the units a chapter t
 
 <!-- IMMAGINE: Screenshot of QGIS with the units of the chapter selected on the map and, at the top, the message bar "Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9." -->
 ![The units of the chapter on the map](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figure 9: The units a chapter talks about, selected on the map, and the message bar*
+*Figure 8: The units a chapter talks about, selected on the map, and the message bar*
 
 A layer with the geometries of the US must already be loaded in the project, for example pyArchInit's **US view**: the tab looks for it among the loaded layers, like the "Zoom sulla geometria" button of the Units tab (tutorial 01), recognising the units by the `sito`, `area` and `us` fields. **The project is not modified**: no layer is added, only the selection and the framing of the map change.
 
@@ -708,13 +684,13 @@ Starting with **5.13.108-alpha**, the narrative also shows the **photos** of the
 
 <!-- IMMAGINE: Side-by-side screenshots: the text of a chapter with the thumbnails under the first mention of a unit, and a page of the printable PDF with the strip of photos and its caption -->
 ![Photos of the units in the text and in the PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figure 10: The photos of the units in the chapter text and on a page of the PDF*
+*Figure 9: The photos of the units in the chapter text and on a page of the PDF*
 
 **What it needs.** The photos are not in the em.json: they are read from the project's database and folders. So you need the database linked (the matrix opened from the project), the **Thumbnail path** and **Image resize** paths set in the configuration (tutorial 01) and the files on disk; for the text, the thumbnails folder is enough. Images on remote storage are not used. If something is missing there is no message: the photos simply do not appear, and the export succeeds anyway (§10.13).
 
 ### 10.12 Warnings
 
-- **Close EMStudio before generating or endorsing.** If EMStudio has the file open, whoever writes last wins. With several trenches EMStudio shows one graph at a time (note in §2.2.1): the Narrative tab shows them all.
+- **Close EMStudio before generating or endorsing.** If EMStudio has the file open, whoever writes last wins.
 - **An AI writes only from what it finds in the graph, and it can be wrong.** The rules restrain it, they do not make it infallible: read every chapter before endorsing it.
 - **With a network provider the data leaves your computer.** The briefing of each chapter (names, definitions, descriptions and relationships of the units) is sent to the chosen service; with Ollama or LM Studio it stays local.
 - **The file is written at the end.** Generation saves when it finishes, even if you cancelled it: do not close QGIS while the AI is writing. Saving is safe: the file is written alongside, read back, and only then replaces the real one; if anything goes wrong, **the previous file stays as it was**.
@@ -732,7 +708,7 @@ Starting with **5.13.108-alpha**, the narrative also shows the **photos** of the
 | "truncated" / «troncato» next to the state | The model stopped at the length limit and the text ends halfway. | Before endorsing, **Regenerate chapter**; if it happens again, finish the chapter in EMStudio. |
 | "N chapters generated, M failed: `<title>` — `<reason>`" / «N capitoli generati, M falliti: …» | The provider refused the request (invalid key, quota, model not available) or the local server does not answer. "the model wrote nothing" means the reply was empty. | Remove the cause and click **Generate with AI** again: it writes only the chapters left "to be written". |
 | "The previous file cannot be read (…)" / «Il file precedente non si legge (…)» | At re-export the existing file was not a readable em.json. | The export went ahead: the unreadable file was kept next to the new one as `….broken`, and the narrative it held, if any, did not travel into the new file. If you need it, recover it from that file or from a backup. |
-| "The previous file's narrative (graphs: …) did not travel into the new file…" / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | You changed the shape of the file (one graph per trench ↔ a single graph): the graphs have different names and the narrative cannot travel. | The earlier file is in the `.bak` copy: rename it to `.em.json` and export again with the earlier choice. |
+| "The previous file's narrative (graphs: …) did not travel into the new file…" / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | The earlier file was split by trench (versions up to 5.13.108-alpha): the graphs have different names and the narrative cannot travel. | The earlier file is in the `.bak` copy: open that one if you need the old narrative, or generate the chapters again in the new file. |
 | "Could not write … The previous file is intact." / «Non sono riuscito a scrivere … Il file precedente è intatto.» | Saving failed (full disk, locked file, permissions). | Fix it and repeat: the chapters generated in that session had not been saved. |
 | "DocX export needs python-docx — install the extra: …" (always in English) | The `python-docx` package is not installed in QGIS's Python: it is needed only for DOCX. | Install `python-docx` (it is one of the plugin's requirements), or export to HTML, which needs nothing. |
 | "None of the loaded layers has the fields to recognise the units…" / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | The open project has no layer carrying the `sito`, `area` and `us` fields of the units (for example pyArchInit's US view): the tab searches only among the layers already loaded. | **Load pyArchInit's US view** (or a layer with the same fields) into the project, then click the name or **Show on the map** again. The tab does not add layers by itself. |

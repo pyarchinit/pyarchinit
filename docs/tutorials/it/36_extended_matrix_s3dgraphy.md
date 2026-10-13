@@ -42,30 +42,11 @@ Premendo **Esporta** viene chiesta la **cartella di destinazione**.
 
 Autori, licenze, embargo e gruppi si gestiscono nella finestra **"Manage paradata"** (§3).
 
-### 2.2.1 Saggi: un grafo solo o uno per saggio
+### 2.2.1 Saggi: un grafo solo per tutto il sito
 
-Un gruppo di tre scelte, nella stessa finestra, decide **come dividere
-l'em.json** quando lo scavo ha più saggi:
+Dalla versione **5.13.109-alpha** l'em.json porta **un grafo solo**, con le unità di tutti i saggi: non c'è niente da scegliere. La finestra «Esporta Extended Matrix» non ha più il gruppo «Saggi», e le voci di menu **Esporta sito in em.json…** e **Vedi la matrice…** chiedono soltanto il sito.
 
-- **Automatico**: un grafo solo se il sito ha un saggio, un grafo per
-  saggio se ne ha più. È la scelta di partenza.
-- **Un grafo solo per tutto il sito**: tutto lo scavo in un grafo, come
-  si è sempre fatto.
-- **Un grafo per ogni saggio**: **un file solo**, che porta dentro un
-  grafo per ciascun saggio, più uno per le unità che non l'hanno
-  compilato. I rapporti che **escono** dal saggio non si perdono:
-  restano nel file come collegamenti fra grafi (`graph.links`).
-
-> **EMStudio 1.6.0 ne mostra uno per volta.** Il file è giusto — il
-> lettore della libreria rilegge tutti i grafi, senza un avviso — ma
-> EMStudio apre il grafo dichiarato `active_graph_id`, cioè il primo
-> saggio, e non ha un selettore per gli altri. La matrice dentro QGIS,
-> **Mostra matrice**, li unisce tutti e disegna lo scavo intero.
-> Misurato il 2026-10-12 sul sito di esempio: 4 grafi (52/49/56/51
-> nodi), 32 collegamenti fra saggi, 51 unità nella matrice unita.
-
-Il saggio è il campo **Saggio** della scheda US: le unità che non lo hanno
-compilato finiscono in un grafo a parte, dentro lo stesso file.
+Il saggio è il campo **Saggio** della scheda US: resta un campo come gli altri, che si può usare come dimensione per raggruppare le unità (`saggio`, §4) e che finisce nel *briefing* della narrativa (§10.4), ma non divide più il file. Un file esportato con le versioni precedenti (fino alla 5.13.108-alpha), con un grafo per saggio, si apre ancora nel pannello della matrice (§10.8).
 
 ### 2.3 Click "Esporta"
 
@@ -478,21 +459,16 @@ I nomi delle schede e dei pulsanti della scheda Narrativa esistono in italiano e
 
 1. Apri il menu **Plugins → pyArchInit - Archaeological GIS Tools** e scegli la voce **Extended Matrix → Vedi la matrice…**
 2. Scegli il **sito**.
-3. Se il sito ha dei **saggi**, pyArchInit chiede «Il sito ha N saggi. Come divido il file?» con due risposte: «Un grafo per ogni saggio (…)», proposta di partenza, oppure «Un grafo solo per tutto il sito». È la stessa scelta di §2.2.1 e della voce «Esporta sito in em.json…»: le due voci scrivono lo **stesso file**, con la stessa forma.
-4. pyArchInit esporta il sito dal database in `<home>/pyarchinit_EM_folder/<sito>.em.json` — `<home>` è `~/pyarchinit_5`, o la cartella indicata dalla variabile d'ambiente `PYARCHINIT_HOME` — e apre il pannello **«Matrice — `<sito>`»**, agganciato a destra della finestra di QGIS. Il nome del file è quello del sito, con i caratteri speciali sostituiti da «_» (ad esempio «Scavo 1» diventa `Scavo_1.em.json`).
-5. Nella colonna di destra del pannello clicca la scheda **Narrativa**.
+3. pyArchInit esporta il sito dal database in `<home>/pyarchinit_EM_folder/<sito>.em.json` — `<home>` è `~/pyarchinit_5`, o la cartella indicata dalla variabile d'ambiente `PYARCHINIT_HOME` — e apre il pannello **«Matrice — `<sito>`»**, agganciato a destra della finestra di QGIS. Il nome del file è quello del sito, con i caratteri speciali sostituiti da «_» (ad esempio «Scavo 1» diventa `Scavo_1.em.json`).
+4. Nella colonna di destra del pannello clicca la scheda **Narrativa**.
 
 <!-- IMMAGINE: Screenshot del menu Plugins → pyArchInit - Archaeological GIS Tools con la voce «Extended Matrix → Vedi la matrice…» -->
 ![Menu Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Figura 1: La voce «Extended Matrix → Vedi la matrice…» nel menu del plugin*
 
-<!-- IMMAGINE: Screenshot della domanda sui saggi con le due risposte -->
-![Domanda sui saggi](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Figura 2: La domanda sui saggi: un grafo per ogni saggio o un grafo solo*
-
 <!-- IMMAGINE: Screenshot del pannello della matrice agganciato a destra, con le schede Unità e Narrativa -->
 ![Pannello con due schede](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Figura 3: Il pannello della matrice con le schede Unità e Narrativa*
+*Figura 2: Il pannello della matrice con le schede Unità e Narrativa*
 
 Il file è **uno per sito e resta sul disco**: non sta più in una cartella temporanea. È il file che apre EMStudio ed è lì che la narrativa viene scritta. Ogni volta che scegli «Vedi la matrice…» il sito viene **esportato di nuovo dal database** e il file viene riscritto; la narrativa già presente si conserva (§10.8).
 
@@ -540,12 +516,12 @@ I provider sono quelli dei selettori «Provider AI»: **OpenAI** e **Anthropic (
 
 <!-- IMMAGINE: Screenshot della scheda Narrativa con l'elenco dei capitoli, il testo del capitolo scelto e i sette pulsanti -->
 ![Scheda Narrativa](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Figura 4: La scheda Narrativa*
+*Figura 3: La scheda Narrativa*
 
 Dall'alto in basso:
 
 - **la riga di stato**: il modello in uso (§10.2) e il promemoria *«Se EMStudio ha il file aperto, chiudilo prima: chi scrive per ultimo vince.»*;
-- **l'elenco dei capitoli**, una riga per capitolo: *Titolo — stato*. Con l'esportazione per saggi (§2.2.1) ogni saggio ha la sua narrativa e ogni riga è preceduta dal nome del saggio tra parentesi quadre, ad esempio `[Saggio A] XV secolo — bozza AI`;
+- **l'elenco dei capitoli**, una riga per capitolo: *Titolo — stato*. Un file di una versione precedente, diviso per saggio, mostra tutti i grafi: ogni riga è preceduta dal nome del grafo tra parentesi quadre, ad esempio `[Saggio A] XV secolo — bozza AI`;
 - **il testo del capitolo scelto**: la prosa, con le unità citate per nome — i nomi sono **link**: un clic mostra l'unità sulla mappa (§10.10); sotto il paragrafo in cui un'unità è nominata la prima volta compaiono fino a due sue foto (§10.11). Se il capitolo non ha ancora prosa vedi il suo segnaposto «[da scrivere: …]»;
 - **la riga di avanzamento**, solo durante la generazione: «Capitolo 3 di 9 · XV secolo»;
 - **i pulsanti**, in due righe.
@@ -569,7 +545,7 @@ Quando il file **non ha ancora una narrativa** l'elenco è vuoto e un testo dice
 | Pulsante (it) | In inglese | Che cosa fa |
 |---------------|------------|-------------|
 | **Genera con l'AI** | Generate with AI | Scrive, **uno alla volta**, tutti i capitoli di epoca (e di attività) ancora «da scrivere»; quelli già scritti non si toccano. Se la narrativa non c'è, crea prima lo scheletro. Mostra l'avanzamento e il pulsante **Annulla**. Acceso solo con un file aperto e un'AI impostata. |
-| **Rigenera capitolo** | Regenerate chapter | Riscrive **il capitolo scelto** nell'elenco (con più saggi, solo quello del saggio scelto): la bozza AI non convalidata viene sostituita — ma solo quando il modello ha risposto: se la chiamata fallisce, la bozza di prima resta — e i blocchi già convalidati restano. Si accende scegliendo un capitolo di epoca o di attività, con un'AI impostata; per «Presentazione» e «Dove si trova» resta spento. |
+| **Rigenera capitolo** | Regenerate chapter | Riscrive **il capitolo scelto** nell'elenco: la bozza AI non convalidata viene sostituita — ma solo quando il modello ha risposto: se la chiamata fallisce, la bozza di prima resta — e i blocchi già convalidati restano. Si accende scegliendo un capitolo di epoca o di attività, con un'AI impostata; per «Presentazione» e «Dove si trova» resta spento. |
 | **Convalida…** | Endorse… | Apre un menu con «Questo capitolo» e «Tutti i capitoli», poi chiede chi convalida (§10.6). Acceso quando c'è una narrativa. |
 | **Prepara i capitoli** | Prepare the chapters | Crea **solo lo scheletro** dei capitoli, senza AI: serve anche se non c'è nessuna AI impostata, per scrivere a mano in EMStudio. Non tocca la prosa già scritta e aggiunge i capitoli delle epoche nuove. Esito: «Capitoli preparati: N.» |
 | **Mostra sulla mappa** | Show on the map | Seleziona e inquadra sulla mappa, **tutte insieme**, le unità di cui parla il capitolo scelto (§10.10): quelle citate nella prosa o, se il capitolo non è ancora scritto, tutte quelle della sua fascia. Acceso solo se almeno una delle unità di cui parla il capitolo scelto è una riga della scheda US. |
@@ -611,7 +587,7 @@ Durante la generazione tutti i pulsanti sono spenti tranne **Annulla**.
 
 <!-- IMMAGINE: Screenshot della generazione in corso: riga di avanzamento «Capitolo 3 di 9 · …» e pulsante Annulla -->
 ![Generazione in corso](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Figura 5: Generazione in corso, con l'avanzamento e il pulsante Annulla*
+*Figura 4: Generazione in corso, con l'avanzamento e il pulsante Annulla*
 
 Un capitolo che fallisce non ferma gli altri: il riepilogo dice quali. Per riprovare basta un altro clic su **Genera con l'AI**, che scrive solo i capitoli ancora «da scrivere».
 
@@ -620,18 +596,18 @@ Un capitolo che fallisce non ferma gli altri: il riepilogo dice quali. Per ripro
 Convalidare vuol dire che una **persona** si assume la responsabilità del testo scritto dal modello. Non avviene mai da solo: né generando, né salvando.
 
 1. Clicca **Convalida…**. Si apre un piccolo menu: **«Questo capitolo»** — acceso solo se il capitolo scelto è in «bozza AI» — oppure **«Tutti i capitoli»**, cioè tutte le bozze AI non ancora convalidate, in tutti i grafi del file.
-2. Una finestra chiede **«Chi convalida? Scegli un autore o scrivi un nome nuovo.»** L'elenco contiene gli **autori umani già nel grafo** — le persone nominate nella scheda US come schedatore, direttore US e responsabile US — e puoi scrivere un nome nuovo, che diventa un nuovo autore del grafo (con più saggi, in ogni grafo che ha bozze da firmare).
+2. Una finestra chiede **«Chi convalida? Scegli un autore o scrivi un nome nuovo.»** L'elenco contiene gli **autori umani già nel grafo** — le persone nominate nella scheda US come schedatore, direttore US e responsabile US — e puoi scrivere un nome nuovo, che diventa un nuovo autore del grafo.
 3. La barra dei messaggi dice **«N blocchi convalidati da `<nome>`.»**, oppure «Niente da convalidare.» Il file viene salvato.
 
 <!-- IMMAGINE: Screenshot del menu Convalida… («Questo capitolo» / «Tutti i capitoli») e della finestra con la scelta dell'autore -->
 ![Convalida](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Figura 6: Convalida: il menu e la scelta dell'autore*
+*Figura 5: Convalida: il menu e la scelta dell'autore*
 
 I blocchi passano da «bozza AI» a «convalidato». Nel documento esportato la persona compare tra i responsabili («a cura di») e il modello come assistente («con l'assistenza di»), e i paragrafi convalidati non portano più il segno ⚠. Rigenerare non cancella i blocchi convalidati: la firma è un atto, non si perde riscrivendo.
 
 ### 10.7 Esportare in HTML, DOCX o PDF
 
-Clicca **Esporta…**: si apre la finestra di salvataggio con tre formati: «Pagina HTML» (`.html`), «Documento Word» (`.docx`) e «PDF stampabile» (`.pdf`). Il nome proposto è `<sito>_narrativa`, senza estensione, nella cartella dell'em.json: l'estensione la mette il formato scelto nel filtro della finestra; un'estensione scritta a mano (`.html`, `.docx` o `.pdf`) vince sul filtro. Con l'esportazione per saggi si scrive **un file per saggio**, aggiungendo il nome del saggio al nome scelto. La barra dei messaggi conferma: «Narrativa esportata in `<percorso>`».
+Clicca **Esporta…**: si apre la finestra di salvataggio con tre formati: «Pagina HTML» (`.html`), «Documento Word» (`.docx`) e «PDF stampabile» (`.pdf`). Il nome proposto è `<sito>_narrativa`, senza estensione, nella cartella dell'em.json: l'estensione la mette il formato scelto nel filtro della finestra; un'estensione scritta a mano (`.html`, `.docx` o `.pdf`) vince sul filtro. La barra dei messaggi conferma: «Narrativa esportata in `<percorso>`».
 
 Il documento contiene:
 
@@ -641,7 +617,7 @@ Il documento contiene:
 
 Alcune cose da sapere:
 
-- le **bozze non convalidate entrano**, ciascuna preceduta da «⚠︎ non validato da una persona», e l'intestazione dice quanti blocchi sono in questo stato. Per un documento senza segni, convalida prima (§10.6);
+- le **bozze non convalidate entrano**, ciascuna preceduta da «⚠︎ non validato da una persona», e l'intestazione dice quanti blocchi sono in questo stato. Per un documento senza segni, convalida prima (§10.6). Nell'HTML la bozza si legge come il resto del testo, con lo stesso carattere e lo stesso sfondo: sopra il paragrafo c'è la riga di avviso e a sinistra un filetto ambra. Nel Word e nel PDF l'avviso sta davanti al paragrafo (nel PDF su una riga sua, senza il segno ⚠, §10.11);
 - entrano **tutti i capitoli**, anche quelli ancora «da scrivere»: il loro segnaposto «[da scrivere: …]» resta nel testo;
 - la prosa sta **in testa** al capitolo, prima dell'elenco delle unità; in una narrativa scritta con una versione precedente può stare ancora in fondo, e si mette a posto riesportando il sito (§10.8) o con **Prepara i capitoli**;
 - le figure che un autore ha previsto in EMStudio (ad esempio la matrice di un'epoca) non vengono disegnate dall'esportazione di pyArchInit: nel documento resta un segnaposto;
@@ -649,7 +625,7 @@ Alcune cose da sapere:
 
 <!-- IMMAGINE: Screenshot del documento HTML esportato: un capitolo con una bozza preceduta da «⚠︎ non validato da una persona» -->
 ![Documento HTML esportato](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Figura 7: Il documento HTML esportato, con una bozza non convalidata segnata*
+*Figura 6: Il documento HTML esportato, con una bozza non convalidata segnata*
 
 ### 10.8 Riesportare il sito: la narrativa resta
 
@@ -659,7 +635,7 @@ Le **altre modifiche** fatte al file in EMStudio — posizioni dei nodi, descriz
 
 Prima di riscrivere un file che porta una narrativa, pyArchInit ne fa una **copia di sicurezza** accanto: `<sito>.em.json.bak` (a ogni riesportazione sostituisce la copia precedente).
 
-Se cambi la forma del file — passi da «Un grafo per ogni saggio» a «Un grafo solo per tutto il sito», o viceversa — i grafi cambiano nome e la narrativa **non può passare** nel file nuovo. Un avviso lo dice: *«La narrativa del file precedente (grafi: …) non è passata nel file nuovo (grafi: …): la forma del file è cambiata. Copia di sicurezza in …»*. Il testo non è perso: sta nella copia `.bak`, che però viene sostituita alla prossima riesportazione di un file con una narrativa — mettila al sicuro. Per recuperarlo rinomina la copia in `.em.json` e riesporta con la scelta di prima.
+Se il file di prima era diviso per saggio (le versioni fino alla 5.13.108-alpha potevano esportare un grafo per saggio), alla prima riesportazione il file nuovo ha **un grafo solo** per tutto il sito: i grafi hanno nomi diversi e la narrativa **non può passare** nel file nuovo. Un avviso lo dice: *«La narrativa del file precedente (grafi: …) non è passata nel file nuovo (grafi: …): la forma del file è cambiata. Copia di sicurezza in …»*. Il testo non è perso: sta nella copia `.bak`, che però viene sostituita alla prossima riesportazione di un file con una narrativa — mettila al sicuro. Se ti serve la narrativa vecchia, apri quella copia (rinominandola in un file `.em.json` con un altro nome); altrimenti rigenera i capitoli nel file nuovo (§10.5). Dalla 5.13.109-alpha il file ha sempre un grafo solo e la narrativa passa da una riesportazione all'altra.
 
 Se il file precedente non si legge (ad esempio un file rimasto a metà), l'esportazione va avanti lo stesso: il file illeggibile viene **rinominato** `<sito>.em.json.broken` e un avviso dice *«Il file precedente non si legge (…): la narrativa, se c'era, non è stata conservata.»*
 
@@ -667,7 +643,7 @@ Se il file precedente non si legge (ad esempio un file rimasto a metà), l'espor
 
 ### 10.9 Dalla voce «Esporta sito in em.json…»
 
-La voce **Extended Matrix → Esporta sito in em.json…** fa la stessa domanda sui saggi e scrive lo stesso file `<sito>.em.json` in `pyarchinit_EM_folder`. Alla fine mostra «Esportato `<percorso>`», con i conti di nodi, archi e avvisi (il testo degli avvisi è nei dettagli della finestra), e **tre bottoni**:
+La voce **Extended Matrix → Esporta sito in em.json…** scrive lo stesso file `<sito>.em.json` in `pyarchinit_EM_folder`. Alla fine mostra «Esportato `<percorso>`», con i conti di nodi, archi e avvisi (il testo degli avvisi è nei dettagli della finestra), e **tre bottoni**:
 
 | Bottone | Che cosa fa |
 |---------|-------------|
@@ -677,7 +653,7 @@ La voce **Extended Matrix → Esporta sito in em.json…** fa la stessa domanda 
 
 <!-- IMMAGINE: Screenshot della finestra finale di «Esporta sito in em.json…» con i tre bottoni -->
 ![Esporta sito in em.json: tre bottoni](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Figura 8: La finestra finale di «Esporta sito in em.json…»*
+*Figura 7: La finestra finale di «Esporta sito in em.json…»*
 
 ### 10.10 Le unità sulla mappa
 
@@ -688,7 +664,7 @@ Dalla versione **5.13.108-alpha** la scheda Narrativa porta sulla **mappa di QGI
 
 <!-- IMMAGINE: Screenshot di QGIS con le unità del capitolo selezionate sulla mappa e, in alto, la barra dei messaggi «Evidenziate 5 unità su 6 in «US view» (7 geometrie). Non disegnate: 1.US9.» -->
 ![Le unità del capitolo sulla mappa](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Figura 9: Le unità di cui parla il capitolo, selezionate sulla mappa, e la barra dei messaggi*
+*Figura 8: Le unità di cui parla il capitolo, selezionate sulla mappa, e la barra dei messaggi*
 
 Serve un layer con le geometrie delle US già caricato nel progetto, per esempio la **vista US** di pyArchInit: la scheda lo cerca fra i layer caricati, come il pulsante «Zoom sulla geometria» della scheda Unità (tutorial 01), riconoscendo le unità dai campi `sito`, `area` e `us`. **Il progetto non viene modificato**: non si aggiunge nessun layer, cambiano solo la selezione e l'inquadratura della mappa.
 
@@ -708,13 +684,13 @@ Dalla versione **5.13.108-alpha** la narrativa mostra anche le **foto** delle un
 
 <!-- IMMAGINE: Screenshot affiancati: il testo di un capitolo con le anteprime sotto la prima menzione di un'unità, e una pagina del PDF stampabile con la striscia di foto e la didascalia -->
 ![Foto delle unità nel testo e nel PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Figura 10: Le foto delle unità nel testo del capitolo e in una pagina del PDF*
+*Figura 9: Le foto delle unità nel testo del capitolo e in una pagina del PDF*
 
 **Che cosa serve.** Le foto non stanno nell'em.json: si leggono dal database del progetto e dalle sue cartelle. Servono quindi il database collegato (la matrice aperta dal progetto), i percorsi **Thumbnail path** e **Image resize** impostati nella configurazione (tutorial 01) e i file presenti sul disco; per il testo basta la cartella delle anteprime. Le immagini su un archivio remoto non si usano. Se manca qualcosa non c'è nessun messaggio: le foto semplicemente non compaiono, e l'export riesce lo stesso (§10.13).
 
 ### 10.12 Avvertenze
 
-- **Chiudi EMStudio prima di generare o convalidare.** Se EMStudio ha il file aperto, chi scrive per ultimo vince. Con più saggi, EMStudio mostra un grafo alla volta (nota di §2.2.1): la scheda Narrativa li mostra tutti.
+- **Chiudi EMStudio prima di generare o convalidare.** Se EMStudio ha il file aperto, chi scrive per ultimo vince.
 - **Un'AI scrive solo da quello che trova nel grafo, e può sbagliare.** Le regole la tengono a freno, non la rendono infallibile: leggi ogni capitolo prima di convalidarlo.
 - **Con un provider in rete i dati escono dal computer.** Il briefing di ogni capitolo (nomi, definizioni, descrizioni e rapporti delle unità) viene inviato al servizio scelto; con Ollama o LM Studio resta in locale.
 - **Il file si scrive alla fine.** La generazione salva quando termina, anche se l'hai annullata: non chiudere QGIS mentre l'AI sta scrivendo. Il salvataggio è sicuro: il file viene scritto accanto, riletto e solo allora sostituisce il vero; se qualcosa va storto, **il file precedente resta com'era**.
@@ -732,7 +708,7 @@ Dalla versione **5.13.108-alpha** la narrativa mostra anche le **foto** delle un
 | «troncato» / “truncated” accanto allo stato | Il modello si è fermato al limite di lunghezza e il testo finisce a metà. | Prima di convalidare, **Rigenera capitolo**; se si ripete, completa il capitolo in EMStudio. |
 | «N capitoli generati, M falliti: `<titolo>` — `<motivo>`» / “N chapters generated, M failed: …” | Il fornitore ha rifiutato la richiesta (chiave non valida, quota, modello non disponibile) o il server locale non risponde. «il modello non ha scritto niente» vuol dire che la risposta era vuota. | Rimuovi la causa e clicca di nuovo **Genera con l'AI**: scrive solo i capitoli rimasti «da scrivere». |
 | «Il file precedente non si legge (…)» / “The previous file cannot be read (…)” | Alla riesportazione il file esistente non era un em.json leggibile. | L'esportazione è andata avanti: il file illeggibile è stato conservato accanto come `….broken` e la narrativa che conteneva, se c'era, non è passata nel file nuovo. Se ti serve, recuperala da quel file o da una copia di sicurezza. |
-| «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» / “The previous file's narrative (graphs: …) did not travel into the new file…” | Hai cambiato la forma del file (un grafo per saggio ↔ un grafo solo): i grafi hanno nomi diversi e la narrativa non può passare. | Il file di prima è nella copia `.bak`: rinominala in `.em.json` e riesporta con la scelta di prima. |
+| «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» / “The previous file's narrative (graphs: …) did not travel into the new file…” | Il file di prima era diviso per saggio (versioni fino alla 5.13.108-alpha): i grafi hanno nomi diversi e la narrativa non può passare. | Il file di prima è nella copia `.bak`: apri quella se ti serve la narrativa vecchia, oppure rigenera i capitoli nel file nuovo. |
 | «Non sono riuscito a scrivere … Il file precedente è intatto.» / “Could not write … The previous file is intact.” | Il salvataggio è fallito (disco pieno, file bloccato, permessi). | Rimedia e ripeti: i capitoli generati in quella sessione non erano stati salvati. |
 | «DocX export needs python-docx — install the extra: …» (sempre in inglese) | Il pacchetto `python-docx` non è installato nel Python di QGIS: serve solo per il DOCX. | Installa `python-docx` (è fra i requisiti del plugin), oppure esporta in HTML, che non richiede niente. |
 | «Nessuno dei layer caricati porta i campi per riconoscere le unità…» / “None of the loaded layers has the fields to recognise the units…” | Nel progetto aperto non c'è nessun layer che porti i campi `sito`, `area` e `us` delle unità (per esempio la vista US di pyArchInit): la scheda cerca solo fra i layer già caricati. | **Carica la vista US** di pyArchInit (o un layer con gli stessi campi) nel progetto e clicca di nuovo sul nome o su **Mostra sulla mappa**. La scheda non aggiunge layer da sola. |

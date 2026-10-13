@@ -42,34 +42,11 @@ Beim Druck auf **Esporta** wird nach dem **Zielordner** gefragt.
 
 Autoren, Lizenzen, Embargos und Gruppen verwaltet das Fenster **"Manage paradata"** (§3).
 
-### 2.2.1 Sondagen: ein Graph oder einer je Sondage
+### 2.2.1 Sondagen: ein einziger Graph für die ganze Stätte
 
-Eine Gruppe von drei Wahlmöglichkeiten im selben Fenster entscheidet,
-**wie die em.json geteilt wird**, wenn die Ausgrabung mehrere Sondagen
-hat:
+Ab Version **5.13.109-alpha** enthält die em.json **einen einzigen Graphen** mit den Einheiten aller Sondagen: Es gibt nichts auszuwählen. Das Fenster «Esporta Extended Matrix» hat die Gruppe «Saggi» (Sondagen) nicht mehr, und die Menüeinträge **Esporta sito in em.json…** und **Vedi la matrice…** fragen nur noch nach der Stätte.
 
-- **Automatisch**: ein einziger Graph, wenn die Stätte eine Sondage
-  hat, ein Graph je Sondage, wenn sie mehrere hat. Das ist die
-  Ausgangswahl.
-- **Ein einziger Graph für die ganze Stätte**: die ganze Ausgrabung in
-  einem Graphen, wie bisher.
-- **Ein Graph je Sondage**: **eine einzige Datei**, die einen Graphen je
-  Sondage enthält, plus einen für die Einheiten ohne Angabe.
-  Beziehungen, die aus der Sondage **hinausführen**, gehen nicht
-  verloren: sie bleiben in der Datei als Verbindungen zwischen Graphen
-  (`graph.links`).
-
-> **EMStudio 1.6.0 zeigt jeweils einen.** Die Datei ist richtig — der
-> Leser der Bibliothek liest alle Graphen wieder ein, ohne Warnung —
-> aber EMStudio öffnet den in `active_graph_id` genannten Graphen, also
-> die erste Sondage, und hat keine Auswahl für die anderen. Die Matrix
-> in QGIS, **Matrix zeigen**, vereint sie alle und zeichnet die ganze
-> Ausgrabung. Gemessen am 2026-10-12 an der Beispielstätte: 4 Graphen
-> (52/49/56/51 Knoten), 32 Verbindungen zwischen Sondagen, 51 Einheiten
-> in der vereinten Matrix.
-
-Die Sondage ist das Feld **Saggio** des SE-Formulars: Einheiten ohne
-Eintrag landen in einem eigenen Graphen, in derselben Datei.
+Die Sondage ist das Feld **Saggio** des SE-Formulars: Es bleibt ein Feld wie die anderen, das sich als Dimension zum Gruppieren der Einheiten verwenden lässt (`saggio`, §4) und in das *Briefing* der Erzählung eingeht (§10.4), die Datei aber nicht mehr teilt. Eine mit früheren Versionen (bis 5.13.108-alpha) exportierte Datei mit einem Graphen je Sondage lässt sich im Panel der Matrix weiterhin öffnen (§10.8).
 
 ### 2.3 Klick auf "Esporta"
 
@@ -482,21 +459,16 @@ Die Namen der Tabs und der Schaltflächen des Tabs Narrative gibt es auf Italien
 
 1. Öffnen Sie das Menü **Plugins → pyArchInit - Archaeological GIS Tools** und wählen Sie den Eintrag **Extended Matrix → Vedi la matrice…** (Die Matrix ansehen).
 2. Wählen Sie die **Stätte**.
-3. Hat die Stätte **Sondagen** (*saggi*), fragt pyArchInit «Il sito ha N saggi. Come divido il file?» (Die Stätte hat N Sondagen. Wie teile ich die Datei auf?) mit zwei Antworten: «Un grafo per ogni saggio (…)» (ein Graph je Sondage), die Voreinstellung, oder «Un grafo solo per tutto il sito» (ein einziger Graph für die ganze Stätte). Es ist dieselbe Wahl wie in §2.2.1 und beim Eintrag «Esporta sito in em.json…»: Die beiden Einträge schreiben **dieselbe Datei**, in derselben Form.
-4. pyArchInit exportiert die Stätte aus der Datenbank nach `<home>/pyarchinit_EM_folder/<Stätte>.em.json` — `<home>` ist `~/pyarchinit_5` oder der Ordner, den die Umgebungsvariable `PYARCHINIT_HOME` angibt — und öffnet das Panel **«Matrice — `<Stätte>`»**, rechts am QGIS-Fenster angedockt. Der Dateiname ist der Name der Stätte, wobei Sonderzeichen durch «_» ersetzt werden (zum Beispiel wird «Scavo 1» zu `Scavo_1.em.json`).
-5. Klicken Sie in der rechten Spalte des Panels auf den Tab **Narrative**.
+3. pyArchInit exportiert die Stätte aus der Datenbank nach `<home>/pyarchinit_EM_folder/<Stätte>.em.json` — `<home>` ist `~/pyarchinit_5` oder der Ordner, den die Umgebungsvariable `PYARCHINIT_HOME` angibt — und öffnet das Panel **«Matrice — `<Stätte>`»**, rechts am QGIS-Fenster angedockt. Der Dateiname ist der Name der Stätte, wobei Sonderzeichen durch «_» ersetzt werden (zum Beispiel wird «Scavo 1» zu `Scavo_1.em.json`).
+4. Klicken Sie in der rechten Spalte des Panels auf den Tab **Narrative**.
 
 <!-- IMMAGINE: Screenshot des Menüs Plugins → pyArchInit - Archaeological GIS Tools mit dem Eintrag «Extended Matrix → Vedi la matrice…» -->
 ![Menü Vedi la matrice](images/36_extended_matrix_s3dgraphy/01_menu_vedi_matrice.png)
 *Abbildung 1: Der Eintrag «Extended Matrix → Vedi la matrice…» im Menü des Plugins*
 
-<!-- IMMAGINE: Screenshot der Frage zu den Sondagen mit den zwei Antworten -->
-![Frage zu den Sondagen](images/36_extended_matrix_s3dgraphy/02_domanda_saggi.png)
-*Abbildung 2: Die Frage zu den Sondagen: ein Graph je Sondage oder ein einziger Graph*
-
 <!-- IMMAGINE: Screenshot des rechts angedockten Matrix-Panels mit den Tabs Units und Narrative -->
 ![Panel mit zwei Tabs](images/36_extended_matrix_s3dgraphy/03_pannello_due_schede.png)
-*Abbildung 3: Das Matrix-Panel mit den Tabs Units und Narrative*
+*Abbildung 2: Das Matrix-Panel mit den Tabs Units und Narrative*
 
 Die Datei ist **eine je Stätte und bleibt auf der Festplatte**: Sie liegt nicht mehr in einem temporären Ordner. Es ist die Datei, die EMStudio öffnet, und in ihr wird die Erzählung geschrieben. Jedes Mal, wenn Sie «Vedi la matrice…» wählen, wird die Stätte **erneut aus der Datenbank exportiert** und die Datei neu geschrieben; die bereits vorhandene Erzählung bleibt erhalten (§10.8).
 
@@ -544,12 +516,12 @@ Die Provider sind die der Auswahlfelder «Provider AI»: **OpenAI** und **Anthro
 
 <!-- IMMAGINE: Screenshot des Tabs Narrative mit der Kapitelliste, dem Text des gewählten Kapitels und den sieben Schaltflächen -->
 ![Tab Narrative](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
-*Abbildung 4: Der Tab Narrative*
+*Abbildung 3: Der Tab Narrative*
 
 Von oben nach unten:
 
 - **die Statuszeile**: das verwendete Modell (§10.2) und der Hinweis *«If EMStudio has the file open, close it first: the last writer wins.»* (Hat EMStudio die Datei geöffnet, schließen Sie es zuerst: Wer zuletzt schreibt, gewinnt.);
-- **die Kapitelliste**, eine Zeile je Kapitel: *Titel — Zustand*. Beim Export mit einem Graphen je Sondage (§2.2.1) hat jede Sondage ihre eigene Erzählung, und jeder Zeile geht der Name der Sondage in eckigen Klammern voran, zum Beispiel `[Saggio A] 15th century — AI draft`;
+- **die Kapitelliste**, eine Zeile je Kapitel: *Titel — Zustand*. Eine Datei aus einer früheren Version, die nach Sondagen geteilt ist, zeigt alle Graphen: Jeder Zeile geht der Name des Graphen in eckigen Klammern voran, zum Beispiel `[Saggio A] 15th century — AI draft`;
 - **der Text des gewählten Kapitels**: der Fließtext, in dem die Einheiten mit ihrem Namen zitiert werden — die Namen sind **Links**: Ein Klick zeigt die Einheit auf der Karte (§10.10); unter dem Absatz, in dem eine Einheit zum ersten Mal genannt wird, erscheinen bis zu zwei ihrer Fotos (§10.11). Hat das Kapitel noch keinen Text, sehen Sie seinen Platzhalter «[to be written: …]»;
 - **die Fortschrittszeile**, nur während der Generierung: «Chapter 3 of 9 · 15th century»;
 - **die Schaltflächen**, in zwei Zeilen.
@@ -573,7 +545,7 @@ Wenn die Datei **noch keine Erzählung enthält**, ist die Liste leer, und ein T
 | Schaltfläche (en) | Auf Italienisch | Was sie tut |
 |-------------------|-----------------|-------------|
 | **Generate with AI** | Genera con l'AI | Schreibt **nacheinander** alle Kapitel der Epochen (und der Aktivitäten), die noch «to be written» sind; bereits geschriebene bleiben unberührt. Gibt es noch keine Erzählung, wird zuerst die Gliederung angelegt. Zeigt den Fortschritt und die Schaltfläche **Cancel**. Nur aktiv, wenn eine Datei geöffnet und eine KI eingerichtet ist. |
-| **Regenerate chapter** | Rigenera capitolo | Schreibt **das in der Liste gewählte Kapitel** neu (bei mehreren Sondagen nur das Kapitel der gewählten Sondage): Der nicht validierte KI-Entwurf wird ersetzt — aber erst, wenn das Modell geantwortet hat: Schlägt der Aufruf fehl, bleibt der frühere Entwurf erhalten —, und bereits validierte Blöcke bleiben. Die Schaltfläche wird aktiv, wenn Sie ein Kapitel einer Epoche oder einer Aktivität wählen und eine KI eingerichtet ist; bei «Presentation» und «Where it is» bleibt sie deaktiviert. |
+| **Regenerate chapter** | Rigenera capitolo | Schreibt **das in der Liste gewählte Kapitel** neu: Der nicht validierte KI-Entwurf wird ersetzt — aber erst, wenn das Modell geantwortet hat: Schlägt der Aufruf fehl, bleibt der frühere Entwurf erhalten —, und bereits validierte Blöcke bleiben. Die Schaltfläche wird aktiv, wenn Sie ein Kapitel einer Epoche oder einer Aktivität wählen und eine KI eingerichtet ist; bei «Presentation» und «Where it is» bleibt sie deaktiviert. |
 | **Endorse…** | Convalida… | Öffnet ein Menü mit «This chapter» und «All chapters» und fragt dann, wer validiert (§10.6). Aktiv, wenn eine Erzählung vorhanden ist. |
 | **Prepare the chapters** | Prepara i capitoli | Legt **nur die Gliederung** der Kapitel an, ohne KI: Das geht auch, wenn keine KI eingerichtet ist, sodass Sie in EMStudio von Hand schreiben können. Bereits geschriebener Text bleibt unberührt, und die Kapitel neuer Epochen werden hinzugefügt. Ergebnis: «Chapters prepared: N.» |
 | **Show on the map** | Mostra sulla mappa | Wählt die Einheiten, von denen das gewählte Kapitel spricht, **gemeinsam** auf der Karte aus und rückt sie ins Bild (§10.10): die im Fließtext zitierten oder, wenn das Kapitel noch nicht geschrieben ist, alle Einheiten seines Bandes. Nur aktiv, wenn mindestens eine der Einheiten, von denen das gewählte Kapitel spricht, eine Zeile des SE-Formulars ist. |
@@ -615,7 +587,7 @@ Während der Generierung sind alle Schaltflächen deaktiviert, außer **Cancel**
 
 <!-- IMMAGINE: Screenshot der laufenden Generierung: die Fortschrittszeile «Chapter 3 of 9 · …» und die Schaltfläche Cancel -->
 ![Generierung läuft](images/36_extended_matrix_s3dgraphy/05_generazione_in_corso.png)
-*Abbildung 5: Laufende Generierung, mit Fortschrittszeile und der Schaltfläche Cancel*
+*Abbildung 4: Laufende Generierung, mit Fortschrittszeile und der Schaltfläche Cancel*
 
 Ein Kapitel, das fehlschlägt, hält die anderen nicht auf: Die Zusammenfassung sagt, welches. Um es erneut zu versuchen, genügt ein weiterer Klick auf **Generate with AI**: Es werden nur die Kapitel geschrieben, die noch «to be written» sind.
 
@@ -624,18 +596,18 @@ Ein Kapitel, das fehlschlägt, hält die anderen nicht auf: Die Zusammenfassung 
 Validieren heißt, dass eine **Person** die Verantwortung für den vom Modell geschriebenen Text übernimmt. Es geschieht nie von selbst: weder durch das Generieren noch durch das Speichern.
 
 1. Klicken Sie auf **Endorse…**. Es öffnet sich ein kleines Menü: **«This chapter»** (Dieses Kapitel) — nur aktiv, wenn das gewählte Kapitel ein «AI draft» ist — oder **«All chapters»** (Alle Kapitel), das heißt alle noch nicht validierten KI-Entwürfe in jedem Graphen der Datei.
-2. Ein Fenster fragt **«Who endorses? Pick an author or type a new name.»** (Wer validiert? Wählen Sie einen Autor oder geben Sie einen neuen Namen ein.) Die Liste enthält die **menschlichen Autoren, die bereits im Graphen sind** — die im SE-Formular genannten Personen als Erfasser (*schedatore*), SE-Leiter und SE-Verantwortlicher —, und Sie können einen neuen Namen eingeben, der zu einem neuen Autor des Graphen wird (bei mehreren Sondagen in jedem Graphen, der noch zu unterzeichnende Entwürfe hat).
+2. Ein Fenster fragt **«Who endorses? Pick an author or type a new name.»** (Wer validiert? Wählen Sie einen Autor oder geben Sie einen neuen Namen ein.) Die Liste enthält die **menschlichen Autoren, die bereits im Graphen sind** — die im SE-Formular genannten Personen als Erfasser (*schedatore*), SE-Leiter und SE-Verantwortlicher —, und Sie können einen neuen Namen eingeben, der zu einem neuen Autor des Graphen wird.
 3. Die Meldungsleiste sagt **«N blocks endorsed by `<name>`.»** (N Blöcke vom gewählten Autor validiert.) oder «Nothing to endorse.» (Nichts zu validieren.) Die Datei wird gespeichert.
 
 <!-- IMMAGINE: Screenshot des Menüs Endorse… («This chapter» / «All chapters») und des Fensters zur Wahl des Autors -->
 ![Validieren](images/36_extended_matrix_s3dgraphy/06_convalida.png)
-*Abbildung 6: Validieren: das Menü und die Wahl des Autors*
+*Abbildung 5: Validieren: das Menü und die Wahl des Autors*
 
 Die Blöcke wechseln von «AI draft» zu «endorsed». Im exportierten Dokument erscheint die Person unter den Verantwortlichen («a cura di», herausgegeben von) und das Modell als Assistent («con l'assistenza di», mit Unterstützung von), und validierte Absätze tragen das Zeichen ⚠ nicht mehr. Das erneute Generieren löscht validierte Blöcke nicht: Eine Unterschrift ist eine Handlung und geht durch Umschreiben nicht verloren.
 
 ### 10.7 Als HTML, DOCX oder PDF exportieren
 
-Klicken Sie auf **Export…**: Das Fenster zum Speichern öffnet sich mit drei Formaten: «HTML page» (`.html`), «Word document» (`.docx`) und «Printable PDF» (druckfähiges PDF; `.pdf`). Der vorgeschlagene Name ist `<Stätte>_narrativa`, ohne Endung, im Ordner der em.json: Die Endung ergibt sich aus dem im Filter des Fensters gewählten Format; eine von Hand eingetippte Endung (`.html`, `.docx` oder `.pdf`) hat Vorrang vor dem Filter. Beim Export mit einem Graphen je Sondage wird **eine Datei je Sondage** geschrieben, wobei der gewählte Name um den Namen der Sondage ergänzt wird. Die Meldungsleiste bestätigt: «Narrative exported to `<path>`».
+Klicken Sie auf **Export…**: Das Fenster zum Speichern öffnet sich mit drei Formaten: «HTML page» (`.html`), «Word document» (`.docx`) und «Printable PDF» (druckfähiges PDF; `.pdf`). Der vorgeschlagene Name ist `<Stätte>_narrativa`, ohne Endung, im Ordner der em.json: Die Endung ergibt sich aus dem im Filter des Fensters gewählten Format; eine von Hand eingetippte Endung (`.html`, `.docx` oder `.pdf`) hat Vorrang vor dem Filter. Die Meldungsleiste bestätigt: «Narrative exported to `<path>`».
 
 Das Dokument enthält:
 
@@ -645,7 +617,7 @@ Das Dokument enthält:
 
 Wissenswertes:
 
-- **nicht validierte Entwürfe werden aufgenommen**, jeweils mit vorangestelltem «⚠︎ non validato da una persona» (nicht von einer Person validiert), und der Kopf des Dokuments sagt, wie viele Blöcke sich in diesem Zustand befinden. Für ein Dokument ohne Markierungen validieren Sie zuerst (§10.6);
+- **nicht validierte Entwürfe werden aufgenommen**, jeweils mit vorangestelltem «⚠︎ non validato da una persona» (nicht von einer Person validiert), und der Kopf des Dokuments sagt, wie viele Blöcke sich in diesem Zustand befinden. Für ein Dokument ohne Markierungen validieren Sie zuerst (§10.6). Im HTML liest sich der Entwurf wie der übrige Text, mit derselben Schrift und demselben Hintergrund: Über dem Absatz steht die Hinweiszeile, links ein bernsteinfarbener Strich. Im Word-Dokument und im PDF steht der Hinweis vor dem Absatz (im PDF in einer eigenen Zeile, ohne das Zeichen ⚠, §10.11);
 - **alle Kapitel werden aufgenommen**, auch die noch «to be written»: Ihr Platzhalter «[to be written: …]» bleibt im Text;
 - der Text steht **am Anfang** des Kapitels, vor der Liste der Einheiten; in einer mit einer früheren Version geschriebenen Erzählung kann er noch am Ende stehen und wird durch erneutes Exportieren der Stätte (§10.8) oder mit **Prepare the chapters** (Kapitel vorbereiten) an die richtige Stelle gesetzt;
 - Abbildungen, die ein Autor in EMStudio vorgesehen hat (zum Beispiel die Matrix einer Epoche), werden vom Export von pyArchInit nicht gezeichnet: Im Dokument bleibt ein Platzhalter;
@@ -653,7 +625,7 @@ Wissenswertes:
 
 <!-- IMMAGINE: Screenshot des exportierten HTML-Dokuments: ein Kapitel mit einem Entwurf, dem «⚠︎ non validato da una persona» vorangestellt ist -->
 ![Exportiertes HTML-Dokument](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
-*Abbildung 7: Das exportierte HTML-Dokument, mit einem markierten nicht validierten Entwurf*
+*Abbildung 6: Das exportierte HTML-Dokument, mit einem markierten nicht validierten Entwurf*
 
 ### 10.8 Die Stätte erneut exportieren: Die Erzählung bleibt
 
@@ -663,7 +635,7 @@ Wird die Stätte erneut aus der Datenbank exportiert — mit **Vedi la matrice�
 
 Bevor pyArchInit eine Datei neu schreibt, die eine Erzählung enthält, legt es daneben eine **Sicherheitskopie** an: `<Stätte>.em.json.bak` (jeder neue Export ersetzt die vorherige Kopie).
 
-Ändern Sie die Form der Datei — von «Un grafo per ogni saggio» zu «Un grafo solo per tutto il sito» oder umgekehrt —, ändern die Graphen ihre Namen, und die Erzählung **kann nicht in die neue Datei übernommen werden**. Ein Hinweis meldet dies: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»*. Der Text geht nicht verloren: Er liegt in der `.bak`-Kopie, die allerdings beim nächsten Export einer Datei mit Erzählung ersetzt wird — legen Sie sie an einem sicheren Ort ab. Um ihn wiederherzustellen, benennen Sie die Kopie in `.em.json` um und exportieren Sie erneut mit der früheren Wahl.
+War die frühere Datei nach Sondagen geteilt (Versionen bis 5.13.108-alpha konnten einen Graphen je Sondage exportieren), hat die neue Datei beim ersten erneuten Export **einen einzigen Graphen** für die ganze Stätte: Die Graphen haben andere Namen, und die Erzählung **kann nicht in die neue Datei übernommen werden**. Ein Hinweis meldet dies: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»*. Der Text geht nicht verloren: Er liegt in der `.bak`-Kopie, die allerdings beim nächsten Export einer Datei mit Erzählung ersetzt wird — legen Sie sie an einem sicheren Ort ab. Brauchen Sie die alte Erzählung, öffnen Sie diese Kopie (umbenannt in eine `.em.json`-Datei mit einem anderen Namen); andernfalls erzeugen Sie die Kapitel in der neuen Datei neu (§10.5). Ab 5.13.109-alpha hat die Datei immer einen einzigen Graphen, und die Erzählung bleibt von einem Export zum nächsten erhalten.
 
 Kann die vorherige Datei nicht gelesen werden (zum Beispiel eine nur halb geschriebene Datei), läuft der Export trotzdem weiter: Die unlesbare Datei wird in `<Stätte>.em.json.broken` **umbenannt**, und ein Hinweis meldet *«The previous file cannot be read (…): its narrative, if any, was not kept.»*
 
@@ -671,7 +643,7 @@ Kann die vorherige Datei nicht gelesen werden (zum Beispiel eine nur halb geschr
 
 ### 10.9 Über den Eintrag «Esporta sito in em.json…»
 
-Der Eintrag **Extended Matrix → Esporta sito in em.json…** stellt dieselbe Frage zu den Sondagen und schreibt dieselbe Datei `<Stätte>.em.json` in `pyarchinit_EM_folder`. Am Ende zeigt er «Esportato `<Pfad>`» (Exportiert) mit den Zahlen der Knoten, Kanten und Hinweise (der Text der Hinweise steht in den Details des Fensters) sowie **drei Schaltflächen**:
+Der Eintrag **Extended Matrix → Esporta sito in em.json…** schreibt dieselbe Datei `<Stätte>.em.json` in `pyarchinit_EM_folder`. Am Ende zeigt er «Esportato `<Pfad>`» (Exportiert) mit den Zahlen der Knoten, Kanten und Hinweise (der Text der Hinweise steht in den Details des Fensters) sowie **drei Schaltflächen**:
 
 | Schaltfläche | Was sie tut |
 |--------------|-------------|
@@ -681,7 +653,7 @@ Der Eintrag **Extended Matrix → Esporta sito in em.json…** stellt dieselbe F
 
 <!-- IMMAGINE: Screenshot des Abschlussfensters von «Esporta sito in em.json…» mit den drei Schaltflächen -->
 ![Esporta sito in em.json: drei Schaltflächen](images/36_extended_matrix_s3dgraphy/08_esporta_tre_bottoni.png)
-*Abbildung 8: Das Abschlussfenster von «Esporta sito in em.json…»*
+*Abbildung 7: Das Abschlussfenster von «Esporta sito in em.json…»*
 
 ### 10.10 Die Einheiten auf der Karte
 
@@ -692,7 +664,7 @@ Ab Version **5.13.108-alpha** bringt der Tab Narrative die Einheiten, von denen 
 
 <!-- IMMAGINE: Screenshot von QGIS mit den Einheiten des Kapitels, auf der Karte ausgewählt, und oben der Meldungsleiste «Highlighted 5 of 6 units in “US view” (7 geometries). Not drawn: 1.US9.» -->
 ![Die Einheiten des Kapitels auf der Karte](images/36_extended_matrix_s3dgraphy/09_unita_sulla_mappa.png)
-*Abbildung 9: Die Einheiten, von denen ein Kapitel spricht, auf der Karte ausgewählt, und die Meldungsleiste*
+*Abbildung 8: Die Einheiten, von denen ein Kapitel spricht, auf der Karte ausgewählt, und die Meldungsleiste*
 
 Im Projekt muss bereits ein Layer mit den Geometrien der SE geladen sein, zum Beispiel die **US-Ansicht** (US view) von pyArchInit: Der Tab sucht unter den bereits geladenen Layern, wie die Schaltfläche «Zoom sulla geometria» (Auf die Geometrie zoomen) des Tabs Units (Tutorial 01), und erkennt die Einheiten an den Feldern `sito`, `area` und `us`. **Das Projekt wird nicht verändert**: Es wird kein Layer hinzugefügt, nur die Auswahl und der Kartenausschnitt ändern sich.
 
@@ -712,13 +684,13 @@ Ab Version **5.13.108-alpha** zeigt die Erzählung auch die **Fotos** der Einhei
 
 <!-- IMMAGINE: Screenshots nebeneinander: der Text eines Kapitels mit den Vorschaubildern unter der ersten Nennung einer Einheit und eine Seite des druckfähigen PDFs mit dem Fotostreifen und der Bildunterschrift -->
 ![Fotos der Einheiten im Text und im PDF](images/36_extended_matrix_s3dgraphy/10_foto_e_pdf.png)
-*Abbildung 10: Die Fotos der Einheiten im Text des Kapitels und auf einer Seite des PDFs*
+*Abbildung 9: Die Fotos der Einheiten im Text des Kapitels und auf einer Seite des PDFs*
 
 **Was es braucht.** Die Fotos stehen nicht in der em.json: Sie werden aus der Datenbank und den Ordnern des Projekts gelesen. Nötig sind also die verknüpfte Datenbank (die Matrix wurde aus dem Projekt geöffnet), die in der Konfiguration eingestellten Pfade **Thumbnail path** und **Image resize** (Tutorial 01) und die Dateien auf der Festplatte; für den Text genügt der Vorschaubilder-Ordner. Bilder auf einem entfernten Speicher werden nicht verwendet. Fehlt etwas, gibt es keine Meldung: Die Fotos erscheinen einfach nicht, und der Export gelingt trotzdem (§10.13).
 
 ### 10.12 Warnungen
 
-- **Schließen Sie EMStudio, bevor Sie generieren oder validieren.** Hat EMStudio die Datei geöffnet, gewinnt, wer zuletzt schreibt. Bei mehreren Sondagen zeigt EMStudio jeweils einen Graphen (Hinweis in §2.2.1): Der Tab Narrative zeigt sie alle.
+- **Schließen Sie EMStudio, bevor Sie generieren oder validieren.** Hat EMStudio die Datei geöffnet, gewinnt, wer zuletzt schreibt.
 - **Eine KI schreibt nur aus dem, was sie im Graphen findet, und sie kann sich irren.** Die Regeln zügeln sie, machen sie aber nicht unfehlbar: Lesen Sie jedes Kapitel, bevor Sie es validieren.
 - **Bei einem Online-Provider verlassen die Daten Ihren Computer.** Das Briefing jedes Kapitels (Namen, Definitionen, Beschreibungen und Beziehungen der Einheiten) wird an den gewählten Dienst gesendet; mit Ollama oder LM Studio bleibt es lokal.
 - **Die Datei wird am Ende geschrieben.** Die Generierung speichert, wenn sie fertig ist, auch wenn Sie sie abgebrochen haben: Schließen Sie QGIS nicht, während die KI schreibt. Das Speichern ist sicher: Die Datei wird daneben geschrieben, zurückgelesen und ersetzt erst dann die eigentliche Datei; geht etwas schief, **bleibt die vorherige Datei, wie sie war**.
@@ -736,7 +708,7 @@ Ab Version **5.13.108-alpha** zeigt die Erzählung auch die **Fotos** der Einhei
 | «truncated» / «troncato» neben dem Zustand | Das Modell hat an der Längengrenze angehalten, und der Text endet mittendrin. | Klicken Sie vor dem Validieren auf **Regenerate chapter**; passiert es erneut, beenden Sie das Kapitel in EMStudio. |
 | «N chapters generated, M failed: `<title>` — `<reason>`» / «N capitoli generati, M falliti: …» | Der Provider hat die Anfrage abgelehnt (ungültiger Key, Kontingent, Modell nicht verfügbar) oder der lokale Server antwortet nicht. «the model wrote nothing» bedeutet, dass die Antwort leer war. | Beseitigen Sie die Ursache und klicken Sie erneut auf **Generate with AI**: Es schreibt nur die Kapitel, die noch «to be written» sind. |
 | «The previous file cannot be read (…)» / «Il file precedente non si legge (…)» | Beim erneuten Export war die vorhandene Datei keine lesbare em.json. | Der Export lief weiter: Die unlesbare Datei wurde neben der neuen als `….broken` aufbewahrt, und die Erzählung, die sie enthielt, wurde, falls vorhanden, nicht in die neue Datei übernommen. Brauchen Sie die Erzählung, stellen Sie sie aus dieser Datei oder aus einem Backup wieder her. |
-| «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Sie haben die Form der Datei geändert (ein Graph je Sondage ↔ ein einziger Graph): Die Graphen haben andere Namen, und die Erzählung kann nicht übernommen werden. | Die frühere Datei liegt in der `.bak`-Kopie: Benennen Sie sie in `.em.json` um und exportieren Sie erneut mit der früheren Wahl. |
+| «The previous file's narrative (graphs: …) did not travel into the new file…» / «La narrativa del file precedente (grafi: …) non è passata nel file nuovo…» | Die frühere Datei war nach Sondagen geteilt (Versionen bis 5.13.108-alpha): Die Graphen haben andere Namen, und die Erzählung kann nicht übernommen werden. | Die frühere Datei liegt in der `.bak`-Kopie: Öffnen Sie diese, wenn Sie die alte Erzählung brauchen, oder erzeugen Sie die Kapitel in der neuen Datei neu. |
 | «Could not write … The previous file is intact.» / «Non sono riuscito a scrivere … Il file precedente è intatto.» | Das Speichern ist fehlgeschlagen (Datenträger voll, gesperrte Datei, Berechtigungen). | Beheben Sie das Problem und wiederholen Sie den Vorgang: Die in dieser Sitzung generierten Kapitel waren nicht gespeichert worden. |
 | «DocX export needs python-docx — install the extra: …» (immer auf Englisch) | Das Paket `python-docx` ist im Python von QGIS nicht installiert: Es wird nur für DOCX gebraucht. | Installieren Sie `python-docx` (es gehört zu den Abhängigkeiten des Plugins) oder exportieren Sie als HTML, das nichts braucht. |
 | «None of the loaded layers has the fields to recognise the units…» / «Nessuno dei layer caricati porta i campi per riconoscere le unità…» | Das geöffnete Projekt hat keinen Layer mit den Feldern `sito`, `area` und `us` der Einheiten (zum Beispiel die US-Ansicht von pyArchInit): Der Tab sucht nur unter den bereits geladenen Layern. | **Laden Sie die US-Ansicht** von pyArchInit (oder einen Layer mit denselben Feldern) ins Projekt und klicken Sie erneut auf den Namen oder auf **Show on the map** (Auf der Karte anzeigen). Der Tab fügt von sich aus keine Layer hinzu. |
