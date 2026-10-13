@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Tag curent: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ Documentul conține:
 
 - titlul narațiunii (de exemplu „Scavo archeologico — the story of the site”, adică „Săpătură arheologică — povestea sitului”), responsabilii („a cura di”) și modelul ca asistent („con l'assistenza di”);
 - pentru fiecare capitol, întâi textul, cu unitățile citate prin numele lor, apoi lista unităților capitolului; pentru unitățile citate care au fotografii, o bandă de fotografii ia locul rândului lor (§10.11);
-- **harta sitului** (începând cu 5.13.115-alpha, doar în HTML), într-un chenar fix: în dreapta pe ecranele late, sus pe telefon. În repaus arată toate unitățile grafului în gri deschis; un clic pe numele unei unități din text arată **doar unitățile din perioada acelui capitol** ca contururi cu numărul deasupra, unitatea apăsată **colorată**, și încadrează grupul; un clic pe titlul unui capitol face la fel, fără unitatea colorată. Rândul de sub hartă indică perioada și câte unități; „whole site” (tot situl) revine la vederea de ansamblu. Geometriile provin din vederile US și USM ale bazei de date a proiectului, în momentul exportului (situl grafului, unități asociate după arie și număr): o unitate citată, dar fără desen, are linkul și nimic pe hartă; fără o bază de date conectată, documentul nu are hartă;
+- **harta sitului** (începând cu 5.13.115-alpha, doar în HTML), într-un chenar fix: în dreapta pe ecranele late, sus pe telefon. Cu harta, pagina se lărgește (începând cu 5.13.116-alpha), iar textul păstrează o coloană lizibilă. În repaus arată toate unitățile grafului în gri deschis; un clic pe numele unei unități din text arată **doar unitățile din perioada acelui capitol** ca contururi cu numărul deasupra, unitatea apăsată **colorată**, și încadrează grupul; un clic pe titlul unui capitol face la fel, fără unitatea colorată. Rândul de sub hartă indică perioada și câte unități; „whole site” (tot situl) revine la vederea de ansamblu. Geometriile provin din vederile US și USM ale bazei de date a proiectului, în momentul exportului (situl grafului, unități asociate după arie și număr): o unitate citată, dar fără desen, are linkul și nimic pe hartă; fără o bază de date conectată, documentul nu are hartă;
 - la sfârșit, secțiunea **Fonti** (surse): documentele pe care se sprijină povestea și intrarea „Prompt”, care trimite la promptul înregistrat în fișier.
 
 Câteva lucruri de știut:

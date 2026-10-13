@@ -46,6 +46,14 @@ FIELD_LABELS = {
         'es': 'Período/Fase (cont_per)',
         'fr': 'Période/Phase (cont_per)',
         'ar': 'الفترة/المرحلة (cont_per)'
+    },
+    'us': {
+        'it': 'Numero di US',
+        'en': 'SU number',
+        'de': 'SE-Nummer',
+        'es': 'Número de UE',
+        'fr': 'Numéro d\'US',
+        'ar': 'رقم الوحدة'
     }
 }
 
@@ -106,10 +114,11 @@ def _no_geometry():
 
 
 def apply_stratigraphic_order(layer, periodization=None, override=True):
-    """Drawing order of a US/USM layer, like the Time Manager: undated
-    units first, then periods by chronology (``periodization``: rows
+    """Drawing order of a US/USM layer, like the Time Manager: the
+    stratigraphic index first (the object, 1, always above the layer, 2),
+    then undated units, then periods by chronology (``periodization``: rows
     (sito, periodo, fase, cron_iniziale, cont_per) of periodizzazione_table),
-    order_layer, stratigraph_index_us — the most recent end up on top (see
+    then order_layer — the most recent end up on top (see
     modules/utility/stratigraphic_order.py). The order is set on the
     renderer: QgsVectorLayer has no setOrderBy(). With override=False an
     order already on the renderer is kept. Returns True when set."""
@@ -410,7 +419,7 @@ class USViewStyler:
         lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         # Available field names
-        available_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per']
+        available_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per', 'us']
 
         # Filter to only fields present in the layer
         if layer is not None:
@@ -622,7 +631,7 @@ class USViewStyler:
         # Base required fields for styling
         required_fields = ['stratigraph_index_us', 'tipo_us_s']
         # Optional categorization fields (at least one should be present)
-        categorization_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per']
+        categorization_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per', 'us']
 
         if not all(field in fields.names() for field in required_fields):
             print(f"Campi mancanti nel layer. Richiesti: {', '.join(required_fields)}")
@@ -675,7 +684,10 @@ class USViewStyler:
         layer.legendChanged.emit()
 
     def _category_label(self, field, value):
-        """Legend label of a category; cont_per codes also show their dating."""
+        """Legend label of a category; cont_per codes also show their dating,
+        unit numbers read «US n»."""
+        if field == 'us' and value not in (None, '', 'non specificato'):
+            return f"US {value}"
         if field != 'cont_per' or value in (None, '', 'non specificato'):
             return f"{value}"
         dating = {norm(row[4]): row[5] for row in self.periodization if len(row) > 5 and row[5]}
@@ -789,11 +801,13 @@ class USViewStyler:
             return min(anni) if anni else None
 
         def recente(voce):
+            # in TOC: prima gli oggetti (indice 1), poi gli strati (indice 2) — «l'oggetto
+            # va sempre sopra lo strato» —, dentro ciascun gruppo dal più recente
             min_order_layer, strat_idx, _rule, valore = voce
             inizio = inizio_di(valore) if inizi else None
-            return (1 if min_order_layer == 9999 else 0,
+            return (strat_idx, 1 if min_order_layer == 9999 else 0,
                     -inizio if inizio is not None else float("inf"),
-                    -min_order_layer, strat_idx)
+                    -min_order_layer)
 
         all_rules.sort(key=recente)
         for _, _, rule, _ in all_rules:

@@ -5,6 +5,26 @@
 
 ---
 
+## [fix] - 2026-10-13 — Terzo giro di Enzo: l'oggetto sopra lo strato (indice 1 sopra 2) nel disegno e nella TOC, categorie «per US», pagina della narrativa larga, e l'audit che dice da dove vengono le etichette in ettari — 5.13.116-alpha
+
+> Branch `Stratigraph_00001`. Suite **2132 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Third round: stratigraphic index first in draw order and TOC (object above layer), per-unit categories, wide narrative page, and an audit naming the project layer or annotations that write hectare labels.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **«l'ordine deve seguire sia lo stratigraphic index (1 è l'oggetto, 2 è lo strato) e poi l'order layer, dal più recente al più antico, e si deve riflettere nella TOC; l'oggetto va sempre sopra lo strato»** (Enzo, 13 ottobre 2026). `order_clauses` (`stratigraphic_order.py`) mette **prima** `stratigraph_index_us` decrescente (i 2 disegnati prima di ogni 1: l'oggetto sopra lo strato), poi la cronologia dei periodi, poi `order_layer` crescente; vale ovunque passa `apply_stratigraphic_order`: tre-passi, `enforce_unit_order` degli Stili delle viste (predefiniti, anteprima, Applica ai layer caricati, simbologia nidificata, styler del thesaurus), `_apply_us_feature_ordering`. La **TOC** del tre-passi segue la stessa regola: prima le voci con indice 1, poi quelle con indice 2, dentro ciascun gruppo dal più recente (anno del codice, poi `order_layer`). Prima l'indice era l'ultima chiave, e crescente (il 2 sopra l'1, «il taglio sopra il riempimento» di una versione precedente). Un indice vuoto si disegna come lo strato, sotto (dalla revisione dei tutorial: con i NULL in coda sarebbe finito sopra gli oggetti). L'audit delle etichette parte anche dai tre caricatori per periodo.
+- 🇮🇹 **IT**: **«aggiungi anche la visualizzazione per US»**: nel tre-passi la finestra «Selezione campo per categorizzazione» ha anche **Numero di US** (campo `us`; etichette in legenda «US 12»), e nel registro delle viste US e USM il campo `us` è fra quelli dei preset «Categorie per …» della finestra Stili delle viste.
+- 🇮🇹 **IT**: **«la pagina dell'HTML devi allargarla, così è una colonna stretta»**: con la mappa il `body` dell'HTML della narrativa si allarga a `min(96vw, 1500px)` (la libreria lo chiude a 42rem) e la colonna del testo tiene 46rem di misura leggibile; la mappa prende il resto.
+- 🇬🇧 **EN**: stratigraphic index first in the draw order (2 under 1) and in the legend; a per-unit category («US n») in the three-step styler and the styles window; the narrative HTML page widens to 1500px with a 46rem text column.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **le etichette «0,00 ha» escono ancora** (Enzo, 13 ottobre 2026) e non le produce niente del plugin, né il database, né il profilo di QGIS, né gli altri plugin attivi, né un'impostazione di progetto (QGIS 3.42 ha solo il formato del testo predefinito, non etichette predefinite). Quindi `modules/utility/label_audit.py` **guarda il progetto aperto** quando si caricano le viste US/USM o la Map preview (`_avvisa_etichette_ettari` in `charge_vector_layers`, `charge_usm_layers`, `loadMapPreview_new`): ogni layer vettoriale con etichette accese la cui espressione (semplice o a regole) scrive un'area (`$area`, `area(…)`, `/10000`, «ha», «m²») e le annotazioni del progetto (nuove e vecchie) con un numero seguito da «ha». Se trova qualcosa, lo dice nella barra dei messaggi e nel registro «PyArchInit», **col nome del layer e l'espressione**: «Le etichette in ettari vengono dal layer «…» del progetto (espressione: …), non da pyArchInit: spegnile dalle proprietà di quel layer o toglilo». Prove pure `tests/utility/test_label_audit.py`.
+- 🇬🇧 **EN**: an audit names the project layer (with its expression) or the annotations that write hectare labels, in the message bar, whenever the US views or the map preview load.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 14 (ordine di disegno con l'indice, TOC, «Numero di US» nel tre-passi e nei preset, l'avviso dell'audit), tutorial 36 (pagina larga); dieci lingue. `metadata.txt` 5.13.116-alpha.
+- 🇬🇧 **EN**: tutorials 14 and 36 updated, ten languages.
+
+---
+
 ## [feat] - 2026-10-13 — Narrativa: la mappa interattiva nell'HTML esportato — un clic su un'unità la evidenzia e mostra solo le unità del periodo, con le etichette — 5.13.115-alpha
 
 > Branch `Stratigraph_00001`. Suite **2127 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Narrative: an interactive map inside the exported HTML; clicking a unit highlights it and shows only the units of that chapter's period, outlined and labelled.

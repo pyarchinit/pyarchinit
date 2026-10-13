@@ -9,7 +9,7 @@ A partir da versão **5.2.0-alpha** o PyArchInit integra um **bridge bidireciona
 - **Anexar paradata** (Author / License / Embargo) a nível de sítio
 - **Agrupar** UE por dimensão (struttura, area, attivita, settore, ambient, saggio, quad_par ou grupos ad-hoc)
 
-Tag atual: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Tag atual: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ O documento contém:
 
 - o título da narrativa (por exemplo «Scavo archeologico — the story of the site», em português «Escavação arqueológica — a história do sítio»), os responsáveis («a cura di») e o modelo como assistente («con l'assistenza di»);
 - para cada capítulo, primeiro a prosa, com as unidades citadas pelo seu nome, e depois a lista das unidades do capítulo; para as unidades citadas que têm fotos, uma faixa de fotos ocupa o lugar da sua linha (§10.11);
-- **o mapa do sítio** (desde a 5.13.115-alpha, só no HTML), numa caixa fixa: à direita nos ecrãs largos, no topo no telemóvel. Em repouso mostra todas as unidades do grafo em cinzento-claro; um clique no nome de uma unidade no texto mostra **só as unidades do período desse capítulo** como contornos com o número por cima, a unidade clicada **colorida**, e enquadra o grupo; um clique no título de um capítulo faz o mesmo, sem a unidade colorida. A linha por baixo do mapa indica o período e quantas unidades; «whole site» (todo o sítio) volta à vista completa. As geometrias vêm das vistas US e USM da base de dados do projeto no momento da exportação (sítio do grafo, unidades associadas por área e número): uma unidade citada mas sem desenho tem a hiperligação e nada no mapa; sem uma base de dados ligada, o documento não tem mapa;
+- **o mapa do sítio** (desde a 5.13.115-alpha, só no HTML), numa caixa fixa: à direita nos ecrãs largos, no topo no telemóvel. Com o mapa a página alarga-se (desde a 5.13.116-alpha) e o texto mantém uma coluna legível. Em repouso mostra todas as unidades do grafo em cinzento-claro; um clique no nome de uma unidade no texto mostra **só as unidades do período desse capítulo** como contornos com o número por cima, a unidade clicada **colorida**, e enquadra o grupo; um clique no título de um capítulo faz o mesmo, sem a unidade colorida. A linha por baixo do mapa indica o período e quantas unidades; «whole site» (todo o sítio) volta à vista completa. As geometrias vêm das vistas US e USM da base de dados do projeto no momento da exportação (sítio do grafo, unidades associadas por área e número): uma unidade citada mas sem desenho tem a hiperligação e nada no mapa; sem uma base de dados ligada, o documento não tem mapa;
 - no fim, a secção **Fonti** (fontes): os documentos em que a história assenta e a entrada «Prompt», que remete para o prompt registado no ficheiro.
 
 Algumas coisas que convém saber:

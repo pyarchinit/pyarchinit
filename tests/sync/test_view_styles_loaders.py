@@ -248,3 +248,20 @@ def test_stile_vista_azzera_le_etichette_ereditate(tmp_path):
     stub = types.SimpleNamespace(_engine_stili=lambda: None)
     assert Pyarchinit_pyqgis._stile_vista(stub, layer, "pyarchinit_strutture_view", None, fallback=False) == "none"
     assert not layer.labelsEnabled() and layer.labeling() is None
+
+
+def test_l_avviso_sulle_etichette_in_ettari_sta_in_tutti_i_caricatori_delle_unita():
+    """L'audit delle etichette in ettari (13 ottobre 2026) parte da ogni
+    caricatore delle viste delle unità: scheda US/USM, Map preview e i
+    tre per periodo."""
+    albero = ast.parse(SRC.read_text(encoding="utf-8"))
+    attesi = {"charge_vector_layers", "charge_usm_layers", "loadMapPreview_new",
+              "charge_vector_layers_periodo", "charge_vector_layers_all_period", "charge_vector_layers_usm_all_period"}
+    trovati = set()
+    for fn in ast.walk(albero):
+        if isinstance(fn, ast.FunctionDef) and fn.name in attesi:
+            for nodo in ast.walk(fn):
+                if (isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Attribute)
+                        and nodo.func.attr == "_avvisa_etichette_ettari"):
+                    trovati.add(fn.name)
+    assert trovati == attesi, attesi - trovati

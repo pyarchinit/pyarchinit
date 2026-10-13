@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Current tag: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ The document contains:
 
 - the title of the narrative (for example "Scavo archeologico — the story of the site"), those responsible ("a cura di") and the model as assistant ("con l'assistenza di");
 - for each chapter the prose first, with the units quoted by their name, then the list of the units of the chapter; for quoted units that have photos, a strip of photos stands in place of their line (§10.11);
-- **the map of the site** (since 5.13.115-alpha, in the HTML only), in a fixed box: on the right on wide screens, at the top on a phone. At rest it shows all the units of the graph in light grey; clicking the name of a unit in the text shows **only the units of that chapter's period** as outlines with the number on top, the clicked one **coloured**, and frames the group; clicking a chapter title does the same, without the coloured unit. The line under the map gives the period and how many units; "whole site" returns to the full view. The geometries come from the US and USM views of the project database at the moment of the export (the graph's site, units matched by area and number): a quoted unit with no drawing has the link and nothing on the map; with no database connected the document has no map;
+- **the map of the site** (since 5.13.115-alpha, in the HTML only), in a fixed box: on the right on wide screens, at the top on a phone. With the map the page gets wider (since 5.13.116-alpha) and the text keeps a readable column. At rest it shows all the units of the graph in light grey; clicking the name of a unit in the text shows **only the units of that chapter's period** as outlines with the number on top, the clicked one **coloured**, and frames the group; clicking a chapter title does the same, without the coloured unit. The line under the map gives the period and how many units; "whole site" returns to the full view. The geometries come from the US and USM views of the project database at the moment of the export (the graph's site, units matched by area and number): a quoted unit with no drawing has the link and nothing on the map; with no database connected the document has no map;
 - at the end the **Fonti** (sources) section: the documents the story rests on and the "Prompt" entry, which points to the prompt recorded in the file.
 
 Things worth knowing:

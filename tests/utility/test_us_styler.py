@@ -194,10 +194,11 @@ def test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico(qgs):
              "&field=cont_per:string&field=order_layer:integer&field=d_stratigrafica:string")
     layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + campi, "US", "memory")
     prov = layer.dataProvider()
-    for k, (us, codice, ordine) in enumerate((("1", "1/1", 0), ("2", "2/1", 9), ("3", "3/1", 5))):
+    for k, (us, codice, ordine, indice) in enumerate((("1", "1/1", 0, 1), ("2", "2/1", 9, 1), ("3", "3/1", 5, 1),
+                                                       ("4", "1/1", 7, 2))):        # la 4: strato (indice 2)
         f = QgsFeature(layer.fields())
         f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
-        f.setAttributes(["Scavo", us, 1, "Strato", codice, ordine, "Strato"])
+        f.setAttributes(["Scavo", us, indice, "Strato", codice, ordine, "Strato"])
         prov.addFeature(f)
     styler = USViewStyler.__new__(USViewStyler)
     # (sito, periodo, fase, cron_iniziale, cont_per, datazione): il codice 3/1 è il più ANTICO (1200)
@@ -205,12 +206,41 @@ def test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico(qgs):
                             ("Scavo", "2", "1", 1400, "2/1", "XV secolo"),
                             ("Scavo", "3", "1", 1200, "3/1", "XIII secolo")]
     styler._apply_temp_style(layer, "cont_per")
-    etichette = [r.label() for r in layer.renderer().rootRule().children()]
-    assert [e.split(" ")[0] for e in etichette] == ["1/1", "2/1", "3/1"], etichette
-    # senza periodizzazione: order_layer decrescente (9 = più recente in cima)
+    regole = layer.renderer().rootRule().children()
+    etichette = [r.label().split(" ")[0] for r in regole]
+    indici = [2 if '"stratigraph_index_us" = 2' in r.filterExpression() else 1 for r in regole]
+    # in TOC: prima gli oggetti (indice 1) dal più recente, poi gli strati (indice 2)
+    assert etichette == ["1/1", "2/1", "3/1", "1/1"] and indici == [1, 1, 1, 2], (etichette, indici)
+    # senza periodizzazione: order_layer decrescente (9 = più recente in cima), sempre indice 1 prima
     styler.periodization = []
     styler._apply_temp_style(layer, "d_stratigrafica")
-    assert len(layer.renderer().rootRule().children()) == 1
+    assert len(layer.renderer().rootRule().children()) == 2            # Strato: indice 1 e indice 2
     styler._apply_temp_style(layer, "cont_per")
-    etichette = [r.label() for r in layer.renderer().rootRule().children()]
-    assert [e.split(" ")[0] for e in etichette] == ["2/1", "3/1", "1/1"], etichette
+    regole = layer.renderer().rootRule().children()
+    assert [r.label().split(" ")[0] for r in regole] == ["2/1", "3/1", "1/1", "1/1"]
+    assert [2 if '"stratigraph_index_us" = 2' in r.filterExpression() else 1 for r in regole] == [1, 1, 1, 2]
+
+
+def test_la_categorizzazione_per_us(qgs):
+    """Enzo, 13 ottobre 2026: «aggiungi anche la visualizzazione per US»:
+    una categoria per numero di unità, etichettata «US n», nel tre-passi e
+    nel registro della finestra degli stili."""
+    from qgis.core import QgsFeature, QgsGeometry, QgsVectorLayer
+    from modules.utility.create_style import FIELD_LABELS, USViewStyler
+    from modules.utility.view_styles import view_by_name
+    campi = ("field=sito:string&field=us_s:string&field=us:integer&field=stratigraph_index_us:integer"
+             "&field=tipo_us_s:string&field=cont_per:string&field=order_layer:integer&field=d_stratigrafica:string")
+    layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + campi, "US", "memory")
+    prov = layer.dataProvider()
+    for k, (us, ordine) in enumerate((("12", 0), ("7", 9))):
+        f = QgsFeature(layer.fields())
+        f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
+        f.setAttributes(["Scavo", us, int(us), 1, "Strato", "1/1", ordine, "Strato"])
+        prov.addFeature(f)
+    styler = USViewStyler.__new__(USViewStyler)
+    styler.periodization = []
+    styler._apply_temp_style(layer, "us")
+    assert [r.label() for r in layer.renderer().rootRule().children()] == ["US 7", "US 12"]   # 9 = più recente
+    assert FIELD_LABELS["us"]["it"] == "Numero di US" and FIELD_LABELS["us"]["en"]
+    assert "us" in view_by_name("pyarchinit_us_view").category_fields
+    assert "us" in view_by_name("pyarchinit_usm_view").category_fields

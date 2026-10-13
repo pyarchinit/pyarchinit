@@ -9,7 +9,7 @@
 - **Joindre des paradata** (Author / License / Embargo) au niveau du site
 - **Regrouper** les US par dimension (struttura, area, attivita, settore, ambient, saggio, quad_par ou groupes ad-hoc)
 
-Tag courant: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Tag courant: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ Le document contient :
 
 - le titre de la narration (par exemple « Scavo archeologico — the story of the site » ; « the story of the site » : l'histoire du site), les responsables (« a cura di ») et le modèle comme assistant (« con l'assistenza di ») ;
 - pour chaque chapitre, d'abord la prose, avec les unités citées par leur nom, puis la liste des unités du chapitre ; pour les unités citées qui ont des photos, une bande de photos prend la place de leur ligne (§10.11) ;
-- **la carte du site** (depuis la 5.13.115-alpha, uniquement dans le HTML), dans un encadré fixe : à droite sur les écrans larges, en haut sur un téléphone. Au repos, elle montre toutes les unités du graphe en gris clair ; un clic sur le nom d'une unité dans le texte montre **seulement les unités de la période de ce chapitre** sous forme de contours avec le numéro dessus, l'unité cliquée **en couleur**, et cadre le groupe ; un clic sur le titre d'un chapitre fait de même, sans l'unité en couleur. La ligne sous la carte indique la période et le nombre d'unités ; « whole site » (tout le site) revient à la vue d'ensemble. Les géométries viennent des vues US et USM de la base de données du projet au moment de l'export (site du graphe, unités associées par aire et numéro) : une unité citée mais sans dessin a le lien et rien sur la carte ; sans base de données connectée, le document n'a pas de carte ;
+- **la carte du site** (depuis la 5.13.115-alpha, uniquement dans le HTML), dans un encadré fixe : à droite sur les écrans larges, en haut sur un téléphone. Avec la carte, la page s'élargit (depuis la 5.13.116-alpha) et le texte garde une colonne lisible. Au repos, elle montre toutes les unités du graphe en gris clair ; un clic sur le nom d'une unité dans le texte montre **seulement les unités de la période de ce chapitre** sous forme de contours avec le numéro dessus, l'unité cliquée **en couleur**, et cadre le groupe ; un clic sur le titre d'un chapitre fait de même, sans l'unité en couleur. La ligne sous la carte indique la période et le nombre d'unités ; « whole site » (tout le site) revient à la vue d'ensemble. Les géométries viennent des vues US et USM de la base de données du projet au moment de l'export (site du graphe, unités associées par aire et numéro) : une unité citée mais sans dessin a le lien et rien sur la carte ; sans base de données connectée, le document n'a pas de carte ;
 - à la fin, la section **Fonti** (sources) : les documents sur lesquels s'appuie le récit et l'entrée « Prompt », qui renvoie au prompt enregistré dans le fichier.
 
 Quelques points à connaître :

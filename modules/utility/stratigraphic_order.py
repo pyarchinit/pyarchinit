@@ -97,13 +97,16 @@ def period_case(combos):
 
 def order_clauses(field_names, period_expression=None) -> list:
     """(expression, ascending, nulls first) of the drawing order: the first
-    drawn end up underneath."""
+    drawn end up underneath. The stratigraphic index comes first — «the
+    object (1) always above the layer (2)» (Enzo, 13 October 2026), so the
+    2s are drawn before every 1 — then the period chronology, then
+    order_layer from the oldest to the most recent."""
     names = set(field_names)
     clauses = []
+    if "stratigraph_index_us" in names:
+        clauses.append(('"stratigraph_index_us"', False, True))   # 2 (layer) and NULL first, 1 (object) on top
     if period_expression:
         clauses.append((period_expression, True, True))       # undated first, oldest period first
     if "order_layer" in names:
         clauses.append(('"order_layer"', True, False))        # 0 = oldest ... N = most recent
-    if "stratigraph_index_us" in names:
-        clauses.append(('"stratigraph_index_us"', True, False))  # the cut (2) over its fill (1)
     return clauses

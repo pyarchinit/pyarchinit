@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Tag corrente: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ Il documento contiene:
 
 - il titolo della narrativa (ad esempio «Scavo archeologico — la storia del sito»), i responsabili («a cura di») e il modello come assistente («con l'assistenza di»);
 - per ogni capitolo la prosa in testa, con le unità citate col loro nome, poi l'elenco delle unità del capitolo; per le unità citate che hanno foto, al posto della loro riga c'è una striscia di foto (§10.11);
-- **la mappa del sito** (dalla 5.13.115-alpha, solo nell'HTML), in un riquadro fisso: a destra sugli schermi larghi, in cima sul telefono. Da ferma mostra tutte le unità del grafo in grigio chiaro; cliccando il nome di un'unità nel testo mostra **solo le unità del periodo di quel capitolo** come contorni con il numero sopra, la cliccata **colorata**, e inquadra il gruppo; cliccando il titolo di un capitolo lo stesso, senza l'unità colorata. La riga sotto la mappa dice il periodo e quante unità; «tutto il sito» torna alla vista intera. Le geometrie vengono dalle viste US e USM del database del progetto al momento dell'export (sito del grafo, unità legate per area e numero): un'unità citata ma senza disegno ha il link e niente sulla mappa; senza database collegato il documento non ha la mappa;
+- **la mappa del sito** (dalla 5.13.115-alpha, solo nell'HTML), in un riquadro fisso: a destra sugli schermi larghi, in cima sul telefono. Con la mappa la pagina si allarga (dalla 5.13.116-alpha) e il testo tiene una colonna leggibile. Da ferma mostra tutte le unità del grafo in grigio chiaro; cliccando il nome di un'unità nel testo mostra **solo le unità del periodo di quel capitolo** come contorni con il numero sopra, la cliccata **colorata**, e inquadra il gruppo; cliccando il titolo di un capitolo lo stesso, senza l'unità colorata. La riga sotto la mappa dice il periodo e quante unità; «tutto il sito» torna alla vista intera. Le geometrie vengono dalle viste US e USM del database del progetto al momento dell'export (sito del grafo, unità legate per area e numero): un'unità citata ma senza disegno ha il link e niente sulla mappa; senza database collegato il documento non ha la mappa;
 - in fondo la sezione **Fonti**: i documenti su cui si appoggia il racconto e la voce «Prompt», che richiama il prompt registrato nel file.
 
 Alcune cose da sapere:

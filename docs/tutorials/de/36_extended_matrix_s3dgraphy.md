@@ -9,7 +9,7 @@ Ab Version **5.2.0-alpha** integriert PyArchInit eine **bidirektionale Bridge** 
 - **Anhängen von Paradata** (Author / License / Embargo) auf Stättenebene
 - **Gruppieren** von SE nach Dimension (struttura, area, attivita, settore, ambient, saggio, quad_par oder Ad-hoc-Gruppen)
 
-Aktueller Tag: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Aktueller Tag: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ Das Dokument enthält:
 
 - den Titel der Erzählung (zum Beispiel «Scavo archeologico — the story of the site»; sinngemäß: Archäologische Ausgrabung — die Geschichte der Stätte), die Verantwortlichen («a cura di») und das Modell als Assistent («con l'assistenza di»);
 - für jedes Kapitel zuerst den Text, in dem die Einheiten mit ihrem Namen zitiert werden, dann die Liste der Einheiten des Kapitels; für zitierte Einheiten mit Fotos steht ein Streifen mit Fotos an der Stelle ihrer Zeile (§10.11);
-- **die Karte der Stätte** (seit 5.13.115-alpha, nur im HTML), in einem festen Bereich: auf breiten Bildschirmen rechts, auf dem Smartphone oben. Im Ausgangszustand zeigt sie alle Einheiten des Graphen in Hellgrau; ein Klick auf den Namen einer Einheit im Text zeigt **nur die Einheiten der Periode dieses Kapitels** als Umrisse mit der Nummer darauf, die angeklickte Einheit **farbig**, und rückt die Gruppe ins Bild; ein Klick auf den Titel eines Kapitels bewirkt dasselbe, ohne die farbige Einheit. Die Zeile unter der Karte nennt die Periode und die Anzahl der Einheiten; «whole site» (ganze Stätte) kehrt zur Gesamtansicht zurück. Die Geometrien stammen aus den US- und USM-Ansichten der Datenbank des Projekts zum Zeitpunkt des Exports (Stätte des Graphen, Einheiten nach Areal und Nummer zugeordnet): Eine zitierte Einheit ohne Zeichnung hat den Link, aber nichts auf der Karte; ohne angebundene Datenbank hat das Dokument keine Karte;
+- **die Karte der Stätte** (seit 5.13.115-alpha, nur im HTML), in einem festen Bereich: auf breiten Bildschirmen rechts, auf dem Smartphone oben. Mit der Karte wird die Seite breiter (seit 5.13.116-alpha), und der Text bleibt in einer gut lesbaren Spalte. Im Ausgangszustand zeigt sie alle Einheiten des Graphen in Hellgrau; ein Klick auf den Namen einer Einheit im Text zeigt **nur die Einheiten der Periode dieses Kapitels** als Umrisse mit der Nummer darauf, die angeklickte Einheit **farbig**, und rückt die Gruppe ins Bild; ein Klick auf den Titel eines Kapitels bewirkt dasselbe, ohne die farbige Einheit. Die Zeile unter der Karte nennt die Periode und die Anzahl der Einheiten; «whole site» (ganze Stätte) kehrt zur Gesamtansicht zurück. Die Geometrien stammen aus den US- und USM-Ansichten der Datenbank des Projekts zum Zeitpunkt des Exports (Stätte des Graphen, Einheiten nach Areal und Nummer zugeordnet): Eine zitierte Einheit ohne Zeichnung hat den Link, aber nichts auf der Karte; ohne angebundene Datenbank hat das Dokument keine Karte;
 - am Ende den Abschnitt **Fonti** (Quellen): die Dokumente, auf die sich die Geschichte stützt, und den Eintrag «Prompt», der auf den in der Datei gespeicherten Prompt verweist.
 
 Wissenswertes:

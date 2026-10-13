@@ -48,9 +48,9 @@ def _v(name, it, en, geometry, site_field, qml=None, recipe=None, category_field
 
 VIEWS: Tuple[ViewSpec, ...] = (
     _v("pyarchinit_us_view", "US Vista", "SU view", "polygon", "scavo_s", "us_view.qml", "us_circle",
-       ("d_stratigrafica", "tipo_us_s", "d_interpretativa", "cont_per"), "unita"),
+       ("d_stratigrafica", "tipo_us_s", "d_interpretativa", "cont_per", "us"), "unita"),
     _v("pyarchinit_usm_view", "USM Vista", "SUW View", "polygon", "scavo_s", "us_view.qml", "us_circle",
-       ("d_stratigrafica", "tipo_us_s", "d_interpretativa", "cont_per"), "unita"),
+       ("d_stratigrafica", "tipo_us_s", "d_interpretativa", "cont_per", "us"), "unita"),
     _v("pyarchinit_us_negative_doc_view", "Vista US Negative per sezioni/elevati",
        "Negative SU for section/elevation view", "polygon", "sito_n", None, None, ("tipo_doc_n",), "unita"),
     _v("pyarchinit_quote_view", "Quote US Vista", "SU elevation view", "point", "sito_q", "quote_us_view.qml",

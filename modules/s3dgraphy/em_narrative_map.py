@@ -169,7 +169,9 @@ def svg_map(drawings: Sequence[Drawing], meta: Dict[str, Dict[str, Any]]) -> Tup
 
 _CSS = """
 /* pyArchInit: la mappa della narrativa */
-.pya-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+body { max-width: min(96vw, 1500px) !important; }
+.pya-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.pya-text { max-width: 46rem; }
 .pya-map { position: sticky; top: 0; align-self: start; z-index: 5; padding: .4rem 0;
   border-bottom: 1px solid rgba(127,127,127,.35); background: inherit; }
 #pya-svg { display: block; width: 100%; height: auto; max-height: min(78vh, 640px);

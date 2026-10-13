@@ -1766,6 +1766,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
     def charge_vector_layers(self, data):
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
         # Get the user input, starting with the table name
@@ -1941,6 +1942,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
     def charge_usm_layers(self, data):
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
         # Get the user input, starting with the table name
@@ -2159,6 +2161,25 @@ class Pyarchinit_pyqgis(QDialog):
         except Exception:                           # noqa: BLE001
             pass
 
+    def _avvisa_etichette_ettari(self):
+        """Le etichette «0,00 ha» che Enzo vede (13 ottobre 2026) non le mette
+        pyArchInit: se le porta un layer del progetto o un'annotazione, lo
+        dice nella barra dei messaggi col nome, così si sa dove spegnerle."""
+        try:
+            from ..utility.label_audit import audit_project, describe
+            lingua = str(QgsSettings().value("locale/userLocale", "it", type=str))[:2]
+            frasi = describe(audit_project(), lingua)
+        except Exception:                           # noqa: BLE001
+            return
+        for frase in frasi:
+            try:
+                QgsMessageLog.logMessage(frase, "PyArchInit", Qgis.MessageLevel.Warning)
+                from qgis.utils import iface
+                if iface is not None:
+                    iface.messageBar().pushWarning("PyArchInit", frase)
+            except Exception:                       # noqa: BLE001
+                pass
+
     def _stile_salvato(self, layer):
         """Vero se `_stile_vista` ha applicato uno stile salvato: lo stile
         scelto a mano non deve sovrascriverlo."""
@@ -2169,9 +2190,10 @@ class Pyarchinit_pyqgis(QDialog):
 
     def _apply_us_feature_ordering(self, layer):
         """
-        Drawing order of a US/USM layer like the Time Manager: order_layer
-        ASC (0 = oldest, the most recent drawn last, on top), then
-        stratigraph_index_us ASC (the cut over its fill). It lives on the
+        Drawing order of a US/USM layer like the Time Manager: the
+        stratigraphic index first (2, the layer, drawn before 1, the object:
+        «l'oggetto va sempre sopra lo strato»), then order_layer ASC (0 =
+        oldest, the most recent drawn last, on top). It lives on the
         renderer (QgsVectorLayer has no setOrderBy); an order already set by
         the styler, which also sorts by period chronology, is kept.
         """
@@ -2311,6 +2333,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerPolygon], False)
 
     def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
 
         # a = QgsProject.instance().layerTreeRoot()
         # QgsLayoutItemLegend(a).legendFilterByMapEnabled(True)
@@ -2535,6 +2558,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
 
     def charge_vector_layers_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
@@ -2747,6 +2771,7 @@ class Pyarchinit_pyqgis(QDialog):
                                         QMessageBox.Ok)
 
     def charge_vector_layers_usm_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
@@ -2938,6 +2963,7 @@ class Pyarchinit_pyqgis(QDialog):
 
     def loadMapPreview_new(self, gidstr):
         """ if has geometry column load to map canvas """
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         layerToSet = []
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
         path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')

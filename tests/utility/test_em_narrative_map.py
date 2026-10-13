@@ -93,3 +93,16 @@ def test_l_innesto_lega_menzioni_e_capitoli_alla_mappa():
 def test_senza_disegni_l_html_resta_quello_della_libreria():
     html = "<html><head><style>b{}</style></head><body><h1>X</h1><h2>A</h2></body></html>"
     assert nm.inject_map(html, "", {}, [], {}, {}, lang="it") == html
+
+
+def test_con_la_mappa_la_pagina_si_allarga():
+    """Enzo, 13 ottobre 2026: «la pagina dell'HTML devi allargarla, così è
+    una colonna stretta»: la libreria chiude il body a 42rem; con la mappa
+    il body si allarga e il testo tiene una colonna leggibile."""
+    html = ('<html><head><style>body { max-width: 42rem; }</style></head><body>'
+            '<h1>X</h1><h2>A</h2><p><em class="em-mention">1.US1</em></p></body></html>')
+    meta = {"u1": {"name": "1.US1", "number": "1", "epochs": ["e"]}}
+    fuori = nm.inject_map(html, '<svg id="pya-svg"></svg>', {"all": [0, 0, 1, 1]},
+                          [{"title": "A", "epoch": "e", "units": ["u1"]}], meta, {"e": "E"}, lang="it")
+    assert re.search(r"body\s*\{[^}]*max-width:\s*min\(96vw,\s*1500px\)\s*!important", fuori)
+    assert ".pya-text" in fuori and "max-width: 46rem" in fuori

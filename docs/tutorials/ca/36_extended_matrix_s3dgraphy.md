@@ -9,7 +9,7 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
+Tag actual: `ordine-indice-5.13.116-alpha` (2026-10-13).
 
 ---
 
@@ -587,7 +587,7 @@ El document conté:
 
 - el títol de la narrativa (per exemple, «Scavo archeologico — the story of the site»), els responsables («a cura di») i el model com a assistent («con l'assistenza di»);
 - per a cada capítol, primer la prosa, amb les unitats citades pel seu nom, i després la llista de les unitats del capítol; per a les unitats citades que tenen fotos, una tira de fotos ocupa el lloc de la seva línia (§10.11);
-- **el mapa del lloc** (des de la 5.13.115-alpha, només a l'HTML), en un requadre fix: a la dreta en les pantalles amples, a dalt al telèfon. En repòs mostra totes les unitats del graf en gris clar; un clic al nom d'una unitat dins del text mostra **només les unitats del període d'aquell capítol** com a contorns amb el número a sobre, la unitat clicada **en color**, i enquadra el grup; un clic al títol d'un capítol fa el mateix, sense la unitat en color. La línia sota el mapa indica el període i quantes unitats; «whole site» (tot el lloc) torna a la vista completa. Les geometries provenen de les vistes US i USM de la base de dades del projecte en el moment de l'exportació (lloc del graf, unitats associades per àrea i número): una unitat citada però sense dibuix té l'enllaç i res al mapa; sense una base de dades connectada, el document no té mapa;
+- **el mapa del lloc** (des de la 5.13.115-alpha, només a l'HTML), en un requadre fix: a la dreta en les pantalles amples, a dalt al telèfon. Amb el mapa la pàgina s'eixampla (des de la 5.13.116-alpha) i el text manté una columna llegible. En repòs mostra totes les unitats del graf en gris clar; un clic al nom d'una unitat dins del text mostra **només les unitats del període d'aquell capítol** com a contorns amb el número a sobre, la unitat clicada **en color**, i enquadra el grup; un clic al títol d'un capítol fa el mateix, sense la unitat en color. La línia sota el mapa indica el període i quantes unitats; «whole site» (tot el lloc) torna a la vista completa. Les geometries provenen de les vistes US i USM de la base de dades del projecte en el moment de l'exportació (lloc del graf, unitats associades per àrea i número): una unitat citada però sense dibuix té l'enllaç i res al mapa; sense una base de dades connectada, el document no té mapa;
 - al final, la secció **Fonti** (fonts): els documents en què es basa el relat i l'entrada «Prompt», que remet al prompt registrat al fitxer.
 
 Coses que convé saber:
