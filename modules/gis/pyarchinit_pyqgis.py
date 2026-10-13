@@ -48,7 +48,7 @@ import urllib.request
 import urllib.error
 
 from ..utility.create_style import ThesaurusStyler, USViewStyler, apply_stratigraphic_order
-from ..utility.atlas_labels import label_quote_view
+from ..utility.atlas_labels import label_quote_view, label_us_view
 from ..utility.settings import Settings
 from ..utility.pyarchinit_i18n_stratigraphic import (
     COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
@@ -1823,6 +1823,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 # Applica lo stile al layer
                 styler.apply_style_to_layer(layerUS)
+                label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
 
                 # Apply feature ordering for correct stratigraphic rendering
                 self._apply_us_feature_ordering(layerUS)
@@ -1883,6 +1884,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # Apply categorized style by d_stratigrafica (typology)
                 try:
                     styler.apply_style_to_layer(layerUS)
+                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
                 except Exception:
                     pass
 
@@ -1986,6 +1988,7 @@ class Pyarchinit_pyqgis(QDialog):
                 try:
                     usm_styler = USViewStyler(Connection(), sito=str(data[0].sito) if data else None)
                     usm_styler.apply_style_to_layer(layerUS)
+                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
                 except Exception as e:
                     print(f"USM style not applied: {e}")
                 self._apply_us_feature_ordering(layerUS)
@@ -2035,6 +2038,7 @@ class Pyarchinit_pyqgis(QDialog):
                     a = Connection()
                     usm_styler = USViewStyler(a, sito=sito_filter)
                     usm_styler.apply_style_to_layer(layerUS)
+                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
                 except Exception:
                     pass
 
@@ -2516,6 +2520,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # Applica lo stile: scelta, modello e campo sono chiesti una
                     # volta sola e riusati per tutti i periodi
                     styler.apply_style_to_layer(layerUS, choice=style_choice)
+                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2592,6 +2597,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # Applica lo stile: scelta, modello e campo sono chiesti una
                     # volta sola e riusati per tutti i periodi
                     styler.apply_style_to_layer(layerUS, choice=style_choice)
+                    label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2881,6 +2887,7 @@ class Pyarchinit_pyqgis(QDialog):
                 thesaurus_mapping = self.get_thesaurus_mapping_postgres(uri_u)
 
                 styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
+                label_us_view(layerUS)        # il numero cerchiato anche se lo stile scelto rinuncia (13-10-2026)
 
                 # Crea un nuovo simbolo personalizzato per layerUS_us
                 symbol = QgsFillSymbol.createSimple({'color': 'transparent', 'outline_color': 'black'})
