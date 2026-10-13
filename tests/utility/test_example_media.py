@@ -541,15 +541,16 @@ def test_la_tma_non_porta_i_campi_della_concorrenza(conn):
         assert pieni == 0, (colonna, pieni)
 
 
-def test_la_voce_di_menu_chiede_come_dividere_lemjson():
-    """«Se esporto un grafo per saggio o un grafo per tutti i saggi è
-    sempre lo stesso» (Enzo): la voce di menu passava sempre
-    «automatico», quindi su uno scavo a saggi faceva **sempre** il
-    contenitore diviso. I tre bottoni stavano solo nella finestra della
-    scheda US."""
+def test_la_voce_di_menu_esporta_un_grafo_solo_senza_chiedere():
+    """Il 12 ottobre 2026 la voce di menu passava sempre «automatico» e su
+    uno scavo a saggi divideva **sempre** il file; poi ha chiesto come
+    dividerlo. Dal 13 ottobre (Emanuel: la divisione per saggi era un
+    fraintendimento) non chiede niente: un grafo solo per tutto il sito,
+    detto esplicitamente — `None` vorrebbe ancora dire «automatico»."""
     sorgente = (RADICE / "pyarchinitPlugin.py").read_text(encoding="utf-8")
-    assert "saggi_del_sito" in sorgente
-    assert "per_saggio=per_saggio" in sorgente
+    assert "saggi_del_sito" not in sorgente
+    assert "per_saggio=None" not in sorgente and "per_saggio=per_saggio" not in sorgente
+    assert sorgente.count("per_saggio=False") == 2        # «Esporta sito in em.json…» e «Vedi la matrice…»
 
 
 def test_la_scheda_tma_nomina_i_widget_che_esistono():
