@@ -9,15 +9,15 @@
 - **Joindre des paradata** (Author / License / Embargo) au niveau du site
 - **Regrouper** les US par dimension (struttura, area, attivita, settore, ambient, saggio, quad_par ou groupes ad-hoc)
 
-Tag courant: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
+Tag courant: `sito-intero-5.13.109-alpha` (2026-10-13).
 
 ---
 
 ## 1. Prérequis
 
-- Base de données SQLite (PostgreSQL pas encore supporté)
+- Base de données SQLite/Spatialite **ou PostgreSQL/PostGIS** : l'export em.json est le même sur les deux moteurs (la connexion est celle du projet ; `export_site` accepte `sqlite://` et `postgresql://`)
 - **Migration Phase 1 node_uuid** appliquée automatiquement à l'ouverture du DB
-- **yEd Graph Editor** pour visualiser la sortie (https://www.yworks.com/products/yed)
+- **EMStudio** pour ouvrir l'em.json (il s'installe depuis **Extended Matrix → Installa EMStudio…**), ou le panneau **Vedi la matrice…** dans QGIS, qui n'a besoin de rien. **yEd** (https://www.yworks.com/products/yed) ne sert que pour importer des fichiers GraphML dessinés avec lui (§5)
 
 > ⚠️ Pour les DB antérieurs à 5.2.0-alpha, un redémarrage de QGIS peut être nécessaire.
 
@@ -55,7 +55,7 @@ Les fichiers qui naissent, selon les formats cochés :
 - `Extended_Matrix_<site>[_<area>].dot` — Graphviz DOT, pour la matrice de Harris classique
 - `Extended_Matrix_<site>[_<area>]_phased.json` — vue par époque
 
-> **Les lieux n'entrent pas dans l'em.json.** Site, aire et secteur restent dans la fiche de chaque unité, mais ne voyagent plus comme nœuds de groupe avec leurs arêtes : tant que le fichier contient ne serait-ce qu'une arête `is_in_location`, la vue **Matrix** d'EMStudio entasse toutes les unités dans la première bande au lieu de les répartir par époque (mesuré le 2026-10-08 avec EMStudio 1.6.0-dev.26, par bissection sur cinq fichiers). Aucune information n'est perdue — seulement une façon de la représenter.
+> **Les lieux voyagent dans l'em.json.** Le lieu du site, la chaîne toponymique et les groupes d'aires, de secteurs, de sondages et de pièces sortent avec les unités, reliés par des arcs `is_in_location` (§4).
 
 Le récapitulatif final liste les fichiers et, pour l'em.json, **combien de nœuds et combien d'arcs** sont sortis, avec les avertissements s'il y en a.
 
@@ -81,47 +81,19 @@ Les fichiers sont enregistrés à côté du DB SQLite et sont **versionnables en
 
 ---
 
-## 4. Style visuel par dimension (5.5.1-alpha + 5.6.0-alpha)
+## 4. Dimensions et types de groupe dans l'em.json
 
-Chaque dimension de regroupement a une couleur distinctive en GraphML :
-
-| Dimension | Fill (50% transparence) | Border |
-|---|---|---|
-| `area` | rose pastel `#FFE0E680` | `#C84A5F` |
-| `struttura` | orange pastel `#FFE6CC80` | `#C66B33` |
-| `attivita` | jaune pastel `#FFF5CC80` | `#A89A33` |
-| `settore` | vert pastel `#E6FFCC80` | `#6BC633` |
-| `ambient` | aqua pastel `#CCFFE680` | `#33A86B` |
-| `saggio` | bleu pastel `#CCF5FF80` | `#3389A8` |
-| `quad_par` | violet pastel `#E0CCFF80` | `#6633C6` |
-| `adhoc` | gris pastel `#F5F5F580` | `#666666` |
-
-À partir de 5.6.0-alpha, les `LocationNodeGroup` sont distingués par `kind` :
-
-| `kind` | Fill (50% transparence) | Border |
-|---|---|---|
-| `toponym` | lavande pastel `#E6E6FA80` | `#9370DB` |
-| `study` | ivoire pastel `#FFFFE080` | `#888888` |
-| `functional` | cyan pastel `#E0FFFF80` | `#008B8B` |
-
-L'alpha 50% laisse visibles les swimlane des époques derrière le rectangle du groupe.
+L'em.json qu'exporte pyArchInit porte les **groupes de lieu** (`LocationNodeGroup`) de la fiche US, distingués par le type `kind` : `toponym`, la chaîne nazione → regione → provincia → comune et le lieu du site (§4.1) ; `study`, les **aires**, les **secteurs** et les **sondages** ; `functional`, les **pièces**. Chaque unité est reliée aux groupes où elle se trouve par des arcs `is_in_location` ; l'identifiant du groupe indique le champ dont il est issu (par exemple `loc::area::study::1`). Le fichier ne porte pas de couleurs : c'est celui qui le lit qui les décide, EMStudio avec son propre style et le panneau de la matrice dans QGIS avec les règles visuelles de la bibliothèque s3dgraphy. L'ancien export GraphML colorait les groupes par dimension : cette palette a été retirée avec lui. La bibliothèque sait aussi regrouper par **structure**, **activité**, **carré** et par groupes ad-hoc, avec une appartenance primaire et les autres secondaires (`is_primary`) : pyArchInit ne le lui demande pas aujourd'hui, et dans le fichier cet attribut n'apparaît que sur les arcs de la chaîne toponymique, toujours faux.
 
 ### 4.1 Chaîne toponymique (5.6.0-alpha)
 
-Les champs `site_table.{nazione, regione, provincia, comune}` sont automatiquement émis comme une chaîne récursive de `LocationNodeGroup(kind="toponym")` (parent : nazione → regione → provincia → comune). Les niveaux administratifs vides sont sautés sans rompre la chaîne. Une déduplication cross-site garantit que la même `comune` présente dans 2 sites devient **un seul nœud partagé** dans le GraphML.
+Les champs `site_table.{nazione, regione, provincia, comune}` sont automatiquement émis comme une chaîne récursive de `LocationNodeGroup(kind="toponym")` (parent : nazione → regione → provincia → comune). Les niveaux administratifs vides sont sautés sans rompre la chaîne. Une déduplication cross-site garantit que la même `comune` présente dans 2 sites devient **un seul nœud partagé** dans l'em.json.
 
 ---
 
 ## 4.2 Appartenance multidimensionnelle (5.6.0-alpha)
 
-À partir de 5.6.0-alpha une US peut appartenir à **plusieurs dimensions simultanément** grâce au modèle m:n avec le drapeau `is_primary`. Seule la dimension primaire devient le dossier yEd visible ; les autres apparaissent comme **badges en ligne** sous le nœud US et comme JSON dans `<data key="s3d:other_locations">` pour les outils en aval.
-
-Exemple : une US avec `struttura=basilica` et `area=B` (primaire `struttura`) produit :
-- dossier yEd "struttura: basilica" comme parent visible ;
-- sous le nœud US, un badge en ligne `also: B (study), TestCity (toponym)` ;
-- dans le GraphML, l'attribut `s3d:other_locations` avec un tableau JSON des appartenances secondaires.
-
-La dimension primaire suit un ordre prédéfini, avec `struttura` en premier ; `toponym` n'est jamais primaire.
+Une unité peut se trouver dans plusieurs groupes à la fois — une aire, un secteur, un sondage, une pièce, en plus du lieu du site — et elle a dans le fichier un arc `is_in_location` pour chacun, tous sur un pied d'égalité. Exemple : une US avec `area=1`, `settore=1` et `ambient=Ambiente 3` a trois arcs, vers « 1 » (aire, `study`), « 1 » (secteur, `study`) et « Ambiente 3 » (`functional`), plus celui vers le lieu du site, d'où remonte la chaîne toponymique. La distinction entre appartenance primaire et secondaire (`is_primary`, avec `struttura` en premier et `toponym` jamais primaire) relève du modèle de la bibliothèque, pour qui lui demande les groupes par dimension : dans l'em.json de pyArchInit, elle n'existe pas.
 
 ---
 

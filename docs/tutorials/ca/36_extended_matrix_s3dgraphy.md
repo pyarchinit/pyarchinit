@@ -9,15 +9,15 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
+Tag actual: `sito-intero-5.13.109-alpha` (2026-10-13).
 
 ---
 
 ## 1. Requisits
 
-- Base de dades SQLite (PostgreSQL no suportat encara)
+- Base de dades SQLite/Spatialite **o PostgreSQL/PostGIS**: l'exportació a em.json és la mateixa en els dos motors (la connexió és la del projecte; `export_site` accepta `sqlite://` i `postgresql://`)
 - **Migració Phase 1 node_uuid** aplicada automàticament en obrir la DB
-- **yEd Graph Editor** per visualitzar la sortida (https://www.yworks.com/products/yed)
+- **EMStudio** per obrir l'em.json (s'instal·la des de **Extended Matrix → Installa EMStudio…**), o el panell **Vedi la matrice…** dins del QGIS, que no necessita res més. **yEd** (https://www.yworks.com/products/yed) només cal si importes fitxers GraphML dibuixats allà (§5)
 
 > ⚠️ Per DB pre-5.2.0-alpha la migració pot requerir reiniciar QGIS.
 
@@ -55,7 +55,7 @@ Els fitxers que neixen, segons els formats marcats:
 - `Extended_Matrix_<lloc>[_<area>].dot` — Graphviz DOT, per a la matriu de Harris clàssica
 - `Extended_Matrix_<lloc>[_<area>]_phased.json` — vista per època
 
-> **Els llocs no entren a l'em.json.** Lloc, àrea i sector resten a la fitxa de cada unitat, però ja no viatgen com a nodes de grup amb les seves arestes: mentre el fitxer contingui ni que sigui una aresta `is_in_location`, la vista **Matrix** d'EMStudio amuntega totes les unitats a la primera franja en lloc de repartir-les per època (mesurat el 2026-10-08 contra EMStudio 1.6.0-dev.26, per bisecció sobre cinc fitxers). No es perd cap informació: només una manera de representar-la.
+> **Els llocs viatgen a l'em.json.** La ubicació del lloc, la cadena toponímica i els grups d'àrees, sectors, sondeigs i ambients surten juntament amb les unitats, lligats per arestes `is_in_location` (§4).
 
 El resum final enumera els fitxers i, per a l'em.json, **quants nodes i quantes arestes** han sortit, amb els avisos que hi hagi.
 
@@ -81,47 +81,19 @@ Els fitxers es desen al costat de la DB SQLite i són **versionables a Git**.
 
 ---
 
-## 4. Estil visual per dimensió (5.5.1-alpha + 5.6.0-alpha)
+## 4. Dimensions i tipus de grup a l'em.json
 
-Cada dimensió d'agrupament té un color distintiu en GraphML:
-
-| Dimensió | Fill (50% transparència) | Border |
-|---|---|---|
-| `area` | rosa pastel `#FFE0E680` | `#C84A5F` |
-| `struttura` | taronja pastel `#FFE6CC80` | `#C66B33` |
-| `attivita` | groc pastel `#FFF5CC80` | `#A89A33` |
-| `settore` | verd pastel `#E6FFCC80` | `#6BC633` |
-| `ambient` | aqua pastel `#CCFFE680` | `#33A86B` |
-| `saggio` | atzur pastel `#CCF5FF80` | `#3389A8` |
-| `quad_par` | violeta pastel `#E0CCFF80` | `#6633C6` |
-| `adhoc` | gris pastel `#F5F5F580` | `#666666` |
-
-A partir de 5.6.0-alpha, els `LocationNodeGroup` es distingeixen per `kind`:
-
-| `kind` | Fill (50% transparència) | Border |
-|---|---|---|
-| `toponym` | lavanda pastel `#E6E6FA80` | `#9370DB` |
-| `study` | marfil pastel `#FFFFE080` | `#888888` |
-| `functional` | cian pastel `#E0FFFF80` | `#008B8B` |
-
-L'alpha 50% deixa visibles les swimlanes de les èpoques darrere del rectangle del grup.
+L'em.json que exporta pyArchInit porta els **grups de lloc** (`LocationNodeGroup`) de la fitxa UE, distingits pel tipus `kind`: `toponym`, la cadena nazione → regione → provincia → comune i la ubicació del lloc (§4.1); `study`, les **àrees**, els **sectors** i els **sondeigs**; `functional`, els **ambients**. Cada unitat està lligada als grups en què es troba per arestes `is_in_location`; l'identificador del grup diu el camp del qual neix (per exemple `loc::area::study::1`). El fitxer no porta colors: els decideix qui el llegeix, EMStudio amb el seu propi estil i el panell de la matriu al QGIS amb les regles visuals de la biblioteca s3dgraphy. L'antiga exportació GraphML donava color als grups per dimensió: aquesta paleta ha quedat retirada amb ella. La biblioteca també sap agrupar per **estructura**, **activitat**, **quadre** i per grups ad-hoc, amb una pertinença primària i les altres secundàries (`is_primary`): pyArchInit avui no li ho demana, i al fitxer aquest atribut només apareix a les arestes de la cadena toponímica, sempre fals.
 
 ### 4.1 Cadena toponímica (5.6.0-alpha)
 
-Els camps `site_table.{nazione, regione, provincia, comune}` s'emeten automàticament com a cadena recursiva de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Els nivells administratius buits s'ometen sense trencar la cadena. Una desduplicació cross-lloc garanteix que la mateixa `comune` present en 2 llocs esdevingui **un sol node compartit** al GraphML.
+Els camps `site_table.{nazione, regione, provincia, comune}` s'emeten automàticament com a cadena recursiva de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Els nivells administratius buits s'ometen sense trencar la cadena. Una desduplicació cross-lloc garanteix que la mateixa `comune` present en 2 llocs esdevingui **un sol node compartit** a l'em.json.
 
 ---
 
 ## 4.2 Pertinença multidimensional (5.6.0-alpha)
 
-A partir de 5.6.0-alpha una UE pot pertànyer a **múltiples dimensions simultàniament** gràcies al model m:n amb el flag `is_primary`. Només la dimensió primària esdevé el folder yEd visible; les altres apareixen com a **insígnies en línia** sota el node UE i com a JSON a `<data key="s3d:other_locations">` per a eines posteriors.
-
-Exemple: una UE amb `struttura=basilica` i `area=B` (primària `struttura`) produeix:
-- folder yEd "struttura: basilica" com a parent visible;
-- sota el node UE, una insígnia en línia `also: B (study), TestCity (toponym)`;
-- al GraphML, l'atribut `s3d:other_locations` amb array JSON de les pertinences secundàries.
-
-La dimensió primària segueix un ordre predefinit, amb `struttura` al primer lloc; `toponym` mai no és primària.
+Una unitat pot estar en diversos grups alhora — una àrea, un sector, un sondeig, un ambient, a més de la ubicació del lloc — i al fitxer té una aresta `is_in_location` per a cadascun, totes en peu d'igualtat. Exemple: una UE amb `area=1`, `settore=1` i `ambient=Ambiente 3` té tres arestes, cap a «1» (àrea, `study`), «1» (sector, `study`) i «Ambiente 3» (`functional`), més la que va cap a la ubicació del lloc, des d'on puja la cadena toponímica. La distinció entre pertinença primària i secundària (`is_primary`, amb `struttura` en primer lloc i `toponym` mai primari) és del model de la biblioteca, per a qui li demana els grups per dimensió: a l'em.json de pyArchInit no hi és.
 
 ---
 

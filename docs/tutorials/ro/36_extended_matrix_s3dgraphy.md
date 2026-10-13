@@ -9,15 +9,15 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
+Tag curent: `sito-intero-5.13.109-alpha` (2026-10-13).
 
 ---
 
 ## 1. Cerințe
 
-- Bază de date SQLite (PostgreSQL încă nesuportată)
+- Bază de date SQLite/Spatialite **sau PostgreSQL/PostGIS**: exportul în em.json este același pe ambele motoare (conexiunea este cea a proiectului; `export_site` acceptă `sqlite://` și `postgresql://`)
 - **Migrarea Phase 1 node_uuid** aplicată automat la deschiderea bazei
-- **yEd Graph Editor** pentru vizualizarea ieșirii (https://www.yworks.com/products/yed)
+- **EMStudio** pentru a deschide em.json (se instalează din **Extended Matrix → Installa EMStudio…**), sau panoul **Vedi la matrice…** din QGIS, care nu are nevoie de nimic altceva. **yEd** (https://www.yworks.com/products/yed) este necesar doar dacă imporți fișiere GraphML desenate acolo (§5)
 
 > ⚠️ Pentru baze pre-5.2.0-alpha migrarea poate necesita repornirea QGIS.
 
@@ -55,7 +55,7 @@ Fișierele care se nasc, în funcție de formatele bifate:
 - `Extended_Matrix_<sit>[_<area>].dot` — Graphviz DOT, pentru matricea Harris clasică
 - `Extended_Matrix_<sit>[_<area>]_phased.json` — vizualizare per epocă
 
-> **Locurile nu intra in em.json.** Situl, aria si sectorul raman in fisa fiecarei unitati, dar nu mai calatoresc ca noduri de grup cu muchiile lor: cat timp fisierul contine chiar si o singura muchie `is_in_location`, vederea **Matrix** din EMStudio ingramadeste toate unitatile in prima banda in loc sa le distribuie pe epoci (masurat la 2026-10-08 cu EMStudio 1.6.0-dev.26, prin bisectie pe cinci fisiere). Nu se pierde nicio informatie — doar un mod de a o reprezenta.
+> **Locurile sunt incluse în em.json.** Locul sitului, lanțul toponim și grupurile de arii, sectoare, sondaje și încăperi ies împreună cu unitățile, legate prin muchii `is_in_location` (§4).
 
 Rezumatul final listează fișierele și, pentru em.json, **câte noduri și câte muchii** au ieșit, cu eventualele avertismente.
 
@@ -81,47 +81,19 @@ Fișierele se salvează lângă DB SQLite și sunt **versionabile în Git**.
 
 ---
 
-## 4. Stil vizual per dimensiune (5.5.1-alpha + 5.6.0-alpha)
+## 4. Dimensiuni și tipuri de grup în em.json
 
-Fiecare dimensiune de grupare are o culoare distinctivă în GraphML:
-
-| Dimensiune | Fill (50% transparență) | Border |
-|---|---|---|
-| `area` | roz pastel `#FFE0E680` | `#C84A5F` |
-| `struttura` | portocaliu pastel `#FFE6CC80` | `#C66B33` |
-| `attivita` | galben pastel `#FFF5CC80` | `#A89A33` |
-| `settore` | verde pastel `#E6FFCC80` | `#6BC633` |
-| `ambient` | aqua pastel `#CCFFE680` | `#33A86B` |
-| `saggio` | azur pastel `#CCF5FF80` | `#3389A8` |
-| `quad_par` | violet pastel `#E0CCFF80` | `#6633C6` |
-| `adhoc` | gri pastel `#F5F5F580` | `#666666` |
-
-Începând cu 5.6.0-alpha, elementele `LocationNodeGroup` se disting prin `kind`:
-
-| `kind` | Fill (50% transparență) | Border |
-|---|---|---|
-| `toponym` | lavandă pastel `#E6E6FA80` | `#9370DB` |
-| `study` | fildeș pastel `#FFFFE080` | `#888888` |
-| `functional` | cyan pastel `#E0FFFF80` | `#008B8B` |
-
-Alpha 50% lasă vizibile swimlane-urile epocilor în spatele dreptunghiului grupului.
+Fișierul em.json exportat de pyArchInit poartă **grupurile de loc** (`LocationNodeGroup`) ale fișei UE, deosebite prin tipul `kind`: `toponym`, lanțul nazione → regione → provincia → comune și locul sitului (§4.1); `study`, **ariile**, **sectoarele** și **sondajele**; `functional`, **încăperile**. Fiecare unitate este legată de grupurile în care se află prin muchii `is_in_location`; identificatorul grupului spune câmpul din care provine (de exemplu `loc::area::study::1`). Fișierul nu poartă culori: le hotărăște cel care îl citește, EMStudio cu stilul lui propriu și panoul matricei din QGIS cu regulile vizuale ale bibliotecii s3dgraphy. Vechiul export GraphML colora grupurile după dimensiune: paleta aceea a fost retrasă odată cu el. Biblioteca știe și să grupeze după **structură**, **activitate**, **careu** și după grupuri ad-hoc, cu o apartenență primară și celelalte secundare (`is_primary`): pyArchInit nu i-o cere astăzi, iar în fișier atributul apare doar pe muchiile lanțului toponim, mereu fals.
 
 ### 4.1 Lanț toponim (5.6.0-alpha)
 
-Câmpurile `site_table.{nazione, regione, provincia, comune}` sunt emise automat ca un lanț recursiv de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Nivelurile administrative goale sunt sărite fără a întrerupe lanțul. O deduplicare cross-sit garantează că aceeași `comune` prezentă în 2 situri devine **un singur nod partajat** în GraphML.
+Câmpurile `site_table.{nazione, regione, provincia, comune}` sunt emise automat ca un lanț recursiv de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Nivelurile administrative goale sunt sărite fără a întrerupe lanțul. O deduplicare cross-sit garantează că aceeași `comune` prezentă în 2 situri devine **un singur nod partajat** în em.json.
 
 ---
 
 ## 4.2 Apartenență multidimensională (5.6.0-alpha)
 
-Începând cu 5.6.0-alpha o UE poate aparține **mai multor dimensiuni simultan** datorită modelului m:n cu flag-ul `is_primary`. Doar dimensiunea primară devine folderul yEd vizibil; celelalte apar ca **insigne inline** sub nodul UE și ca JSON în `<data key="s3d:other_locations">` pentru tool-urile downstream.
-
-Exemplu: o UE cu `struttura=basilica` și `area=B` (primar `struttura`) produce:
-- folder yEd "struttura: basilica" ca parent vizibil;
-- sub nodul UE, o insignă inline `also: B (study), TestCity (toponym)`;
-- în GraphML, atributul `s3d:other_locations` cu array JSON al apartenențelor secundare.
-
-Dimensiunea primară urmează o ordine predefinită, cu `struttura` pe primul loc; `toponym` nu este niciodată primar.
+O unitate poate fi în mai multe grupuri deodată — o arie, un sector, un sondaj, o încăpere, pe lângă locul sitului — și în fișier are câte o muchie `is_in_location` pentru fiecare, toate pe picior de egalitate. Exemplu: o UE cu `area=1`, `settore=1` și `ambient=Ambiente 3` are trei muchii, spre „1” (arie, `study`), „1” (sector, `study`) și „Ambiente 3” (`functional`), plus cea spre locul sitului, de unde urcă lanțul toponim. Distincția dintre apartenența primară și cea secundară (`is_primary`, cu `struttura` pe primul loc și `toponym` niciodată primar) ține de modelul bibliotecii, pentru cine îi cere grupurile după dimensiune: în fișierul em.json al pyArchInit nu există.
 
 ---
 
