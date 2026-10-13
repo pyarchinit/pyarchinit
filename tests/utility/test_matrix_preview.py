@@ -423,6 +423,16 @@ def test_the_preview_goes_through_the_s3dgraphy_pipeline():
     assert "graphviz" not in codice.lower()
 
 
+def test_the_preview_exports_one_graph_for_the_whole_site():
+    """Dal 13 ottobre 2026 l'em.json è un grafo solo per tutto il sito
+    (la divisione per saggi era un fraintendimento): anche l'anteprima,
+    che senza il parametro resterebbe sull'automatico e dividerebbe."""
+    codice = _codice(_RENDER)                       # senza commenti né stringhe, spazi suoi
+    inizio = codice.index("export_site")
+    chiamata = codice[inizio:codice.index(")", inizio)].replace(" ", "")
+    assert "per_saggio=False" in chiamata, chiamata
+
+
 def test_the_button_draws_the_filtered_matrix_and_no_longer_graphviz():
     """Il bottone «visualizza matrix» della scheda US: s3dgraphy al posto
     di «tred» + «dot», il filtro di DATA_LIST, il PNG nella cartella

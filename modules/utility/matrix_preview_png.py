@@ -434,8 +434,10 @@ def build_preview(conn_str, site, records, out_dir,
     identita = tuple(v for v in identita if v.sito == site)
     temporanea = tempfile.mkdtemp(prefix="pyarchinit_anteprima_")
     try:
+        # Un grafo solo per tutto il sito (13 ottobre 2026), come le voci
+        # di menu: senza il parametro sarebbe «automatico», che divide.
         percorso, _n, _e, avvisi = em_export.export_site(
-            conn_str, site, temporanea)
+            conn_str, site, temporanea, per_saggio=False)
         modello = filter_model(read_em_json(percorso), keys_of(identita))
     finally:
         import shutil
