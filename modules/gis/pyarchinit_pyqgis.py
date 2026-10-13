@@ -2151,18 +2151,28 @@ class Pyarchinit_pyqgis(QDialog):
             pass
         return esito
 
-    def _rimuovi_layer_preview(self):
+    def _rimuovi_layer_preview(self, tutti=False):
         """Toglie dal progetto i layer «pyarchinit_us_view» della Map preview
-        registrati fuori dal pannello dei layer (restavano a ogni apertura,
-        e da Enzo portavano etichette in ettari, 13 ottobre 2026). Quelli
-        nel pannello non si toccano. Torna quanti ne ha tolti."""
+        registrati fuori dal pannello dei layer (restavano a ogni apertura
+        e tornano con ogni apertura del progetto finché non lo si salva
+        pulito; da Enzo portavano etichette in ettari, 13 ottobre 2026).
+        Quelli nel pannello non si toccano; i due della preview aperta
+        (``_preview_layer_ids``) si risparmiano, salvo ``tutti``. Torna
+        quanti ne ha tolti."""
         try:
             progetto = QgsProject.instance()
             radice = progetto.layerTreeRoot()
+            correnti = set() if tutti else set(getattr(self, "_preview_layer_ids", None) or ())
             da_togliere = [l.id() for l in progetto.mapLayers().values()
-                           if l.name() == "pyarchinit_us_view" and radice.findLayer(l.id()) is None]
+                           if l.name() == "pyarchinit_us_view" and radice.findLayer(l.id()) is None
+                           and l.id() not in correnti]
             if da_togliere:
                 progetto.removeMapLayers(da_togliere)
+            if tutti:
+                try:
+                    self._preview_layer_ids = set()
+                except Exception:                   # noqa: BLE001
+                    pass
             return len(da_togliere)
         except Exception:                           # noqa: BLE001
             return 0
@@ -2181,10 +2191,14 @@ class Pyarchinit_pyqgis(QDialog):
         """Le etichette «0,00 ha» che Enzo vede (13 ottobre 2026) non le mette
         pyArchInit: se le porta un layer del progetto o un'annotazione, lo
         dice nella barra dei messaggi col nome, così si sa dove spegnerle."""
+        self._rimuovi_layer_preview()                 # i resti della preview, prima di guardare
         try:
-            from ..utility.label_audit import audit_project, describe
+            from ..utility.label_audit import audit_project, describe, details
             lingua = str(QgsSettings().value("locale/userLocale", "it", type=str))[:2]
-            frasi = describe(audit_project(), lingua)
+            esito = audit_project()
+            frasi = describe(esito, lingua)
+            for riga in details(esito):
+                QgsMessageLog.logMessage(riga, "PyArchInit", Qgis.MessageLevel.Info)
         except Exception:                           # noqa: BLE001
             return
         for frase in frasi:
@@ -2981,7 +2995,7 @@ class Pyarchinit_pyqgis(QDialog):
 
     def loadMapPreview_new(self, gidstr):
         """ if has geometry column load to map canvas """
-        self._rimuovi_layer_preview()                 # i layer della preview di prima, fuori dal pannello
+        self._rimuovi_layer_preview(tutti=True)       # i layer della preview di prima, fuori dal pannello
         self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         layerToSet = []
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
@@ -3068,6 +3082,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 print("Uno o entrambi i layer non sono validi")
 
+            self._preview_layer_ids = {l.id() for l in layerToSet}   # da risparmiare agli altri audit
             return layerToSet
 
         elif settings.SERVER == 'sqlite':
@@ -3132,6 +3147,7 @@ class Pyarchinit_pyqgis(QDialog):
             if not layerToSet:
                 print("Uno o entrambi i layer non sono validi")
 
+            self._preview_layer_ids = {l.id() for l in layerToSet}   # da risparmiare agli altri audit
             return layerToSet
 
 

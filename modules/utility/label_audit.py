@@ -108,6 +108,7 @@ def audit_project(project=None) -> Dict[str, Any]:
     from qgis.core import QgsProject
     progetto = project or QgsProject.instance()
     strati: List[Tuple[str, bool, Optional[str], bool]] = []
+    dettagli: List[str] = []
     radice = progetto.layerTreeRoot()
     for layer in progetto.mapLayers().values():
         if not hasattr(layer, "labeling"):
@@ -122,6 +123,14 @@ def audit_project(project=None) -> Dict[str, Any]:
             nel_pannello = True
         for espressione in _expressions_of(layer):
             strati.append((layer.name(), accese, espressione, nel_pannello))
+            if accese and looks_like_area(espressione):
+                try:
+                    dettagli.append("%s | id=%s | pannello=%s | stile=%s | fonte=%s | espressione=%s"
+                                    % (layer.name(), layer.id(), nel_pannello,
+                                       layer.customProperty("pyarchinit/stile", ""), layer.source()[:120],
+                                       str(espressione)[:160]))
+                except Exception:                   # noqa: BLE001
+                    pass
     testi: List[str] = []
     try:
         for item in progetto.mainAnnotationLayer().items().values():
@@ -140,4 +149,13 @@ def audit_project(project=None) -> Dict[str, Any]:
                 testi.append(doc().toPlainText())
     except Exception:                               # noqa: BLE001
         pass
-    return hectare_label_sources(strati, testi)
+    esito = hectare_label_sources(strati, testi)
+    esito["details"] = dettagli
+    return esito
+
+
+def details(esito: Dict[str, Any]) -> List[str]:
+    """Le righe per il registro dei messaggi: un layer segnalato per riga,
+    con id, se sta nel pannello, l'esito dello stile di pyArchInit, la
+    fonte e l'espressione intera (per capire chi è, quando l'avviso resta)."""
+    return ["Etichette in ettari: " + r for r in (esito.get("details") or [])]

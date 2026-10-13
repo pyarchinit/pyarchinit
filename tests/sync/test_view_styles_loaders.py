@@ -305,6 +305,36 @@ def test_la_map_preview_toglie_i_resti_prima_di_fare_l_audit():
     inizio = next(i for i, r in enumerate(righe) if r.startswith("    def loadMapPreview_new("))
     corpo = righe[inizio:inizio + 12]
     pos = {k: next((i for i, r in enumerate(corpo) if k in r), None)
-           for k in ("self._rimuovi_layer_preview()", "self._avvisa_etichette_ettari()")}
+           for k in ("self._rimuovi_layer_preview(tutti=True)", "self._avvisa_etichette_ettari()")}
     assert None not in pos.values(), pos
-    assert pos["self._rimuovi_layer_preview()"] < pos["self._avvisa_etichette_ettari()"], pos
+    assert pos["self._rimuovi_layer_preview(tutti=True)"] < pos["self._avvisa_etichette_ettari()"], pos
+
+
+def test_la_rimozione_dei_resti_risparmia_la_preview_corrente_e_parte_da_ogni_audit():
+    """I resti «pyarchinit_us_view» tornano a ogni apertura del progetto
+    finché non lo si salva pulito, e l'avviso lo danno anche «Carica layer»
+    e i caricatori per periodo: la rimozione parte da ogni audit, ma
+    risparmia i due layer della Map preview aperta (Enzo, 13 ottobre 2026)."""
+    import os, types
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    pytest.importorskip("qgis.core")
+    from qgis.core import QgsApplication, QgsProject, QgsVectorLayer
+    if QgsApplication.instance() is None:
+        QgsApplication.setPrefixPath(os.environ.get("QGIS_PREFIX_PATH", "/Applications/QGIS.app/Contents/MacOS"), True)
+        app = QgsApplication([], False); app.initQgis()
+    from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+    progetto = QgsProject.instance()
+    vecchi = [QgsVectorLayer("Polygon?crs=EPSG:32633", "pyarchinit_us_view", "memory") for _ in range(2)]
+    correnti = [QgsVectorLayer("Polygon?crs=EPSG:32633", "pyarchinit_us_view", "memory") for _ in range(2)]
+    progetto.addMapLayers(vecchi + correnti, False)
+    stub = types.SimpleNamespace(_preview_layer_ids={l.id() for l in correnti})
+    assert Pyarchinit_pyqgis._rimuovi_layer_preview(stub) == 2                 # i vecchi
+    assert {l.id() for l in progetto.mapLayers().values() if l.name() == "pyarchinit_us_view"} == {l.id() for l in correnti}
+    assert Pyarchinit_pyqgis._rimuovi_layer_preview(stub, tutti=True) == 2      # anche i correnti, a richiesta
+    assert not [l for l in progetto.mapLayers().values() if l.name() == "pyarchinit_us_view"]
+    testo = "\n".join(_righe())
+    i = testo.index("    def _avvisa_etichette_ettari(self):")
+    corpo = testo[i:i + 900]
+    assert "self._rimuovi_layer_preview()" in corpo and corpo.index("self._rimuovi_layer_preview()") < corpo.index("audit_project(")
+    j = testo.index("    def loadMapPreview_new(self")
+    assert "self._rimuovi_layer_preview(tutti=True)" in testo[j:j + 900]

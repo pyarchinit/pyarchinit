@@ -5,6 +5,16 @@
 
 ---
 
+## [fix] - 2026-10-13 — I resti della Map preview si tolgono da ogni caricatore, non solo dalla preview, e il registro dice chi sono — 5.13.119-alpha
+
+> Branch `Stratigraph_00001`. Suite **2138 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The Map preview's leftover layers are removed from every loader's audit, sparing the open preview; the message log lists each flagged layer.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: l'avviso è tornato una volta ancora — ma sull'**altro PC** di Enzo («provavo su un altro pc ma sul mac pro funziona»): un plugin non aggiornato o un progetto salvato con i resti dentro. I resti «pyarchinit_us_view» tornano a ogni apertura del progetto finché non lo si salva pulito, e l'avviso lo danno anche «Carica layer» e i caricatori per periodo, che non toglievano niente. Ora `_avvisa_etichette_ettari` chiama `_rimuovi_layer_preview()` **prima** di guardare, da ogni caricatore: toglie i resti fuori dal pannello ma **risparmia i due layer della Map preview aperta** (`_preview_layer_ids`, ricordati da `loadMapPreview_new`, che all'apertura li toglie tutti con `tutti=True` e li ricrea). Per ogni layer ancora segnalato il registro dei messaggi «PyArchInit» scrive id, se sta nel pannello, l'esito dello stile di pyArchInit, la fonte e l'espressione intera (`label_audit.details`). Prova `test_la_rimozione_dei_resti_risparmia_la_preview_corrente_e_parte_da_ogni_audit`.
+- 🇬🇧 **EN**: the leftover removal now runs from every loader's audit (sparing the open preview's own two layers), and the message log details every flagged layer; the warning that came back was from another PC with an older plugin or a project saved with the leftovers inside.
+
+---
+
 ## [fix] - 2026-10-13 — L'espressione delle etichette in ettari vista in chiaro, e l'avviso che parla solo di quello che resta — 5.13.118-alpha
 
 > Branch `Stratigraph_00001`. Suite **2137 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The hectare label expression finally seen; the Map preview removes its leftovers before the audit speaks.
