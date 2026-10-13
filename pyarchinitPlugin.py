@@ -2679,9 +2679,14 @@ class PyArchInitPlugin(object):
         except Exception:
             pass
 
+        if hasattr(self, "actionViewStyles"):
+            try:
+                self.iface.removeCustomActionForLayerType(self.actionViewStyles)
+            except Exception:
+                pass
         for _name in ("actionEmExport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
-                      "actionEmStudioInstall", "actionEmMatrixView",
+                      "actionEmStudioInstall", "actionEmMatrixView", "actionViewStyles",
                       "actionUuidBackfill", "actionYefOtherLocations",
                       "actionMediaFkMigration", "actionSchedatoreFields",
                       "actionSchemaRepair", "actionRapportiBlankRows"):
@@ -2895,6 +2900,22 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmMatrixView)
 
+            # Stili delle viste (spec 2026-10-13): nel menu del plugin e
+            # nel menu del layer, per aprire già sulla vista del layer.
+            self.actionViewStyles = QAction(
+                "Stili delle viste…",
+                self.iface.mainWindow())
+            self.actionViewStyles.triggered.connect(self._run_view_styles)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionViewStyles)
+            try:
+                from qgis.core import QgsMapLayer
+                self.iface.addCustomActionForLayerType(self.actionViewStyles, None,
+                                                       QgsMapLayer.VectorLayer, True)
+            except Exception:
+                pass
+
             self.actionEmStudioInstall = QAction(
                 "Extended Matrix → Installa EMStudio…",
                 self.iface.mainWindow())
@@ -3006,6 +3027,17 @@ class PyArchInitPlugin(object):
                 if answer == QMessageBox.StandardButton.Yes:
                     if self._run_emstudio_install():
                         em_export.open_in_emstudio(path)
+
+    def _run_view_styles(self):
+        """«Stili delle viste…»: dal menu, sulla vista del layer attivo se è
+        una vista di pyArchInit, altrimenti sulla vista US."""
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from .gui.view_styles_dialog import open_view_styles
+        try:
+            open_view_styles(self.iface, active_layer=self.iface.activeLayer())
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "Stili delle viste",
+                                "Non riesco ad aprire la finestra degli stili:\n%s" % e)
 
     def _run_em_matrix_view(self):
         """La matrice di un sito disegnata dentro QGIS, dall'em.json.

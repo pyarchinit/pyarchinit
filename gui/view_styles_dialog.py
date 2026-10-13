@@ -1020,3 +1020,58 @@ class ViewStylesDialog(QDialog):
     def closeEvent(self, event):
         self.dispose()
         super().closeEvent(event)
+
+
+def view_name_of_layer(layer) -> Optional[str]:
+    """La vista del registro da cui viene il layer, o None."""
+    if layer is None:
+        return None
+    for spec in VIEWS:
+        if layer_is_view(layer, spec.name):
+            return spec.name
+    return None
+
+
+def _config_site() -> Optional[str]:
+    """Il sito impostato in config.cfg (SITE_SET), o None."""
+    try:
+        from modules.utility.pyarchinit_home import pyarchinit_home
+        from modules.utility.settings import Settings
+        percorso = os.path.join(pyarchinit_home(), "pyarchinit_DB_folder", "config.cfg")
+        with open(percorso, "r") as conf:
+            settings = Settings(conf.read())
+        settings.set_configuration()
+        sito = str(getattr(settings, "SITE_SET", "") or "").strip()
+        return sito or None
+    except Exception:                               # noqa: BLE001
+        return None
+
+
+def open_view_styles(iface, parent=None, site: Optional[str] = None, view_name: Optional[str] = None,
+                     conn_str: Optional[str] = None, active_layer=None, show: bool = True,
+                     lang: Optional[str] = None):
+    """La porta unica: dal menu del plugin, dal menu del layer e dalla
+    scheda US. Non modale; la finestra resta appesa a chi l'ha aperta."""
+    if conn_str is None:
+        try:
+            from modules.db.pyarchinit_conn_strings import Connection
+            conn_str = Connection().conn_str()
+        except Exception:                           # noqa: BLE001
+            conn_str = ""
+    if site is None:
+        site = _config_site()
+    if view_name is None and active_layer is not None:
+        view_name = view_name_of_layer(active_layer)
+    if view_name is None:
+        view_name = "pyarchinit_us_view"
+    padrone = parent if parent is not None else (iface.mainWindow() if iface is not None else None)
+    dlg = ViewStylesDialog(iface, conn_str, site, padrone, view_name=view_name, lang=lang)
+    if padrone is not None:
+        try:
+            setattr(padrone, "_pyarchinit_view_styles", dlg)
+        except Exception:                           # noqa: BLE001
+            pass
+    if show:
+        dlg.show()
+        dlg.raise_()
+    return dlg

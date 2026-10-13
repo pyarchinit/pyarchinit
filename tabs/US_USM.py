@@ -10068,6 +10068,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
 
         self.setupUi(self)
+        # «Stile…» accanto al bottone dei layer (Stili delle viste, 13-10-2026)
+        try:
+            self._aggiungi_bottone_stile()
+        except Exception as e:                      # noqa: BLE001
+            print("Bottone Stile… non aggiunto: %s" % e)
 
         # Tooltips for Area + US fields — must be entered as TEXT not integer
         # (the columns are TEXT/VARCHAR in us_table; numeric-only entries
@@ -24108,6 +24113,30 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.set_rec_counter('', '')
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
+
+    def _aggiungi_bottone_stile(self):
+        from qgis.PyQt.QtWidgets import QPushButton
+        from qgis.core import QgsSettings
+        lingua = (QgsSettings().value("locale/userLocale", "it", type=str) or "it")[:2]
+        self.pushButton_stile = QPushButton("Stile…" if lingua == "it" else "Style…", self)
+        self.pushButton_stile.setObjectName("pushButton_stile")
+        self.pushButton_stile.setToolTip("Stili delle viste" if lingua == "it" else "View styles")
+        self.pushButton_stile.clicked.connect(self._apri_stili_delle_viste)
+        lay = self.pushButton_showLayer.parentWidget().layout()
+        indice = lay.indexOf(self.pushButton_showLayer)
+        if hasattr(lay, "insertWidget") and indice >= 0:
+            lay.insertWidget(indice + 1, self.pushButton_stile)
+        else:
+            lay.addWidget(self.pushButton_stile)
+
+    def _apri_stili_delle_viste(self):
+        """La finestra «Stili delle viste», sulla vista US, col sito della scheda."""
+        from ..gui.view_styles_dialog import open_view_styles
+        try:
+            sito = str(self.comboBox_sito.currentText() or "").strip() or None
+        except Exception:                           # noqa: BLE001
+            sito = None
+        open_view_styles(self.iface, parent=self, site=sito, view_name="pyarchinit_us_view")
 
     def on_pushButton_showLayer_pressed(self):
         """

@@ -120,3 +120,16 @@ def test_un_motore_assente_lascia_solo_esportare(qgs, db, tmp_path):
     assert dlg.save("x", None) is None and dlg.set_default("all") is False
     assert dlg.export_qml(str(tmp_path / "q.qml"))
     dlg.close()
+
+
+def test_open_view_styles_apre_sulla_vista_del_layer_attivo(qgs, db):
+    conn, sito, percorso = db
+    layer = QgsVectorLayer("%s|layername=pyarchinit_quote_view" % percorso, "Quote view", "ogr")
+    dlg = vsd.open_view_styles(None, conn_str=conn, site=sito, active_layer=layer, show=False, lang="it")
+    assert isinstance(dlg, vsd.ViewStylesDialog)
+    assert dlg._spec is not None and dlg._spec.name == "pyarchinit_quote_view"
+    assert not dlg.isVisible()
+    dlg.close()
+    altro = vsd.open_view_styles(None, conn_str=conn, site=sito, view_name="pyarchinit_us_view", show=False, lang="en")
+    assert altro._spec.name == "pyarchinit_us_view" and altro.windowTitle() == "View styles"
+    altro.close()
