@@ -28,6 +28,7 @@ def _corpo(percorso: Path, nome: str) -> str:
 def test_il_menu_del_plugin_ha_la_voce_e_la_toglie_allo_scarico():
     sorgente = PLUGIN.read_text(encoding="utf-8")
     assert re.search(r'self\.actionViewStyles = QAction\(\s*"Stili delle viste…"', sorgente)
+    assert '"View styles…"' in sorgente                                             # anche in inglese
     assert "self.actionViewStyles.triggered.connect(self._run_view_styles)" in sorgente
     assert re.search(r"addPluginToMenu\(\s*\"&pyArchInit - Archaeological GIS Tools\",\s*self\.actionViewStyles\)", sorgente)
     assert "addCustomActionForLayerType(self.actionViewStyles" in sorgente      # anche nel menu del layer
@@ -41,5 +42,6 @@ def test_la_scheda_us_ha_il_bottone_stile_accanto_a_quello_dei_layer():
     sorgente = SCHEDA.read_text(encoding="utf-8")
     assert "self.pushButton_stile = QPushButton(" in sorgente
     assert "indexOf(self.pushButton_showLayer)" in sorgente
+    assert "getItemPosition(indice)" in sorgente                                  # nella griglia, la cella accanto
     corpo = _corpo(SCHEDA, "_apri_stili_delle_viste")
     assert "open_view_styles(" in corpo and "pyarchinit_us_view" in corpo

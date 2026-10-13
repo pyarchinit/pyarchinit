@@ -85,19 +85,25 @@ def test_preset_salva_predefinito_esporta_importa_e_applica_al_progetto(qgs, db,
     assert abs(formato.size() - 3.5) < 0.01 and formato.font().bold() and formato.color().red() == 170
     assert formato.background().enabled()
     sid = dlg.save("prova", None)
+    formato = dlg.current_layer().labeling().settings().format()
+    assert abs(formato.size() - 3.5) < 0.01 and formato.font().bold()        # salvare non azzera il carattere
     engine = create_engine(conn)
     elenco = store.list_styles(engine, "pyarchinit_us_view")
     assert [s.name for s in elenco] == ["prova"] and elenco[0].id == sid and elenco[0].for_all_sites
-    assert dlg.set_default("site")                                           # si sposta sul sito
+    assert dlg.set_default("site")                                           # una copia per il sito
     elenco = store.list_styles(engine, "pyarchinit_us_view")
+    assert [s.site for s in elenco] == [None, sito]                           # l'originale «tutti» resta
     scelto = choose_style(elenco, sito)
     assert scelto is not None and scelto.name == "prova" and scelto.site == sito
-    assert dlg.stili.count() >= 1 and "predefinito" in dlg.stili.item(0).text()
+    assert any("predefinito" in dlg.stili.item(i).text() and sito in dlg.stili.item(i).text()
+               for i in range(dlg.stili.count()))
     qml = tmp_path / "prova.qml"
     assert dlg.export_qml(str(qml)) and "<labeling" in qml.read_text(encoding="utf-8")
     nuovo = dlg.import_qml(str(qml))
-    assert nuovo and {s.name for s in store.list_styles(engine, "pyarchinit_us_view")} == {"prova", "prova"} \
-        or len(store.list_styles(engine, "pyarchinit_us_view")) == 2
+    assert nuovo and len(store.list_styles(engine, "pyarchinit_us_view")) == 3
+    assert dlg.current_recipe().enabled                                      # il QML aveva le etichette
+    formato = dlg.current_layer().labeling().settings().format()
+    assert abs(formato.size() - 3.5) < 0.01                                  # e il suo carattere
     assert dlg.import_qml(str(tmp_path / "manca.qml")) is None
     # un layer del progetto che viene dalla stessa vista riceve lo stile
     layer = QgsVectorLayer("%s|layername=pyarchinit_us_view" % percorso, "US view", "ogr")
@@ -113,12 +119,13 @@ def test_preset_salva_predefinito_esporta_importa_e_applica_al_progetto(qgs, db,
 
 
 def test_un_motore_assente_lascia_solo_esportare(qgs, db, tmp_path):
-    conn, sito, _ = db
-    dlg = vsd.ViewStylesDialog(None, conn, sito, lang="en", engine=None)
-    dlg._engine = None
-    assert dlg.select_view("pyarchinit_quote_view")
+    _conn, sito, _ = db
+    dlg = vsd.ViewStylesDialog(None, "", sito, lang="en")                      # nessuna connessione
+    assert dlg._engine is None and "not connected" in dlg.stato.text()
+    assert not dlg.select_view("pyarchinit_che_non_esiste")
+    assert dlg.select_view("pyarchinit_quote_view") and dlg.current_layer() is None
     assert dlg.save("x", None) is None and dlg.set_default("all") is False
-    assert dlg.export_qml(str(tmp_path / "q.qml"))
+    assert dlg.export_qml(str(tmp_path / "q.qml")) is False                     # niente layer, niente QML
     dlg.close()
 
 
@@ -133,3 +140,14 @@ def test_open_view_styles_apre_sulla_vista_del_layer_attivo(qgs, db):
     altro = vsd.open_view_styles(None, conn_str=conn, site=sito, view_name="pyarchinit_us_view", show=False, lang="en")
     assert altro._spec.name == "pyarchinit_us_view" and altro.windowTitle() == "View styles"
     altro.close()
+
+
+def test_la_ricerca_del_layer_non_confonde_i_prefissi(qgs, db):
+    """Revisione (I5): «layername=pyarchinit_doc_view» stava dentro
+    «…pyarchinit_doc_view_b»."""
+    _conn, _sito, percorso = db
+    a = QgsVectorLayer("%s|layername=pyarchinit_doc_view" % percorso, "Doc", "ogr")
+    b = QgsVectorLayer("%s|layername=pyarchinit_doc_view_b" % percorso, "Doc B", "ogr")
+    assert vsd.layer_is_view(a, "pyarchinit_doc_view") and not vsd.layer_is_view(a, "pyarchinit_doc_view_b")
+    assert not vsd.layer_is_view(b, "pyarchinit_doc_view")
+    assert vsd.view_name_of_layer(a) == "pyarchinit_doc_view"

@@ -7,8 +7,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from .atlas_labels import (US_FIELDS, label_field, label_quote_view, labelled_ids,
-                           us_labeling)
+from .atlas_labels import US_FIELDS, label_field, labelled_ids, quota_labeling, us_labeling
 from .view_styles import LabelRecipe, ViewSpec, choose_style, default_recipe, view_by_name
 
 _STYLES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -23,11 +22,21 @@ def shipped_qml(spec: Optional[ViewSpec]) -> Optional[str]:
     return percorso if os.path.isfile(percorso) else None
 
 
+def _style_categories():
+    """Solo quello che è uno stile: simbologia, etichette, resa. Le altre
+    categorie (campi, moduli, proprietà personalizzate…) del layer di
+    arrivo non si toccano (revisione, M5)."""
+    from qgis.core import QgsMapLayer
+    C = QgsMapLayer.StyleCategory
+    return C.Symbology | C.Symbology3D | C.Labeling | C.Rendering
+
+
 def export_qml_text(layer) -> str:
     """Simbologia ed etichette del layer come testo QML."""
+    from qgis.core import QgsReadWriteContext
     from qgis.PyQt.QtXml import QDomDocument
     doc = QDomDocument()
-    layer.exportNamedStyle(doc)
+    layer.exportNamedStyle(doc, QgsReadWriteContext(), _style_categories())
     return doc.toString()
 
 
@@ -39,7 +48,7 @@ def import_qml_text(layer, text: str) -> bool:
     ok = esito[0] if isinstance(esito, tuple) else bool(esito)
     if not ok or doc.documentElement().isNull():
         return False
-    risultato = layer.importNamedStyle(doc)
+    risultato = layer.importNamedStyle(doc, _style_categories())
     riuscito = risultato[0] if isinstance(risultato, tuple) else bool(risultato)
     if riuscito:
         layer.triggerRepaint()
@@ -73,32 +82,76 @@ def _field_labeling(layer, recipe: LabelRecipe):
     return QgsVectorLayerSimpleLabeling(impostazioni)
 
 
-def apply_recipe(layer, recipe: LabelRecipe, touch_when_off: bool = True) -> bool:
+def _current_format(layer):
+    """Il formato del testo che il layer ha adesso, o None."""
+    try:
+        etichettatura = layer.labeling()
+        if etichettatura is None:
+            return None
+        impostazioni = etichettatura.settings()
+        return impostazioni.format()
+    except Exception:                               # noqa: BLE001
+        return None
+
+
+def recipe_from_layer(layer) -> LabelRecipe:
+    """La ricetta che descrive le etichette che il layer ha adesso — per un
+    QML importato o uno stile salvato con QGIS: accese o spente, che cosa
+    scrivono, una per unità (revisione, I2)."""
+    from qgis.core import QgsPalLayerSettings
+    try:
+        etichettatura = layer.labeling()
+        if etichettatura is None or not layer.labelsEnabled():
+            return LabelRecipe()
+        impostazioni = etichettatura.settings()
+        espressione = str(impostazioni.fieldName or "")
+        proprieta = impostazioni.dataDefinedProperties()
+        mostra = proprieta.property(QgsPalLayerSettings.Property.Show)
+        una = "$id IN" in str(mostra.expressionString() if mostra.isActive() else "")
+        if una:
+            return LabelRecipe(enabled=True, preset="us_circle", one_per_unit=True)
+        if "quota" in espressione and "format_number" in espressione:
+            return LabelRecipe(enabled=True, preset="quota", placement="above_symbol")
+        return LabelRecipe(enabled=True, preset="field", expression=espressione or None)
+    except Exception:                               # noqa: BLE001
+        return LabelRecipe()
+
+
+def apply_recipe(layer, recipe: LabelRecipe, touch_when_off: bool = True,
+                 keep_format: bool = False) -> bool:
     """Le etichette secondo la ricetta. ``True`` se il layer è stato toccato.
 
     «Una per unità» si ricalcola qui, ogni volta: l'elenco dei disegni da
     etichettare che un QML porta con sé è quello del giorno in cui è stato
-    salvato."""
+    salvato. Con ``keep_format`` il carattere resta quello che il layer ha
+    (il QML di uno stile salvato): la ricetta rifà solo quello che è suo
+    (revisione, I1)."""
+    from qgis.core import QgsVectorLayerSimpleLabeling
     if not recipe.enabled or recipe.preset == "none":
         if touch_when_off:
             layer.setLabelsEnabled(False)
             return True
         return False
+    formato_prima = _current_format(layer) if keep_format else None
     try:
+        campi = [f.name() for f in layer.fields()]
         if recipe.preset == "us_circle":
-            campi = [f.name() for f in layer.fields()]
             if label_field(campi, US_FIELDS) is None:
                 return False
             ids = (labelled_ids(layer) or None) if recipe.one_per_unit else None
             nuove = us_labeling(campi, ids)
         elif recipe.preset == "quota":
-            return label_quote_view(layer)
+            nuove = quota_labeling(campi)
         else:
             nuove = _field_labeling(layer, recipe)
     except Exception:                               # noqa: BLE001
         return False
     if nuove is None:
         return False
+    if formato_prima is not None:
+        impostazioni = nuove.settings()
+        impostazioni.setFormat(formato_prima)
+        nuove = QgsVectorLayerSimpleLabeling(impostazioni)
     layer.setLabeling(nuove)
     layer.setLabelsEnabled(True)
     return True
@@ -121,14 +174,19 @@ def apply_view_style(layer, view_name: str, site: Optional[str] = None, *, engin
         except Exception:                           # noqa: BLE001
             scelto = None
         if scelto is not None and import_qml_text(layer, scelto.qml):
-            apply_recipe(layer, scelto.recipe, touch_when_off=True)
+            # Il QML porta già etichette accese o spente e il loro carattere:
+            # la ricetta rifà solo quello che è suo (revisione, I1 e I2).
+            apply_recipe(layer, scelto.recipe, touch_when_off=False, keep_format=True)
             return "saved:%d" % int(scelto.id)
     if not fallback:
         return "none"
     qml = shipped_qml(spec)
     if qml:
         try:
-            layer.loadNamedStyle(qml)
+            esito = layer.loadNamedStyle(qml)
+            riuscito = esito[1] if isinstance(esito, tuple) else bool(esito)
+            if not riuscito:
+                qml = None
         except Exception:                           # noqa: BLE001
             qml = None
     apply_recipe(layer, default_recipe(spec), touch_when_off=False)

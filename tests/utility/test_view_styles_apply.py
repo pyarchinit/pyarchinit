@@ -148,3 +148,79 @@ def test_senza_ripiego_si_applica_solo_uno_stile_salvato(qgs):
                            "Quote", "memory")
     assert va.apply_view_style(quote, "pyarchinit_quote_view", fallback=False) == "none"
     assert not quote.labelsEnabled()
+
+
+def _etichette_grandi(layer, size_mm=3.5, bold=True):
+    """Un layer con il numero cerchiato e un carattere personalizzato."""
+    from qgis.core import QgsVectorLayerSimpleLabeling
+    assert label_us_view(layer)
+    etichettatura = layer.labeling()
+    impostazioni = etichettatura.settings()
+    formato = impostazioni.format()
+    formato.setSize(size_mm)
+    carattere = formato.font()
+    carattere.setBold(bold)
+    formato.setFont(carattere)
+    impostazioni.setFormat(formato)
+    layer.setLabeling(QgsVectorLayerSimpleLabeling(impostazioni))
+
+
+def test_il_carattere_salvato_sopravvive_all_applicazione(qgs, tmp_path):
+    """Revisione (I1): `apply_recipe` rifaceva le etichette da zero e il
+    carattere salvato — corpo, grassetto — spariva al caricamento e in
+    «Applica ai layer caricati»."""
+    origine = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"), ("2", "POLYGON((20 20, 30 20, 30 30, 20 30, 20 20))")])
+    _etichette_grandi(origine)
+    engine = create_engine("sqlite:///%s" % (tmp_path / "stili.sqlite"))
+    store.ensure_table(engine)
+    stile = SavedStyle(None, "pyarchinit_us_view", None, "Grande", va.export_qml_text(origine),
+                       LabelRecipe(enabled=True, preset="us_circle", one_per_unit=True), is_default=True)
+    store.save_style(engine, stile)
+    fresco = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"),
+                        ("1", "POLYGON((2 2, 4 2, 4 4, 2 4, 2 2))"),
+                        ("2", "POLYGON((20 20, 30 20, 30 30, 20 30, 20 20))")])
+    assert va.apply_view_style(fresco, "pyarchinit_us_view", engine=engine).startswith("saved:")
+    etichettatura = fresco.labeling()
+    impostazioni = etichettatura.settings()
+    formato = impostazioni.format()
+    assert abs(formato.size() - 3.5) < 0.01 and formato.font().bold()        # il carattere salvato
+    assert formato.background().enabled()                                    # il cerchio
+    assert len(_mostra(fresco).split("(")[1].rstrip(")").split(",")) == 2     # una per unità, ricalcolata
+
+
+def test_uno_stile_con_etichette_e_ricetta_spenta_le_tiene(qgs, tmp_path):
+    """Revisione (I2): un QML importato con le etichette accese e la
+    ricetta `none` si caricava con le etichette spente."""
+    origine = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")], "Strutture")
+    assert label_us_view(origine)
+    engine = create_engine("sqlite:///%s" % (tmp_path / "stili.sqlite"))
+    store.ensure_table(engine)
+    store.save_style(engine, SavedStyle(None, "pyarchinit_strutture_view", None, "Con etichette",
+                                        va.export_qml_text(origine), LabelRecipe(), is_default=True))
+    fresco = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")], "Strutture")
+    assert va.apply_view_style(fresco, "pyarchinit_strutture_view", engine=engine).startswith("saved:")
+    assert fresco.labelsEnabled()
+    ricetta = va.recipe_from_layer(fresco)
+    assert ricetta.enabled and ricetta.preset == "us_circle" and ricetta.one_per_unit
+    spento = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")])
+    assert va.recipe_from_layer(spento) == LabelRecipe()
+
+
+def test_il_qml_porta_solo_stile_etichette_e_resa(qgs):
+    """Revisione (M5): esportare tutte le categorie spazzava le proprietà
+    personalizzate e la configurazione dei campi del layer di arrivo."""
+    a = _poligoni([("1", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")])
+    testo = va.export_qml_text(a)
+    b = _poligoni([("2", "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")])
+    b.setCustomProperty("pyarchinit/qualcosa", "resta")
+    assert va.import_qml_text(b, testo)
+    assert b.customProperty("pyarchinit/qualcosa") == "resta"
+
+
+def test_il_qml_fornito_che_non_si_carica_non_finge(qgs, monkeypatch):
+    """Revisione (M1): `loadNamedStyle` che fallisce tornava comunque «shipped»."""
+    from modules.utility import view_styles as vs
+    quote = QgsVectorLayer("Point?crs=EPSG:32633&field=sito_q:string&field=us_q:string&field=quota_q:double",
+                           "Quote", "memory")
+    monkeypatch.setattr(va, "shipped_qml", lambda spec: "/percorso/che/non/esiste.qml")
+    assert va.apply_view_style(quote, "pyarchinit_quote_view") == "none"

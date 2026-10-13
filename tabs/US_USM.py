@@ -24124,7 +24124,10 @@ DATABASE SCHEMA KNOWLEDGE:
         self.pushButton_stile.clicked.connect(self._apri_stili_delle_viste)
         lay = self.pushButton_showLayer.parentWidget().layout()
         indice = lay.indexOf(self.pushButton_showLayer)
-        if hasattr(lay, "insertWidget") and indice >= 0:
+        if hasattr(lay, "getItemPosition") and indice >= 0:
+            riga, colonna, _rs, _cs = lay.getItemPosition(indice)     # griglia: la cella accanto
+            lay.addWidget(self.pushButton_stile, riga, colonna + 1)
+        elif hasattr(lay, "insertWidget") and indice >= 0:
             lay.insertWidget(indice + 1, self.pushButton_stile)
         else:
             lay.addWidget(self.pushButton_stile)

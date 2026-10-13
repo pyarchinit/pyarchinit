@@ -2903,7 +2903,8 @@ class PyArchInitPlugin(object):
             # Stili delle viste (spec 2026-10-13): nel menu del plugin e
             # nel menu del layer, per aprire già sulla vista del layer.
             self.actionViewStyles = QAction(
-                "Stili delle viste…",
+                "Stili delle viste…" if str(QgsSettings().value("locale/userLocale", "it", type=str))[:2] == "it"
+                else "View styles…",
                 self.iface.mainWindow())
             self.actionViewStyles.triggered.connect(self._run_view_styles)
             self.iface.addPluginToMenu(

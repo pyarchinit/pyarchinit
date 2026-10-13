@@ -32,7 +32,7 @@ from modules.utility.view_styles import (GROUPS, PLACEMENTS, PRESETS, VIEWS, Lab
                                          SavedStyle, ViewSpec, choose_style, default_recipe,
                                          group_label, view_by_name, view_label)
 from modules.utility.view_styles_apply import (apply_recipe, export_qml_text,  # noqa: E402
-                                               import_qml_text, shipped_qml)
+                                               import_qml_text, recipe_from_layer, shipped_qml)
 from modules.utility import view_styles_store as store  # noqa: E402
 
 
@@ -98,6 +98,8 @@ _L = {
     "no_geom": {"it": "Nessuna geometria per il sito corrente.", "en": "No geometry for the current site."},
     "no_db": {"it": "Database non collegato: gli stili si possono solo esportare.",
               "en": "Database not connected: styles can only be exported."},
+    "no_table": {"it": "La tabella degli stili non si può creare in questo database: gli stili si possono solo esportare.",
+                 "en": "The styles table cannot be created in this database: styles can only be exported."},
     "loaded": {"it": "{n} geometrie del sito «{site}».", "en": "{n} geometries of site “{site}”."},
     "loaded_all": {"it": "{n} geometrie (tutti i siti).", "en": "{n} geometries (all sites)."},
     "saved": {"it": "Stile «{name}» salvato.", "en": "Style “{name}” saved."},
@@ -193,12 +195,18 @@ def categorized_renderer(layer, field: str):
 
 
 def layer_is_view(layer, view_name: str) -> bool:
-    """Vero se la sorgente del layer è questa vista (OGR o PostgreSQL)."""
+    """Vero se la sorgente del layer è questa vista (OGR o PostgreSQL):
+    il nome intero, non un prefisso (revisione, I5: «doc_view» stava
+    dentro «doc_view_b»)."""
+    import re
     try:
         sorgente = str(layer.source() or "")
     except Exception:                               # noqa: BLE001
         return False
-    return ("layername=%s" % view_name) in sorgente or ('"%s"' % view_name) in sorgente
+    nome = re.escape(view_name)
+    return bool(re.search(r"layername=%s(?=$|\|)" % nome, sorgente)
+                or re.search(r'"%s"' % nome, sorgente)
+                or re.search(r"table=(?:\"public\"\.)?\"%s\"" % nome, sorgente))
 
 
 def project_layers_of_view(view_name: str) -> List:
@@ -241,13 +249,18 @@ class ViewStylesDialog(QDialog):
     def _apri_motore(self):
         if not self.conn_str:
             return None
+        self._motivo_senza_motore = "no_db"
         try:
             from sqlalchemy import create_engine
             motore = create_engine(self.conn_str)
-            store.ensure_table(motore)
-            return motore
         except Exception:                           # noqa: BLE001
             return None
+        try:
+            store.ensure_table(motore)
+        except Exception:                           # noqa: BLE001
+            self._motivo_senza_motore = "no_table"      # collegato, ma senza permesso di creare
+            return None
+        return motore
 
     def _costruisci(self):
         from qgis.gui import QgsMapCanvas
@@ -338,7 +351,7 @@ class ViewStylesDialog(QDialog):
         fondo.addWidget(self.bottone_chiudi)
         radice.addLayout(fondo)
         if self._engine is None:
-            self.stato.setText(_t("no_db", self.lang))
+            self.stato.setText(_t(getattr(self, "_motivo_senza_motore", "no_db"), self.lang))
 
     def _costruisci_simbologia(self):
         pagina = QWidget(self.schede)
@@ -654,12 +667,19 @@ class ViewStylesDialog(QDialog):
 
     # ---- etichette ---------------------------------------------------
     def _riempi_campi(self):
+        from modules.utility.atlas_labels import US_GROUP_FIELDS, US_GROUP_FIELDS_ALT
         self._zitto = True
         self.campo_etichetta.clear()
         self.campo_etichetta.addItem("", "")
+        campi = []
         if self._layer is not None:
             for f in self._layer.fields():
                 self.campo_etichetta.addItem(f.name(), f.name())
+                campi.append(f.name())
+        raggruppabile = any(set(coppia) <= set(campi) for coppia in (US_GROUP_FIELDS, US_GROUP_FIELDS_ALT))
+        self.una_per_unita.setEnabled(raggruppabile)
+        if not raggruppabile:
+            self.una_per_unita.setChecked(False)
         self._zitto = False
 
     def _mostra_ricetta(self, ricetta: LabelRecipe):
@@ -783,7 +803,9 @@ class ViewStylesDialog(QDialog):
             voce = QListWidgetItem(testo, self.stili)
             voce.setData(Qt.ItemDataRole.UserRole, stile.id)
             if self._stile is not None and stile.id == self._stile.id:
+                self.stili.blockSignals(True)           # evidenzia senza ricaricare (revisione, M9)
                 self.stili.setCurrentItem(voce)
+                self.stili.blockSignals(False)
         if self._layer is not None:
             for sid, nome in store.legacy_qgis_styles(self._layer):
                 voce = QListWidgetItem("%s · %s" % (nome, _t("legacy", self.lang)), self.stili)
@@ -800,7 +822,9 @@ class ViewStylesDialog(QDialog):
                 return
             if xml and import_qml_text(self._layer, xml):
                 self._stile = None
+                self._formato_personalizzato = False
                 self._ricostruisci_editor()
+                self._mostra_ricetta(recipe_from_layer(self._layer))
                 self._aggiorna_anteprima()
             return
         stile = self._stile_per_id(dato)
@@ -821,7 +845,7 @@ class ViewStylesDialog(QDialog):
         self._stile = stile
         self._formato_personalizzato = False
         import_qml_text(self._layer, stile.qml)
-        apply_recipe(self._layer, stile.recipe, touch_when_off=True)
+        apply_recipe(self._layer, stile.recipe, touch_when_off=False, keep_format=True)
         self._ricostruisci_editor()
         self._mostra_ricetta(stile.recipe)
         self._aggiorna_anteprima()
@@ -859,7 +883,11 @@ class ViewStylesDialog(QDialog):
         stile.qml = export_qml_text(self._layer)
         stile.recipe = self.current_recipe()
         if not stile.author:
-            stile.author = os.environ.get("USER", "")
+            try:
+                import getpass
+                stile.author = getpass.getuser()
+            except Exception:                       # noqa: BLE001
+                stile.author = ""
         store.save_style(self._engine, stile)
         self._stile = stile
         self.refresh_styles()
@@ -925,7 +953,10 @@ class ViewStylesDialog(QDialog):
         if scope == "site" and not self.site:
             return False
         if (stile.site or None) != nuovo_sito:
-            stile.site = nuovo_sito
+            # l'ambito cambia: lo stile di prima resta dov'è, il predefinito
+            # nuovo è una copia nell'ambito nuovo (revisione, M2)
+            stile = SavedStyle(None, stile.view_name, nuovo_sito, stile.name, stile.qml, stile.recipe,
+                               False, stile.author)
             store.save_style(self._engine, stile)
         store.set_default(self._engine, stile.id)
         self._stile = stile
@@ -952,7 +983,9 @@ class ViewStylesDialog(QDialog):
         if not testo or not import_qml_text(self._layer, testo):
             self._avvisa(_t("import_failed", self.lang, name=os.path.basename(path)), warning=True)
             return None
+        self._formato_personalizzato = False
         self._ricostruisci_editor()
+        self._mostra_ricetta(recipe_from_layer(self._layer))
         self._aggiorna_anteprima()
         nome = os.path.splitext(os.path.basename(path))[0]
         if self._engine is None:
@@ -989,7 +1022,7 @@ class ViewStylesDialog(QDialog):
         quanti = 0
         for layer in project_layers_of_view(self._spec.name):
             if import_qml_text(layer, qml):
-                apply_recipe(layer, ricetta, touch_when_off=True)
+                apply_recipe(layer, ricetta, touch_when_off=False, keep_format=True)
                 layer.triggerRepaint()
                 quanti += 1
         return quanti
