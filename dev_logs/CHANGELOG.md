@@ -5,6 +5,16 @@
 
 ---
 
+## [fix] - 2026-10-13 — L'espressione delle etichette in ettari vista in chiaro, e l'avviso che parla solo di quello che resta — 5.13.118-alpha
+
+> Branch `Stratigraph_00001`. Suite **2137 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The hectare label expression finally seen; the Map preview removes its leftovers before the audit speaks.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: con la 5.13.117 l'avviso ha mostrato l'espressione: `replace(format_number((area(transform($geometry, 'EPSG:3004', 'EPSG:31984'))) / 10000, …` — l'area in ettari con un passaggio a UTM 24 Sud (SIRGAS 2000, Brasile): un'etichetta **scritta a mano in QGIS** (è il classico esempio di calcolo dell'area che gira in rete), rimasta sui layer «pyarchinit_us_view» della Map preview salvati nel progetto. Nessun codice la costruisce: cercata in pyArchInit, in tutti i plugin del profilo (anche spenti), negli stili del profilo (`symbology-style.db`: solo i due «watercourses» di QGIS) e nei file del profilo. Nella 5.13.117 l'audit girava **prima** della rimozione dei resti in `loadMapPreview_new`, quindi l'ultimo avviso parlava di un layer tolto un istante dopo; ora la rimozione viene prima e l'avviso dice solo quello che resta davvero (`test_la_map_preview_toglie_i_resti_prima_di_fare_l_audit`).
+- 🇬🇧 **EN**: the hectare expression turned out to be a hand-written QGIS label (area via a transform to EPSG:31984) left on the Map preview's project layers; the preview now removes its leftovers before the audit runs, so the warning only names what is really left.
+
+---
+
 ## [fix] - 2026-10-13 — Quarto giro di Enzo: l'ordine come la matrice (order_layer, e l'indice solo dentro l'unità), una voce per US nella TOC, e i layer della Map preview rimasti nel progetto con le etichette in ettari — 5.13.117-alpha
 
 > Branch `Stratigraph_00001`. Suite **2136 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Fourth round: matrix-like order (order_layer first, index only inside the unit), one legend entry per unit, and the Map preview's leftover layers — the ones carrying the hectare labels — removed from the project.

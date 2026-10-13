@@ -294,3 +294,17 @@ def test_la_map_preview_toglie_i_suoi_layer_vecchi_dal_progetto(tmp_path):
     righe = _righe()
     testo = "\n".join(righe)
     assert "self._rimuovi_layer_preview()" in testo
+
+
+def test_la_map_preview_toglie_i_resti_prima_di_fare_l_audit():
+    """L'avviso delle etichette in ettari deve parlare solo di quello che
+    resta: in `loadMapPreview_new` la rimozione dei layer vecchi della
+    preview viene prima dell'audit (Enzo, 13 ottobre 2026: vedeva l'avviso
+    sul layer che un istante dopo veniva tolto)."""
+    righe = _righe()
+    inizio = next(i for i, r in enumerate(righe) if r.startswith("    def loadMapPreview_new("))
+    corpo = righe[inizio:inizio + 12]
+    pos = {k: next((i for i, r in enumerate(corpo) if k in r), None)
+           for k in ("self._rimuovi_layer_preview()", "self._avvisa_etichette_ettari()")}
+    assert None not in pos.values(), pos
+    assert pos["self._rimuovi_layer_preview()"] < pos["self._avvisa_etichette_ettari()"], pos

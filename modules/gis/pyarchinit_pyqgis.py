@@ -2981,8 +2981,8 @@ class Pyarchinit_pyqgis(QDialog):
 
     def loadMapPreview_new(self, gidstr):
         """ if has geometry column load to map canvas """
-        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         self._rimuovi_layer_preview()                 # i layer della preview di prima, fuori dal pannello
+        self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
         layerToSet = []
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
         path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
