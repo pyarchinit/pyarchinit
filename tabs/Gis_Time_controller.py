@@ -48,6 +48,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from ..modules.utility.atlas_labels import (labelled_ids, quota_labeling, remember_labeling, restore_labeling, us_labeling)
+from ..modules.utility.time_manager_messages import tm
 from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_name,
                                               base_map_uri,
@@ -730,12 +731,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         
         templates = self.get_available_templates()
         if not templates:
-            QMessageBox.warning(self, "Warning", "Nessun template (.qpt) trovato nelle directory standard.")
+            QMessageBox.warning(self, self._tm("warning"), self._tm("no_templates"))
             return None
         
         # Crea dialog personalizzato
         dialog = QDialog(self)
-        dialog.setWindowTitle("Scegli Layout Template per Atlas")
+        dialog.setWindowTitle(self._tm("choose_title"))
         dialog.setModal(True)
         dialog.resize(400, 300)
         
@@ -743,8 +744,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         
         # Label informativa
         info_label = QLabel(
-            "Seleziona il template per l'atlas.\n"
-            "✓ = titolo e matrice   • = solo mappa   ✗ = senza mappa")
+            self._tm("choose_intro"))
         layout.addWidget(info_label)
         
         # Lista template
@@ -763,7 +763,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             pieno = caps.get("title") and caps.get("matrix")
             segno = "✓" if pieno else ("•" if is_usable(caps) else "✗")
             item = QListWidgetItem("%s  %s" % (segno, name))
-            manca = describe_missing(caps)
+            manca = describe_missing(caps, self.L)
             item.setToolTip("%s\n%s" % (path, manca) if manca else path)
             item.setData(Qt.ItemDataRole.UserRole, path)
             template_list.addItem(item)
@@ -798,14 +798,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Bottoni
         button_layout = QHBoxLayout()
         
-        browse_btn = QPushButton("Sfoglia...")
+        browse_btn = QPushButton(self._tm("browse"))
         browse_btn.clicked.connect(lambda: self.browse_for_template(dialog))
         
-        new_btn = QPushButton("Nuovo Template...")
+        new_btn = QPushButton(self._tm("new"))
         new_btn.clicked.connect(lambda: self.create_new_template(dialog))
         
-        ok_btn = QPushButton("Usa Template")
-        cancel_btn = QPushButton("Annulla")
+        ok_btn = QPushButton(self._tm("use"))
+        cancel_btn = QPushButton(self._tm("cancel"))
         
         ok_btn.clicked.connect(dialog.accept)
         cancel_btn.clicked.connect(dialog.reject)
@@ -836,13 +836,17 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         
         return None
     
+    def _tm(self, key, **kw):
+        """Il testo nella lingua della finestra (``self.L``): it, o en."""
+        return tm(getattr(self, "L", "en"), key, **kw)
+
     def browse_for_template(self, parent_dialog):
         """Permette di sfogliare per un template personalizzato"""
         template_path, _ = QFileDialog.getOpenFileName(
             parent_dialog,
-            "Seleziona Template Layout (.qpt)",
+            self._tm("browse_title"),
             os.path.expanduser("~"),
-            "QGIS Layout Templates (*.qpt);;All Files (*)"
+            self._tm("browse_filter")
         )
         
         if template_path:
@@ -856,8 +860,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         """Crea un nuovo template da zero"""
         template_name, ok = QInputDialog.getText(
             parent_dialog,
-            "Nuovo Template",
-            "Nome per il nuovo template:",
+            self._tm("new_title"),
+            self._tm("new_prompt"),
             text="Atlas_Template_Custom"
         )
         
@@ -924,10 +928,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             
             QMessageBox.information(
                 parent_dialog,
-                "Template Creato",
-                f"Nuovo template creato: {template_name}\n\n"
-                f"Il Layout Designer è ora aperto per personalizzare il template.\n"
-                f"Quando hai finito, chiudi il designer e il template sarà disponibile."
+                self._tm("created_title"),
+                self._tm("created_text", name=template_name)
             )
             
             # Chiudi il dialog di selezione
@@ -938,8 +940,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.critical(
                 parent_dialog,
-                "Errore Creazione Template",
-                f"Errore nella creazione del template:\n{str(e)}"
+                self._tm("create_error_title"),
+                self._tm("create_error_text", err=str(e))
             )
             return None
 
@@ -1401,7 +1403,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     def open_layout_designer(self):
         """Apre il Layout Designer di QGIS per modificare il template corrente"""
         if not self.current_layout:
-            QMessageBox.warning(self, "Warning", "Nessun layout caricato.")
+            QMessageBox.warning(self, self._tm("warning"), self._tm("no_layout"))
             return
             
         try:
@@ -1420,36 +1422,27 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             
             # Modale alla sola finestra del Time Manager: il designer
             # appena aperto deve restare usabile (Enzo, 2026-10-09).
-            self._informa(
-                "Layout Designer",
-                "Il Layout Designer è stato aperto per il template: "
-                "%s\n\n"
-                "Puoi modificare:\n"
-                "• Posizione e dimensioni degli elementi\n"
-                "• Stili, colori e font\n"
-                "• Aggiungere nuovi elementi (testo, immagini, ecc.)\n"
-                "• Configurare la mappa e la scala\n\n"
-                "Lascia pure il designer aperto: questa finestra non lo "
-                "blocca." % self.current_layout.name())
+            self._informa(self._tm("designer_title"),
+                          self._tm("designer_text", name=self.current_layout.name()))
             
         except Exception as e:
             QMessageBox.critical(
                 self,
-                "Errore Layout Designer",
-                f"Errore nell'apertura del Layout Designer:\n{str(e)}"
+                self._tm("designer_error_title"),
+                self._tm("designer_error_text", err=str(e))
             )
 
     def save_current_as_template(self):
         """Salva il layout corrente come nuovo template"""
         if not self.current_layout:
-            QMessageBox.warning(self, "Warning", "Nessun layout caricato.")
+            QMessageBox.warning(self, self._tm("warning"), self._tm("no_layout"))
             return
             
         # Chiedi il nome del nuovo template
         template_name, ok = QInputDialog.getText(
             self, 
-            "Salva Template", 
-            "Inserisci il nome per il nuovo template:",
+            self._tm("save_title"),
+            self._tm("save_prompt"),
             text="Nuovo_Template_Atlas"
         )
         
@@ -1471,8 +1464,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         if os.path.exists(template_path):
             reply = QMessageBox.question(
                 self, 
-                "File Esiste", 
-                f"Il template '{template_name}' esiste già. Sovrascrivere?",
+                self._tm("exists_title"),
+                self._tm("exists_text", name=template_name),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply != QMessageBox.StandardButton.Yes:
@@ -1492,15 +1485,15 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 
             QMessageBox.information(
                 self, 
-                "Template Salvato", 
-                f"Template salvato con successo:\n{template_path}"
+                self._tm("saved_title"),
+                self._tm("saved_text", path=template_path)
             )
             
         except Exception as e:
             QMessageBox.critical(
                 self, 
-                "Errore Salvataggio", 
-                f"Errore durante il salvataggio del template:\n{str(e)}"
+                self._tm("save_error_title"),
+                self._tm("save_error_text", err=str(e))
             )
 
     def generate_images(self):
@@ -1510,7 +1503,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             return
             
         # Poi scegli la cartella di destinazione
-        self.path = QFileDialog.getExistingDirectory(self, 'Selezionare una cartella per salvare le tavole', '/')
+        self.path = QFileDialog.getExistingDirectory(self, self._tm("folder"), '/')
         if not self.path:
             return
             
@@ -1522,8 +1515,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         print(f"Caricando template: {template_path}")
         self.load_template(template_path)
         if not self.current_layout:
-            QMessageBox.warning(self, "Errore Template", 
-                              f"Impossibile caricare il template:\n{template_path}")
+            QMessageBox.warning(self, self._tm("template_error_title"),
+                              self._tm("template_error_text", path=template_path))
             return
 
         # Che cosa sa fare questo modello, detto PRIMA di cominciare: senza
@@ -1535,19 +1528,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         except Exception:                           # noqa: BLE001
             caps = {"map": True, "title": True, "matrix": True}
         if not is_usable(caps):
-            QMessageBox.warning(self, "Atlas", describe_missing(caps))
+            QMessageBox.warning(self, self._tm("atlas"), describe_missing(caps, self.L))
             return
-        manca = describe_missing(caps)
+        manca = describe_missing(caps, self.L)
         if manca and self._chiedi(
-                "Atlas", manca + "\n\nVuoi procedere lo stesso?"
+                self._tm("atlas"), manca + self._tm("proceed_anyway")
         ) != QMessageBox.StandardButton.Yes:
             return
             
         # Chiedi se vuole modificare il template prima di procedere
         reply = self._chiedi(
-            "Modifica Template",
-            "Vuoi aprire il Layout Designer per modificare il template "
-            "prima di generare l'atlas?",
+            self._tm("edit_title"),
+            self._tm("edit_text"),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             | QMessageBox.StandardButton.Cancel)
         
@@ -1563,9 +1555,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # impedisce i clic — «la finestra del Time Manager blocca la
             # finestra del layout» (Enzo, 2026-10-09).
             proceed = self._chiedi(
-                "Continua Atlas",
-                "Hai terminato le modifiche al layout?\n"
-                "Procedere con la generazione dell'atlas?",
+                self._tm("continue_title"),
+                self._tm("continue_text"),
                 QMessageBox.StandardButton.Yes
                 | QMessageBox.StandardButton.No)
             if proceed != QMessageBox.StandardButton.Yes:
@@ -1576,9 +1567,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # Nessuna US numerata: senza questa guardia era un TypeError
             # su None + 1, cioè il generatore che «non parte».
             self._informa(
-                "Atlas",
-                "Nessuna US ha un valore di «order_layer»: non c'è una "
-                "sequenza da cui ricavare le tavole.")
+                self._tm("atlas"),
+                self._tm("no_order_layer"))
             return
         total_order_layers = max_num_order_layer + 1  # da 0 a max incluso
         
@@ -1596,12 +1586,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             valid_count = max_num_order_layer + 1
 
         if valid_count == 0:
-            self._informa("Info", "Nessun order_layer con datazione valida trovato.")
+            self._informa(self._tm("info"), self._tm("no_dated_level"))
             return
         
         # Crea progress dialog per tutti gli order_layer (inclusi quelli skippati)
-        progress = QProgressDialog("Generazione tavole in corso...", "Annulla", 0, total_order_layers, self)
-        progress.setWindowTitle("Generazione Atlas")
+        progress = QProgressDialog(self._tm("progress_text"), self._tm("cancel"), 0, total_order_layers, self)
+        progress.setWindowTitle(self._tm("progress_title"))
         progress.setWindowModality(Qt.WindowModality.NonModal)  # Non bloccare l'interfaccia
         progress.setAutoClose(False)  # Non chiudere automaticamente
         progress.setAutoReset(False)  # Non reset automaticamente
@@ -1879,24 +1869,16 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             progress.close()
         
         if not self.abort and not progress.wasCanceled():
-            coda = ("\n\nNON scritte: %s — controlla che la cartella sia "
-                    "scrivibile." % ", ".join(str(v) for v in non_scritte)
+            coda = (self._tm("not_written", list=", ".join(str(v) for v in non_scritte))
                     ) if non_scritte else ""
-            self._informa("Atlas Completato",
-                          "Generazione atlas completata con successo!\n"
-                          "Order layers processati: %s/%s\n"
-                          "Tavole con datazione valida generate: %s\n"
-                          "Salvate in: %s%s"
-                          % (progress_count, total_order_layers, valid_count,
-                             self.path, coda))
+            self._informa(self._tm("done_title"),
+                          self._tm("done_text", done=progress_count, total=total_order_layers,
+                                   valid=valid_count, path=self.path, tail=coda))
             print(f"Atlas generato con successo: {valid_count} tavole create su {progress_count} order_layer processati")
         else:
-            self._informa("Atlas Interrotto",
-                          "Generazione atlas interrotta dall'utente.\n"
-                          "Order layers processati prima "
-                          "dell'interruzione: %s/%s"
-                          % (progress_count, total_order_layers))
-            print("Generazione atlas interrotta dall'utente")
+            self._informa(self._tm("stopped_title"),
+                          self._tm("stopped_text", done=progress_count, total=total_order_layers))
+            print("atlas: stopped by the user")
 
     def stop_processes_named(self, name):
         for proc in psutil.process_iter(['pid', 'name']):

@@ -3582,12 +3582,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="474" />
         <source>pyArchInit Gestione Scavi - Time Controller</source>
-        <translation>pyArchInit Excavation Management - Time Controller</translation>
+        <translation>pyArchInit Διαχείριση Ανασκαφών - Time Controller</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="587" />
         <source>Absolute cronology system</source>
-        <translation>Απόλυτη χρονολόγηση system</translation>
+        <translation>Σύστημα απόλυτης χρονολόγησης</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="473" />
@@ -3607,12 +3607,12 @@ p, li { white space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="623" />
         <source>Visualizza l'intervallo di tempo compreso tra l'anno:</source>
-        <translation>Displays the time interval between the year:</translation>
+        <translation>Εμφάνιση του χρονικού διαστήματος μεταξύ του έτους:</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="636" />
         <source>Cronologia iniziale</source>
-        <translation>Initial chronology</translation>
+        <translation>Αρχική χρονολόγηση</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="668" />
@@ -3622,7 +3622,7 @@ p, li { white space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="681" />
         <source>Cronologia finale</source>
-        <translation>Final chronology</translation>
+        <translation>Τελική χρονολόγηση</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="719" />
@@ -3637,7 +3637,7 @@ p, li { white space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="502" />
         <source>Relative cronology system</source>
-        <translation>Relative chronology system</translation>
+        <translation>Σύστημα σχετικής χρονολόγησης</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="605" />
@@ -3662,12 +3662,12 @@ p, li { white space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="743" />
         <source>Atlas Stampa Tavole Periodo</source>
-        <translation>Atlas Εκτύπωση Περίοδος Tables</translation>
+        <translation>Atlas: Εκτύπωση πινάκων περιόδου</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="750" />
         <source>Arresta processo stampa</source>
-        <translation>Διακοπή print process</translation>
+        <translation>Διακοπή της εκτύπωσης</translation>
     </message>
 </context>
 <context>

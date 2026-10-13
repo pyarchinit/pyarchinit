@@ -649,7 +649,7 @@ p, li { white-space: pre-wrap; }
           <number>-4000000</number>
          </property>
          <property name="maximum">
-          <number>2010</number>
+          <number>2100</number>
          </property>
          <property name="singleStep">
           <number>250</number>
@@ -694,7 +694,7 @@ p, li { white-space: pre-wrap; }
           <number>-4000000</number>
          </property>
          <property name="maximum">
-          <number>2010</number>
+          <number>2100</number>
          </property>
          <property name="singleStep">
           <number>250</number>

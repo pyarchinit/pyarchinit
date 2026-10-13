@@ -3582,12 +3582,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="474" />
         <source>pyArchInit Gestione Scavi - Time Controller</source>
-        <translation>pyArchInit Excavation Management - Time Controller</translation>
+        <translation>pyArchInit Gestão de Escavações - Time Controller</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="587" />
         <source>Absolute cronology system</source>
-        <translation>Cronologia absoluta system</translation>
+        <translation>Sistema de cronologia absoluta</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="473" />
@@ -3607,12 +3607,12 @@ p, li {espaço em branco: pré-envoltório; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="623" />
         <source>Visualizza l'intervallo di tempo compreso tra l'anno:</source>
-        <translation>Displays the time interval between the year:</translation>
+        <translation>Mostra o intervalo de tempo entre o ano:</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="636" />
         <source>Cronologia iniziale</source>
-        <translation>Initial chronology</translation>
+        <translation>Cronologia inicial</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="668" />
@@ -3622,7 +3622,7 @@ p, li {espaço em branco: pré-envoltório; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="681" />
         <source>Cronologia finale</source>
-        <translation>Final chronology</translation>
+        <translation>Cronologia final</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="719" />
@@ -3632,12 +3632,12 @@ p, li {espaço em branco: pré-envoltório; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="722" />
         <source>Visualizza</source>
-        <translation>Vista</translation>
+        <translation>Mostrar</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="502" />
         <source>Relative cronology system</source>
-        <translation>Relative chronology system</translation>
+        <translation>Sistema de cronologia relativa</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="605" />
@@ -3662,12 +3662,12 @@ p, li {espaço em branco: pré-envoltório; }
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="743" />
         <source>Atlas Stampa Tavole Periodo</source>
-        <translation>Atlas Imprimir Período Tables</translation>
+        <translation>Atlas: imprimir pranchas por período</translation>
     </message>
     <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="750" />
         <source>Arresta processo stampa</source>
-        <translation>Parar print process</translation>
+        <translation>Parar a impressão</translation>
     </message>
 </context>
 <context>
