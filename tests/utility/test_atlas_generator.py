@@ -51,7 +51,7 @@ def test_a_template_without_a_map_says_so_instead_of_crashing():
 def test_the_template_is_checked_before_the_work_starts():
     corpo = _corpo("generate_images")
     assert "is_usable(caps)" in corpo
-    assert "describe_missing(caps)" in corpo
+    assert "describe_missing(caps, self.L)" in corpo        # nella lingua della finestra (13-10-2026)
 
 
 def test_a_site_without_order_layer_is_a_message_not_a_type_error():
