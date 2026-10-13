@@ -693,7 +693,9 @@ class Pyarchinit_pyqgis(QDialog):
             QgsVectorLayer or None if invalid
         """
         ogr_uri = f"{db_path}|layername={view_name}"
-        layer = QgsVectorLayer(ogr_uri, '', 'ogr')
+        # senza lo stile predefinito di QGIS (layer_styles, QML accanto al file,
+        # qmldb del profilo): lo stile lo decide _stile_vista (13 ottobre 2026)
+        layer = QgsVectorLayer(ogr_uri, '', 'ogr', QgsVectorLayer.LayerOptions(loadDefaultStyle=False))
 
         if layer.isValid():
             if filter_expr:
@@ -2128,6 +2130,13 @@ class Pyarchinit_pyqgis(QDialog):
         except Exception:                           # noqa: BLE001
             return "none"
         try:
+            # etichette ereditate (stile predefinito di QGIS o altro) via: le
+            # decide lo stile della vista, o chi viene dopo
+            layer.setLabeling(None)
+            layer.setLabelsEnabled(False)
+        except Exception:                           # noqa: BLE001
+            pass
+        try:
             esito = apply_view_style(layer, view_name, site, engine=self._engine_stili(),
                                      fallback=fallback)
         except Exception as e:                      # noqa: BLE001
@@ -2139,6 +2148,16 @@ class Pyarchinit_pyqgis(QDialog):
         except Exception:                           # noqa: BLE001
             pass
         return esito
+
+    def _senza_etichette(self, layer):
+        """Un layer di sfondo (la «mappa completa» della Map preview) non
+        porta etichette, nemmeno ereditate."""
+        try:
+            if layer is not None and layer.isValid():
+                layer.setLabeling(None)
+                layer.setLabelsEnabled(False)
+        except Exception:                           # noqa: BLE001
+            pass
 
     def _stile_salvato(self, layer):
         """Vero se `_stile_vista` ha applicato uno stile salvato: lo stile
@@ -2958,6 +2977,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", sito_filter, "gid")
             layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
+            self._senza_etichette(layerUS_us)               # sfondo: mai etichette
 
             if layerUS.isValid():
                 # Applica lo stile automatico
@@ -3018,6 +3038,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
             self._stile_vista(layerUS, 'pyarchinit_us_view', self._sito_corrente(), fallback=True)
             layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
+            self._senza_etichette(layerUS_us)               # sfondo: mai etichette
 
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')

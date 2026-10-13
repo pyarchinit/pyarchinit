@@ -696,7 +696,10 @@ class USViewStyler:
     def _apply_temp_style(self, layer, category_field="d_stratigrafica", template=None):
         """
         Rule-based style: one rule per value of category_field and
-        stratigraph_index_us, legend sorted by order_layer.
+        stratigraph_index_us, legend from the most recent to the oldest
+        (period chronology when the periodization is known, then
+        order_layer), so that unticking the entries from the top reveals
+        what lies underneath (Enzo, 13 October 2026).
 
         Args:
             layer: The QgsVectorLayer to style
@@ -760,11 +763,40 @@ class USViewStyler:
                 symbol.setOpacity(1.0)
 
             rule = QgsRuleBasedRenderer.Rule(symbol, 0, 0, expression, self._category_label(category_field, cat_value))
-            all_rules.append((min_order_layer, stratigraph_index_us, rule))
+            all_rules.append((min_order_layer, stratigraph_index_us, rule, cat_value))
 
-        # Legend: order_layer ASC, then stratigraph_index_us ASC
-        all_rules.sort(key=lambda x: (x[0], x[1]))
-        for _, _, rule in all_rules:
+        # Legend: most recent first — for cont_per the start year of the
+        # code (periodization, any site) descending, then order_layer
+        # descending (NULL = 9999 last), then stratigraph_index_us ASC
+        inizi = {}
+        if category_field == 'cont_per':
+            for row in (self.periodization or []):
+                try:
+                    anno = float(row[3])
+                except (TypeError, ValueError, IndexError):
+                    continue
+                codice = norm(row[4]) if len(row) > 4 else None
+                if codice is not None and (codice not in inizi or anno < inizi[codice]):
+                    inizi[codice] = anno
+
+        def inizio_di(valore):
+            codice = norm(valore)
+            if codice is None:
+                return None
+            if codice in inizi:
+                return inizi[codice]
+            anni = [inizi[norm(parte)] for parte in str(valore).split("/") if norm(parte) in inizi]
+            return min(anni) if anni else None
+
+        def recente(voce):
+            min_order_layer, strat_idx, _rule, valore = voce
+            inizio = inizio_di(valore) if inizi else None
+            return (1 if min_order_layer == 9999 else 0,
+                    -inizio if inizio is not None else float("inf"),
+                    -min_order_layer, strat_idx)
+
+        all_rules.sort(key=recente)
+        for _, _, rule, _ in all_rules:
             root_rule.appendChild(rule)
 
         layer.setRenderer(QgsRuleBasedRenderer(root_rule))

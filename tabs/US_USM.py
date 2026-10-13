@@ -17466,6 +17466,10 @@ DATABASE SCHEMA KNOWLEDGE:
         #self.tableWidget_rapporti.setItemDelegateForColumn(1, IntegerDelegate(self.tableWidget_rapporti))
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
+        try:
+            self.mapPreview.setAnnotationsVisible(False)      # le annotazioni del progetto restano fuori
+        except Exception:                                     # noqa: BLE001
+            pass
         self.tabWidget.addTab(self.mapPreview, "Map preview")
         # media prevew system
         self.iconListWidget.setDragEnabled(True)

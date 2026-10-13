@@ -180,3 +180,37 @@ def test_the_choice_is_asked_once_for_the_per_period_layers(qgs, tmp_path, monke
     styler.apply_style_to_layer(_layer(), choice="temp")
     styler.apply_style_to_layer(_layer(), choice="temp")
     assert asked == {"style": 0, "field": 1}
+
+
+def test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico(qgs):
+    """Enzo, 13 ottobre 2026: «l'ordine di visualizzazione dei poligoni
+    deve seguire sempre dal più recente al più antico, in modo che quando
+    spengo i checkbox visualizzo quello sottostante»: la legenda del
+    tre-passi mette in cima il periodo più recente (cronologia della
+    periodizzazione), e senza periodizzazione l'order_layer più alto."""
+    from qgis.core import QgsFeature, QgsGeometry, QgsVectorLayer
+    from modules.utility.create_style import USViewStyler
+    campi = ("field=sito:string&field=us_s:string&field=stratigraph_index_us:integer&field=tipo_us_s:string"
+             "&field=cont_per:string&field=order_layer:integer&field=d_stratigrafica:string")
+    layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + campi, "US", "memory")
+    prov = layer.dataProvider()
+    for k, (us, codice, ordine) in enumerate((("1", "1/1", 0), ("2", "2/1", 9), ("3", "3/1", 5))):
+        f = QgsFeature(layer.fields())
+        f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
+        f.setAttributes(["Scavo", us, 1, "Strato", codice, ordine, "Strato"])
+        prov.addFeature(f)
+    styler = USViewStyler.__new__(USViewStyler)
+    # (sito, periodo, fase, cron_iniziale, cont_per, datazione): il codice 3/1 è il più ANTICO (1200)
+    styler.periodization = [("Scavo", "1", "1", 1500, "1/1", "XVI secolo"),
+                            ("Scavo", "2", "1", 1400, "2/1", "XV secolo"),
+                            ("Scavo", "3", "1", 1200, "3/1", "XIII secolo")]
+    styler._apply_temp_style(layer, "cont_per")
+    etichette = [r.label() for r in layer.renderer().rootRule().children()]
+    assert [e.split(" ")[0] for e in etichette] == ["1/1", "2/1", "3/1"], etichette
+    # senza periodizzazione: order_layer decrescente (9 = più recente in cima)
+    styler.periodization = []
+    styler._apply_temp_style(layer, "d_stratigrafica")
+    assert len(layer.renderer().rootRule().children()) == 1
+    styler._apply_temp_style(layer, "cont_per")
+    etichette = [r.label() for r in layer.renderer().rootRule().children()]
+    assert [e.split(" ")[0] for e in etichette] == ["2/1", "3/1", "1/1"], etichette

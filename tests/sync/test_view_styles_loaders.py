@@ -7,6 +7,8 @@ from __future__ import annotations
 import ast
 import re
 import sys
+
+import pytest
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[2]
@@ -208,3 +210,41 @@ def test_il_sito_passato_a_stile_vista_e_legato_prima_della_chiamata():
             if isinstance(sito, ast.Name) and sito.id not in _legati_prima(fn, nodo):
                 errori.append((nodo.lineno, fn.name, sito.id))
     assert not errori, errori
+
+
+def test_i_layer_delle_viste_non_ereditano_stili_ne_etichette():
+    """Enzo, 13 ottobre 2026: etichette «0,00 ha» su tutti i poligoni della
+    Map preview e della vista US, che nessun codice del plugin produce: i
+    layer delle viste nascono senza lo stile predefinito di QGIS
+    (`loadDefaultStyle=False`), `_stile_vista` azzera le etichette prima di
+    risolvere lo stile, i layer di sfondo della preview le hanno spente e il
+    canvas della preview non disegna le annotazioni del progetto."""
+    testo = SRC.read_text(encoding="utf-8")
+    assert re.search(r"QgsVectorLayer\(ogr_uri, '', 'ogr',\s*QgsVectorLayer\.LayerOptions\(loadDefaultStyle=False\)\)", testo)
+    righe = _righe()
+    for i, r in enumerate(righe):
+        if re.match(r"^\s*layerUS_us = ", r):
+            dopo = "\n".join(righe[i + 1:i + 45])
+            assert ("self._senza_etichette(layerUS_us)" in dopo or "layerUS_us.setLabelsEnabled(False)" in dopo
+                    or "layerUS_us.loadNamedStyle(style_path_us)" in dopo), (i + 1, r.strip())
+    scheda = (_ROOT / "tabs" / "US_USM.py").read_text(encoding="utf-8")
+    assert "self.mapPreview.setAnnotationsVisible(False)" in scheda
+
+
+def test_stile_vista_azzera_le_etichette_ereditate(tmp_path):
+    """Un layer che arriva già etichettato (stile predefinito di QGIS, o
+    chissà cosa) perde quelle etichette: decide `apply_view_style`."""
+    import os, types
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    pytest.importorskip("qgis.core")
+    from qgis.core import QgsApplication, QgsVectorLayer, QgsPalLayerSettings, QgsVectorLayerSimpleLabeling
+    if QgsApplication.instance() is None:
+        QgsApplication.setPrefixPath(os.environ.get("QGIS_PREFIX_PATH", "/Applications/QGIS.app/Contents/MacOS"), True)
+        app = QgsApplication([], False); app.initQgis()
+    from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+    layer = QgsVectorLayer("Polygon?crs=EPSG:32633&field=sito:string&field=tipologia_struttura:string", "strutture", "memory")
+    imp = QgsPalLayerSettings(); imp.fieldName = "format_number($area / 10000, 2) || ' ha'"; imp.isExpression = True
+    layer.setLabeling(QgsVectorLayerSimpleLabeling(imp)); layer.setLabelsEnabled(True)
+    stub = types.SimpleNamespace(_engine_stili=lambda: None)
+    assert Pyarchinit_pyqgis._stile_vista(stub, layer, "pyarchinit_strutture_view", None, fallback=False) == "none"
+    assert not layer.labelsEnabled() and layer.labeling() is None

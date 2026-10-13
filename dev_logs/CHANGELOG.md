@@ -5,6 +5,28 @@
 
 ---
 
+## [fix] - 2026-10-13 — Secondo giro di Enzo: la legenda per periodo dal più recente al più antico, e i layer delle viste non ereditano più stili o etichette da QGIS («0,00 ha») — 5.13.114-alpha
+
+> Branch `Stratigraph_00001`. Suite **2120 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Second round: period legend most-recent-first; view layers no longer inherit QGIS default styles or labels.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **«la map preview funziona ma le etichette no e nemmeno l'ordine»** (Enzo, 13 ottobre 2026, con tre immagini: la Map preview e la vista US coperte di etichette «0,00 ha», la legenda di «US view_2» per periodo in ordine sparso). **La legenda del tre-passi** (`USViewStyler._apply_temp_style`) ora va **dal più recente al più antico**: per le categorie per `cont_per` l'anno d'inizio del codice dalla periodizzazione (qualunque sito), decrescente; poi `order_layer` decrescente (i NULL in fondo); poi l'indice stratigrafico. Prima era `order_layer` crescente, con il più antico in cima e i periodi mescolati (5 prima di 6, 3 fra i 4), così spegnendo le spunte dall'alto non si scopriva quello che sta sotto. Prova `test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico` (con dati in cui `order_layer` non segue la cronologia).
+- 🇬🇧 **EN**: the three-step styler's legend is now most-recent-first (period start year from the periodization, then `order_layer`, descending), so unticking entries from the top reveals what lies underneath.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: le etichette **«0,00 ha»** non le produce nessun codice del plugin (cercato in tutto: QML forniti, ricette, styler, Time Manager), non stanno nel database vivo (niente `layer_styles`, nessuno stile salvato nella finestra, nessun QML accanto al file), non nel profilo di QGIS (`qgis.db` senza stili, nessun `qmldb`) e non in un altro plugin attivo (nessuno etichetta i layer). Fuori schermo, sulla copia del database vivo, lo stesso percorso della Map preview rende il numero cerchiato e nessun «ha». Quindi il plugin si difende da qualunque cosa le metta: (1) `_load_spatialite_view` crea i layer con `QgsVectorLayer.LayerOptions(loadDefaultStyle=False)` — niente stile predefinito di QGIS (tabella `layer_styles`, QML accanto al file, `qmldb` del profilo) sui layer delle viste, lo stile lo decide `_stile_vista`; (2) `_stile_vista` **azzera le etichette** del layer prima di risolvere lo stile; (3) il layer di sfondo «mappa completa» della Map preview (`layerUS_us`, SQLite e PostgreSQL) è senza etichette (`_senza_etichette`); (4) il canvas della Map preview **non disegna le annotazioni del progetto** (`setAnnotationsVisible(False)`): ogni `QgsMapCanvas` le disegna sopra tutto, e sono l'unica cosa di un progetto che compare in un canvas che mostra solo due layer appena creati. Prove `test_i_layer_delle_viste_non_ereditano_stili_ne_etichette` (sorgente) e `test_stile_vista_azzera_le_etichette_ereditate` (un layer che arriva etichettato in ettari esce senza). Se dopo questo le etichette restano, la riga di diagnosi per la console di QGIS è nel messaggio di consegna.
+- 🇬🇧 **EN**: the «0,00 ha» labels come from nowhere in the plugin, the database, the QGIS profile or another active plugin, and the same pipeline renders cleanly offscreen; the plugin now defends itself: view layers are created without QGIS default styles, `_stile_vista` clears inherited labels, the preview background layer is label-free and the preview canvas hides project annotations.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: tre prove nuove (legenda per periodo con `order_layer` che non segue la cronologia; i layer delle viste senza stili ereditati, sorgente; `_stile_vista` che azzera etichette in ettari su un layer vero). E la **seconda metà della perdita** del modulo dei PDF: `PYARCHINIT_HOME` veniva impostato **all'importazione**, cioè alla raccolta dei test, prima che qualunque test girasse — la fixture della 5.13.113 lo rimetteva a posto solo a fine modulo, e un test di `tests/sync` che importa `Settings` per primo (quello nuovo sul modulo GIS) trovava ancora la cartella temporanea. Ora la fixture di modulo lo imposta all'inizio e lo ripristina alla fine; all'importazione resta solo la cartella col logo.
+- 🇬🇧 **EN**: three new tests, and the other half of the PDF module leak: `PYARCHINIT_HOME` was set at import (collection) time; the module fixture now sets it on entry and restores it on exit.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 14: la legenda del tre-passi dal più recente al più antico (paragrafo «Ordine di disegno» della scelta dello stile); dieci lingue. `metadata.txt` 5.13.114-alpha.
+- 🇬🇧 **EN**: tutorial 14 updated (legend order), ten languages.
+
+---
+
 ## [fix] - 2026-10-13 — Stili delle viste, primo giro di Enzo: la Map preview della scheda US non crolla più, bottone sulla toolbar accanto a GPT, i poligoni delle unità si disegnano sempre dal più antico al più recente — 5.13.113-alpha
 
 > Branch `Stratigraph_00001`. Suite **2117 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / First round from Enzo on the view styles: US form map preview crash fixed, toolbar button next to GPT, stratigraphic draw order always enforced.

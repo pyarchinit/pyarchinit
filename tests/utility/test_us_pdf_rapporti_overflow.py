@@ -62,21 +62,25 @@ def _install_stubs():
     (home / "pyarchinit_DB_folder").mkdir()
     _PILImage.new("RGB", (20, 20), "white").save(
         home / "pyarchinit_DB_folder" / "logo.jpg")
-    os.environ["PYARCHINIT_HOME"] = str(home)
+    global _HOME_TEST
+    _HOME_TEST = home                      # messo in PYARCHINIT_HOME dalla fixture, non qui
     if str(_ROOT) not in sys.path:
         sys.path.insert(0, str(_ROOT))
 
 
 _HOME_PRIMA = os.environ.get("PYARCHINIT_HOME")
+_HOME_TEST = None
 _install_stubs()
 pdfmod = pytest.importorskip("modules.utility.pyarchinit_exp_USsheet_pdf")
 
 
 @pytest.fixture(scope="module", autouse=True)
 def _ripristina_home():
-    """`_install_stubs` punta PYARCHINIT_HOME a una cartella temporanea
-    senza config.cfg: va rimesso a posto a fine modulo, o chi importa
-    `Settings` dopo (il modulo GIS) non trova il file."""
+    """PYARCHINIT_HOME punta alla cartella temporanea (col logo) solo mentre
+    girano i test di questo modulo: impostarlo all'importazione lo lasciava
+    così dalla raccolta in poi, e chi importa `Settings` per primo (il
+    modulo GIS, anche in tests/sync) non trovava config.cfg."""
+    os.environ["PYARCHINIT_HOME"] = str(_HOME_TEST)
     yield
     if _HOME_PRIMA is None:
         os.environ.pop("PYARCHINIT_HOME", None)
