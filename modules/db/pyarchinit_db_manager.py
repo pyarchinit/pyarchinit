@@ -622,6 +622,15 @@ class Pyarchinit_db_management(object):
         except Exception as e:
             print(f"Error in ensure_tma_tables_exist: {str(e)}")
 
+    def ensure_view_styles_table_exists(self):
+        """La tabella degli stili delle viste (`pyarchinit_view_styles`), su
+        SQLite e PostgreSQL; idempotente (13 ottobre 2026)."""
+        try:
+            from modules.utility.view_styles_store import ensure_table
+            ensure_table(self.engine)
+        except Exception as e:                      # noqa: BLE001
+            print(f"Error in ensure_view_styles_table_exists: {e}")
+
     def ensure_fauna_table_exists(self):
         """Ensure Fauna table is created if it doesn't exist (works for both PostgreSQL and SQLite)"""
         try:
