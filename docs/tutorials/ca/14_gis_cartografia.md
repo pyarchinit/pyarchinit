@@ -79,6 +79,8 @@ Amb **Save new style**, **Load existing style** i **Use temporary style** despr�
 
 **Ordre de dibuix.** Des de la 5.13.19-alpha les unitats es dibuixen en l'ordre que fa servir el Gestor de Temps (Time Manager): primer les que no tenen període, després per cronologia del període (segons la periodització del període/fase inicial de la US, o segons `cont_per`), després per `order_layer` (0 = el més antic) i finalment el tall sobre el seu farciment, de manera que les unitats més recents queden a sobre. Val per a totes les opcions d'estil, també per a **Single symbol (outline only)**. Quan les capes es carreguen període per període, l'estil es demana una sola vegada i es fa servir per a tots els períodes.
 
+**Etiquetes.** Des de la 5.13.110-alpha, amb l'estil triat la vista US (i USM) rep també les seves **etiquetes**: el número de la unitat en **negreta dins d'un cercle blanc amb vora vermella fosca**, **una per unitat**, en el seu dibuix més gran si es veu (no cobert del tot per un de nivell superior), amb la mateixa recepta de les làmines de l'atles del Time Manager (tutorial 25). Quan dos números es taparien, un es desplaça i una línia de crida l'uneix al seu dibuix. Val per a les US i les USM, amb SQLite i amb PostgreSQL, i per a totes les opcions d'estil, també per a **Single symbol (outline only)**; si l'estil carregat amb **Load existing style** ja tenia etiquetes, el número en cercle ocupa el seu lloc. Les capes de punts, com les cotes, no reben etiquetes des d'aquí.
+
 Des de la 5.13.18-alpha l'estil triat (i el camp de categorització) es respecta també amb les bases de dades SQLite, tant per a les US com per a les USM; abans el mapa sortia sempre amb un color per a cada US.
 
 ## Estilització de les Capes

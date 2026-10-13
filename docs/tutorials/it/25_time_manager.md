@@ -137,6 +137,8 @@ Il Time Manager puo generare:
 - Immagini PNG per ogni livello
 - Opzionale: video MP4 compilato
 
+**Etichette della tavola.** Mentre genera le tavole dell'atlante, il Time Manager mette sui layer scelti le etichette della tavola — il numero dell'unità in un cerchio sulle US, la quota sui punti — e a generazione finita le toglie, rimettendo quelle che c'erano prima. Dalla 5.13.110-alpha le toglie comunque, anche se una tavola salta: prima, in quel caso, restavano sui layer del progetto e finivano nel file del progetto quando lo si salvava.
+
 ## Workflow Tipico
 
 ### 1. Preparazione

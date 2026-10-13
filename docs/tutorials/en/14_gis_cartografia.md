@@ -79,6 +79,8 @@ With **Save new style**, **Load existing style** and **Use temporary style** you
 
 **Drawing order.** Since 5.13.19-alpha the units are drawn in the order used by the Time Manager: first those without a period, then by period chronology (from the periodization of the SU's initial period/phase, or from `cont_per`), then by `order_layer` (0 = oldest), and finally the cut over its fill, so the most recent units are on top. This applies to every style option, including **Single symbol (outline only)**. When the layers are loaded period by period, the style is asked only once and used for all periods.
 
+**Labels.** Since 5.13.110-alpha, with the chosen style the SU (and USM) view also receives its **labels**: the unit number in **bold inside a white circle with a dark red border**, **one per unit**, on its largest drawing if that one shows (not entirely covered by one of a higher level), with the same recipe as the Time Manager atlas sheets (tutorial 25). When two numbers would overlap, one is moved and a leader line links it to its drawing. This applies to SUs and USMs, with SQLite and PostgreSQL, and to every style option, including **Single symbol (outline only)**; if the style loaded with **Load existing style** already had labels, the circled number takes their place. Point layers, such as the elevations, get no labels from here.
+
 Since 5.13.18-alpha the chosen style (and the categorization field) is also respected with SQLite databases, for both SUs and USMs; previously the map always came out with one color per SU.
 
 ## Layer Styling

@@ -79,6 +79,8 @@ Cu **Save new style**, **Load existing style** și **Use temporary style** se al
 
 **Ordinea de desenare.** Începând cu 5.13.19-alpha, unitățile sunt desenate în ordinea folosită de Manager Temporal (Time Manager): mai întâi cele fără perioadă, apoi după cronologia perioadei (din periodizarea perioadei/fazei inițiale a US sau din `cont_per`), apoi după `order_layer` (0 = cea mai veche) și, la final, tăierea deasupra umpluturii sale, astfel încât unitățile cele mai recente sunt deasupra. Se aplică tuturor opțiunilor de stil, inclusiv **Single symbol (outline only)**. Când straturile sunt încărcate perioadă cu perioadă, stilul este cerut o singură dată și folosit pentru toate perioadele.
 
+**Etichete.** Începând cu 5.13.110-alpha, odată cu stilul ales, vederea US (și USM) primește și **etichetele** ei: numărul unității **îngroșat, într-un cerc alb cu bordură roșu închis**, **câte una pentru fiecare unitate**, pe desenul ei cel mai mare dacă se vede (neacoperit în întregime de unul de nivel superior), cu aceeași rețetă ca la planșele atlasului din Time Manager (tutorialul 25). Când două numere s-ar acoperi, unul este mutat, iar o linie de legătură îl unește cu desenul său. Se aplică la US și USM, cu SQLite și cu PostgreSQL, și la toate opțiunile de stil, inclusiv **Single symbol (outline only)**; dacă stilul încărcat cu **Load existing style** avea deja etichete, numărul încercuit le ia locul. Straturile de puncte, precum cotele, nu primesc etichete de aici.
+
 Începând cu 5.13.18-alpha, stilul ales (și câmpul de categorizare) este respectat și cu bazele de date SQLite, atât pentru US, cât și pentru USM; înainte harta apărea întotdeauna cu o culoare pentru fiecare US.
 
 ## Stilizarea Straturilor

@@ -137,6 +137,8 @@ Der Time Manager kann generieren:
 - PNG-Bilder für jede Schicht
 - Optional: Kompiliertes MP4-Video
 
+**Beschriftungen des Blatts.** Beim Erzeugen der Atlasblätter setzt der Time Manager die Beschriftungen des Blatts auf die gewählten Layer — die Nummer der Einheit in einem Kreis bei den SE, die Höhe bei den Punkten — und entfernt sie am Ende der Erzeugung wieder, wobei er die vorherigen zurücksetzt. Seit 5.13.110-alpha entfernt er sie in jedem Fall, auch wenn ein Blatt scheitert: Früher blieben sie in diesem Fall auf den Layern des Projekts und landeten beim Speichern in der Projektdatei.
+
 ## Typischer Arbeitsablauf
 
 ### 1. Vorbereitung

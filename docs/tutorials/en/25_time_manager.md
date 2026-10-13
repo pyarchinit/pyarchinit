@@ -137,6 +137,8 @@ Time Manager can generate:
 - PNG images for each level
 - Optional: compiled MP4 video
 
+**Sheet labels.** While it generates the atlas sheets, the Time Manager puts the sheet labels on the chosen layers — the unit number in a circle on the SUs, the elevation on the points — and removes them when the generation ends, putting back the ones that were there before. Since 5.13.110-alpha it removes them in any case, even if a sheet fails: before, in that case, they stayed on the project's layers and ended up in the project file when it was saved.
+
 ## Typical Workflow
 
 ### 1. Preparation

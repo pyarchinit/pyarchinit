@@ -137,6 +137,8 @@ El Gestor de Temps pot generar:
 - Imatges PNG per a cada nivell
 - Opcional: vídeo MP4 compilat
 
+**Etiquetes de la làmina.** Mentre genera les làmines de l'atles, el Time Manager posa a les capes triades les etiquetes de la làmina —el número de la unitat dins d'un cercle a les US, la cota als punts— i les treu en acabar la generació, tornant a posar les que hi havia abans. Des de la 5.13.110-alpha les treu en qualsevol cas, fins i tot si una làmina falla: abans, en aquest cas, es quedaven a les capes del projecte i acabaven al fitxer del projecte en desar-lo.
+
 ## Flux de Treball Típic
 
 ### 1. Preparació

@@ -137,6 +137,8 @@ Le Time Manager peut générer :
 - Images PNG pour chaque niveau
 - Optionnel : vidéo MP4 compilée
 
+**Étiquettes de la planche.** Pendant qu'il génère les planches de l'atlas, le Time Manager met sur les couches choisies les étiquettes de la planche — le numéro de l'unité dans un cercle sur les US, la cote sur les points — et les retire à la fin de la génération, en remettant celles qui y étaient avant. Depuis la 5.13.110-alpha, il les retire dans tous les cas, même si une planche échoue : auparavant, dans ce cas, elles restaient sur les couches du projet et finissaient dans le fichier du projet à l'enregistrement.
+
 ## Workflow Typique
 
 ### 1. Préparation

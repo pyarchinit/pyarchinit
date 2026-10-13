@@ -137,6 +137,8 @@ El Time Manager puede generar:
 - Imágenes PNG para cada nivel
 - Opcional: video MP4 compilado
 
+**Etiquetas de la lámina.** Mientras genera las láminas del atlas, el Time Manager pone en las capas elegidas las etiquetas de la lámina —el número de la unidad en un círculo en las UE, la cota en los puntos— y las quita al terminar la generación, devolviendo las que había antes. Desde la 5.13.110-alpha las quita en cualquier caso, incluso si una lámina falla: antes, en ese caso, se quedaban en las capas del proyecto y acababan en el archivo del proyecto al guardarlo.
+
 ## Workflow Típico
 
 ### 1. Preparación

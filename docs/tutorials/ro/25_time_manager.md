@@ -137,6 +137,8 @@ Managerul Temporal poate genera:
 - Imagini PNG pentru fiecare nivel
 - Optional: video MP4 compilat
 
+**Etichetele plansei.** În timp ce generează plansele atlasului, Time Manager pune pe straturile alese etichetele plansei — numărul unității într-un cerc pe US, cota pe puncte — și le scoate la sfârșitul generării, repunându-le pe cele care erau înainte. Începând cu 5.13.110-alpha le scoate în orice caz, chiar dacă o planșă eșuează: înainte, în acest caz, rămâneau pe straturile proiectului și ajungeau în fișierul proiectului când acesta era salvat.
+
 ## Flux de lucru tipic
 
 ### 1. Pregatire

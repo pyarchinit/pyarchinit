@@ -137,6 +137,8 @@ O Time Manager pode gerar:
 - Imagens PNG para cada nivel
 - Opcional: video MP4 compilado
 
+**Etiquetas da prancha.** Enquanto gera as pranchas do atlas, o Time Manager coloca nas camadas escolhidas as etiquetas da prancha — o número da unidade dentro de um círculo nas UE, a cota nos pontos — e retira-as no fim da geração, repondo as que lá estavam antes. Desde a 5.13.110-alpha retira-as em qualquer caso, mesmo que uma prancha falhe: antes, nesse caso, ficavam nas camadas do projeto e iam parar ao ficheiro do projeto quando este era guardado.
+
 ## Fluxo de Trabalho Tipico
 
 ### 1. Preparacao
