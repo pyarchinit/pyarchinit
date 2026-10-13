@@ -478,7 +478,8 @@ def build_tab(parent, iface) -> QWidget:
                                                  lang=_lang()))
                 else:
                     scritti.append(en.export_file(g, narrativa, fmt, destinazione,
-                                                  figures=figure))
+                                                  figures=figure, map_conn=stato.conn,
+                                                  lang=_lang()))
         except Exception as e:                      # noqa: BLE001
             _barra("warn", str(e))
             return

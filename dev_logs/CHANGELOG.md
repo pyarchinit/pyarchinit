@@ -5,6 +5,24 @@
 
 ---
 
+## [feat] - 2026-10-13 — Narrativa: la mappa interattiva nell'HTML esportato — un clic su un'unità la evidenzia e mostra solo le unità del periodo, con le etichette — 5.13.115-alpha
+
+> Branch `Stratigraph_00001`. Suite **2127 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Narrative: an interactive map inside the exported HTML; clicking a unit highlights it and shows only the units of that chapter's period, outlined and labelled.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **«quando fai la narrativa ed esporti l'HTML, aggiungi la mappa: quando linki si evidenzia quella US e solamente le US di quel periodo, l'US colorata e le altre solo contorno con le etichette sopra»** (Enzo, 13 ottobre 2026). Modulo nuovo `modules/s3dgraphy/em_narrative_map.py`, in quattro pezzi: (1) **i periodi dagli archi** del grafo — `epochs_of` (prima `has_first_epoch`, poi `survive_in_epoch`), `epoch_names`, `epoch_anchor` (l'epoca di un capitolo), `units_meta` (le unità che sono righe della scheda, con `unit_identity` del pannello: nome, numero, area, tipo, epoche); (2) **l'SVG** — `svg_map`: un `path` per disegno (anelli, buchi come sotto-percorsi, y capovolta, origine nell'angolo del sito, coordinate arrotondate al centimetro), un `text` per unità sul disegno più grande, e i riquadri per epoca per inquadrare; (3) **l'innesto** — `inject_map`: le menzioni che la libreria scrive come corsivi diventano link `data-u`/`data-e` (nome risolto prima fra le unità del capitolo, poi nel grafo; le ambigue restano corsive), i titoli dei capitoli portano epoca e unità (`pya-cap-N`), la mappa sta in un pannello **fisso** (a destra oltre 900 px, in cima e alta un terzo dello schermo sul telefono) con CSS e JavaScript **inline**, nessuna dipendenza: da ferma tutte le unità in grigio chiaro, al clic su un nome solo quelle del periodo del capitolo come contorni con l'etichetta del numero, la cliccata **colorata**, l'inquadratura sul gruppo, una riga con periodo e conteggio e «tutto il sito» per tornare; al clic sul titolo di un capitolo lo stesso senza l'evidenziata; (4) **le geometrie dal database** — `drawings_from_db`: viste US e USM caricate con `load_view_layer` (ora in `modules/utility/view_layers.py`, condiviso con la finestra degli stili), filtrate sul sito del grafo, unità legate per area e numero (`area_s`/`us_s`), USM solo dalla vista USM, poligoni semplificati (diagonale del sito / 1500), `pointOnSurface` per l'etichetta. `export_file(…, map_conn=, lang=)` innesta la mappa quando la scheda passa la connessione (`em_narrative_tab`); senza database o senza disegni l'HTML resta quello della libreria; PDF e DOCX invariati.
+- 🇬🇧 **EN**: the exported narrative HTML now carries an inline interactive SVG map: clicking a unit name shows only the units of the chapter's period as outlines with labels, the clicked one filled, and zooms to them; chapter titles do the same; no external dependencies, works on the phone. Geometries come from the project database at export time.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/utility/test_em_narrative_map.py` (puro: periodi dagli archi, SVG con buchi e y capovolta e riquadri, innesto con menzioni/capitoli/fonti, HTML intatto senza disegni) e `tests/sync/test_em_narrative_map_db.py` (database di prova fuori schermo: disegni dalle viste con un'etichetta per unità, HTML esportato con mappa e link, la scheda passa la connessione), tutte viste rosse prima e verdi dopo; la pagina aperta in Chrome con un clic su una menzione, console pulita.
+- 🇬🇧 **EN**: pure and database-backed tests, red→green; page exercised in Chrome.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36, export della narrativa: la mappa nell'HTML; dieci lingue. `metadata.txt` 5.13.115-alpha.
+- 🇬🇧 **EN**: tutorial 36 updated (map in the HTML export), ten languages.
+
+---
+
 ## [fix] - 2026-10-13 — Secondo giro di Enzo: la legenda per periodo dal più recente al più antico, e i layer delle viste non ereditano più stili o etichette da QGIS («0,00 ha») — 5.13.114-alpha
 
 > Branch `Stratigraph_00001`. Suite **2120 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Second round: period legend most-recent-first; view layers no longer inherit QGIS default styles or labels.

@@ -1196,10 +1196,15 @@ HTML_DRAFT_CSS = """
 
 
 def export_file(graph, narrative, fmt: str, path, *,
-                figures: Optional[Dict[str, bytes]] = None) -> str:
+                figures: Optional[Dict[str, bytes]] = None,
+                map_conn: Optional[str] = None, lang: Optional[str] = None) -> str:
     """HTML o DOCX della narrativa, bozze comprese (segnate dalla libreria).
     ``figures`` (da :func:`figures_for`): le foto delle unità, che la
-    libreria mette al posto della scheda dell'unità citata."""
+    libreria mette al posto della scheda dell'unità citata. Con ``map_conn``
+    (la connessione al database del progetto) l'HTML porta la **mappa
+    interattiva** delle unità (:mod:`em_narrative_map`): un clic sul nome
+    di un'unità la evidenzia e mostra solo quelle del periodo del capitolo;
+    senza disegni o senza database l'HTML resta quello della libreria."""
     from s3dgraphy.api import export_narrative
     if fmt not in EXPORT_FORMATS:
         raise ValueError("fmt must be one of %s" % (EXPORT_FORMATS,))
@@ -1210,6 +1215,16 @@ def export_file(graph, narrative, fmt: str, path, *,
     payload = esito["payload"]
     if fmt == "html":
         payload = str(payload).replace("</style>", HTML_DRAFT_CSS + "</style>", 1)
+        if map_conn:
+            try:
+                from . import em_narrative_map as nmap
+                capitoli = [{"title": str(getattr(c, "title", "") or ""),
+                             "epoch": nmap.epoch_anchor(graph, c),
+                             "units": chapter_unit_ids(c)} for c in narrative.chapters]
+                payload = nmap.html_with_map(payload, graph, map_conn, _site_name(graph), capitoli, lang)
+            except Exception as e:                  # noqa: BLE001
+                import logging
+                logging.getLogger(__name__).warning("Mappa della narrativa non aggiunta: %s", e)
     percorso = str(path)
     if isinstance(payload, bytes):
         with open(percorso, "wb") as fh:

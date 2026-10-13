@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `sito-intero-5.13.109-alpha` (2026-10-13).
+Tag corrente: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ Quando il file **non ha ancora una narrativa** l'elenco è vuoto e un testo dice
 | **Convalida…** | Endorse… | Apre un menu con «Questo capitolo» e «Tutti i capitoli», poi chiede chi convalida (§10.6). Acceso quando c'è una narrativa. |
 | **Prepara i capitoli** | Prepare the chapters | Crea **solo lo scheletro** dei capitoli, senza AI: serve anche se non c'è nessuna AI impostata, per scrivere a mano in EMStudio. Non tocca la prosa già scritta e aggiunge i capitoli delle epoche nuove. Esito: «Capitoli preparati: N.» |
 | **Mostra sulla mappa** | Show on the map | Seleziona e inquadra sulla mappa, **tutte insieme**, le unità di cui parla il capitolo scelto (§10.10): quelle citate nella prosa o, se il capitolo non è ancora scritto, tutte quelle della sua fascia. Acceso solo se almeno una delle unità di cui parla il capitolo scelto è una riga della scheda US. |
-| **Esporta…** | Export… | Salva la narrativa in HTML, DOCX o PDF stampabile (§10.7), con le foto delle unità citate quando ci sono (§10.11). Acceso quando c'è una narrativa. |
+| **Esporta…** | Export… | Salva la narrativa in HTML (con la mappa interattiva del sito, §10.7), DOCX o PDF stampabile (§10.7), con le foto delle unità citate quando ci sono (§10.11). Acceso quando c'è una narrativa. |
 | **Apri in EMStudio** | Open in EMStudio | Apre l'em.json in EMStudio. Se EMStudio non c'è, la barra dei messaggi rimanda alla voce di menu **Extended Matrix → Installa EMStudio…** |
 | **Annulla** | Cancel | Compare solo durante la generazione: l'AI si ferma **dopo il capitolo in corso** e quanto è stato scritto viene salvato. |
 
@@ -587,6 +587,7 @@ Il documento contiene:
 
 - il titolo della narrativa (ad esempio «Scavo archeologico — la storia del sito»), i responsabili («a cura di») e il modello come assistente («con l'assistenza di»);
 - per ogni capitolo la prosa in testa, con le unità citate col loro nome, poi l'elenco delle unità del capitolo; per le unità citate che hanno foto, al posto della loro riga c'è una striscia di foto (§10.11);
+- **la mappa del sito** (dalla 5.13.115-alpha, solo nell'HTML), in un riquadro fisso: a destra sugli schermi larghi, in cima sul telefono. Da ferma mostra tutte le unità del grafo in grigio chiaro; cliccando il nome di un'unità nel testo mostra **solo le unità del periodo di quel capitolo** come contorni con il numero sopra, la cliccata **colorata**, e inquadra il gruppo; cliccando il titolo di un capitolo lo stesso, senza l'unità colorata. La riga sotto la mappa dice il periodo e quante unità; «tutto il sito» torna alla vista intera. Le geometrie vengono dalle viste US e USM del database del progetto al momento dell'export (sito del grafo, unità legate per area e numero): un'unità citata ma senza disegno ha il link e niente sulla mappa; senza database collegato il documento non ha la mappa;
 - in fondo la sezione **Fonti**: i documenti su cui si appoggia il racconto e la voce «Prompt», che richiama il prompt registrato nel file.
 
 Alcune cose da sapere:
@@ -595,7 +596,7 @@ Alcune cose da sapere:
 - entrano **tutti i capitoli**, anche quelli ancora «da scrivere»: il loro segnaposto «[da scrivere: …]» resta nel testo;
 - la prosa sta **in testa** al capitolo, prima dell'elenco delle unità; in una narrativa scritta con una versione precedente può stare ancora in fondo, e si mette a posto riesportando il sito (§10.8) o con **Prepara i capitoli**;
 - le figure che un autore ha previsto in EMStudio (ad esempio la matrice di un'epoca) non vengono disegnate dall'esportazione di pyArchInit: nel documento resta un segnaposto;
-- l'HTML è un file solo e autosufficiente (anche le foto sono incorporate); il DOCX si apre con Word o LibreOffice e richiede il pacchetto `python-docx`, e il PDF la libreria ReportLab (§10.11): sono entrambi fra i requisiti del plugin.
+- l'HTML è un file solo e autosufficiente (anche le foto sono incorporate, e la mappa è un SVG dentro il file, senza librerie esterne: si apre anche sul telefono senza rete); il DOCX si apre con Word o LibreOffice e richiede il pacchetto `python-docx`, e il PDF la libreria ReportLab (§10.11): sono entrambi fra i requisiti del plugin.
 
 <!-- IMMAGINE: Screenshot del documento HTML esportato: un capitolo con una bozza preceduta da «⚠︎ non validato da una persona» -->
 ![Documento HTML esportato](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

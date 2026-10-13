@@ -9,7 +9,7 @@
 - **Joindre des paradata** (Author / License / Embargo) au niveau du site
 - **Regrouper** les US par dimension (struttura, area, attivita, settore, ambient, saggio, quad_par ou groupes ad-hoc)
 
-Tag courant: `sito-intero-5.13.109-alpha` (2026-10-13).
+Tag courant: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ Quand le fichier **n'a pas encore de narration**, la liste est vide et un texte 
 | **Endorse…** | Convalida… | Ouvre un menu avec « This chapter » (Ce chapitre) et « All chapters » (Tous les chapitres), puis demande qui valide (§10.6). Actif quand il y a une narration. |
 | **Prepare the chapters** | Prepara i capitoli | Crée **seulement le plan** des chapitres, sans IA : il fonctionne même si aucune IA n'est configurée, pour que vous puissiez écrire à la main dans EMStudio. Il ne touche pas à la prose déjà écrite et ajoute les chapitres des nouvelles époques. Résultat : « Chapters prepared: N. » |
 | **Show on the map** | Mostra sulla mappa | Sélectionne et cadre sur la carte, **toutes ensemble**, les unités dont parle le chapitre choisi (§10.10) : celles citées dans la prose ou, si le chapitre n'est pas encore écrit, toutes celles de sa bande. Actif seulement si au moins une des unités dont parle le chapitre choisi est une ligne de la fiche US. |
-| **Export…** | Esporta… | Enregistre la narration en HTML, en DOCX ou en PDF imprimable (§10.7), avec les photos des unités citées quand il y en a (§10.11). Actif quand il y a une narration. |
+| **Export…** | Esporta… | Enregistre la narration en HTML (avec la carte interactive du site, §10.7), en DOCX ou en PDF imprimable (§10.7), avec les photos des unités citées quand il y en a (§10.11). Actif quand il y a une narration. |
 | **Open in EMStudio** | Apri in EMStudio | Ouvre l'em.json dans EMStudio. Si EMStudio est absent, la barre de messages renvoie à l'entrée de menu **Extended Matrix → Installa EMStudio…** (Installer EMStudio). |
 | **Cancel** | Annulla | N'apparaît que pendant la génération : l'IA s'arrête **après le chapitre en cours** et ce qui a été écrit est enregistré. |
 
@@ -587,6 +587,7 @@ Le document contient :
 
 - le titre de la narration (par exemple « Scavo archeologico — the story of the site » ; « the story of the site » : l'histoire du site), les responsables (« a cura di ») et le modèle comme assistant (« con l'assistenza di ») ;
 - pour chaque chapitre, d'abord la prose, avec les unités citées par leur nom, puis la liste des unités du chapitre ; pour les unités citées qui ont des photos, une bande de photos prend la place de leur ligne (§10.11) ;
+- **la carte du site** (depuis la 5.13.115-alpha, uniquement dans le HTML), dans un encadré fixe : à droite sur les écrans larges, en haut sur un téléphone. Au repos, elle montre toutes les unités du graphe en gris clair ; un clic sur le nom d'une unité dans le texte montre **seulement les unités de la période de ce chapitre** sous forme de contours avec le numéro dessus, l'unité cliquée **en couleur**, et cadre le groupe ; un clic sur le titre d'un chapitre fait de même, sans l'unité en couleur. La ligne sous la carte indique la période et le nombre d'unités ; « whole site » (tout le site) revient à la vue d'ensemble. Les géométries viennent des vues US et USM de la base de données du projet au moment de l'export (site du graphe, unités associées par aire et numéro) : une unité citée mais sans dessin a le lien et rien sur la carte ; sans base de données connectée, le document n'a pas de carte ;
 - à la fin, la section **Fonti** (sources) : les documents sur lesquels s'appuie le récit et l'entrée « Prompt », qui renvoie au prompt enregistré dans le fichier.
 
 Quelques points à connaître :
@@ -595,7 +596,7 @@ Quelques points à connaître :
 - **tous les chapitres sont inclus**, même ceux qui sont encore « to be written » : leur espace réservé « [to be written: …] » reste dans le texte ;
 - la prose est **en tête** du chapitre, avant la liste des unités ; dans une narration écrite avec une version précédente, elle peut encore être à la fin, et elle se remet à sa place en réexportant le site (§10.8) ou avec **Prepare the chapters** (Préparer les chapitres) ;
 - les figures qu'un auteur a prévues dans EMStudio (par exemple la matrice d'une époque) ne sont pas dessinées par l'export de pyArchInit : un espace réservé reste dans le document ;
-- le HTML est un fichier unique et autonome (les photos y sont aussi incorporées) ; le DOCX s'ouvre avec Word ou LibreOffice et nécessite le paquet `python-docx`, et le PDF la bibliothèque ReportLab (§10.11) : les deux font partie des dépendances du plugin.
+- le HTML est un fichier unique et autonome (les photos y sont aussi incorporées, et la carte est un SVG dans le fichier, sans bibliothèque externe : il s'ouvre aussi sur un téléphone sans réseau) ; le DOCX s'ouvre avec Word ou LibreOffice et nécessite le paquet `python-docx`, et le PDF la bibliothèque ReportLab (§10.11) : les deux font partie des dépendances du plugin.
 
 <!-- IMMAGINE: Capture d'écran du document HTML exporté : un chapitre avec un brouillon précédé de « ⚠︎ non validato da una persona » -->
 ![Document HTML exporté](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

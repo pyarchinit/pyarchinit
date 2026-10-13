@@ -127,37 +127,7 @@ def _t(key: str, lang: Optional[str] = None, **kw) -> str:
 # Senza finestra: caricare la vista, i preset, i layer del progetto
 # ---------------------------------------------------------------------------
 
-def load_view_layer(conn_str: str, spec: ViewSpec, site: Optional[str] = None, lang: Optional[str] = None):
-    """La vista dal database, come layer **non** aggiunto al progetto,
-    filtrata sul sito se la vista ha il campo. ``None`` se non c'è."""
-    from qgis.core import QgsDataSourceUri, QgsVectorLayer
-    from sqlalchemy.engine import make_url
-    try:
-        url = make_url(str(conn_str))
-    except Exception:                               # noqa: BLE001
-        return None
-    nome = view_label(spec, lang)
-    filtro = ""
-    if site and spec.site_field:
-        filtro = "%s = '%s'" % (spec.site_field, str(site).replace("'", "''"))
-    if url.drivername.startswith("sqlite"):
-        percorso = url.database or ""
-        if not os.path.isfile(percorso):
-            return None
-        layer = QgsVectorLayer("%s|layername=%s" % (percorso, spec.name), nome, "ogr")
-        if not layer.isValid():
-            return None
-        if filtro and spec.site_field in [f.name() for f in layer.fields()]:
-            layer.setSubsetString(filtro)
-    else:
-        uri = QgsDataSourceUri()
-        uri.setConnection(url.host or "", str(url.port or 5432), url.database or "",
-                          url.username or "", url.password or "")
-        uri.setDataSource("public", spec.name, "the_geom", filtro, "gid")
-        layer = QgsVectorLayer(uri.uri(), nome, "postgres")
-        if not layer.isValid():
-            return None
-    return layer
+from modules.utility.view_layers import load_view_layer  # noqa: E402,F401  (ora in utility: la usa anche la narrativa)
 
 
 def outline_only_renderer(layer):

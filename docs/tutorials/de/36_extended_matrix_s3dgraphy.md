@@ -9,7 +9,7 @@ Ab Version **5.2.0-alpha** integriert PyArchInit eine **bidirektionale Bridge** 
 - **Anhängen von Paradata** (Author / License / Embargo) auf Stättenebene
 - **Gruppieren** von SE nach Dimension (struttura, area, attivita, settore, ambient, saggio, quad_par oder Ad-hoc-Gruppen)
 
-Aktueller Tag: `sito-intero-5.13.109-alpha` (2026-10-13).
+Aktueller Tag: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ Wenn die Datei **noch keine Erzählung enthält**, ist die Liste leer, und ein T
 | **Endorse…** | Convalida… | Öffnet ein Menü mit «This chapter» und «All chapters» und fragt dann, wer validiert (§10.6). Aktiv, wenn eine Erzählung vorhanden ist. |
 | **Prepare the chapters** | Prepara i capitoli | Legt **nur die Gliederung** der Kapitel an, ohne KI: Das geht auch, wenn keine KI eingerichtet ist, sodass Sie in EMStudio von Hand schreiben können. Bereits geschriebener Text bleibt unberührt, und die Kapitel neuer Epochen werden hinzugefügt. Ergebnis: «Chapters prepared: N.» |
 | **Show on the map** | Mostra sulla mappa | Wählt die Einheiten, von denen das gewählte Kapitel spricht, **gemeinsam** auf der Karte aus und rückt sie ins Bild (§10.10): die im Fließtext zitierten oder, wenn das Kapitel noch nicht geschrieben ist, alle Einheiten seines Bandes. Nur aktiv, wenn mindestens eine der Einheiten, von denen das gewählte Kapitel spricht, eine Zeile des SE-Formulars ist. |
-| **Export…** | Esporta… | Speichert die Erzählung als HTML, DOCX oder druckfähiges PDF (§10.7), mit den Fotos der zitierten Einheiten, wenn es welche gibt (§10.11). Aktiv, wenn eine Erzählung vorhanden ist. |
+| **Export…** | Esporta… | Speichert die Erzählung als HTML (mit der interaktiven Karte der Stätte, §10.7), DOCX oder druckfähiges PDF (§10.7), mit den Fotos der zitierten Einheiten, wenn es welche gibt (§10.11). Aktiv, wenn eine Erzählung vorhanden ist. |
 | **Open in EMStudio** | Apri in EMStudio | Öffnet die em.json in EMStudio. Ist EMStudio nicht vorhanden, verweist die Meldungsleiste auf den Menüeintrag **Extended Matrix → Installa EMStudio…** (EMStudio installieren). |
 | **Cancel** | Annulla | Erscheint nur während der Generierung: Die KI hält **nach dem laufenden Kapitel** an, und das bisher Geschriebene wird gespeichert. |
 
@@ -587,6 +587,7 @@ Das Dokument enthält:
 
 - den Titel der Erzählung (zum Beispiel «Scavo archeologico — the story of the site»; sinngemäß: Archäologische Ausgrabung — die Geschichte der Stätte), die Verantwortlichen («a cura di») und das Modell als Assistent («con l'assistenza di»);
 - für jedes Kapitel zuerst den Text, in dem die Einheiten mit ihrem Namen zitiert werden, dann die Liste der Einheiten des Kapitels; für zitierte Einheiten mit Fotos steht ein Streifen mit Fotos an der Stelle ihrer Zeile (§10.11);
+- **die Karte der Stätte** (seit 5.13.115-alpha, nur im HTML), in einem festen Bereich: auf breiten Bildschirmen rechts, auf dem Smartphone oben. Im Ausgangszustand zeigt sie alle Einheiten des Graphen in Hellgrau; ein Klick auf den Namen einer Einheit im Text zeigt **nur die Einheiten der Periode dieses Kapitels** als Umrisse mit der Nummer darauf, die angeklickte Einheit **farbig**, und rückt die Gruppe ins Bild; ein Klick auf den Titel eines Kapitels bewirkt dasselbe, ohne die farbige Einheit. Die Zeile unter der Karte nennt die Periode und die Anzahl der Einheiten; «whole site» (ganze Stätte) kehrt zur Gesamtansicht zurück. Die Geometrien stammen aus den US- und USM-Ansichten der Datenbank des Projekts zum Zeitpunkt des Exports (Stätte des Graphen, Einheiten nach Areal und Nummer zugeordnet): Eine zitierte Einheit ohne Zeichnung hat den Link, aber nichts auf der Karte; ohne angebundene Datenbank hat das Dokument keine Karte;
 - am Ende den Abschnitt **Fonti** (Quellen): die Dokumente, auf die sich die Geschichte stützt, und den Eintrag «Prompt», der auf den in der Datei gespeicherten Prompt verweist.
 
 Wissenswertes:
@@ -595,7 +596,7 @@ Wissenswertes:
 - **alle Kapitel werden aufgenommen**, auch die noch «to be written»: Ihr Platzhalter «[to be written: …]» bleibt im Text;
 - der Text steht **am Anfang** des Kapitels, vor der Liste der Einheiten; in einer mit einer früheren Version geschriebenen Erzählung kann er noch am Ende stehen und wird durch erneutes Exportieren der Stätte (§10.8) oder mit **Prepare the chapters** (Kapitel vorbereiten) an die richtige Stelle gesetzt;
 - Abbildungen, die ein Autor in EMStudio vorgesehen hat (zum Beispiel die Matrix einer Epoche), werden vom Export von pyArchInit nicht gezeichnet: Im Dokument bleibt ein Platzhalter;
-- das HTML ist eine einzige, in sich geschlossene Datei (auch die Fotos sind eingebettet); das DOCX öffnet sich mit Word oder LibreOffice und erfordert das Paket `python-docx`, das PDF die Bibliothek ReportLab (§10.11): Beide gehören zu den Abhängigkeiten des Plugins.
+- das HTML ist eine einzige, in sich geschlossene Datei (auch die Fotos sind eingebettet, und die Karte ist eine SVG-Grafik in der Datei, ohne externe Bibliotheken: Die Datei öffnet sich auch auf dem Smartphone ohne Netzverbindung); das DOCX öffnet sich mit Word oder LibreOffice und erfordert das Paket `python-docx`, das PDF die Bibliothek ReportLab (§10.11): Beide gehören zu den Abhängigkeiten des Plugins.
 
 <!-- IMMAGINE: Screenshot des exportierten HTML-Dokuments: ein Kapitel mit einem Entwurf, dem «⚠︎ non validato da una persona» vorangestellt ist -->
 ![Exportiertes HTML-Dokument](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

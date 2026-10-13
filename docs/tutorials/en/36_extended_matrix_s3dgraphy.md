@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `sito-intero-5.13.109-alpha` (2026-10-13).
+Current tag: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ When the file **has no narrative yet** the list is empty and a text says: *"No n
 | **Endorse…** | Convalida… | Opens a menu with "This chapter" and "All chapters", then asks who endorses (§10.6). On when there is a narrative. |
 | **Prepare the chapters** | Prepara i capitoli | Builds **only the outline** of the chapters, without AI: it works even if no AI is set up, so you can write by hand in EMStudio. It does not touch prose already written, and adds the chapters of new epochs. Result: "Chapters prepared: N." |
 | **Show on the map** | Mostra sulla mappa | Selects and frames on the map, **all together**, the units the chosen chapter talks about (§10.10): those quoted in the prose or, if the chapter is not written yet, all those of its band. On only if at least one of the units the chosen chapter talks about is a row of the US form. |
-| **Export…** | Esporta… | Saves the narrative as HTML, DOCX or printable PDF (§10.7), with the photos of the cited units when there are any (§10.11). On when there is a narrative. |
+| **Export…** | Esporta… | Saves the narrative as HTML (with the interactive map of the site, §10.7), DOCX or printable PDF (§10.7), with the photos of the cited units when there are any (§10.11). On when there is a narrative. |
 | **Open in EMStudio** | Apri in EMStudio | Opens the em.json in EMStudio. If EMStudio is not there, the message bar points to the menu entry **Extended Matrix → Installa EMStudio…** (Install EMStudio). |
 | **Cancel** | Annulla | Appears only while generating: the AI stops **after the chapter in progress** and what has been written is saved. |
 
@@ -587,6 +587,7 @@ The document contains:
 
 - the title of the narrative (for example "Scavo archeologico — the story of the site"), those responsible ("a cura di") and the model as assistant ("con l'assistenza di");
 - for each chapter the prose first, with the units quoted by their name, then the list of the units of the chapter; for quoted units that have photos, a strip of photos stands in place of their line (§10.11);
+- **the map of the site** (since 5.13.115-alpha, in the HTML only), in a fixed box: on the right on wide screens, at the top on a phone. At rest it shows all the units of the graph in light grey; clicking the name of a unit in the text shows **only the units of that chapter's period** as outlines with the number on top, the clicked one **coloured**, and frames the group; clicking a chapter title does the same, without the coloured unit. The line under the map gives the period and how many units; "whole site" returns to the full view. The geometries come from the US and USM views of the project database at the moment of the export (the graph's site, units matched by area and number): a quoted unit with no drawing has the link and nothing on the map; with no database connected the document has no map;
 - at the end the **Fonti** (sources) section: the documents the story rests on and the "Prompt" entry, which points to the prompt recorded in the file.
 
 Things worth knowing:
@@ -595,7 +596,7 @@ Things worth knowing:
 - **all chapters go in**, even those still "to be written": their "[to be written: …]" placeholder stays in the text;
 - the prose sits **at the head** of the chapter, before the list of the units; in a narrative written with an earlier version it may still be at the bottom, and it is put right by exporting the site again (§10.8) or with **Prepare the chapters**;
 - figures an author planned in EMStudio (for example the matrix of an epoch) are not drawn by pyArchInit's export: a placeholder stays in the document;
-- the HTML is a single, self-contained file (the photos are embedded too); the DOCX opens with Word or LibreOffice and needs the `python-docx` package, and the PDF the ReportLab library (§10.11): both are among the plugin's requirements.
+- the HTML is a single, self-contained file (the photos are embedded too, and the map is an SVG inside the file, with no external libraries: it also opens on a phone with no network); the DOCX opens with Word or LibreOffice and needs the `python-docx` package, and the PDF the ReportLab library (§10.11): both are among the plugin's requirements.
 
 <!-- IMMAGINE: Screenshot of the exported HTML document: a chapter with a draft preceded by "⚠︎ non validato da una persona" -->
 ![Exported HTML document](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

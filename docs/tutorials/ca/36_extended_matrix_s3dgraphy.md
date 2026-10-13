@@ -9,7 +9,7 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `sito-intero-5.13.109-alpha` (2026-10-13).
+Tag actual: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ Quan el fitxer **encara no té narrativa**, la llista és buida i un text diu: *
 | **Endorse…** | Convalida… | Obre un menú amb «This chapter» i «All chapters» (aquest capítol, tots els capítols) i després pregunta qui valida (§10.6). Activat quan hi ha una narrativa. |
 | **Prepare the chapters** | Prepara i capitoli | Crea **només l'esquema** dels capítols, sense IA: funciona encara que no hi hagi cap IA configurada, perquè puguis escriure a mà a EMStudio. No toca la prosa ja escrita i afegeix els capítols de les èpoques noves. Resultat: «Chapters prepared: N.» |
 | **Show on the map** | Mostra sulla mappa | Selecciona i enquadra al mapa, **totes alhora**, les unitats de què parla el capítol triat (§10.10): les citades a la prosa o, si el capítol encara no està escrit, totes les de la seva banda. Activat només si almenys una de les unitats de què parla el capítol triat és una fila de la fitxa US. |
-| **Export…** | Esporta… | Desa la narrativa en HTML, DOCX o PDF imprimible (§10.7), amb les fotos de les unitats citades quan n'hi ha (§10.11). Activat quan hi ha una narrativa. |
+| **Export…** | Esporta… | Desa la narrativa en HTML (amb el mapa interactiu del lloc, §10.7), DOCX o PDF imprimible (§10.7), amb les fotos de les unitats citades quan n'hi ha (§10.11). Activat quan hi ha una narrativa. |
 | **Open in EMStudio** | Apri in EMStudio | Obre l'em.json a EMStudio. Si EMStudio no hi és, la barra de missatges indica l'entrada de menú **Extended Matrix → Installa EMStudio…** (Instal·la EMStudio). |
 | **Cancel** | Annulla | Només apareix durant la generació: la IA s'atura **després del capítol en curs** i el que s'ha escrit es desa. |
 
@@ -587,6 +587,7 @@ El document conté:
 
 - el títol de la narrativa (per exemple, «Scavo archeologico — the story of the site»), els responsables («a cura di») i el model com a assistent («con l'assistenza di»);
 - per a cada capítol, primer la prosa, amb les unitats citades pel seu nom, i després la llista de les unitats del capítol; per a les unitats citades que tenen fotos, una tira de fotos ocupa el lloc de la seva línia (§10.11);
+- **el mapa del lloc** (des de la 5.13.115-alpha, només a l'HTML), en un requadre fix: a la dreta en les pantalles amples, a dalt al telèfon. En repòs mostra totes les unitats del graf en gris clar; un clic al nom d'una unitat dins del text mostra **només les unitats del període d'aquell capítol** com a contorns amb el número a sobre, la unitat clicada **en color**, i enquadra el grup; un clic al títol d'un capítol fa el mateix, sense la unitat en color. La línia sota el mapa indica el període i quantes unitats; «whole site» (tot el lloc) torna a la vista completa. Les geometries provenen de les vistes US i USM de la base de dades del projecte en el moment de l'exportació (lloc del graf, unitats associades per àrea i número): una unitat citada però sense dibuix té l'enllaç i res al mapa; sense una base de dades connectada, el document no té mapa;
 - al final, la secció **Fonti** (fonts): els documents en què es basa el relat i l'entrada «Prompt», que remet al prompt registrat al fitxer.
 
 Coses que convé saber:
@@ -595,7 +596,7 @@ Coses que convé saber:
 - **hi entren tots els capítols**, fins i tot els que encara són «to be written»: el seu marcador de posició «[to be written: …]» es queda al text;
 - la prosa va **al principi** del capítol, abans de la llista de les unitats; en una narrativa escrita amb una versió anterior pot ser encara al final, i es posa al seu lloc tornant a exportar el lloc (§10.8) o amb **Prepare the chapters** (Prepara els capítols);
 - les figures que un autor ha previst a EMStudio (per exemple, la matriu d'una època) no les dibuixa l'exportació de pyArchInit: al document hi queda un marcador de posició;
-- l'HTML és un sol fitxer, autosuficient (les fotos també hi van incorporades); el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, i el PDF la biblioteca ReportLab (§10.11): tots dos són entre els requisits del connector.
+- l'HTML és un sol fitxer, autosuficient (les fotos també hi van incorporades, i el mapa és un SVG dins del fitxer, sense biblioteques externes: s'obre també al telèfon sense xarxa); el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, i el PDF la biblioteca ReportLab (§10.11): tots dos són entre els requisits del connector.
 
 <!-- IMMAGINE: Captura de pantalla del document HTML exportat: un capítol amb un esborrany precedit de «⚠︎ non validato da una persona» -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

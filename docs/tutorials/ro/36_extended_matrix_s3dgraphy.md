@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `sito-intero-5.13.109-alpha` (2026-10-13).
+Tag curent: `narrativa-mappa-5.13.115-alpha` (2026-10-13).
 
 ---
 
@@ -521,7 +521,7 @@ Când fișierul **nu are încă o narațiune**, lista este goală și un text sp
 | **Endorse…** | Convalida… | Deschide un meniu cu „This chapter” și „All chapters”, apoi întreabă cine validează (§10.6). Activ când există o narațiune. |
 | **Prepare the chapters** | Prepara i capitoli | Creează **doar scheletul** capitolelor, fără AI: funcționează chiar dacă nu este configurat niciun AI, ca să poți scrie manual în EMStudio. Nu atinge textul deja scris și adaugă capitolele epocilor noi. Rezultat: „Chapters prepared: N.” (Capitole pregătite: N.) |
 | **Show on the map** | Mostra sulla mappa | Selectează și încadrează pe hartă, **toate împreună**, unitățile despre care vorbește capitolul ales (§10.10): cele citate în text sau, dacă capitolul nu este încă scris, toate cele din banda lui. Activ doar dacă cel puțin una dintre unitățile despre care vorbește capitolul ales este un rând al fișei US. |
-| **Export…** | Esporta… | Salvează narațiunea în HTML, DOCX sau PDF de tipărit (§10.7), cu fotografiile unităților citate, când există (§10.11). Activ când există o narațiune. |
+| **Export…** | Esporta… | Salvează narațiunea în HTML (cu harta interactivă a sitului, §10.7), DOCX sau PDF de tipărit (§10.7), cu fotografiile unităților citate, când există (§10.11). Activ când există o narațiune. |
 | **Open in EMStudio** | Apri in EMStudio | Deschide em.json în EMStudio. Dacă EMStudio nu este instalat, bara de mesaje trimite la intrarea de meniu **Extended Matrix → Installa EMStudio…** (Instalează EMStudio). |
 | **Cancel** | Annulla | Apare doar în timpul generării: AI-ul se oprește **după capitolul în curs**, iar ce s-a scris este salvat. |
 
@@ -587,6 +587,7 @@ Documentul conține:
 
 - titlul narațiunii (de exemplu „Scavo archeologico — the story of the site”, adică „Săpătură arheologică — povestea sitului”), responsabilii („a cura di”) și modelul ca asistent („con l'assistenza di”);
 - pentru fiecare capitol, întâi textul, cu unitățile citate prin numele lor, apoi lista unităților capitolului; pentru unitățile citate care au fotografii, o bandă de fotografii ia locul rândului lor (§10.11);
+- **harta sitului** (începând cu 5.13.115-alpha, doar în HTML), într-un chenar fix: în dreapta pe ecranele late, sus pe telefon. În repaus arată toate unitățile grafului în gri deschis; un clic pe numele unei unități din text arată **doar unitățile din perioada acelui capitol** ca contururi cu numărul deasupra, unitatea apăsată **colorată**, și încadrează grupul; un clic pe titlul unui capitol face la fel, fără unitatea colorată. Rândul de sub hartă indică perioada și câte unități; „whole site” (tot situl) revine la vederea de ansamblu. Geometriile provin din vederile US și USM ale bazei de date a proiectului, în momentul exportului (situl grafului, unități asociate după arie și număr): o unitate citată, dar fără desen, are linkul și nimic pe hartă; fără o bază de date conectată, documentul nu are hartă;
 - la sfârșit, secțiunea **Fonti** (surse): documentele pe care se sprijină povestea și intrarea „Prompt”, care trimite la promptul înregistrat în fișier.
 
 Câteva lucruri de știut:
@@ -595,7 +596,7 @@ Câteva lucruri de știut:
 - **intră toate capitolele**, chiar și cele încă „to be written”: substituentul lor „[to be written: …]” rămâne în text;
 - textul stă **la începutul** capitolului, înaintea listei unităților; într-o narațiune scrisă cu o versiune anterioară poate fi încă la sfârșit și se pune la loc reexportând situl (§10.8) sau cu **Prepare the chapters** (Pregătește capitolele);
 - figurile pe care un autor le-a prevăzut în EMStudio (de exemplu matricea unei epoci) nu sunt desenate de exportul pyArchInit: în document rămâne un substituent;
-- HTML-ul este un singur fișier, autonom (și fotografiile sunt încorporate); DOCX-ul se deschide cu Word sau LibreOffice și are nevoie de pachetul `python-docx`, iar PDF-ul de biblioteca ReportLab (§10.11): ambele fac parte din cerințele pluginului.
+- HTML-ul este un singur fișier, autonom (și fotografiile sunt încorporate, iar harta este un SVG în interiorul fișierului, fără biblioteci externe: se deschide și pe telefon, fără rețea); DOCX-ul se deschide cu Word sau LibreOffice și are nevoie de pachetul `python-docx`, iar PDF-ul de biblioteca ReportLab (§10.11): ambele fac parte din cerințele pluginului.
 
 <!-- IMMAGINE: Captură de ecran a documentului HTML exportat: un capitol cu o ciornă precedată de „⚠︎ non validato da una persona” -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
