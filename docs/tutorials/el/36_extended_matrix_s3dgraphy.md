@@ -9,7 +9,7 @@
 - **Επισύναψη paradata** (Author / License / Embargo) σε επίπεδο τοποθεσίας
 - **Ομαδοποίηση** ΣΕ ανά διάσταση (struttura, area, attivita, settore, ambient, saggio, quad_par ή ad-hoc ομάδες)
 
-Τρέχουσα ετικέτα: `ordine-indice-5.13.116-alpha` (2026-10-13).
+Τρέχουσα ετικέτα: `ordine-matrice-5.13.117-alpha` (2026-10-13).
 
 ---
 

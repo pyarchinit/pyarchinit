@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `ordine-indice-5.13.116-alpha` (2026-10-13).
+Current tag: `ordine-matrice-5.13.117-alpha` (2026-10-13).
 
 ---
 

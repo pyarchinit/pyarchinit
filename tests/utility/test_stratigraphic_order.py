@@ -67,9 +67,9 @@ def test_order_like_the_time_manager():
     """Enzo, 13 ottobre 2026: «l'oggetto va sempre sopra lo strato: indice 1
     sempre sopra indice 2», poi dal più recente al più antico."""
     assert so.order_clauses(["order_layer", "stratigraph_index_us"], "CASE WHEN 1 THEN 2 END") == [
-        ('"stratigraph_index_us"', False, True),     # 2 (lo strato) e l'indice vuoto disegnati prima, 1 (l'oggetto) sopra
         ("CASE WHEN 1 THEN 2 END", True, True),      # undated first (underneath), oldest period first
-        ('"order_layer"', True, False),              # 0 = oldest ... N = most recent (on top)
+        ('"order_layer"', True, False),              # 0 = oldest ... N = most recent (on top), come la matrice
+        ('"stratigraph_index_us"', False, True),     # dentro l'unità: 2 (lo strato) e vuoto prima, 1 (l'oggetto) sopra
     ]
     assert so.order_clauses(["order_layer"]) == [('"order_layer"', True, False)]
     assert so.order_clauses(["stratigraph_index_us"]) == [('"stratigraph_index_us"', False, True)]

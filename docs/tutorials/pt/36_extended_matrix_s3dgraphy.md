@@ -9,7 +9,7 @@ A partir da versão **5.2.0-alpha** o PyArchInit integra um **bridge bidireciona
 - **Anexar paradata** (Author / License / Embargo) a nível de sítio
 - **Agrupar** UE por dimensão (struttura, area, attivita, settore, ambient, saggio, quad_par ou grupos ad-hoc)
 
-Tag atual: `ordine-indice-5.13.116-alpha` (2026-10-13).
+Tag atual: `ordine-matrice-5.13.117-alpha` (2026-10-13).
 
 ---
 

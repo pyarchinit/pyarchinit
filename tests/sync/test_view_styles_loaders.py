@@ -265,3 +265,32 @@ def test_l_avviso_sulle_etichette_in_ettari_sta_in_tutti_i_caricatori_delle_unit
                         and nodo.func.attr == "_avvisa_etichette_ettari"):
                     trovati.add(fn.name)
     assert trovati == attesi, attesi - trovati
+
+
+def test_la_map_preview_toglie_i_suoi_layer_vecchi_dal_progetto(tmp_path):
+    """I layer «pyarchinit_us_view» della Map preview restano registrati nel
+    progetto a ogni apertura, fuori dal pannello, e un giorno portavano
+    etichette in ettari (Enzo, 13 ottobre 2026): prima di crearne di nuovi
+    il caricatore toglie i vecchi; quelli nel pannello dei layer non si toccano."""
+    import os, types
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    pytest.importorskip("qgis.core")
+    from qgis.core import QgsApplication, QgsProject, QgsVectorLayer
+    if QgsApplication.instance() is None:
+        QgsApplication.setPrefixPath(os.environ.get("QGIS_PREFIX_PATH", "/Applications/QGIS.app/Contents/MacOS"), True)
+        app = QgsApplication([], False); app.initQgis()
+    from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+    progetto = QgsProject.instance()
+    fuori = [QgsVectorLayer("Polygon?crs=EPSG:32633", "pyarchinit_us_view", "memory") for _ in range(2)]
+    dentro = QgsVectorLayer("Polygon?crs=EPSG:32633", "pyarchinit_us_view", "memory")
+    altro = QgsVectorLayer("Polygon?crs=EPSG:32633", "US view", "memory")
+    progetto.addMapLayers(fuori, False)
+    progetto.addMapLayers([dentro, altro], True)
+    tolti = Pyarchinit_pyqgis._rimuovi_layer_preview(types.SimpleNamespace())
+    assert tolti == 2
+    nomi = sorted(l.name() for l in progetto.mapLayers().values())
+    assert nomi.count("pyarchinit_us_view") == 1 and "US view" in nomi
+    progetto.removeMapLayers([dentro.id(), altro.id()])
+    righe = _righe()
+    testo = "\n".join(righe)
+    assert "self._rimuovi_layer_preview()" in testo

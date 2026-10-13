@@ -114,11 +114,11 @@ def _no_geometry():
 
 
 def apply_stratigraphic_order(layer, periodization=None, override=True):
-    """Drawing order of a US/USM layer, like the Time Manager: the
-    stratigraphic index first (the object, 1, always above the layer, 2),
-    then undated units, then periods by chronology (``periodization``: rows
-    (sito, periodo, fase, cron_iniziale, cont_per) of periodizzazione_table),
-    then order_layer — the most recent end up on top (see
+    """Drawing order of a US/USM layer, like the Time Manager and the
+    matrix: undated units first, then periods by chronology (``periodization``:
+    rows (sito, periodo, fase, cron_iniziale, cont_per) of periodizzazione_table),
+    then order_layer (the most recent on top), and inside the same unit the
+    stratigraphic index (the object, 1, above the layer, 2) (see
     modules/utility/stratigraphic_order.py). The order is set on the
     renderer: QgsVectorLayer has no setOrderBy(). With override=False an
     order already on the renderer is kept. Returns True when set."""
@@ -742,7 +742,8 @@ class USViewStyler:
             order_layer = _plain(feature['order_layer']) if has_order_layer else 0
             if order_layer is None:
                 order_layer = 9999  # Put NULL order_layer at the end
-            key = (cat_value, strat_idx, tipo_us)
+            # per US una voce sola per unità e indice, qualunque sia tipo_us_s
+            key = (cat_value, strat_idx, tipo_us if category_field != 'us' else "")
             unique_combinations[key] = min(unique_combinations.get(key, order_layer), order_layer)
 
         for (cat_value, stratigraph_index_us, tipo_us_s), min_order_layer in unique_combinations.items():
@@ -801,13 +802,13 @@ class USViewStyler:
             return min(anni) if anni else None
 
         def recente(voce):
-            # in TOC: prima gli oggetti (indice 1), poi gli strati (indice 2) — «l'oggetto
-            # va sempre sopra lo strato» —, dentro ciascun gruppo dal più recente
+            # in TOC come la matrice: cronologia dal più recente, poi order_layer
+            # decrescente (i NULL in fondo); a parità l'oggetto (1) sopra lo strato (2)
             min_order_layer, strat_idx, _rule, valore = voce
             inizio = inizio_di(valore) if inizi else None
-            return (strat_idx, 1 if min_order_layer == 9999 else 0,
+            return (1 if min_order_layer == 9999 else 0,
                     -inizio if inizio is not None else float("inf"),
-                    -min_order_layer)
+                    -min_order_layer, strat_idx)
 
         all_rules.sort(key=recente)
         for _, _, rule, _ in all_rules:

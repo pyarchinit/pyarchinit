@@ -5,6 +5,24 @@
 
 ---
 
+## [fix] - 2026-10-13 — Quarto giro di Enzo: l'ordine come la matrice (order_layer, e l'indice solo dentro l'unità), una voce per US nella TOC, e i layer della Map preview rimasti nel progetto con le etichette in ettari — 5.13.117-alpha
+
+> Branch `Stratigraph_00001`. Suite **2136 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Fourth round: matrix-like order (order_layer first, index only inside the unit), one legend entry per unit, and the Map preview's leftover layers — the ones carrying the hectare labels — removed from the project.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **l'audit ha nominato i colpevoli**: «Le etichette in ettari vengono da 2 layer del progetto («pyarchinit_us_view», «pyarchinit_us_view»)». Quel nome lo dà solo la **Map preview** ai suoi due layer, che `loadMapPreview_new` registra nel progetto con `addMapLayers(…, False)` — fuori dal pannello dei layer, quindi invisibili e impossibili da spegnere a mano — e **non toglie mai**: a ogni apertura della preview se ne aggiungono due, e quelli delle sessioni passate restano nel progetto salvato con lo stile che avevano allora. Ora (1) `_rimuovi_layer_preview` toglie dal progetto, prima di crearne di nuovi, ogni layer «pyarchinit_us_view» che non sta nel pannello (quelli nel pannello non si toccano); (2) lo sfondo «mappa completa» resta senza etichette anche **dopo** l'aggiunta al progetto; (3) l'audit distingue questi resti («… della Map preview, registrati nel progetto fuori dal pannello … pyArchInit li toglie alla prossima apertura») e per gli altri layer dice **ogni nome con la sua espressione** (prima, con due o più layer, solo i nomi). L'espressione delle etichette cerchiate è `us` e non fa scattare l'audit (verificato). Prove: `test_la_map_preview_toglie_i_suoi_layer_vecchi_dal_progetto` (due resti tolti, quello nel pannello e «US view» restano), `test_i_layer_della_map_preview_fuori_dal_pannello_si_riconoscono`, `test_la_descrizione_nomina_ogni_layer_con_la_sua_espressione`.
+- 🇬🇧 **EN**: the audit named two project layers called `pyarchinit_us_view`: the Map preview's own layers, registered in the project outside the layers panel at every opening and never removed. The preview now removes its leftovers before creating new ones, keeps its background label-free after registration, and the audit names every layer with its expression.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **«per l'ordine nella TOC guarda gli screenshot: non dovrebbe seguire l'order layer? praticamente come va il matrix»** (Enzo, 13 ottobre 2026, con la TOC «per US» che partiva da US 8, 7, 10… perché nella 5.13.116 l'indice era la prima chiave e le unità con soli disegni di indice 2 finivano in fondo). Letto meglio: l'oggetto sta sopra lo strato **dentro la stessa unità**, non tutti gli oggetti sopra tutti gli strati. Ora `order_clauses` è **come la matrice**: cronologia dei periodi, poi `order_layer` crescente (0 = più antica, verificato sui dati di Enzo: US 6 «coperta da 3» ha 0, US 12 «si appoggia a 6» ha 1), e l'indice per ultimo, decrescente coi vuoti prima (2 e vuoto sotto, 1 sopra). La **TOC** del tre-passi segue la matrice: dal più recente al più antico (anno del codice, poi `order_layer`; i senza `order_layer` in fondo), e a parità l'oggetto (1) sopra lo strato (2). Nella categorizzazione **per US** una voce sola per unità e indice, qualunque sia `tipo_us_s` (prima «US 13» compariva due o tre volte, una per tipo).
+- 🇬🇧 **EN**: draw order like the matrix (periods, then order_layer, the index only inside the unit), legend most-recent-first with the object above its layer on ties, and one legend entry per unit in the per-US categorisation.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 14 (ordine di disegno e TOC come la matrice, una voce per US, i resti della Map preview nell'avviso); dieci lingue. `metadata.txt` 5.13.117-alpha.
+- 🇬🇧 **EN**: tutorial 14 updated, ten languages.
+
+---
+
 ## [fix] - 2026-10-13 — Terzo giro di Enzo: l'oggetto sopra lo strato (indice 1 sopra 2) nel disegno e nella TOC, categorie «per US», pagina della narrativa larga, e l'audit che dice da dove vengono le etichette in ettari — 5.13.116-alpha
 
 > Branch `Stratigraph_00001`. Suite **2132 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Third round: stratigraphic index first in draw order and TOC (object above layer), per-unit categories, wide narrative page, and an audit naming the project layer or annotations that write hectare labels.

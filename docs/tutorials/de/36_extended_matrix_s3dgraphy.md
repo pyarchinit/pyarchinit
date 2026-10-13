@@ -9,7 +9,7 @@ Ab Version **5.2.0-alpha** integriert PyArchInit eine **bidirektionale Bridge** 
 - **Anhängen von Paradata** (Author / License / Embargo) auf Stättenebene
 - **Gruppieren** von SE nach Dimension (struttura, area, attivita, settore, ambient, saggio, quad_par oder Ad-hoc-Gruppen)
 
-Aktueller Tag: `ordine-indice-5.13.116-alpha` (2026-10-13).
+Aktueller Tag: `ordine-matrice-5.13.117-alpha` (2026-10-13).
 
 ---
 

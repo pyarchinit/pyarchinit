@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `ordine-indice-5.13.116-alpha` (2026-10-13).
+Tag corrente: `ordine-matrice-5.13.117-alpha` (2026-10-13).
 
 ---
 

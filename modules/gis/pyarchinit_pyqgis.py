@@ -2151,6 +2151,22 @@ class Pyarchinit_pyqgis(QDialog):
             pass
         return esito
 
+    def _rimuovi_layer_preview(self):
+        """Toglie dal progetto i layer «pyarchinit_us_view» della Map preview
+        registrati fuori dal pannello dei layer (restavano a ogni apertura,
+        e da Enzo portavano etichette in ettari, 13 ottobre 2026). Quelli
+        nel pannello non si toccano. Torna quanti ne ha tolti."""
+        try:
+            progetto = QgsProject.instance()
+            radice = progetto.layerTreeRoot()
+            da_togliere = [l.id() for l in progetto.mapLayers().values()
+                           if l.name() == "pyarchinit_us_view" and radice.findLayer(l.id()) is None]
+            if da_togliere:
+                progetto.removeMapLayers(da_togliere)
+            return len(da_togliere)
+        except Exception:                           # noqa: BLE001
+            return 0
+
     def _senza_etichette(self, layer):
         """Un layer di sfondo (la «mappa completa» della Map preview) non
         porta etichette, nemmeno ereditate."""
@@ -2922,6 +2938,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 QgsProject.instance().addMapLayers([layerUS], False)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
+                self._senza_etichette(layerUS_us)           # anche dopo l'aggiunta al progetto
 
                 layerToSet.append(layerUS_us)
                 layerToSet.append(layerUS)
@@ -2957,6 +2974,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
                 layerUS_us.loadNamedStyle(style_path_us)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
+                self._senza_etichette(layerUS_us)           # anche dopo l'aggiunta al progetto
                 layerToSet.append(layerUS_us)
 
             return layerToSet
@@ -2964,6 +2982,7 @@ class Pyarchinit_pyqgis(QDialog):
     def loadMapPreview_new(self, gidstr):
         """ if has geometry column load to map canvas """
         self._avvisa_etichette_ettari()               # chi scrive le etichette in ettari, se c'è
+        self._rimuovi_layer_preview()                 # i layer della preview di prima, fuori dal pannello
         layerToSet = []
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
         path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
@@ -3107,6 +3126,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS_us.triggerRepaint()
 
                 QgsProject.instance().addMapLayers([layerUS_us], False)
+                self._senza_etichette(layerUS_us)           # anche dopo l'aggiunta al progetto
                 layerToSet.append(layerUS_us)
 
             if not layerToSet:
@@ -3270,6 +3290,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
                 layerUS_us.loadNamedStyle(style_path_us)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
+                self._senza_etichette(layerUS_us)           # anche dopo l'aggiunta al progetto
                 layerToSet.append(layerUS_us)
 
             return layerToSet

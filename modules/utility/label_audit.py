@@ -15,12 +15,16 @@ _HA_TEXT = re.compile(r"\d[\d.,]*\s*ha\b", re.I)
 
 _M = {
     "it": {"layer": "Le etichette in ettari vengono dal layer «{name}» del progetto (espressione: {expr}), non da pyArchInit: spegnile dalle proprietà di quel layer o toglilo.",
-           "layers": "Le etichette in ettari vengono da {n} layer del progetto ({names}), non da pyArchInit: spegnile dalle loro proprietà o toglili.",
+           "preview": "{n} layer «pyarchinit_us_view» della Map preview, registrati nel progetto fuori dal pannello dei layer, portano etichette in ettari (espressione: {expr}): pyArchInit li toglie alla prossima apertura della Map preview.",
            "annotations": "{n} annotazioni del progetto scrivono un'area in ettari (livello «Annotazioni» nel pannello dei layer), non pyArchInit."},
     "en": {"layer": "The hectare labels come from the project layer “{name}” (expression: {expr}), not from pyArchInit: switch them off in that layer's properties or remove it.",
-           "layers": "The hectare labels come from {n} project layers ({names}), not from pyArchInit: switch them off in their properties or remove them.",
+           "preview": "{n} “pyarchinit_us_view” layers of the Map preview, registered in the project outside the layers panel, carry hectare labels (expression: {expr}): pyArchInit removes them the next time the Map preview opens.",
            "annotations": "{n} project annotations write an area in hectares (the “Annotations” layer in the layers panel), not pyArchInit."},
 }
+
+#: Il nome che la Map preview dà ai suoi due layer, registrati nel progetto
+#: ma non nel pannello (``addMapLayers(…, False)``).
+PREVIEW_LAYER_NAME = "pyarchinit_us_view"
 
 
 def looks_like_area(expression: Optional[str]) -> bool:
@@ -29,28 +33,39 @@ def looks_like_area(expression: Optional[str]) -> bool:
     return bool(expression) and bool(_AREA.search(str(expression)))
 
 
-def hectare_label_sources(layers: Iterable[Tuple[str, bool, Optional[str]]],
+def hectare_label_sources(layers: Iterable[Sequence[Any]],
                           annotation_texts: Iterable[str] = ()) -> Dict[str, Any]:
-    """``layers``: ``(nome, etichette accese, espressione)``; ``annotation_texts``:
-    i testi delle annotazioni del progetto. Torna i layer accesi con
-    un'espressione d'area e quante annotazioni scrivono ettari."""
+    """``layers``: ``(nome, etichette accese, espressione[, nel pannello])``;
+    ``annotation_texts``: i testi delle annotazioni del progetto. Torna i
+    layer accesi con un'espressione d'area, quali di questi sono i resti
+    della Map preview (nome della preview, fuori dal pannello) e quante
+    annotazioni scrivono ettari."""
     trovati: List[Tuple[str, str]] = []
-    for nome, accese, espressione in layers:
+    preview: List[str] = []
+    for voce in layers:
+        nome, accese, espressione = voce[0], voce[1], voce[2]
+        nel_pannello = bool(voce[3]) if len(voce) > 3 else True
         if accese and looks_like_area(espressione):
             trovati.append((str(nome), str(espressione)))
+            if str(nome) == PREVIEW_LAYER_NAME and not nel_pannello:
+                preview.append(str(nome))
     quante = sum(1 for t in annotation_texts if t and _HA_TEXT.search(str(t)))
-    return {"layers": trovati, "annotations": quante}
+    return {"layers": trovati, "preview": preview, "annotations": quante}
 
 
 def describe(esito: Dict[str, Any], lang: Optional[str] = None) -> List[str]:
-    """Le frasi da mostrare, una per fonte; vuoto se non c'è niente da dire."""
+    """Le frasi da mostrare: una per layer (col nome e l'espressione), una
+    per i resti della Map preview, una per le annotazioni; vuoto se non c'è
+    niente da dire."""
     m = _M["it" if str(lang or "it")[:2] == "it" else "en"]
     frasi: List[str] = []
-    strati = esito.get("layers") or []
-    if len(strati) == 1:
-        frasi.append(m["layer"].format(name=strati[0][0], expr=strati[0][1][:80]))
-    elif strati:
-        frasi.append(m["layers"].format(n=len(strati), names=", ".join("«%s»" % s[0] for s in strati[:5])))
+    resti = list(esito.get("preview") or [])
+    strati = [s for s in (esito.get("layers") or []) if not (resti and s[0] == PREVIEW_LAYER_NAME)]
+    for nome, espressione in strati[:5]:
+        frasi.append(m["layer"].format(name=nome, expr=str(espressione)[:80]))
+    if resti:
+        espressione = next((e for n, e in (esito.get("layers") or []) if n == PREVIEW_LAYER_NAME), "")
+        frasi.append(m["preview"].format(n=len(resti), expr=str(espressione)[:80]))
     if esito.get("annotations"):
         frasi.append(m["annotations"].format(n=esito["annotations"]))
     return frasi
@@ -92,7 +107,8 @@ def audit_project(project=None) -> Dict[str, Any]:
     accese che scrivono aree, e annotazioni (nuove e vecchie) con ettari."""
     from qgis.core import QgsProject
     progetto = project or QgsProject.instance()
-    strati: List[Tuple[str, bool, Optional[str]]] = []
+    strati: List[Tuple[str, bool, Optional[str], bool]] = []
+    radice = progetto.layerTreeRoot()
     for layer in progetto.mapLayers().values():
         if not hasattr(layer, "labeling"):
             continue
@@ -100,8 +116,12 @@ def audit_project(project=None) -> Dict[str, Any]:
             accese = bool(layer.labelsEnabled())
         except Exception:                           # noqa: BLE001
             accese = False
+        try:
+            nel_pannello = radice.findLayer(layer.id()) is not None
+        except Exception:                           # noqa: BLE001
+            nel_pannello = True
         for espressione in _expressions_of(layer):
-            strati.append((layer.name(), accese, espressione))
+            strati.append((layer.name(), accese, espressione, nel_pannello))
     testi: List[str] = []
     try:
         for item in progetto.mainAnnotationLayer().items().values():

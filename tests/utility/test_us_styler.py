@@ -195,7 +195,7 @@ def test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico(qgs):
     layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + campi, "US", "memory")
     prov = layer.dataProvider()
     for k, (us, codice, ordine, indice) in enumerate((("1", "1/1", 0, 1), ("2", "2/1", 9, 1), ("3", "3/1", 5, 1),
-                                                       ("4", "1/1", 7, 2))):        # la 4: strato (indice 2)
+                                                       ("4", "1/1", 0, 2))):        # la 4: strato (indice 2), stesso order_layer della 1
         f = QgsFeature(layer.fields())
         f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
         f.setAttributes(["Scavo", us, indice, "Strato", codice, ordine, "Strato"])
@@ -209,9 +209,9 @@ def test_la_legenda_per_periodo_va_dal_piu_recente_al_piu_antico(qgs):
     regole = layer.renderer().rootRule().children()
     etichette = [r.label().split(" ")[0] for r in regole]
     indici = [2 if '"stratigraph_index_us" = 2' in r.filterExpression() else 1 for r in regole]
-    # in TOC: prima gli oggetti (indice 1) dal più recente, poi gli strati (indice 2)
-    assert etichette == ["1/1", "2/1", "3/1", "1/1"] and indici == [1, 1, 1, 2], (etichette, indici)
-    # senza periodizzazione: order_layer decrescente (9 = più recente in cima), sempre indice 1 prima
+    # in TOC come la matrice: cronologia dal più recente, poi order_layer; a parità, l'oggetto (1) sopra lo strato (2)
+    assert etichette == ["1/1", "1/1", "2/1", "3/1"] and indici == [1, 2, 1, 1], (etichette, indici)
+    # senza periodizzazione: order_layer decrescente (9 = più recente in cima), l'indice solo a parità
     styler.periodization = []
     styler._apply_temp_style(layer, "d_stratigrafica")
     assert len(layer.renderer().rootRule().children()) == 2            # Strato: indice 1 e indice 2
@@ -232,15 +232,17 @@ def test_la_categorizzazione_per_us(qgs):
              "&field=tipo_us_s:string&field=cont_per:string&field=order_layer:integer&field=d_stratigrafica:string")
     layer = QgsVectorLayer("Polygon?crs=EPSG:32633&" + campi, "US", "memory")
     prov = layer.dataProvider()
-    for k, (us, ordine) in enumerate((("12", 0), ("7", 9))):
+    for k, (us, ordine, tipo) in enumerate((("12", 0, "Strato"), ("7", 9, "Strato"), ("7", 9, "Negativa"),
+                                            ("12", 0, "Taglio"))):
         f = QgsFeature(layer.fields())
         f.setGeometry(QgsGeometry.fromWkt("POLYGON((%d 0, %d 0, %d 1, %d 1, %d 0))" % (k, k + 1, k + 1, k, k)))
-        f.setAttributes(["Scavo", us, int(us), 1, "Strato", "1/1", ordine, "Strato"])
+        f.setAttributes(["Scavo", us, int(us), 1, tipo, "1/1", ordine, "Strato"])
         prov.addFeature(f)
     styler = USViewStyler.__new__(USViewStyler)
     styler.periodization = []
     styler._apply_temp_style(layer, "us")
-    assert [r.label() for r in layer.renderer().rootRule().children()] == ["US 7", "US 12"]   # 9 = più recente
+    # una voce per unità (e indice), qualunque sia tipo_us_s; 9 = più recente in cima
+    assert [r.label() for r in layer.renderer().rootRule().children()] == ["US 7", "US 12"]
     assert FIELD_LABELS["us"]["it"] == "Numero di US" and FIELD_LABELS["us"]["en"]
     assert "us" in view_by_name("pyarchinit_us_view").category_fields
     assert "us" in view_by_name("pyarchinit_usm_view").category_fields
