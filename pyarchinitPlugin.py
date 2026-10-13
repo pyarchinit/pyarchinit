@@ -2930,36 +2930,6 @@ class PyArchInitPlugin(object):
                 f"Migrations menu wiring failed: {e}",
                 "PyArchInit", Qgis.MessageLevel.Warning)
 
-    def _ask_split(self, site, conn_str):
-        """Come dividere l'em.json quando il sito ha dei saggi: (ok, per_saggio).
-
-        Una domanda sola, condivisa da «Esporta in em.json» e da «Vedi la
-        matrice», così le due voci scrivono lo **stesso** file con la
-        stessa forma (spec 2026-10-12: un file solo, la narrativa dentro).
-        La finestra di esportazione della scheda US ha i suoi tre bottoni;
-        la voce di menu passava sempre «automatico», quindi su uno scavo a
-        saggi faceva **sempre** il contenitore diviso (Enzo, 12 ottobre
-        2026: «se esporto un grafo per saggio o un grafo per tutti i saggi
-        è sempre lo stesso»).
-        """
-        from qgis.PyQt.QtWidgets import QInputDialog
-        from modules.s3dgraphy import em_export
-        try:
-            saggi = em_export.saggi_del_sito(conn_str, site)
-        except Exception:                           # noqa: BLE001
-            saggi = []
-        if not saggi:
-            return True, None
-        scelte = ["Un grafo per ogni saggio (%s)" % ", ".join(saggi),
-                  "Un grafo solo per tutto il sito"]
-        scelta, ok = QInputDialog.getItem(
-            self.iface.mainWindow(), "Esporta in em.json",
-            "Il sito ha %d saggi. Come divido il file?" % len(saggi),
-            scelte, 0, False)
-        if not ok:
-            return False, None
-        return True, scelta == scelte[0]
-
     def _run_em_export(self):
         """B1 (spec 2026-10-07 §5): one site -> em.json -> EMStudio."""
         from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
@@ -2987,16 +2957,13 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
-        # Come dividere il file, quando il sito ha dei saggi: la stessa
-        # domanda di «Vedi la matrice» (`_ask_split`).
-        ok, per_saggio = self._ask_split(site, conn_str)
-        if not ok:
-            return
-
+        # Un grafo solo per tutto il sito, senza domande (Emanuel, 13
+        # ottobre 2026: la divisione per saggi era un fraintendimento; il
+        # parametro resta nella libreria, nessuna voce di menu lo usa).
         out_dir = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
         try:
             path, nodes, edges, warnings = em_export.export_site(
-                conn_str, site, out_dir, per_saggio=per_saggio)
+                conn_str, site, out_dir, per_saggio=False)
         except em_export.EmExportError as e:
             QMessageBox.warning(self.iface.mainWindow(), "em.json", str(e))
             return
@@ -3074,13 +3041,11 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
-        ok, per_saggio = self._ask_split(site, conn_str)
-        if not ok:
-            return
+        # Un grafo solo per tutto il sito, come «Esporta sito in em.json…».
         cartella = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
         try:
             path, _n, _e, avvisi = em_export.export_site(
-                conn_str, site, cartella, per_saggio=per_saggio)
+                conn_str, site, cartella, per_saggio=False)
         except em_export.EmExportError as e:
             QMessageBox.warning(self.iface.mainWindow(), "Matrice", str(e))
             return

@@ -936,6 +936,20 @@ def endorse(graph, narrative, author_id: str, anchor: Optional[str] = None) -> i
 
 EXPORT_FORMATS = ("html", "docx")
 
+#: Aggiunta in coda al foglio di stile della libreria. La libreria chiude
+#: ogni bozza non convalidata in un riquadro grigio, con un carattere più
+#: piccolo e senza grazie: sul telefono «le scritte si vedono opache»
+#: (Enzo, 13 ottobre 2026). Restano l'avviso «non validato da una persona»
+#: e il filetto ambra a sinistra; il testo è quello del resto della pagina.
+HTML_DRAFT_CSS = """
+/* pyArchInit: la bozza si legge come il resto della pagina */
+.em-embed.em-unendorsed {
+  background: transparent; border: 0; border-left: 3px solid #d08b00;
+  border-radius: 0; padding: 0 0 0 .9rem; margin: 1.1rem 0;
+  font: inherit; color: inherit;
+}
+"""
+
 
 def export_file(graph, narrative, fmt: str, path, *,
                 figures: Optional[Dict[str, bytes]] = None) -> str:
@@ -950,6 +964,8 @@ def export_file(graph, narrative, fmt: str, path, *,
     esito = export_narrative(graph, narrative.node_id, fmt, include_unvalidated=True,
                              **opzioni)
     payload = esito["payload"]
+    if fmt == "html":
+        payload = str(payload).replace("</style>", HTML_DRAFT_CSS + "</style>", 1)
     percorso = str(path)
     if isinstance(payload, bytes):
         with open(percorso, "wb") as fh:

@@ -207,7 +207,7 @@ def test_un_file_illeggibile_spegne_tutto_e_lo_dice(qgs, tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Task 6: il plugin — file persistente, domanda sui saggi condivisa, bottoni
+# Task 6: il plugin — file persistente, un grafo solo per il sito, bottoni
 # ---------------------------------------------------------------------------
 
 PLUGIN = _ROOT / "pyarchinitPlugin.py"
@@ -225,10 +225,19 @@ def _corpo(nome: str) -> str:
 def test_vedi_la_matrice_scrive_nella_cartella_em_e_non_in_una_temporanea():
     vista = _corpo("_run_em_matrix_view")
     assert "tempfile" not in vista and "_matrice_temp" not in vista
-    assert "pyarchinit_EM_folder" in vista and "_ask_split(" in vista
-    assert "_ask_split(" in _corpo("_run_em_export")
+    assert "pyarchinit_EM_folder" in vista
     assert "_matrice_temp" not in PLUGIN.read_text(encoding="utf-8")
-    assert "saggi_del_sito" in _corpo("_ask_split")
+
+
+def test_l_em_json_e_un_grafo_solo_per_tutto_il_sito_senza_domande():
+    """Emanuel (13 ottobre 2026): l'em.json è un grafo per tutto il sito;
+    la divisione per saggi era un fraintendimento. La domanda «Come divido
+    il file?» non c'è più: le due voci di menu chiedono solo il sito."""
+    assert "_ask_split" not in PLUGIN.read_text(encoding="utf-8")
+    for nome in ("_run_em_matrix_view", "_run_em_export"):
+        corpo = _corpo(nome)
+        assert "per_saggio=False" in corpo, nome
+        assert "QInputDialog.getItem" in corpo, nome          # il sito si sceglie ancora
 
 
 def test_dopo_l_esportazione_si_puo_aprire_la_narrativa():

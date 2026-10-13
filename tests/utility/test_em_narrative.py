@@ -526,3 +526,21 @@ def test_la_prosa_sta_in_testa_al_capitolo_prima_delle_schede_delle_unita():
     en.generate_chapter(g, n, cap, chat=lambda m: "Rigenerata.", model="m", replace=True)
     assert [b.text for b in cap.blocks if b.block_type == "prose"] == ["Scritta a mano dopo.", "Rigenerata."]
     assert [b.block_type for b in cap.blocks] == ["prose", "prose", "embed", "embed"]
+
+
+def test_nell_html_la_bozza_si_legge_come_il_resto_del_testo(tmp_path):
+    """La libreria chiude la bozza non convalidata in un riquadro grigio con
+    un carattere più piccolo: sul telefono «le scritte si vedono opache»
+    (Enzo, 13 ottobre 2026). Restano l'avviso e il filetto ambra a sinistra;
+    il testo è quello del resto della pagina."""
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    en.generate_chapter(g, n, n.chapter_by_anchor("epoch_1_1"), chat=lambda m: "Bozza.", model="m")
+    pagina = Path(en.export_file(g, n, "html", tmp_path / "v.html")).read_text(encoding="utf-8")
+    assert 'class="em-embed em-unendorsed"' in pagina               # la libreria segna ancora la bozza
+    assert pagina.count("<style>") == 1                              # una regola in più, nello stesso foglio
+    nostra = pagina.index(".em-embed.em-unendorsed")
+    assert nostra > pagina.index(".em-unendorsed { border-left-color")   # dopo quella della libreria: vince
+    regola = pagina[nostra:pagina.index("}", nostra)]
+    assert "font: inherit" in regola and "background: transparent" in regola
+    assert "border-left: 3px solid #d08b00" in regola

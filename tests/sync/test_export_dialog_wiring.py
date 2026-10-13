@@ -16,6 +16,10 @@ anch'esso sul ponte, e la finestra lo chiamava su sé stessa: AttributeError
 dentro un `except` larghissimo, connessione a `None`, e il pannello della
 matrice si apriva senza database.
 
+(I tre bottoni «Saggi» sono andati via il 13 ottobre 2026 — Emanuel:
+l'em.json è un grafo per tutto il sito, la divisione per saggi era un
+fraintendimento — e il test sui bottoni dice ora che non ci sono più.)
+
 Nessuno dei due errori si vede leggendo il codice dall'alto, perché una
 classe lunga 900 righe non si tiene in testa; si vedono contando. Questo
 test conta: per ogni classe del file, **ogni `self._qualcosa()` che
@@ -107,17 +111,14 @@ def test_ogni_metodo_privato_chiamato_e_definito_dove_viene_chiamato(classi, nom
         "continua con un valore sbagliato." % (nome, mancanti))
 
 
-def test_chi_ha_i_bottoni_dei_saggi_legge_i_bottoni_dei_saggi(classi):
-    """`_scelta_saggi` sta dove stanno `rb_saggi_*`, e solo lì."""
-    padroni = [c.name for c in
-               (_sola(classi, n) for n in classi)
-               if any(a.startswith("rb_saggi") for a in _assegnati(c))]
-    assert padroni == ["S3DGraphyExportDialog"], padroni
-    lettori = [c.name for c in (_sola(classi, n) for n in classi)
-               if "_scelta_saggi" in _definiti(c)]
-    assert lettori == padroni, (
-        "i bottoni li ha %s ma li legge %s: una copia su un'altra classe "
-        "trova zero bottoni e torna sempre «automatico»" % (padroni, lettori))
+def test_la_finestra_non_ha_piu_i_bottoni_dei_saggi(classi):
+    """Emanuel (13 ottobre 2026): l'em.json è un grafo per tutto il sito;
+    la divisione per saggi era un fraintendimento. I tre bottoni «Saggi» e
+    chi li leggeva sono andati via insieme."""
+    for nome in classi:
+        c = _sola(classi, nome)
+        assert not any(a.startswith("rb_saggi") for a in _assegnati(c)), nome
+        assert "_scelta_saggi" not in _definiti(c), nome
 
 
 def test_chi_apre_il_pannello_sa_la_connessione(classi):
@@ -142,8 +143,9 @@ def test_l_esportazione_accetta_la_scelta_dei_saggi(classi):
     assert "per_saggio" in argomenti, argomenti
 
 
-def test_la_finestra_passa_la_scelta_quando_esporta(classi):
-    """Il bottone «Esporta» non deve dimenticarsi la scelta per strada."""
+def test_la_finestra_esporta_un_grafo_solo(classi):
+    """Il bottone «Esporta» chiede un grafo solo, e lo dice: `None`
+    vorrebbe dire «automatico», che divide per saggi dove ci sono."""
     finestra = _sola(classi, "S3DGraphyExportDialog")
     chiamate = [n for n in ast.walk(finestra)
                 if isinstance(n, ast.Call)
@@ -151,7 +153,8 @@ def test_la_finestra_passa_la_scelta_quando_esporta(classi):
                 and n.func.attr == "export_integrated_matrix"]
     assert chiamate, "la finestra non chiama export_integrated_matrix"
     for chiamata in chiamate:
-        chiavi = {k.arg for k in chiamata.keywords}
-        assert "per_saggio" in chiavi, (
-            "una chiamata a export_integrated_matrix senza per_saggio: "
-            "la scelta dei bottoni si perde")
+        chiavi = {k.arg: k.value for k in chiamata.keywords}
+        assert "per_saggio" in chiavi, "una chiamata senza per_saggio"
+        valore = chiavi["per_saggio"]
+        assert isinstance(valore, ast.Constant) and valore.value is False, (
+            "per_saggio deve essere False, esplicito: %s" % ast.dump(valore))

@@ -69,7 +69,6 @@ try:
     from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
                                      QLabel, QPushButton, QComboBox,
                                      QCheckBox, QGroupBox, QMessageBox,
-                                     QRadioButton, QButtonGroup,
                                      QFileDialog, QProgressBar,
                                      QTabWidget, QWidget, QLineEdit)
     from qgis.PyQt.QtCore import Qt
@@ -180,7 +179,7 @@ class S3DGraphyDotBridge:
                                 groups: Optional[List[str]] = None,
                                 primary_priority: Optional[List[str]] = None,
                                 validate: bool = True,
-                                per_saggio=None
+                                per_saggio=False
                                 ) -> Dict[str, str]:
         """
         Export Extended Matrix in multiple formats with s3dgraphy integration
@@ -245,15 +244,12 @@ class S3DGraphyDotBridge:
         # A 'graphml' entry in *formats* is ignored.
         if 'emjson' in formats or 'json' in formats:
             try:
-                # `per_saggio` arriva da **chi ha i bottoni**: la
-                # finestra, non questo oggetto. Qui si passa e basta —
-                # `None` vuol dire automatico, ed è il comportamento di
-                # prima per chi chiama da codice. Finché questo metodo
-                # provava a leggere i bottoni da sé, ne trovava zero e
-                # l'esportazione era **sempre** automatica, qualunque
-                # bottone fosse spuntato (Enzo, 12 ottobre 2026: «se
-                # esporto per saggio o per tutto il sito è sempre lo
-                # stesso»).
+                # `per_saggio` è `False` — un grafo solo per tutto il
+                # sito — dal 13 ottobre 2026 (Emanuel: la divisione per
+                # saggi era un fraintendimento; i tre bottoni «Saggi»
+                # della finestra sono andati via). `True` e `None`
+                # («automatico») restano nella libreria per chi chiama
+                # da codice.
                 path, nodes, edges, warn = export_site(
                     self._connection_url(), site, output_dir,
                     per_saggio=per_saggio)
@@ -360,36 +356,6 @@ if QGIS_AVAILABLE:
             format_group.setLayout(format_layout)
             export_layout.addWidget(format_group)
 
-            # Come dividere l'em.json quando lo scavo ha dei saggi
-            # (s3dgraphy dev45, `populate_container`). Un rapporto fra
-            # unità di due saggi diversi non si perde: diventa un «link»
-            # con l'indirizzo «grafo → nodo».
-            saggi_group = QGroupBox("Saggi")
-            saggi_layout = QVBoxLayout()
-            self.rb_saggi_auto = QRadioButton(
-                "Automatico: un grafo per saggio se lo scavo ne ha")
-            self.rb_saggi_auto.setToolTip(
-                "Divide solo dove i saggi ci sono davvero. Su uno scavo "
-                "senza saggi si comporta come «un grafo solo».")
-            self.rb_saggi_uno = QRadioButton(
-                "Un grafo solo per tutto il sito")
-            self.rb_saggi_uno.setToolTip(
-                "Come ha sempre fatto: tutte le unità in un grafo, "
-                "qualunque saggio dichiarino.")
-            self.rb_saggi_per = QRadioButton(
-                "Un grafo per ogni saggio")
-            self.rb_saggi_per.setToolTip(
-                "Un grafo per saggio più uno per le unità che non ne hanno. "
-                "Su uno scavo senza saggi l'esportazione lo dice invece di "
-                "scrivere un file che finge di essere diviso.")
-            self.rb_saggi_auto.setChecked(True)
-            self._saggi_scelta = QButtonGroup(self)
-            for bottone in (self.rb_saggi_auto, self.rb_saggi_uno,
-                            self.rb_saggi_per):
-                self._saggi_scelta.addButton(bottone)
-                saggi_layout.addWidget(bottone)
-            saggi_group.setLayout(saggi_layout)
-            export_layout.addWidget(saggi_group)
 
             # Le due opzioni yEd (suggerimenti di auto-layout, colori per
             # periodo) parlavano al writer GraphML, ritirato in A4: erano
@@ -556,21 +522,6 @@ if QGIS_AVAILABLE:
                     "non c'è ancora un em.json esportato in questa "
                     "finestra.")
 
-        def _scelta_saggi(self):
-            """Cosa dicono i tre bottoni di questa finestra.
-
-            ``None`` automatico, ``False`` un grafo solo, ``True`` uno per
-            saggio. Sta qui perché i bottoni stanno qui: la stessa
-            funzione sul bridge non li vedeva, e la scelta andava persa.
-            """
-            if getattr(self, "rb_saggi_uno", None) is not None \
-                    and self.rb_saggi_uno.isChecked():
-                return False
-            if getattr(self, "rb_saggi_per", None) is not None \
-                    and self.rb_saggi_per.isChecked():
-                return True
-            return None
-
         def _connection_url(self):
             """La connessione del progetto, chiesta al bridge.
 
@@ -666,7 +617,7 @@ if QGIS_AVAILABLE:
                     output_dir,
                     formats,
                     validate=self.cb_validate.isChecked(),
-                    per_saggio=self._scelta_saggi(),
+                    per_saggio=False,        # un grafo solo per tutto il sito
                 )
                 
                 # Update progress

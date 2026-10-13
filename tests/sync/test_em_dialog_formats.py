@@ -66,8 +66,8 @@ def test_the_export_asks_em_export_for_the_file(tmp_path, monkeypatch):
     chiamate = []
 
     def finto_export_site(conn, sito, out_dir, per_saggio=None):
-        # `per_saggio` lo passa la finestra dalla scelta dei tre bottoni:
-        # qui si raccoglie per poterlo controllare.
+        # `per_saggio` lo passa il ponte, sempre `False` dal 13 ottobre
+        # 2026: qui si raccoglie per poterlo controllare.
         chiamate.append((conn, sito, str(out_dir), per_saggio))
         path = Path(out_dir) / "Sito.em.json"
         path.write_text("{}", encoding="utf-8")
@@ -83,10 +83,10 @@ def test_the_export_asks_em_export_for_the_file(tmp_path, monkeypatch):
 
     out = bridge.export_integrated_matrix(
         "Sito", None, str(tmp_path), ["emjson"])
-    # `None` è la scelta predefinita dei tre bottoni, cioè «automatico»:
-    # divide in un grafo per saggio solo dove i saggi ci sono davvero,
-    # quindi su uno scavo senza saggi fa quello che ha sempre fatto.
-    assert chiamate == [("sqlite:///x.db", "Sito", str(tmp_path), None)]
+    # `False` è il predefinito: un grafo solo per tutto il sito (Emanuel,
+    # 13 ottobre 2026 — la divisione per saggi era un fraintendimento).
+    # `None` era «automatico», che divideva dove i saggi c'erano.
+    assert chiamate == [("sqlite:///x.db", "Sito", str(tmp_path), False)]
     assert out["emjson"].endswith(".em.json")
     assert out["emjson_counts"] == (7, 5, ["un avviso"])
 
