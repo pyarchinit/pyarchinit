@@ -78,10 +78,16 @@ class _Layer:
     """Un layer finto che filtra le feature con l'espressione `"us" = '2'`
     quanto basta per il test: guarda il numero di US nell'espressione."""
 
-    def __init__(self, nome, campi, feature=()):
+    def __init__(self, nome, campi, feature=(), geometria=None):
         self._nome, self._campi, self._feature = nome, [_Campo(c) for c in campi], list(feature)
         self.selezioni = []
         self.lampi = []
+        self._geometria = geometria
+
+    def geometryType(self):
+        if self._geometria is None:
+            raise AttributeError("geometryType")        # un layer che non sa dirlo
+        return self._geometria
 
     def name(self):
         return self._nome
@@ -204,3 +210,22 @@ def test_le_frasi_vanno_al_singolare_con_una_unita_sola():
     assert quante == 0 and frase == "L'unità 1.US9 non risulta disegnata nei layer caricati."
     quante, frase = zoom_to_units(_Iface(), nove, layers=[layer], lang="en")
     assert frase == "Unit 1.US9 is not drawn in the loaded layers."
+
+
+def test_la_vista_delle_quote_in_cima_non_ruba_le_unita_alla_vista_us():
+    """Stessi campi, due geometrie: i punti quota stanno in cima alla
+    legenda ma le unità si evidenziano sui poligoni della vista US."""
+    from qgis.core import QgsWkbTypes
+    from modules.utility.em_matrix_map import zoom_to_units
+    quote = _Layer("Quote view", ("sito", "area", "us", "unita_tipo"),
+                   [_Feature(11, _Riquadro(5, 5, 5, 5), {"us": "2"})],
+                   geometria=QgsWkbTypes.PointGeometry)
+    vista = _Layer("US view", ("sito", "area", "us", "unita_tipo"),
+                   [_Feature(3, _Riquadro(0, 0, 10, 10), {"us": "2"})],
+                   geometria=QgsWkbTypes.PolygonGeometry)
+    iface = _Iface()
+    unita = [_unit("u2", "1.US2", sito="Scavo", area="1", us="2", unita_tipo="US")]
+    quante, messaggio = zoom_to_units(iface, unita, layers=[quote, vista], margin=0.0)
+    assert quante == 1
+    assert vista.selezioni == [[3]] and quote.selezioni == []
+    assert "US view" in messaggio and iface.mapCanvas().inquadratura == (0, 0, 10, 10)

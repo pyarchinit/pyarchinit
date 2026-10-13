@@ -1617,260 +1617,265 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Durante la generazione la manopola si muove da sola: il timer
         # di debounce rifarebbe filtro e matrice in mezzo al ciclo.
         self._atlante_in_corso = True
+        # Le etichette e la panoramica si rimettono com'erano anche se
+        # una tavola salta: lasciate sulle viste finivano nel progetto
+        # (13 ottobre 2026).
+        try:
         
-        print(f"=== DEBUG: Inizio atlas generation ===")
-        print(f"Total order layers to process: {total_order_layers} (0 to {max_num_order_layer})")
-        print(f"Order layers with valid datazione: {valid_count}")
-        print(f"Max order layer: {max_num_order_layer}")
+            print(f"=== DEBUG: Inizio atlas generation ===")
+            print(f"Total order layers to process: {total_order_layers} (0 to {max_num_order_layer})")
+            print(f"Order layers with valid datazione: {valid_count}")
+            print(f"Max order layer: {max_num_order_layer}")
         
-        print(f"Inizio generazione atlas per {valid_count} order_layer validi su {total_order_layers} totali...")
+            print(f"Inizio generazione atlas per {valid_count} order_layer validi su {total_order_layers} totali...")
         
-        # Usa tutti gli order_layer da 0 al massimo
-        # Il controllo per la datazione verrà fatto durante l'iterazione
-        for value in range(0, max_num_order_layer + 1):
-            print(f"DEBUG: Processing order_layer {value}")
-            if self.abort or progress.wasCanceled():
-                print(f"DEBUG: Aborted at order_layer {value}")
-                self.abort = False  # resetta l'attributo per il prossimo utilizzo
-                break
-            self.current_value = value
-            self.image_saved = False
-
-            # Imposta il valore dello spinbox sul valore corrente
-            self.spinBox_relative_cronology.setValue(value)
-
-            # Aggiorna i dati del layer in base al valore corrente dello spinbox
-            #logging.info('Update layer data.')
-            self.define_order_layer_value(value)
-
-            # Aggiorna la visualizzazione della mappa per assicurarsi che mostri gli aggiornamenti ai dati del layer
-
-            canvas.refresh()
-            # Wait for canvas rendering without blocking
-            loop = QEventLoop()
-            canvas.renderComplete.connect(loop.quit)
-            QTimer.singleShot(10000, loop.quit)  # 10s safety timeout
-            if canvas.isDrawing():
-                loop.exec_()
-            #QThread.sleep(2)
-
-            #QMessageBox.information(None, 'ok', f"{self.current_layout}")# Define the area of the layout to be exported
-
-            mappe = [i for i in self.current_layout.items()
-                     if isinstance(i, QgsLayoutItemMap)]
-            if not mappe:
-                self._atlante_in_corso = False
-                progress.close()
-                QMessageBox.warning(
-                    self, "Atlas",
-                    "Il modello scelto non contiene nessuna mappa: non ci "
-                    "si può disegnare una tavola.\nScegline un altro, per "
-                    "esempio «layout_TimeManager».")
-                return
-            layoutItemMap = mappe[0]
-            # La mappa del layout va INQUADRATA: senza, conserva
-            # l'inquadratura con cui il template fu salvato — su un altro
-            # progetto, altrove — e disegna il niente. È il motivo per cui
-            # «i layout sono vuoti» (Enzo, 2026-10-09). PRINTMAP lo fa già
-            # (PRINTMAP.py:254); qui `layoutItemMap` si calcolava e non si
-            # usava mai.
-            self._inquadra_tavola(mappe)
-
-            # Ottieni l'elemento HTML dalla layout
-            html_item = None
-            for i in self.current_layout.items():
-                if hasattr(i, 'id') and i.id() == '123':#123 è l'id dell'elemento HTML
-                    html_item = i
+            # Usa tutti gli order_layer da 0 al massimo
+            # Il controllo per la datazione verrà fatto durante l'iterazione
+            for value in range(0, max_num_order_layer + 1):
+                print(f"DEBUG: Processing order_layer {value}")
+                if self.abort or progress.wasCanceled():
+                    print(f"DEBUG: Aborted at order_layer {value}")
+                    self.abort = False  # resetta l'attributo per il prossimo utilizzo
                     break
-            if html_item is None:
-                # Prima qui si tornava indietro in silenzio, con la barra
-                # di avanzamento aperta e nessuna tavola: è il motivo per
-                # cui «a volte parte e a volte no» (Enzo, 2026-10-09).
-                # Un modello senza la casella del titolo fa le tavole lo
-                # stesso, solo senza titolo.
-                if not self._avvisato_senza_titolo:
-                    self._avvisato_senza_titolo = True
-                    QgsMessageLog.logMessage(
-                        "Il modello non ha il titolo «Tavola N» (id %r): "
-                        "le tavole escono senza titolo." % TITLE_ID,
-                        "PyArchInit", Qgis.MessageLevel.Info)
-            #QMessageBox.information(None, 'ok', str(type(html_item)))
-            if html_item is not None and isinstance(html_item, QgsLayoutFrame):
-                # Ottieni il multiframe a cui appartiene questo frame
-                multi_frame = html_item.multiFrame()
+                self.current_value = value
+                self.image_saved = False
 
-                #QMessageBox.information(None, 'ok', f"Multi frame: {multi_frame}, type: {type(multi_frame)}")# Controlla se il multiframe è un QgsLayoutItemHtml
-                if isinstance(multi_frame, QgsLayoutItemHtml):
-                    title_html = f"<h1>Tavola {value}</h1>"
-                    multi_frame.setHtml(title_html)
-                    #QMessageBox.information(None, 'ok', f"HTML content: {multi_frame.html()}")
-                    self.current_layout.refresh()
-                    multi_frame.loadHtml()
-                    #break
+                # Imposta il valore dello spinbox sul valore corrente
+                self.spinBox_relative_cronology.setValue(value)
 
-            # I modelli generici portano un segnaposto «{{title}}» nelle
-            # etichette, che PRINTMAP sostituisce già (PRINTMAP.py:252) e
-            # il Time Manager no: sulla tavola si leggeva «{{title}}»
-            # stampato così com'è (visto nelle prove del 2026-10-09).
-            for elemento in self.current_layout.items():
-                try:
-                    if elemento.type() == 65641 and '{{title}}' in elemento.text():
-                        elemento.setText(elemento.text().replace(
-                            '{{title}}', 'Tavola %s' % value))
-                except Exception:                   # noqa: BLE001
-                    continue
+                # Aggiorna i dati del layer in base al valore corrente dello spinbox
+                #logging.info('Update layer data.')
+                self.define_order_layer_value(value)
 
-            # Il filtro del livello è applicato: adesso si sa quali US
-            # si vedono, e gli id sono quelli di questa tavola.
-            self._aggiorna_etichette_us()
+                # Aggiorna la visualizzazione della mappa per assicurarsi che mostri gli aggiornamenti ai dati del layer
 
-            self.id_us_dict = {}
+                canvas.refresh()
+                # Wait for canvas rendering without blocking
+                loop = QEventLoop()
+                canvas.renderComplete.connect(loop.quit)
+                QTimer.singleShot(10000, loop.quit)  # 10s safety timeout
+                if canvas.isDrawing():
+                    loop.exec_()
+                #QThread.sleep(2)
 
-            # Raccogli solo le US visibili nel layer corrente (order_layer <= value)
-            data_list = []
-            visible_us_list = []
-            has_valid_datazione = False
+                #QMessageBox.information(None, 'ok', f"{self.current_layout}")# Define the area of the layout to be exported
+
+                mappe = [i for i in self.current_layout.items()
+                         if isinstance(i, QgsLayoutItemMap)]
+                if not mappe:
+                    self._atlante_in_corso = False
+                    progress.close()
+                    QMessageBox.warning(
+                        self, "Atlas",
+                        "Il modello scelto non contiene nessuna mappa: non ci "
+                        "si può disegnare una tavola.\nScegline un altro, per "
+                        "esempio «layout_TimeManager».")
+                    return
+                layoutItemMap = mappe[0]
+                # La mappa del layout va INQUADRATA: senza, conserva
+                # l'inquadratura con cui il template fu salvato — su un altro
+                # progetto, altrove — e disegna il niente. È il motivo per cui
+                # «i layout sono vuoti» (Enzo, 2026-10-09). PRINTMAP lo fa già
+                # (PRINTMAP.py:254); qui `layoutItemMap` si calcolava e non si
+                # usava mai.
+                self._inquadra_tavola(mappe)
+
+                # Ottieni l'elemento HTML dalla layout
+                html_item = None
+                for i in self.current_layout.items():
+                    if hasattr(i, 'id') and i.id() == '123':#123 è l'id dell'elemento HTML
+                        html_item = i
+                        break
+                if html_item is None:
+                    # Prima qui si tornava indietro in silenzio, con la barra
+                    # di avanzamento aperta e nessuna tavola: è il motivo per
+                    # cui «a volte parte e a volte no» (Enzo, 2026-10-09).
+                    # Un modello senza la casella del titolo fa le tavole lo
+                    # stesso, solo senza titolo.
+                    if not self._avvisato_senza_titolo:
+                        self._avvisato_senza_titolo = True
+                        QgsMessageLog.logMessage(
+                            "Il modello non ha il titolo «Tavola N» (id %r): "
+                            "le tavole escono senza titolo." % TITLE_ID,
+                            "PyArchInit", Qgis.MessageLevel.Info)
+                #QMessageBox.information(None, 'ok', str(type(html_item)))
+                if html_item is not None and isinstance(html_item, QgsLayoutFrame):
+                    # Ottieni il multiframe a cui appartiene questo frame
+                    multi_frame = html_item.multiFrame()
+
+                    #QMessageBox.information(None, 'ok', f"Multi frame: {multi_frame}, type: {type(multi_frame)}")# Controlla se il multiframe è un QgsLayoutItemHtml
+                    if isinstance(multi_frame, QgsLayoutItemHtml):
+                        title_html = f"<h1>Tavola {value}</h1>"
+                        multi_frame.setHtml(title_html)
+                        #QMessageBox.information(None, 'ok', f"HTML content: {multi_frame.html()}")
+                        self.current_layout.refresh()
+                        multi_frame.loadHtml()
+                        #break
+
+                # I modelli generici portano un segnaposto «{{title}}» nelle
+                # etichette, che PRINTMAP sostituisce già (PRINTMAP.py:252) e
+                # il Time Manager no: sulla tavola si leggeva «{{title}}»
+                # stampato così com'è (visto nelle prove del 2026-10-09).
+                for elemento in self.current_layout.items():
+                    try:
+                        if elemento.type() == 65641 and '{{title}}' in elemento.text():
+                            elemento.setText(elemento.text().replace(
+                                '{{title}}', 'Tavola %s' % value))
+                    except Exception:                   # noqa: BLE001
+                        continue
+
+                # Il filtro del livello è applicato: adesso si sa quali US
+                # si vedono, e gli id sono quelli di questa tavola.
+                self._aggiorna_etichette_us()
+
+                self.id_us_dict = {}
+
+                # Raccogli solo le US visibili nel layer corrente (order_layer <= value)
+                data_list = []
+                visible_us_list = []
+                has_valid_datazione = False
             
-            for layer in self.selected_layers:
-                fields = layer.fields()
-                self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
-                if not self.fieldname:
-                    print(f"No 'datazione' field found in layer {layer.name()}")
-                    continue
+                for layer in self.selected_layers:
+                    fields = layer.fields()
+                    self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+                    if not self.fieldname:
+                        print(f"No 'datazione' field found in layer {layer.name()}")
+                        continue
 
-                # Ottieni solo le features visibili (che rispettano il filtro corrente)
-                request = layer.getFeatures()
-                for feature in request:
-                    feature_order_layer = feature.attribute("order_layer")
+                    # Ottieni solo le features visibili (che rispettano il filtro corrente)
+                    request = layer.getFeatures()
+                    for feature in request:
+                        feature_order_layer = feature.attribute("order_layer")
                     
-                    # Include solo le US con order_layer <= valore corrente
-                    if feature_order_layer is not None and feature_order_layer <= value:
-                        datazione = feature.attribute(self.fieldname)
+                        # Include solo le US con order_layer <= valore corrente
+                        if feature_order_layer is not None and feature_order_layer <= value:
+                            datazione = feature.attribute(self.fieldname)
                         
-                        # Controlla se almeno una US ha datazione per questo order_layer
-                        if feature_order_layer == value and datazione and str(datazione).strip() != '':
-                            has_valid_datazione = True
+                            # Controlla se almeno una US ha datazione per questo order_layer
+                            if feature_order_layer == value and datazione and str(datazione).strip() != '':
+                                has_valid_datazione = True
                         
-                        data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
-                        data_list.append(data_dict)
+                            data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
+                            data_list.append(data_dict)
                         
-                        # Aggiungi alla lista delle US visibili
-                        us_val = feature.attribute("us")
-                        area_val = feature.attribute("area")
-                        if us_val is not None and area_val is not None:
-                            visible_us_list.append((str(area_val), str(us_val)))
+                            # Aggiungi alla lista delle US visibili
+                            us_val = feature.attribute("us")
+                            area_val = feature.attribute("area")
+                            if us_val is not None and area_val is not None:
+                                visible_us_list.append((str(area_val), str(us_val)))
             
-            # Aggiorna progress dialog per tutti gli order_layer
-            progress_count += 1
-            progress.setValue(progress_count)
+                # Aggiorna progress dialog per tutti gli order_layer
+                progress_count += 1
+                progress.setValue(progress_count)
             
-            # Salta questo order_layer se non ha datazione valida
-            if not has_valid_datazione:
-                progress.setLabelText(f"Saltando order_layer {value} (nessuna datazione) - {progress_count}/{total_order_layers}")
-                print(f"Skipping order_layer {value} - no valid datazione")
-                continue
+                # Salta questo order_layer se non ha datazione valida
+                if not has_valid_datazione:
+                    progress.setLabelText(f"Saltando order_layer {value} (nessuna datazione) - {progress_count}/{total_order_layers}")
+                    print(f"Skipping order_layer {value} - no valid datazione")
+                    continue
             
-            progress.setLabelText(f"Generando Tavola {value} - {progress_count}/{total_order_layers}")
-            print(f"DEBUG: Progress updated - Generando Tavola {value} ({progress_count}/{total_order_layers})")
+                progress.setLabelText(f"Generando Tavola {value} - {progress_count}/{total_order_layers}")
+                print(f"DEBUG: Progress updated - Generando Tavola {value} ({progress_count}/{total_order_layers})")
             
-            # Controlla se l'utente ha annullato
-            if progress.wasCanceled():
-                self.abort = True
-                break
-
-            # Ottieni l'elemento immagine dal layout
-            image_item = None
-            for i in self.current_layout.items():
-                if hasattr(i, 'id') and i.id() == 'matrix':  # 'matrix' è l'id dell'elemento immagine
-                    image_item = i
+                # Controlla se l'utente ha annullato
+                if progress.wasCanceled():
+                    self.abort = True
                     break
-            if image_item is None:
-                # Come sopra: senza l'immagine la tavola si fa, senza la
-                # matrice dentro.
-                if not self._avvisato_senza_matrice:
-                    self._avvisato_senza_matrice = True
+
+                # Ottieni l'elemento immagine dal layout
+                image_item = None
+                for i in self.current_layout.items():
+                    if hasattr(i, 'id') and i.id() == 'matrix':  # 'matrix' è l'id dell'elemento immagine
+                        image_item = i
+                        break
+                if image_item is None:
+                    # Come sopra: senza l'immagine la tavola si fa, senza la
+                    # matrice dentro.
+                    if not self._avvisato_senza_matrice:
+                        self._avvisato_senza_matrice = True
+                        QgsMessageLog.logMessage(
+                            "Il modello non ha l'immagine della matrice "
+                            "(id %r): le tavole escono senza matrice."
+                            % MATRIX_ID, "PyArchInit", Qgis.MessageLevel.Info)
+
+                # controllo se il checkbox 'matrix' è attivo
+                if image_item is None:
+                    pass
+                elif bool(self.checkBox_matrix.isChecked()) and data_list:
+                    # Passa solo i dati delle US visibili alla generazione della matrice
+                    HOME = os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~'))
+                    cartella = '{}{}{}'.format(HOME, os.sep,
+                                               "pyarchinit_Matrix_folder")
+                    os.makedirs(cartella, exist_ok=True)
+                    # Un SVG: nella tavola è vettoriale e pesa qualche decina
+                    # di KB invece dei megabyte del JPEG di Graphviz.
+                    matrix_image, _modello = self._disegna_matrice(
+                        data_list, visible_us_list,
+                        os.path.join(cartella, "Harris_matrix_timemanager.svg"))
+
+                    if matrix_image:
+                        # Impostare l'immagine della matrice sull'elemento immagine
+                        if isinstance(image_item, QgsLayoutItemPicture):
+
+                            image_item.setPicturePath(matrix_image)
+                            image_item.setMode(QgsLayoutItemPicture.FormatSVG)
+
+
+
+
+                    elif not self._avvisato_senza_matrice:
+                        # Una volta sola: un avviso per livello avrebbe
+                        # fermato la generazione con decine di finestre.
+                        self._avvisato_senza_matrice = True
+                        QgsMessageLog.logMessage(
+                            "Matrice non disegnata per la tavola %s" % value,
+                            "PyArchInit", Qgis.MessageLevel.Warning)
+                    image_item.setVisibility(True)
+
+                else:
+                    # Se il checkbox 'matrix' non è spuntato, rendi l'elemento immagine invisibile
+                    image_item.setVisibility(False)
+
+                self.current_layout.refresh()
+                exporter = QgsLayoutExporter(self.current_layout)
+                image_path = f"{self.path}/Tavola_{value}.jpg"
+                print(f"DEBUG: Exporting Tavola_{value}.jpg to {image_path}")
+                esito = exporter.exportToImage(
+                    image_path, QgsLayoutExporter.ImageExportSettings())
+                if esito != QgsLayoutExporter.Success:
+                    # Prima l'esito si buttava via: una cartella non
+                    # scrivibile dava tavole mancanti senza una parola.
+                    non_scritte.append(value)
                     QgsMessageLog.logMessage(
-                        "Il modello non ha l'immagine della matrice "
-                        "(id %r): le tavole escono senza matrice."
-                        % MATRIX_ID, "PyArchInit", Qgis.MessageLevel.Info)
+                        "Tavola %s non scritta in %s (codice %s)"
+                        % (value, image_path, esito), "PyArchInit",
+                        Qgis.MessageLevel.Warning)
+                else:
+                    print(f"DEBUG: ✓ Tavola_{value}.jpg exported successfully")
+                # Rimuovi la graphicsView esistente dal layout
+                self.horizontalLayout_2.removeWidget(self.graphicsView)
 
-            # controllo se il checkbox 'matrix' è attivo
-            if image_item is None:
-                pass
-            elif bool(self.checkBox_matrix.isChecked()) and data_list:
-                # Passa solo i dati delle US visibili alla generazione della matrice
-                HOME = os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~'))
-                cartella = '{}{}{}'.format(HOME, os.sep,
-                                           "pyarchinit_Matrix_folder")
-                os.makedirs(cartella, exist_ok=True)
-                # Un SVG: nella tavola è vettoriale e pesa qualche decina
-                # di KB invece dei megabyte del JPEG di Graphviz.
-                matrix_image, _modello = self._disegna_matrice(
-                    data_list, visible_us_list,
-                    os.path.join(cartella, "Harris_matrix_timemanager.svg"))
+                # Crea una nuova ZoomableGraphicsView
+                self.graphicsView = ZoomableGraphicsView()
 
-                if matrix_image:
-                    # Impostare l'immagine della matrice sull'elemento immagine
-                    if isinstance(image_item, QgsLayoutItemPicture):
+                # Aggiungi la ZoomableGraphicsView al layout
+                self.horizontalLayout_2.addWidget(self.graphicsView)
 
-                        image_item.setPicturePath(matrix_image)
-                        image_item.setMode(QgsLayoutItemPicture.FormatSVG)
-
-
-
-
-                elif not self._avvisato_senza_matrice:
-                    # Una volta sola: un avviso per livello avrebbe
-                    # fermato la generazione con decine di finestre.
-                    self._avvisato_senza_matrice = True
-                    QgsMessageLog.logMessage(
-                        "Matrice non disegnata per la tavola %s" % value,
-                        "PyArchInit", Qgis.MessageLevel.Warning)
-                image_item.setVisibility(True)
-
-            else:
-                # Se il checkbox 'matrix' non è spuntato, rendi l'elemento immagine invisibile
-                image_item.setVisibility(False)
-
-            self.current_layout.refresh()
-            exporter = QgsLayoutExporter(self.current_layout)
-            image_path = f"{self.path}/Tavola_{value}.jpg"
-            print(f"DEBUG: Exporting Tavola_{value}.jpg to {image_path}")
-            esito = exporter.exportToImage(
-                image_path, QgsLayoutExporter.ImageExportSettings())
-            if esito != QgsLayoutExporter.Success:
-                # Prima l'esito si buttava via: una cartella non
-                # scrivibile dava tavole mancanti senza una parola.
-                non_scritte.append(value)
-                QgsMessageLog.logMessage(
-                    "Tavola %s non scritta in %s (codice %s)"
-                    % (value, image_path, esito), "PyArchInit",
-                    Qgis.MessageLevel.Warning)
-            else:
-                print(f"DEBUG: ✓ Tavola_{value}.jpg exported successfully")
-            # Rimuovi la graphicsView esistente dal layout
-            self.horizontalLayout_2.removeWidget(self.graphicsView)
-
-            # Crea una nuova ZoomableGraphicsView
-            self.graphicsView = ZoomableGraphicsView()
-
-            # Aggiungi la ZoomableGraphicsView al layout
-            self.horizontalLayout_2.addWidget(self.graphicsView)
-
-            # Procedi come prima
-            pixmap = QPixmap(image_path)
-            scene = QGraphicsScene()
-            scene.addPixmap(pixmap)
-            self.graphicsView.setScene(scene)
-            self.graphicsView.setFocus()
-            self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
+                # Procedi come prima
+                pixmap = QPixmap(image_path)
+                scene = QGraphicsScene()
+                scene.addPixmap(pixmap)
+                self.graphicsView.setScene(scene)
+                self.graphicsView.setFocus()
+                self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
         
-        # Chiudi progress bar e mostra messaggio di completamento
-        self._atlante_in_corso = False
-        self._riquadro_atlante = None
-        self._togli_le_etichette()
-        self._butta_via_la_panoramica()
-        progress.close()
+        finally:
+            # Chiudi progress bar e mostra messaggio di completamento
+            self._atlante_in_corso = False
+            self._riquadro_atlante = None
+            self._togli_le_etichette()
+            self._butta_via_la_panoramica()
+            progress.close()
         
         if not self.abort and not progress.wasCanceled():
             coda = ("\n\nNON scritte: %s — controlla che la cartella sia "

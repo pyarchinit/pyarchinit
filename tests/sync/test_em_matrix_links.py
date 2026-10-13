@@ -546,3 +546,24 @@ def test_the_connection_is_not_left_open_behind_us(tmp_path):
     gc.collect()
     dopo = len([o for o in gc.get_objects() if isinstance(o, Engine)])
     assert dopo <= prima + 1, (prima, dopo)
+
+
+def test_a_pari_campi_vince_il_poligono_sul_punto_qualunque_sia_l_ordine():
+    """La vista delle quote (punti) porta gli stessi campi della vista US:
+    se sta in cima alla legenda vinceva lei, e la narrativa evidenziava i
+    punti quota invece dei poligoni delle unità (Enzo, 13 ottobre 2026:
+    «mi tocca spostare le us view in cima»). Il terzo elemento del
+    descrittore è il rango della geometria: poligoni 0, linee 1, punti 2."""
+    from modules.utility.em_matrix_links import candidate_layers
+
+    unit = _unit(sito="Scavo", area="1", us="1", unita_tipo="US")
+    ordine = candidate_layers(unit, [
+        ("quote", {"id_us", "sito", "area", "us"}, 2),
+        ("vista US", {"id_us", "sito", "area", "us"}, 0),
+        ("linee", {"id_us", "sito", "area", "us"}, 1),
+    ], id_us=7)
+    assert [chiave for chiave, _ in ordine] == ["vista US", "linee", "quote"]
+    # senza rango (descrittori a due) l'ordine della legenda decide ancora
+    ordine = candidate_layers(unit, [("quote", {"sito", "area", "us"}),
+                                     ("vista US", {"sito", "area", "us"})])
+    assert [chiave for chiave, _ in ordine] == ["quote", "vista US"]

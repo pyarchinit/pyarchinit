@@ -95,9 +95,11 @@ def test_segnaposto_stati_e_testo_del_capitolo():
     assert en.chapter_status(cap) == "human"
     assert en.chapter_text(cap, en.name_of(g)) == "Prosa scritta a mano su 1.US2."
     assert en.can_generate(g, cap)
-    assert not en.can_generate(g, n.chapters[0])            # Presentazione: canonico, senza àncora
-    assert [c.anchor for c in en.chapters_to_generate(g, n)] == ["epoch_2_1"]
-    assert [c.anchor for c in en.chapters_to_generate(g, n, only_empty=False)] == ["epoch_1_1", "epoch_2_1"]
+    assert not en.can_generate(g, n.chapters[0])            # Presentazione: canonico, senza àncora…
+    assert en.can_generate(g, n.chapters[0], n)             # …ma con la narrativa si genera (13-10-2026)
+    assert [en.chapter_key(n, c) for c in en.chapters_to_generate(g, n)] == [en.PRESENTATION_KEY, "epoch_2_1"]
+    assert [en.chapter_key(n, c) for c in en.chapters_to_generate(g, n, only_empty=False)] \
+        == [en.PRESENTATION_KEY, "epoch_1_1", "epoch_2_1"]
 
 
 def test_save_project_e_atomico_e_rilegge(tmp_path, monkeypatch):
@@ -139,7 +141,7 @@ def test_overview_elenca_i_capitoli_con_stato_e_grafo():
     assert [v.title for v in viste][:1] == ["Presentazione"]
     assert {v.graph_id for v in viste} == {"Villa"}
     assert [v.status for v in viste] == ["empty", "empty", "empty"]
-    assert [v.can_generate for v in viste] == [False, True, True]
+    assert [v.can_generate for v in viste] == [True, True, True]     # anche la Presentazione
     assert en.overview(container_of(grafo_di_prova()), "it") == []
 
 
@@ -269,7 +271,7 @@ def test_generate_continua_dopo_un_errore_salta_i_pieni_e_si_ferma_se_annullato(
     from s3dgraphy.container import container_of
     g = grafo_di_prova()
     cont = container_of(g)
-    risposte = iter([RuntimeError("no"), "Medioevo scritto."])
+    risposte = iter([RuntimeError("no"), "Età romana scritta.", "Medioevo scritto."])   # la Presentazione fallisce
 
     def chat(m):
         r = next(risposte)
@@ -279,12 +281,12 @@ def test_generate_continua_dopo_un_errore_salta_i_pieni_e_si_ferma_se_annullato(
     avanzamenti = []
     rep = en.generate(cont, chat=chat, model="m", lang="it",
                       progress=lambda i, n, t: avanzamenti.append((i, n, t)))
-    assert rep.generated == 1 and rep.failed == 1 and not rep.cancelled
-    assert avanzamenti == [(1, 2, "Età romana"), (2, 2, "Medioevo")]
-    assert "1 capitoli generati, 1 falliti" in rep.summary("it")
-    # seconda passata: il capitolo scritto si salta, quello vuoto si riprova
-    rep2 = en.generate(cont, chat=lambda m: "Età romana scritta.", model="m")
-    assert rep2.generated == 1 and [o.anchor for o in rep2.outcomes] == ["epoch_1_1"]
+    assert rep.generated == 2 and rep.failed == 1 and not rep.cancelled
+    assert avanzamenti == [(1, 3, "Presentazione"), (2, 3, "Età romana"), (3, 3, "Medioevo")]
+    assert "2 capitoli generati, 1 falliti" in rep.summary("it")
+    # seconda passata: i capitoli scritti si saltano, quello vuoto si riprova
+    rep2 = en.generate(cont, chat=lambda m: "Presentazione scritta.", model="m")
+    assert rep2.generated == 1 and [o.anchor for o in rep2.outcomes] == [en.PRESENTATION_KEY]
     # rigenerazione mirata: la bozza vecchia sparisce
     rep3 = en.generate(cont, chat=lambda m: "Medioevo riscritto.", model="m", anchors=["epoch_2_1"])
     assert rep3.generated == 1
@@ -377,7 +379,7 @@ def _bozze(graph, anchor):
 
 def test_rigenera_tocca_solo_il_capitolo_del_grafo_scelto():
     cont = _due_grafi()
-    assert en.generate(cont, chat=lambda m: "Prima.", model="m").generated == 4
+    assert en.generate(cont, chat=lambda m: "Prima.", model="m").generated == 6   # 2 grafi × (Presentazione + 2 epoche)
     rep = en.generate(cont, chat=lambda m: "Riscritto.", model="m",
                       anchors=[("Villa|Saggio B", "epoch_1_1")])
     assert len(rep.outcomes) == 1 and rep.outcomes[0].ok
@@ -544,3 +546,76 @@ def test_nell_html_la_bozza_si_legge_come_il_resto_del_testo(tmp_path):
     regola = pagina[nostra:pagina.index("}", nostra)]
     assert "font: inherit" in regola and "background: transparent" in regola
     assert "border-left: 3px solid #d08b00" in regola
+
+
+# ---------------------------------------------------------------------------
+# La Presentazione scritta dall'AI (13 ottobre 2026: «la presentazione non
+# viene inserita: [da scrivere: presentazione di Scavo archeologico]»)
+# ---------------------------------------------------------------------------
+
+def _grafo_con_documento():
+    from s3dgraphy.nodes.document_node import DocumentNode
+    g = grafo_di_prova()
+    g.add_node(DocumentNode("doc_foto", "Fotografie", description="Fotografie di scavo"))
+    g.add_edge("u1_doc", "u1", "doc_foto", "has_documentation")
+    return g
+
+
+def test_la_presentazione_si_genera_con_l_ai_e_tiene_le_fonti_dopo_la_prosa():
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    g = _grafo_con_documento()
+    n = en.scaffold(g, "it")
+    pres = n.chapters[0]
+    assert en.is_presentation(n, pres) and en.chapter_status(pres) == "empty"
+    assert pres in en.chapters_to_generate(g, n)
+    brief = en.site_briefing(g, n)
+    assert brief["site"] == "Villa"
+    assert [e["name"] for e in brief["epochs"]] == ["Età romana", "Medioevo"]     # dalla più antica
+    assert brief["units"]["total"] == 3 and brief["documents"][0]["name"] == "Fotografie"
+    assert "Mario Rossi" in brief["authors"] and brief["chapters"] == ["Età romana", "Medioevo"]
+    msgs = en.presentation_messages(brief, "it")
+    assert msgs[0]["role"] == "system" and "Villa" in msgs[1]["content"]
+    assert "English" in en.presentation_messages(brief, "en")[0]["content"]
+    esito = en.generate_chapter(g, n, pres, chat=lambda m: "Questa è la presentazione.", model="m")
+    assert esito.ok, esito.error
+    assert esito.anchor == en.PRESENTATION_KEY
+    assert pres.blocks[0].block_type == "prose" and pres.blocks[0].text == "Questa è la presentazione."
+    assert not any(en.is_placeholder(b) for b in pres.blocks)
+    assert any(b.block_type == "embed" for b in pres.blocks)                       # le fonti restano, dopo
+    assert en.chapter_status(pres) == "ai_draft"
+    assert any(isinstance(x, ExtractorNode) and x.node_id.startswith(en.PROMPT_EXTRACTOR_PREFIX)
+               for x in g.nodes)                                                   # il prompt è registrato
+
+
+def test_rigenerare_la_presentazione_tocca_solo_lei():
+    from s3dgraphy.container import container_of
+    g = _grafo_con_documento()
+    n = en.scaffold(g, "it")
+    cont = container_of(g)
+    rep = en.generate(cont, chat=lambda m: "Prima.", model="m", lang="it")
+    assert {o.anchor for o in rep.outcomes} >= {en.PRESENTATION_KEY, "epoch_1_1", "epoch_2_1"}
+    rep2 = en.generate(cont, chat=lambda m: "Seconda.", model="m", lang="it",
+                       anchors=[(g.graph_id, en.PRESENTATION_KEY)])
+    assert [o.anchor for o in rep2.outcomes] == [en.PRESENTATION_KEY]
+    assert [b.text for b in n.chapters[0].blocks if b.block_type == "prose"] == ["Seconda."]
+    assert [b.text for b in n.chapter_by_anchor("epoch_1_1").blocks if b.block_type == "prose"] == ["Prima."]
+
+
+def test_convalidare_la_sola_presentazione():
+    g = _grafo_con_documento()
+    n = en.scaffold(g, "it")
+    en.generate_chapter(g, n, n.chapters[0], chat=lambda m: "P.", model="m")
+    en.generate_chapter(g, n, n.chapter_by_anchor("epoch_1_1"), chat=lambda m: "E.", model="m")
+    autore = en.add_author(g, "Anna Bianchi")
+    assert en.endorse(g, n, autore, anchor=en.PRESENTATION_KEY) == 1
+    assert en.chapter_status(n.chapters[0]) == "ai_endorsed"
+    assert en.chapter_status(n.chapter_by_anchor("epoch_1_1")) == "ai_draft"
+
+
+def test_nella_panoramica_la_presentazione_si_puo_generare():
+    from s3dgraphy.container import container_of
+    g = _grafo_con_documento()
+    en.scaffold(g, "it")
+    viste = en.overview(container_of(g))
+    assert viste[0].title == "Presentazione" and viste[0].anchor == en.PRESENTATION_KEY
+    assert viste[0].can_generate

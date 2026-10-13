@@ -659,6 +659,16 @@ class USViewStyler:
         if choice == "save" and first:
             self.save_style_to_db(layer)
 
+        # Il numero dell'unità in un cerchio, uno per unità, come sulle
+        # tavole dell'atlante (13 ottobre 2026): le etichette vengono con
+        # lo stile, non da un passaggio a parte che le viste caricate
+        # altrove dimenticavano.
+        try:
+            from .atlas_labels import label_us_view
+            label_us_view(layer)
+        except Exception as e:                      # noqa: BLE001
+            print(f"Etichette US non applicate: {e}")
+
         layer.triggerRepaint()
         layer.legendChanged.emit()
 

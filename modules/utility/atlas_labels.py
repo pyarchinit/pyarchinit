@@ -297,3 +297,25 @@ def labelled_ids(layer, group_fields=None):
         if not coperta:
             visibili.append(fid)
     return visibili
+
+
+def label_us_view(layer) -> bool:
+    """Il numero dell'unità in un cerchio sulla vista US appena caricata,
+    con la ricetta delle tavole dell'atlante (:func:`us_labeling`): una
+    etichetta per unità, sul disegno più grande che si vede
+    (:func:`labelled_ids`). ``False`` — e il layer non si tocca — se non
+    è una vista US: punti, o senza i campi dell'unità (13 ottobre 2026:
+    «dovrebbe mettere le etichette delle US cerchiate»)."""
+    try:
+        from qgis.core import QgsWkbTypes
+        if layer.geometryType() != QgsWkbTypes.PolygonGeometry:
+            return False
+        campi = [f.name() for f in layer.fields()]
+        nuove = us_labeling(campi, labelled_ids(layer) or None)
+    except Exception:                               # noqa: BLE001
+        return False
+    if nuove is None:
+        return False
+    layer.setLabeling(nuove)
+    layer.setLabelsEnabled(True)
+    return True

@@ -323,29 +323,36 @@ _PRECISIONE_ID = -1
 def candidate_layers(unit, descriptors, id_us=None):
     """I layer che possono trovare questa unità, dal più preciso.
 
-    ``descriptors`` è una sequenza di ``(chiave, nomi_dei_campi)``: la
-    chiave è quello che il chiamante vuole riavere indietro — in QGIS il
-    layer stesso. Si restituisce ``[(chiave, espressione)]``, e chi
-    chiama prova il primo che dà una geometria.
+    ``descriptors`` è una sequenza di ``(chiave, nomi_dei_campi)`` o di
+    ``(chiave, nomi_dei_campi, rango)``: la chiave è quello che il
+    chiamante vuole riavere indietro — in QGIS il layer stesso; il rango,
+    facoltativo, è quello della geometria (poligoni 0, linee 1, punti 2).
+    Si restituisce ``[(chiave, espressione)]``, e chi chiama prova il
+    primo che dà una geometria.
 
     L'ordine conta perché i layer di un progetto arrivano come capita:
     senza una precedenza si finirebbe per zoomare sul disegno di un'altra
-    US che porta lo stesso numero in un altro sito.
+    US che porta lo stesso numero in un altro sito. A pari campi vince la
+    geometria più «piena»: la vista delle quote (punti) porta gli stessi
+    campi della vista US e, in cima alla legenda, rubava le unità ai
+    poligoni (Enzo, 13 ottobre 2026).
     """
     identita = unit_identity(unit)
     if not identita:
         return []
     classificati = []
-    for posizione, (chiave, campi) in enumerate(descriptors or ()):
+    for posizione, descrittore in enumerate(descriptors or ()):
+        chiave, campi = descrittore[0], descrittore[1]
+        rango = descrittore[2] if len(descrittore) > 2 else 0
         nomi = {str(c) for c in (campi or ())}
         espressione = pick_feature_expression(unit, nomi, id_us=id_us)
         if not espressione:
             continue
         classificati.append(
-            (_precisione(nomi, espressione), posizione, chiave, espressione))
-    classificati.sort(key=lambda r: (r[0], r[1]))
+            (_precisione(nomi, espressione), rango, posizione, chiave, espressione))
+    classificati.sort(key=lambda r: (r[0], r[1], r[2]))
     return [(chiave, espressione)
-            for _, _, chiave, espressione in classificati]
+            for _, _, _, chiave, espressione in classificati]
 
 
 def _precisione(nomi, espressione) -> float:

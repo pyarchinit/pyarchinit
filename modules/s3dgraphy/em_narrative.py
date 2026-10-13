@@ -405,10 +405,44 @@ def chapter_html(chapter,
     return "\n".join(paragrafi)
 
 
-def can_generate(graph, chapter) -> bool:
-    """La libreria sa istruire il modello solo su un'epoca o un'attività."""
+#: La chiave con cui la scheda e :func:`generate` indicano la «Presentazione»,
+#: il capitolo canonico della libreria che non ha un'ancora nel grafo
+#: (13 ottobre 2026: «la presentazione non viene inserita»).
+PRESENTATION_KEY = "presentation"
+
+
+def is_presentation(narrative, chapter) -> bool:
+    """Il primo capitolo, canonico e senza ancora: la «Presentazione» che
+    ``site_story`` apre con il segnaposto «presentazione di …»."""
+    capitoli = list(getattr(narrative, "chapters", None) or [])
+    return (bool(capitoli) and chapter is capitoli[0]
+            and bool(getattr(chapter, "canonical", False))
+            and not getattr(chapter, "anchor", None))
+
+
+def chapter_key(narrative, chapter) -> Optional[str]:
+    """L'ancora del capitolo, o :data:`PRESENTATION_KEY` per la Presentazione;
+    ``None`` per gli altri capitoli canonici («Dove si trova»)."""
+    if getattr(chapter, "anchor", None):
+        return str(chapter.anchor)
+    return PRESENTATION_KEY if is_presentation(narrative, chapter) else None
+
+
+def chapter_by_key(narrative, key):
+    if key == PRESENTATION_KEY:
+        capitoli = list(getattr(narrative, "chapters", None) or [])
+        return capitoli[0] if capitoli and is_presentation(narrative, capitoli[0]) else None
+    return narrative.chapter_by_anchor(key)
+
+
+def can_generate(graph, chapter, narrative=None) -> bool:
+    """La libreria sa istruire il modello su un'epoca o un'attività; la
+    Presentazione la istruiamo noi (:func:`site_briefing`), quindi si
+    genera anche lei quando si sa quale narrativa la contiene."""
     from s3dgraphy.nodes.epoch_node import EpochNode
     from s3dgraphy.nodes.group_node import ActivityNodeGroup
+    if narrative is not None and is_presentation(narrative, chapter):
+        return True
     if getattr(chapter, "canonical", False) or not getattr(chapter, "anchor", None):
         return False
     nodo = graph.find_node_by_id(chapter.anchor)
@@ -417,7 +451,7 @@ def can_generate(graph, chapter) -> bool:
 
 def chapters_to_generate(graph, narrative, only_empty: bool = True) -> list:
     return [c for c in narrative.chapters
-            if can_generate(graph, c)
+            if can_generate(graph, c, narrative)
             and (not only_empty or chapter_status(c) == "empty")]
 
 
@@ -456,9 +490,9 @@ def overview(container, lang: Optional[str] = None,
                                for b in _prose(cap))
                 viste.append(ChapterView(
                     graph_id=str(graph_id), narrative_id=narrativa.node_id,
-                    index=i, title=str(cap.title), anchor=cap.anchor,
+                    index=i, title=str(cap.title), anchor=chapter_key(narrativa, cap),
                     status=chapter_status(cap), text=chapter_text(cap, nomi),
-                    can_generate=can_generate(graph, cap), truncated=troncato,
+                    can_generate=can_generate(graph, cap, narrativa), truncated=troncato,
                     html=chapter_html(cap, nomi, media_of), unit_ids=chapter_unit_ids(cap)))
     return viste
 
@@ -706,6 +740,196 @@ def prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
     return _system_text(brief, lingua) + "\n\n" + testa
 
 
+# ---------------------------------------------------------------------------
+# La Presentazione: briefing del sito, prompt, bozza in un capitolo senza ancora
+# ---------------------------------------------------------------------------
+
+#: L'ordine dei livelli della catena dei toponimi, dal più largo al sito.
+_TOPONYM_LEVELS = ("nazione", "regione", "provincia", "comune", "sito")
+
+
+def _is_unit(node) -> bool:
+    try:
+        from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
+    except Exception:                               # noqa: BLE001
+        return False
+    return isinstance(node, StratigraphicNode) and type(node).__name__ != "ContinuityNode"
+
+
+def _study_id(graph) -> str:
+    for n in getattr(graph, "nodes", None) or []:
+        if type(n).__name__ == "StudyNode":
+            return str(n.node_id)
+    return ""
+
+
+def _site_name(graph) -> str:
+    for n in getattr(graph, "nodes", None) or []:
+        if type(n).__name__ == "StudyNode" and str(getattr(n, "name", "") or "").strip():
+            return str(n.name).strip()
+    nome = getattr(graph, "name", None)
+    if isinstance(nome, str) and nome.strip():
+        return nome.strip()
+    return str(getattr(graph, "graph_id", "") or "")
+
+
+def _toponym_level(node) -> str:
+    """«Administrative level: comune» → ``comune``; «Site» → ``sito``."""
+    descrizione = str(getattr(node, "description", "") or "")
+    if ":" in descrizione:
+        return descrizione.split(":", 1)[1].strip().lower()
+    return "sito" if descrizione.strip().lower() == "site" else descrizione.strip().lower()
+
+
+def _place_field(node) -> str:
+    """``loc::area::study::1`` → ``area``; senza quello schema, il ``kind``."""
+    parti = str(getattr(node, "node_id", "") or "").split("::")
+    if len(parti) >= 4 and parti[0] == "loc":
+        return parti[1]
+    return str(getattr(node, "kind", "") or "")
+
+
+def site_briefing(graph, narrative) -> Dict[str, Any]:
+    """Il briefing per la Presentazione: che cos'è il sito e dove sta, le
+    epoche dalla più antica, quante unità e di che tipo, i luoghi della
+    scheda (aree, settori, saggi, ambienti), i documenti, chi ha lavorato,
+    i capitoli del racconto. Tutto dal grafo: niente database."""
+    from s3dgraphy.nodes.document_node import DocumentNode
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    from s3dgraphy.nodes.group_node import LocationNodeGroup
+    nodi = list(getattr(graph, "nodes", None) or [])
+    archi = list(getattr(graph, "edges", None) or [])
+    unita = [n for n in nodi if _is_unit(n)]
+    per_tipo: Dict[str, int] = {}
+    for n in unita:
+        tipo = str(getattr(n, "node_type", "") or type(n).__name__)
+        per_tipo[tipo] = per_tipo.get(tipo, 0) + 1
+    epoche = []
+    for e in sorted((n for n in nodi if isinstance(n, EpochNode)),
+                    key=lambda n: (getattr(n, "start_time", None) is None,
+                                   getattr(n, "start_time", 0) or 0,
+                                   getattr(n, "end_time", 0) or 0)):
+        quante = sum(1 for a in archi if a.edge_target == e.node_id
+                     and a.edge_type in ("has_first_epoch", "survive_in_epoch"))
+        epoche.append({"name": str(e.name), "start": getattr(e, "start_time", None),
+                       "end": getattr(e, "end_time", None), "units": quante})
+    toponimi, luoghi = [], {}
+    for n in nodi:
+        if not isinstance(n, LocationNodeGroup):
+            continue
+        if getattr(n, "kind", "") == "toponym":
+            toponimi.append({"level": _toponym_level(n), "name": str(n.name)})
+        else:
+            luoghi.setdefault(_place_field(n), []).append(str(n.name))
+    toponimi.sort(key=lambda t: (_TOPONYM_LEVELS.index(t["level"])
+                                 if t["level"] in _TOPONYM_LEVELS else len(_TOPONYM_LEVELS)))
+    documenti = [{"name": str(n.name), "description": str(getattr(n, "description", "") or "")}
+                 for n in nodi if isinstance(n, DocumentNode)]
+    documenti.sort(key=lambda d: d["name"])
+    rapporti = sum(1 for a in archi
+                   if a.edge_type in YOUNGER_FIRST_KINDS or a.edge_type in SYMMETRIC_KINDS)
+    return {
+        "site": _site_name(graph),
+        "toponyms": toponimi,
+        "places": {k: sorted(v) for k, v in luoghi.items()},
+        "epochs": epoche,
+        "units": {"total": len(unita), "by_type": per_tipo, "relations": rapporti},
+        "documents": documenti,
+        "authors": [nome for _, nome in human_authors(graph)],
+        "chapters": [str(c.title) for c in getattr(narrative, "chapters", None) or []
+                     if getattr(c, "anchor", None)],
+    }
+
+
+def _fit_site(brief: Dict[str, Any], budget: Optional[int] = None) -> Dict[str, Any]:
+    """Il briefing del sito entro il tetto in caratteri: testi dei documenti
+    accorciati, poi gli elenchi lunghi dimezzati finché ci sta."""
+    tetto = MAX_PROMPT_CHARS if budget is None else budget
+    b = json.loads(json.dumps(brief, ensure_ascii=False))
+    for d in b.get("documents") or []:
+        d["description"] = _accorcia(d.get("description") or "")
+    while len(json.dumps(b, ensure_ascii=False)) > tetto:
+        lunghi = [(k, v) for k, v in (b.get("places") or {}).items() if len(v) > 2]
+        if b.get("documents") and len(b["documents"]) > 2:
+            b["documents"] = b["documents"][:max(2, len(b["documents"]) // 2)]
+        elif lunghi:
+            k, v = max(lunghi, key=lambda kv: len(kv[1]))
+            b["places"][k] = v[:max(2, len(v) // 2)]
+        elif b.get("epochs") and len(b["epochs"]) > 2:
+            b["epochs"] = b["epochs"][:max(2, len(b["epochs"]) // 2)]
+        else:
+            break
+    return b
+
+
+_SYSTEM_PRESENTATION = {
+    "it": ("Sei un archeologo che presenta un sito di scavo a chi sta per leggerne la "
+           "storia, ricostruita dalla matrice stratigrafica. Scrivi in italiano, in prosa "
+           "continua, da due a quattro paragrafi. Di' che cos'è il sito e dove si trova; "
+           "quali epoche copre la storia, dalla più antica alla più recente, e quante unità "
+           "stratigrafiche la compongono; come si legge questo racconto: un capitolo per "
+           "epoca e uno per attività, con le unità citate per nome, e le bozze scritte da un "
+           "modello segnate come tali finché una persona non le convalida; e su quali fonti "
+           "si appoggia: le schede delle unità con i loro rapporti stratigrafici, i documenti "
+           "elencati, le fotografie. Usa solo i dati del briefing: non inventare date, "
+           "luoghi o fatti. Non usare le doppie parentesi quadre."),
+    "en": ("You are an archaeologist introducing an excavation site to someone about to "
+           "read its story, reconstructed from the stratigraphic matrix. Write in English, "
+           "continuous prose, two to four paragraphs. Say what the site is and where it "
+           "lies; which epochs the story covers, from the oldest to the most recent, and how "
+           "many stratigraphic units make it up; how this story is read: one chapter per "
+           "epoch and one per activity, units cited by name, and drafts written by a model "
+           "marked as such until a person endorses them; and which sources it rests on: the "
+           "unit records with their stratigraphic relations, the documents listed, the "
+           "photographs. Use only the briefing: invent no dates, places or facts. Do not "
+           "use double square brackets."),
+}
+_PRESENTATION_HEAD = {
+    "it": "Presentazione del sito «{site}». Briefing in JSON:\n",
+    "en": "Presentation of the site “{site}”. Briefing as JSON:\n",
+}
+
+
+def presentation_messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str, str]]:
+    lingua = _prompt_lang(lang)
+    testa = _PRESENTATION_HEAD[lingua].format(site=brief.get("site") or "")
+    return [{"role": "system", "content": _SYSTEM_PRESENTATION[lingua]},
+            {"role": "user", "content": testa + json.dumps(brief, ensure_ascii=False)}]
+
+
+def presentation_prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
+    """Quello che si registra nell'estrattore: le istruzioni, il sito e i
+    nomi dei documenti — non il JSON intero."""
+    lingua = _prompt_lang(lang)
+    testa = _PRESENTATION_HEAD[lingua].format(site=brief.get("site") or "").strip()
+    fonti = ", ".join(d.get("name") or "" for d in brief.get("documents") or [])
+    return _SYSTEM_PRESENTATION[lingua] + "\n\n" + testa + (" " + fonti if fonti else "")
+
+
+def write_ai_prose_in_chapter(graph, narrative, chapter, text: str, *, model: str,
+                              version: str = "", date: Optional[str] = None,
+                              prompt: str = "", sources: Optional[List[str]] = None,
+                              based_on: str = ""):
+    """La bozza del modello in un capitolo che non ha un'ancora: le stesse
+    tre cose di ``write_ai_draft`` della libreria — autore AI, prompt
+    registrato come estrattore legato alle fonti, blocco non convalidato —
+    che però vuole l'ancora per trovare il capitolo."""
+    from s3dgraphy.narrative import ensure_ai_author, register_prompt_extractor
+    autore = ensure_ai_author(graph, model=str(model), version=version)
+    estrattore = (register_prompt_extractor(graph, prompt, sources=list(sources or []),
+                                            based_on=based_on) if prompt else None)
+    blocco = chapter.add_ai_prose(text.strip(), author_id=autore.node_id,
+                                  prompt_ref=estrattore.node_id if estrattore else None)
+    if date:
+        blocco.options["generated_at"] = date
+    if version:
+        blocco.options["model_version"] = version
+    arco = "%s_has_author_%s" % (narrative.node_id, autore.node_id)
+    if not graph.find_edge_by_id(arco):
+        graph.add_edge(arco, narrative.node_id, autore.node_id, "has_author")
+    return blocco
+
+
 def normalize_mentions(text: str, graph) -> str:
     """``[[x]]``: con ``x`` id del grafo resta; con ``x`` nome di un nodo
     diventa l'id; altrimenti restano le parole senza parentesi, così
@@ -778,11 +1002,16 @@ def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
     ``replace``: le bozze AI non convalidate del capitolo lasciano il posto
     alla nuova — ma solo **dopo** che il modello ha risposto: una
     rigenerazione fallita tiene la bozza di prima (revisione 2026-10-12)."""
-    anchor = str(getattr(chapter, "anchor", "") or "")
+    presentazione = is_presentation(narrative, chapter)
+    anchor = PRESENTATION_KEY if presentazione else str(getattr(chapter, "anchor", "") or "")
     titolo = str(getattr(chapter, "title", "") or anchor)
     try:
-        brief = fit_briefing(briefing(graph, anchor), lang=lang)
-        risposta = chat(messages(brief, lang))
+        if presentazione:
+            brief = _fit_site(site_briefing(graph, narrative))
+            risposta = chat(presentation_messages(brief, lang))
+        else:
+            brief = fit_briefing(briefing(graph, anchor), lang=lang)
+            risposta = chat(messages(brief, lang))
         testo, troncato = (risposta if isinstance(risposta, tuple) else (risposta, False))
         testo = normalize_mentions(str(testo or "").strip(), graph)
         if not testo:
@@ -790,11 +1019,19 @@ def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
         if replace:
             forget_ai_drafts(chapter)
         prima = {n.node_id for n in graph.nodes}
-        from s3dgraphy.narrative import write_ai_draft
-        write_ai_draft(graph, anchor, testo, model=str(model), version=version,
-                       date=now or _now(), prompt=prompt_record(brief, lang),
-                       narrative_id=narrative.node_id, chapter_title=titolo,
-                       sources=[s["id"] for s in brief.get("sources") or []])
+        if presentazione:
+            fonti = [str(b.ref) for b in chapter.blocks
+                     if getattr(b, "block_type", "") == "embed" and getattr(b, "ref", None)]
+            write_ai_prose_in_chapter(graph, narrative, chapter, testo, model=str(model),
+                                      version=version, date=now or _now(),
+                                      prompt=presentation_prompt_record(brief, lang),
+                                      sources=fonti, based_on=_study_id(graph))
+        else:
+            from s3dgraphy.narrative import write_ai_draft
+            write_ai_draft(graph, anchor, testo, model=str(model), version=version,
+                           date=now or _now(), prompt=prompt_record(brief, lang),
+                           narrative_id=narrative.node_id, chapter_title=titolo,
+                           sources=[s["id"] for s in brief.get("sources") or []])
         if troncato:
             chapter.blocks[-1].options["truncated"] = True
         drop_placeholders(chapter)
@@ -845,7 +1082,7 @@ def generate(container, *, chat: Callable, model: str, lang: Optional[str] = Non
             voluti |= {a[1] for a in anchors if not isinstance(a, str)
                        and str(a[0]) == str(graph_id)}
             scelti = [c for c in chapters_to_generate(graph, narrativa, only_empty=False)
-                      if c.anchor in voluti]
+                      if chapter_key(narrativa, c) in voluti]
         da_fare.extend((graph, narrativa, c, lingua) for c in scelti)
     rapporto = Report()
     for i, (graph, narrativa, cap, lingua) in enumerate(da_fare, 1):
@@ -922,7 +1159,7 @@ def endorse(graph, narrative, author_id: str, anchor: Optional[str] = None) -> i
     from s3dgraphy.nodes.narrative_node import endorse_block, endorse_narrative
     if anchor is None:
         return endorse_narrative(graph, narrative, author_id)
-    cap = narrative.chapter_by_anchor(anchor)
+    cap = chapter_by_key(narrative, anchor)
     if cap is None:
         return 0
     firmati = 0

@@ -150,8 +150,8 @@ def test_la_scheda_con_l_ai_impostata_accende_genera_e_rigenera(qgs, tmp_path, m
     assert w.findChild(QPushButton, "genera").isEnabled()
     assert "gpt-finto" in w.findChild(QLabel, "stato").text()
     elenco = w.findChild(QListWidget, "capitoli")
-    elenco.setCurrentRow(0)                                     # Presentazione: non si genera
-    assert not w.findChild(QPushButton, "rigenera").isEnabled()
+    elenco.setCurrentRow(0)                                     # Presentazione: si genera anche lei (13-10-2026)
+    assert w.findChild(QPushButton, "rigenera").isEnabled()
     elenco.setCurrentRow(1)
     assert w.findChild(QPushButton, "rigenera").isEnabled()
 
@@ -369,10 +369,11 @@ def test_il_thread_genera_e_salva_nel_file(qgs, tmp_path, monkeypatch):
     esiti = []
     t.finished_ok.connect(lambda ok, m: esiti.append((ok, m)))
     t.run()                                                           # sincrono, senza start()
-    assert esiti == [(True, "1 capitoli generati, 0 falliti")]
+    assert esiti == [(True, "2 capitoli generati, 0 falliti")]       # la Presentazione e l'epoca vuota
     cont, _ = en.load_project(percorso)
     viste = {v.anchor: v for v in en.overview(cont, "it")}
     assert viste["epoch_2_1"].text == "Dal thread." and viste["epoch_2_1"].status == "ai_draft"
+    assert viste[en.PRESENTATION_KEY].text == "Dal thread." and viste[en.PRESENTATION_KEY].status == "ai_draft"
     assert viste["epoch_1_1"].text == "Bozza romana."                 # il capitolo già scritto non si tocca
 
 

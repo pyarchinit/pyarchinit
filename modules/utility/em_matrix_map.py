@@ -61,6 +61,27 @@ def _field_names(layer) -> List[str]:
         return []
 
 
+def _geometry_rank(layer) -> int:
+    """Poligoni 0, linee 1, punti 2, non so 3. La vista delle quote (punti)
+    porta gli stessi campi della vista US: a pari campi si prova prima il
+    poligono, qualunque sia l'ordine della legenda."""
+    try:
+        from qgis.core import QgsWkbTypes
+        tipo = layer.geometryType()
+        for rango, atteso in enumerate((QgsWkbTypes.PolygonGeometry,
+                                        QgsWkbTypes.LineGeometry,
+                                        QgsWkbTypes.PointGeometry)):
+            if tipo == atteso:
+                return rango
+    except Exception:                               # noqa: BLE001
+        pass
+    return 3
+
+
+def _descriptors(layers) -> list:
+    return [(layer, _field_names(layer), _geometry_rank(layer)) for layer in layers]
+
+
 def _box_of(geometria) -> Optional[tuple]:
     """Il rettangolo della geometria, o ``None`` se non c'è geometria.
 
@@ -131,7 +152,7 @@ def zoom_to_unit(iface, unit, connection=None, *, layers=None,
                        "c'è una geometria da cercare." % etichetta)
 
     disponibili = list(layers) if layers is not None else project_layers()
-    descrittori = [(layer, _field_names(layer)) for layer in disponibili]
+    descrittori = _descriptors(disponibili)
     id_us = resolve_id_us(connection, unit) if connection is not None else None
 
     if not candidate_layers(unit, descrittori, id_us=id_us):
@@ -226,7 +247,7 @@ def zoom_to_units(iface, units, connection=None, *, layers=None,
     if not validi:
         return 0, _m("none", lang)
     disponibili = list(layers) if layers is not None else project_layers()
-    descrittori = [(layer, _field_names(layer)) for layer in disponibili]
+    descrittori = _descriptors(disponibili)
 
     per_layer: dict = {}
     mancanti: List[str] = []
