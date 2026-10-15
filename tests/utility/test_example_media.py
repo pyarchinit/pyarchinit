@@ -418,20 +418,29 @@ def test_le_quote_stanno_dove_sta_lo_scavo(conn):
                 (tabella, colonna, valore)
 
 
+#: Le due unità del demo senza disegno: il taglio 7 e il suo riempimento 8.
+#: L'11 ottobre avevano ricevuto due quadratini segnaposto fuori dal sito;
+#: il 13 ottobre Enzo li ha fatti togliere («non c'entrano nulla quei
+#: quadratini»): meglio nessun disegno che un disegno finto.
+SENZA_DISEGNO = ["7", "8"]
+
+
 def test_ogni_us_ha_il_suo_poligono_e_la_sua_quota(conn):
     """«Non mi sembra che tutti abbiano le geometrie» (Enzo): erano due
-    US senza poligono e tredici senza quota."""
-    senza_poligono = conn.execute(
-        "SELECT count(*) FROM us_table u WHERE u.sito = ?"
+    US senza poligono e tredici senza quota. Restano, per scelta, le due
+    di ``SENZA_DISEGNO``."""
+    senza_poligono = [str(r[0]) for r in conn.execute(
+        "SELECT u.us FROM us_table u WHERE u.sito = ?"
         "   AND u.unita_tipo IN ('US', 'USM')"
         "   AND NOT EXISTS (SELECT 1 FROM pyunitastratigrafiche g"
         "                   WHERE g.scavo_s = u.sito"
         "                     AND cast(g.us_s AS TEXT) = cast(u.us AS TEXT))"
         "   AND NOT EXISTS (SELECT 1 FROM pyunitastratigrafiche_usm g"
         "                   WHERE g.scavo_s = u.sito"
-        "                     AND cast(g.us_s AS TEXT) = cast(u.us AS TEXT))",
-        (SITO,)).fetchone()[0]
-    assert senza_poligono == 0, senza_poligono
+        "                     AND cast(g.us_s AS TEXT) = cast(u.us AS TEXT))"
+        "   ORDER BY cast(u.us AS INTEGER)",
+        (SITO,)).fetchall()]
+    assert senza_poligono == SENZA_DISEGNO, senza_poligono
     senza_quota = conn.execute(
         "SELECT count(*) FROM us_table u WHERE u.sito = ?"
         "   AND u.unita_tipo IN ('US', 'USM')"

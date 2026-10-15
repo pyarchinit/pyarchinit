@@ -5,6 +5,16 @@
 
 ---
 
+## [fix] - 2026-10-15 — Database di esempio: via i due quadratini segnaposto di US 7 e 8 — 5.13.120-alpha
+
+> Branch `Stratigraph_00001`. Suite **2138 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Sample database: the two placeholder squares of US 7 and 8 removed, row count of the spatial statistics refreshed.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«Hai inserito nuove geometrie in pyunitastratigrafiche? … Cancellamelo 7 e 8 che non c'entrano nulla quei quadratini»** (Enzo, 13 ottobre 2026). Nel database di esempio (`resources/dbfiles/pyarchinit_db.sqlite`, quello che una nuova installazione copia in `pyarchinit_DB_folder` al primo avvio) il sito «Scavo archeologico» aveva due disegni in più, gid 4821 (US 7, taglio) e 4822 (US 8, riempimento): due quadratini di 141 byte, `tipo_us_s` «negativa», senza indice stratigrafico, fuori dal sito, aggiunti come segnaposto dal commit 1f3a5482 dell'11 ottobre (il lavoro sul demo che riempiva la scheda US). Erano arrivati anche nel database di lavoro di Enzo, dove si vedevano in basso a sinistra nella Map preview con l'etichetta ereditata «0,00 ha». Tolti dal demo con il metodo di cancellazione del plugin (4822 → 4820 disegni, indice spaziale allineato dai trigger), `row_count` di `geometry_columns_statistics` rimesso al vero (la prova `test_le_statistiche_dicono_il_vero` lo confronta con il conteggio reale); l'estensione nelle statistiche resta un filo più larga dei dati, senza effetti. La prova `test_ogni_us_ha_il_suo_poligono_e_la_sua_quota` di `test_example_media.py` pretendeva un poligono per ogni US del demo — era lei il motivo dei due quadratini dell'11 ottobre («non mi sembra che tutti abbiano le geometrie») — e ora nomina le due unità lasciate senza disegno per scelta (`SENZA_DISEGNO = ["7", "8"]`): meglio nessun disegno che un disegno finto; se un giorno il taglio e il riempimento avranno un poligono vero, la lista si svuota. Lezione del giro: `connection()` del gestore del plugin non è una semplice connessione — su un database aggiunge indici, la tabella del pottery e le voci di thesaurus mancanti — quindi sul file di esempio si lavora con un motore SQLAlchemy semplice, altrimenti il demo distribuito cambia schema (visto e ripristinato dal commit). Nel database di lavoro di Enzo, il 13 ottobre a QGIS chiuso e dopo un backup (`pyarchinit_db.sqlite.backup_20261013_205935`), tolti gli stessi due disegni e ricalcolato `order_layer` del sito con `Order_layer_graph` (23 livelli, 51 US): dei 187 rapporti stratigrafici restano alla pari solo le USV 106 e 300, unità virtuali dell'Extended Matrix che non si disegnano.
+- 🇬🇧 **EN**: the shipped sample database carried two placeholder squares for units 7 (cut) and 8 (fill), added on 11 October during the demo work; removed, with the row count of the spatial statistics refreshed. The same rows were removed from Enzo's working database and its order_layer recomputed with the plugin's own routine.
+
+---
+
 ## [fix] - 2026-10-13 — I resti della Map preview si tolgono da ogni caricatore, non solo dalla preview, e il registro dice chi sono — 5.13.119-alpha
 
 > Branch `Stratigraph_00001`. Suite **2138 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The Map preview's leftover layers are removed from every loader's audit, sparing the open preview; the message log lists each flagged layer.
