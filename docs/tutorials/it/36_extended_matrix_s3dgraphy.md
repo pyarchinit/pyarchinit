@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `ordine-matrice-5.13.117-alpha` (2026-10-13).
+Tag corrente: `em-import-5.13.121-alpha` (2026-10-16).
 
 ---
 
@@ -100,6 +100,29 @@ Un'unità può stare in più gruppi insieme — un'area, un settore, un saggio, 
 ## 5. Round-trip (Tab Import)
 
 > **Che cosa si può importare**: la tab Import legge adesso anche **em.json** — quello di EMStudio o del nodo StratiGraph — e sceglie il lettore dall'estensione del file; il `.graphml` di yEd resta accettato per i file di prima. La procedura qui sotto, spostare le US fra i gruppi, riguarda la via yEd/GraphML.
+
+### 5.0 Importare un em.json di EMStudio (anche con il database vuoto)
+
+Un em.json scritto da **EMStudio** (non da pyArchInit) si importa nel database di pyArchInit **anche quando il database è vuoto** (dalla 5.13.121-alpha): il sito, i periodi, le schede, i rapporti e i media nascono dal file, senza dover creare prima nessun sito.
+
+1. Apri il menu **Plugins → pyArchInit - Archaeological GIS Tools** e scegli la voce **Extended Matrix → Importa em.json…**: la finestra dell'Extended Matrix si apre già sulla tab **Import**, anche se il database non ha nessun sito. Dalla scheda US arrivi allo stesso punto: il pulsante verde **Esporta Extended Matrix**, senza un sito scelto, apre la stessa finestra sulla tab Import invece di fermarsi (l'**esportazione**, invece, continua a chiedere un sito).
+2. Premi **Browse…** e scegli l'em.json.
+3. Controlla il **Sito target:**. Se è vuoto — il caso di un database senza siti — viene proposto il nome del grafo scritto nell'em.json (per esempio «Temple») o, se manca, il nome del file senza «.em.json»; si può modificare. Se invece il campo mostra già un sito (con un database che ne ha: quello della scheda US da cui sei partito o, dal menu, il primo in ordine alfabetico), nessun nome viene proposto: scrivi il nome del sito nuovo o scegli quello in cui importare. Sotto ci sono due caselle, spuntate per default: **Crea periodi mancanti se assenti** (se la togli e il sito non ha già i periodi del file, l'importazione si ferma con l'errore «MissingEpochError») e **Importa anche i media citati (file accanto all'em.json)**.
+4. Premi **Anteprima**: non scrive niente, e dice quante schede sono nuove, aggiornate e invariate, quanti periodi sono nuovi e, in elenco, quante schede di che tipo e quanti nodi del file non diventano schede.
+5. Premi **Applica** (si abilita dopo l'anteprima): importa e mostra lo stesso riepilogo, più quello dei media.
+
+Che cosa succede, in breve:
+
+- **Che cosa diventa scheda.** Solo le unità di cui pyArchInit conosce il tipo (US, USM, USD, USVs, USVn, serUSVn, SF, VSF, RSF, USN, USNt…) e i paradati: le proprietà (`property`), gli estrattori (`Extractor`), i combinatori (`Combinar`) e i documenti (`DOC`). Risorse, file, modelli 3D, forme semantiche, processi del gemello digitale, gruppi, epoche e narrativa **non** diventano schede: prima della 5.13.121-alpha diventavano tutti «US».
+- **I nomi (campo US).** Il nome del nodo senza il prefisso del tipo: USV105 → 105, D.05 → 05, D.05.02 → 05.02. Le proprietà che hanno lo stesso nome (per esempio «height», che compare per molte unità) prendono tra parentesi il nome dell'unità a cui appartengono: «height (105)». Se due tipi diversi darebbero lo stesso numero — il combinatore «C.10» e il documento «D.10», la US «SU002» e la USD «USD002» — il tipo più forte (la US, poi le altre unità, poi i documenti, gli estrattori, i combinatori) tiene il numero e l'altro tiene il nome completo di EMStudio («C.10», «USD002»), così i rapporti non si confondono.
+- **I rapporti.** Fra due US/USM sono quelli di sempre di pyArchInit («Copre», «Taglia»…), e il «viene dopo» (`is_after`: l'unità è più recente dell'altra) fra due US si scrive «Copre». Fra unità di tipo diverso i rapporti fisici si scrivono per esteso («Taglia», «Si appoggia a»), il «viene dopo» con `>` (`A > B`: A è più recente di B), la catena dei paradati — unità → proprietà → estrattore o combinatore → documento, e il reperto «parte di» un reperto virtuale — con `>>`. Periodi, attività, gruppi e risorse non sono rapporti. All'esportazione questi segni ridiventano gli archi dell'Extended Matrix (`is_after`, `has_property`, `has_data_provenance`, `extracted_from`, `combines`, `is_part_of`).
+- **Attività e descrizione.** L'attività del nodo (il gruppo ActivityNodeGroup) va nel campo **Attività** della scheda; la descrizione del nodo nel campo **Descrizione**.
+- **Periodizzazione.** Le epoche di EMStudio, che hanno solo nome e date, si ritrovano per nome nella periodizzazione del sito; quelle che non ci sono diventano periodi nuovi, dal più antico, numerati dopo l'ultimo periodo del sito, in fase 1, con le date di inizio e di fine e il nome come datazione estesa. Ogni unità prende periodo e fase iniziali dall'epoca in cui nasce e quelli finali dall'ultima epoca in cui sopravvive (o uguali agli iniziali).
+- **Scheda sito.** Se il sito non esiste viene creato, con «Extended Matrix» come definizione e una descrizione presa dal grafo: nome, codice, autori e posizione (EPSG e origine).
+- **Media.** Seguendo i legami dell'em.json — scheda → risorsa → file, scheda → modello 3D → risorsa → file, e l'url del documento — i file che esistono **accanto all'em.json** (col percorso relativo alla sua cartella, o col solo nome del file in quella cartella) diventano media della scheda: vengono copiati nella cartella dei media del progetto, con le miniature (è la cartella dell'importazione da QField, tutorial 38: accanto a quella delle miniature, **Thumbnail path** nella configurazione). Valgono immagini, video e modelli 3D; i PDF restano nel campo **Documentazione** della scheda del documento; gli altri file (per esempio `.mtl`, `.zip`) vengono soltanto contati. Il riepilogo dice quanti media sono nuovi, quanti già presenti e quanti file citati non sono stati trovati: per importarli, metti l'em.json nella sua cartella di progetto, con i file accanto.
+- **Reimportare.** Importare di nuovo lo stesso file non duplica né i periodi né le schede: quelle già presenti risultano «invariate» o «aggiornate», e dove il database e il file differiscono vince il file (il riepilogo li conta come «conflitti»).
+
+La via yEd/GraphML, per spostare le unità fra i gruppi, è quella che segue.
 
 Per modificare il database SQL spostando US tra gruppi nel GraphML:
 

@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `ordine-matrice-5.13.117-alpha` (2026-10-13).
+Current tag: `em-import-5.13.121-alpha` (2026-10-16).
 
 ---
 
@@ -100,6 +100,29 @@ A unit can sit in several groups at once — an area, a sector, a trench, a room
 ## 5. Round-trip (Import tab)
 
 > **What can be imported**: the Import tab now also reads **em.json** — from EMStudio or from a StratiGraph node — and picks the reader from the file extension; a yEd `.graphml` is still accepted for older files. The procedure below, moving SUs between groups, concerns the yEd/GraphML route.
+
+### 5.0 Importing an EMStudio em.json (even into an empty database)
+
+An em.json written by **EMStudio** (not by pyArchInit) can be imported into the pyArchInit database **even when the database is empty** (since 5.13.121-alpha): the site, the periods, the records, the relationships and the media are born from the file, with no need to create a site first.
+
+1. Open the menu **Plugins → pyArchInit - Archaeological GIS Tools** and choose the entry **Extended Matrix → Importa em.json…** (Import em.json): the Extended Matrix window opens already on the **Import** tab, even if the database has no site at all. From the US form you reach the same place: the green **Esporta Extended Matrix** button, with no site chosen, opens the same window on the Import tab instead of stopping (**exporting**, on the other hand, still asks for a site).
+2. Press **Browse…** and choose the em.json.
+3. Check the **Sito target:** (target site). If it is empty — the case of a database with no sites — the name of the graph written in the em.json is proposed (for example "Temple") or, if there is none, the file name without ".em.json"; you can edit it. If the field already shows a site (with a database that has sites: the site of the US form you started from or, from the menu, the first in alphabetical order), no name is proposed: type the name of the new site or pick the one to import into. Below there are two boxes, ticked by default: **Crea periodi mancanti se assenti** (Create missing periods if absent — if you untick it and the site does not already have the file's periods, the import stops with the error "MissingEpochError") and **Importa anche i media citati (file accanto all'em.json)** (Also import the cited media — files next to the em.json).
+4. Press **Anteprima** (Preview): it writes nothing, and says how many records are new, updated and unchanged, how many periods are new and, as a list, how many records of which type and how many nodes of the file do not become records.
+5. Press **Applica** (Apply; it is enabled after the preview): it imports and shows the same summary, plus the one for the media.
+
+What happens, in short:
+
+- **What becomes a record.** Only the units whose type pyArchInit knows (US, USM, USD, USVs, USVn, serUSVn, SF, VSF, RSF, USN, USNt…) and the paradata: properties (`property`), extractors (`Extractor`), combiners (`Combinar`) and documents (`DOC`). Resources, files, 3D models, semantic shapes, digital-twin processes, groups, epochs and the narrative do **not** become records: before 5.13.121-alpha they all became "US".
+- **Names (the US field).** The name of the node without the type prefix: USV105 → 105, D.05 → 05, D.05.02 → 05.02. Properties that share a name (for example "height", which appears for many units) get, in brackets, the name of the unit they belong to: "height (105)". If two different types would give the same number — the combiner "C.10" and the document "D.10", the US "SU002" and the USD "USD002" — the stronger type (the US, then the other units, then documents, extractors, combiners) keeps the number and the other keeps EMStudio's full name ("C.10", "USD002"), so that the relationships do not get mixed up.
+- **Relationships.** Between two US/USM they are the usual pyArchInit ones («Copre» (covers), «Taglia» (cuts)…), and the "comes after" relationship (`is_after`: the unit is later than the other) between two US is written «Copre». Between units of different types the physical relationships are written in full («Taglia», «Si appoggia a» (abuts)), the "comes after" relationship with `>` (`A > B`: A is later than B), and the paradata chain — unit → property → extractor or combiner → document, and a find that is «part of» a virtual find — with `>>`. Periods, activities, groups and resources are not relationships. On export these signs turn back into Extended Matrix edges (`is_after`, `has_property`, `has_data_provenance`, `extracted_from`, `combines`, `is_part_of`).
+- **Activity and description.** The node's activity (the ActivityNodeGroup) goes into the **Activity** field of the record; the node's description into the **Description** field.
+- **Periodization.** EMStudio's epochs, which have only a name and dates, are looked up by name in the site's periodization; the ones that are not there become new periods, from the oldest, numbered after the site's last period, in phase 1, with start and end dates and the name as the extended dating. Each unit takes its initial period and phase from the epoch where it is born and its final ones from the last epoch where it survives (or the same as the initial ones).
+- **Site record.** If the site does not exist it is created, with "Extended Matrix" as its definition and a description taken from the graph: name, code, authors and position (EPSG and origin).
+- **Media.** Following the em.json's links — record → resource → file, record → 3D model → resource → file, and the document's url — the files that exist **next to the em.json** (by their path relative to its folder, or by the file name alone in that folder) become media of the record: they are copied into the project's media folder, with thumbnails (this is the QField import folder, tutorial 38: next to the thumbnails folder, **Thumbnail path** in the configuration). Images, videos and 3D models are accepted; PDFs stay in the **Documentation** field of the document's record; the other files (for example `.mtl`, `.zip`) are only counted. The summary says how many media are new, how many were already there and how many cited files were not found: to import them, put the em.json in its project folder, with the files next to it.
+- **Importing again.** Importing the same file again duplicates neither periods nor records: those already present come out as «invariate» (unchanged) or «aggiornate» (updated), and where the database and the file differ the file wins (the summary counts these as «conflitti», conflicts).
+
+The yEd/GraphML route, for moving units between groups, is the one that follows.
 
 To update the SQL database by moving SUs between groups in GraphML:
 

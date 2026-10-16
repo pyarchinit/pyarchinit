@@ -92,13 +92,28 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
-from sqlalchemy import text
+from sqlalchemy import inspect as sa_inspect, text
 
 from s3dgraphy.sync.conflict_resolver import ConflictResolver
 from s3dgraphy.sync.uuid7 import uuid7
 from s3dgraphy.sync.ingest_result import (
     ConflictRecord, ConflictResolution, IngestResult)
 from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+
+from . import em_native_import as _emn
+
+#: Le classi che la libreria salta (``_NON_STRAT_TYPES``) ma che per
+#: pyArchInit sono schede: la catena dei paradati (proprietà, estrattori,
+#: combinatori — «property», «Extractor», «Combinar», come l'import da
+#: yEd) e il reperto virtuale «VSF». Senza di loro i documenti di un
+#: em.json di EMStudio restavano isolati (Enzo, 16 ottobre 2026).
+_PARADATA_ROW_TYPES: frozenset = frozenset({
+    "PropertyNode", "ExtractorNode", "CombinerNode", "VirtualSpecialFindUnit",
+})
+
+#: Le colonne che l'import scrive: quelle del giro di andata e ritorno più
+#: la descrizione (di un nodo di EMStudio) e il periodo finale.
+_WRITE_COLUMNS: tuple = MAPPED_COLUMNS + ("descrizione", "periodo_finale", "fase_finale")
 
 
 # ---------------------------------------------------------------------------
@@ -493,9 +508,49 @@ class GraphIngestor:
         conflicts: list[ConflictRecord] = []
         errors: list[str] = []
 
-        # Pre-compute per-source rapporti from graph edges so the write
-        # path can populate us_table.rapporti as JSON-list-of-lists.
-        rapporti_by_source = _build_rapporti_from_edges(graph, sito)
+        # Le schede, decise una volta per i due giri (rilevazione e
+        # scrittura): un nodo è una scheda se pyArchInit ne conosce il tipo
+        # (unità stratigrafiche e paradati); risorse, file, modelli 3D,
+        # forme e processi restano fuori invece di diventare «US» — la
+        # colonna unita_tipo vale 'US' per default (Enzo, 16 ottobre 2026:
+        # 1064 «US» da TempluMare_v3.2.em.json).
+        rows = _emn.row_nodes(graph, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES,
+                              _is_synthetic_node)
+        names = _emn.row_names(rows, getattr(graph, "edges", None) or [])
+        area_of = {nid: str((getattr(n, "attributes", None) or {}).get("area") or "1")
+                   for nid, (n, _ut) in rows.items()}
+        # I rapporti di ogni scheda, solo verso altre schede: anche fra
+        # virtuali (prima/dopo «>»), reperti e paradati («>>»).
+        rapporti_by_source = _emn.build_rapporti(graph, rows, names, sito, area_of)
+        attivita_of = _emn.activity_of(graph, rows)
+
+        def _prepara(nid, node, unita_tipo):
+            """``(node_uuid, attributi)`` di una scheda, o None."""
+            attrs = dict(getattr(node, "attributes", None) or {})
+            node_uuid = attrs.get("node_uuid") or getattr(node, "node_id", None)
+            if not node_uuid or not names.get(nid):
+                return None
+            attrs["us"] = names[nid]
+            # Always force sito to the populate_list parameter so the user
+            # can import a graph (made for ANY sito) into the chosen target
+            # sito (#3 H.4 fix).
+            attrs["sito"] = sito
+            if "unita_tipo" not in attrs or attrs["unita_tipo"] is None:
+                attrs["unita_tipo"] = unita_tipo
+            # DocumentNode: its `url` goes into documentazione (#6 H.4 fix).
+            if (type(node).__name__ == "DocumentNode"
+                    and not attrs.get("documentazione")):
+                doc_url = getattr(node, "url", None) or attrs.get("url")
+                if doc_url:
+                    attrs["documentazione"] = str(doc_url)
+            if not attrs.get("attivita") and attivita_of.get(nid):
+                attrs["attivita"] = attivita_of[nid]
+            # Un nodo di EMStudio porta il testo nella descrizione del nodo.
+            if not _emn.is_row_born(node) and not attrs.get("descrizione"):
+                testo = str(getattr(node, "description", "") or "").strip()
+                if testo:
+                    attrs["descrizione"] = testo
+            return node_uuid, attrs
 
         # PG-C (5.7.2-alpha): engine.begin() opens an atomic transaction
         # that commits on clean exit / rolls back on exception. Identical
@@ -521,68 +576,23 @@ class GraphIngestor:
                 ).fetchone()
                 if count_row[0] == 0:
                     if not dry_run:
+                        # La scheda sito nasce dal grafo (anche in un
+                        # database vuoto): nome, codice, autori, posizione.
                         conn.execute(
                             text(
                                 "INSERT INTO site_table (sito, nazione, regione, "
-                                "definizione_sito) VALUES (:sito, '', '', "
-                                "'auto-created by AI04 import')"
+                                "definizione_sito, descrizione) VALUES (:sito, '', '', "
+                                ":definizione, :descrizione)"
                             ),
-                            {"sito": sito},
+                            {"sito": sito, "definizione": "Extended Matrix",
+                             "descrizione": _emn.site_description(graph)},
                         )
                     sito_created = True
-                for node in graph.nodes:
-                    # Skip wrapper / metadata node types that have no SQL
-                    # counterpart in us_table (PropertyNode etc. land in
-                    # paradata.graphml under AI05; GeoPositionNode and
-                    # ParadataNodeGroup are layout-only; EpochNode is
-                    # handled in its own loop below).
-                    type_name = type(node).__name__
-                    if type_name in _NON_STRAT_TYPES:
+                for nid, (node, unita_tipo) in rows.items():
+                    pronto = _prepara(nid, node, unita_tipo)
+                    if pronto is None:
                         continue
-                    # Skip graph artifacts (materialized _synth_BR_* diamonds)
-                    # so they never become bogus us_table rows.
-                    if _is_synthetic_node(node):
-                        continue
-                    attrs = dict(getattr(node, "attributes", None) or {})
-                    # Look up by node_uuid. Prefer the explicit attribute
-                    # (set by GraphProjector._propagate_node_uuid_and_us);
-                    # fall back to node_id when the graph was built outside
-                    # the projector and node_id IS the DB uuid.
-                    node_uuid = attrs.get("node_uuid") or getattr(
-                        node, "node_id", None)
-                    if not node_uuid:
-                        continue
-                    # Make sure the node carries a `us` value. Priority:
-                    #   1. attrs["us"] (set by GraphProjector)
-                    #   2. node.name with prefix stripped (graphml-imported)
-                    # Examples of stripping:
-                    #   "USM6"   → "6"
-                    #   "USV102" → "102"
-                    #   "US103a" → "103a"  (us column is TEXT)
-                    if "us" not in attrs or attrs["us"] is None:
-                        fallback_us = getattr(node, "name", None)
-                        if not fallback_us:
-                            continue
-                        attrs["us"] = _strip_us_prefix(str(fallback_us))
-                    # Always force sito to the populate_list parameter so
-                    # the user can import a graph (made for ANY sito) into
-                    # the chosen target sito (#3 H.4 fix).
-                    attrs["sito"] = sito
-                    # unita_tipo is best resolved from the s3dgraphy class
-                    # name when attrs has lost it via round-trip.
-                    if "unita_tipo" not in attrs or attrs["unita_tipo"] is None:
-                        resolved_tipo = _resolve_unita_tipo(node, attrs)
-                        if resolved_tipo:
-                            attrs["unita_tipo"] = resolved_tipo
-                    # DocumentNode: stash its `url` field into the
-                    # documentazione column (#6 H.4 fix). Path is typically
-                    # relative, e.g. "documents/scheda_1.pdf".
-                    if (type_name == "DocumentNode"
-                            and not attrs.get("documentazione")):
-                        doc_url = (getattr(node, "url", None)
-                                   or attrs.get("url"))
-                        if doc_url:
-                            attrs["documentazione"] = str(doc_url)
+                    node_uuid, attrs = pronto
                     # area is part of the natural key used by
                     # _resolve_target_row to detect an existing cross-site copy.
                     area = attrs.get("area") or "1"
@@ -635,7 +645,32 @@ class GraphIngestor:
                         {"sito": sito},
                     ).fetchall()
                 }
+                # Le epoche di EMStudio (id generici, solo nome e date) si
+                # ritrovano nella periodizzazione per node_uuid o per nome,
+                # o diventano periodi nuovi dal più antico (16 ottobre 2026:
+                # quelle di TempluMare venivano saltate).
+                colonne_per = {c["name"] for c in sa_inspect(conn).get_columns(
+                    "periodizzazione_table")}
+                con_uuid = "node_uuid" in colonne_per
+                righe_per = conn.execute(
+                    text(
+                        "SELECT periodo, fase, datazione_estesa, descrizione"
+                        + (", node_uuid" if con_uuid else ", NULL")
+                        + " FROM periodizzazione_table WHERE sito = :sito"
+                    ),
+                    {"sito": sito},
+                ).fetchall()
+                epoch_map, native_epochs = _emn.plan_epochs(graph, [
+                    {"periodo": r[0], "fase": r[1], "datazione_estesa": r[2],
+                     "descrizione": r[3], "node_uuid": r[4]} for r in righe_per])
+                unit_epochs = _emn.unit_epochs(graph, epoch_map)
                 missing_epochs: list[tuple] = []
+                if native_epochs:
+                    if create_missing_epochs:
+                        epochs_created += len(native_epochs)
+                    else:
+                        missing_epochs.extend(
+                            (ep["periodo"], ep["fase"]) for ep in native_epochs)
                 for node in graph.nodes:
                     if not _is_epoch_node_local(node):
                         continue
@@ -669,40 +704,11 @@ class GraphIngestor:
                 # graph.nodes to replay the same decisions made in the
                 # detection loop above, this time issuing actual SQL writes.
                 if not dry_run:
-                    for node in graph.nodes:
-                        type_name = type(node).__name__
-                        if type_name in _NON_STRAT_TYPES:
+                    for nid, (node, unita_tipo) in rows.items():
+                        pronto = _prepara(nid, node, unita_tipo)
+                        if pronto is None:
                             continue
-                        if _is_synthetic_node(node):
-                            continue
-                        attrs = dict(getattr(node, "attributes", None) or {})
-                        # Same priority as the detection loop above:
-                        # explicit attrs.node_uuid wins (projector-built graphs),
-                        # node_id is the fallback (graphs built outside the
-                        # projector where node_id IS the DB uuid).
-                        node_uuid = attrs.get("node_uuid") or getattr(
-                            node, "node_id", None)
-                        if not node_uuid:
-                            continue
-                        if "us" not in attrs or attrs["us"] is None:
-                            fallback_us = getattr(node, "name", None)
-                            if not fallback_us:
-                                continue
-                            attrs["us"] = _strip_us_prefix(str(fallback_us))
-                        # Force sito to parameter (override anything the
-                        # graph carried — the user's choice is authoritative).
-                        attrs["sito"] = sito
-                        if ("unita_tipo" not in attrs
-                                or attrs["unita_tipo"] is None):
-                            resolved_tipo = _resolve_unita_tipo(node, attrs)
-                            if resolved_tipo:
-                                attrs["unita_tipo"] = resolved_tipo
-                        if (type_name == "DocumentNode"
-                                and not attrs.get("documentazione")):
-                            doc_url = (getattr(node, "url", None)
-                                       or attrs.get("url"))
-                            if doc_url:
-                                attrs["documentazione"] = str(doc_url)
+                        node_uuid, attrs = pronto
                         # area is part of the UNIQUE constraint
                         # (sito, area, us, unita_tipo) — default to "1"
                         # if the graph doesn't carry it.
@@ -715,25 +721,28 @@ class GraphIngestor:
                         # the latter may carry the SOURCE sito (e.g.
                         # "TestSite") which we want overridden to the
                         # target sito.
-                        if node_uuid in rapporti_by_source:
+                        if nid in rapporti_by_source:
                             attrs["rapporti"] = str(
-                                rapporti_by_source[node_uuid])
+                                rapporti_by_source[nid])
                         elif "rapporti" in attrs and attrs["rapporti"]:
                             # Hydrated string — rewrite the sito in each
                             # rapporto to the target sito.
                             attrs["rapporti"] = _rewrite_rapporti_sito(
                                 attrs["rapporti"], sito)
-                        # periodizzazione from has_first_epoch edges (#5).
-                        p_iniz, f_iniz = _find_first_epoch(
-                            graph, node_uuid)
-                        if p_iniz is not None and (
-                                "periodo_iniziale" not in attrs
-                                or not attrs["periodo_iniziale"]):
-                            attrs["periodo_iniziale"] = str(p_iniz)
-                        if f_iniz is not None and (
-                                "fase_iniziale" not in attrs
-                                or not attrs["fase_iniziale"]):
-                            attrs["fase_iniziale"] = str(f_iniz)
+                        # periodizzazione from has_first_epoch edges (#5),
+                        # anche dalle epoche di EMStudio; il periodo finale
+                        # (survive_in_epoch) solo per i nodi di EMStudio:
+                        # quelli nati da una scheda lo portano già.
+                        epoche_unita = unit_epochs.get(nid, {})
+                        for campo in ("periodo_iniziale", "fase_iniziale"):
+                            valore = epoche_unita.get(campo)
+                            if valore is not None and not attrs.get(campo):
+                                attrs[campo] = str(valore)
+                        if not _emn.is_row_born(node):
+                            for campo in ("periodo_finale", "fase_finale"):
+                                valore = epoche_unita.get(campo)
+                                if valore is not None and not attrs.get(campo):
+                                    attrs[campo] = str(valore)
                         # Resolve the target row. Same-site → UPDATE in
                         # place; cross-site → COPY (INSERT with eff_uuid =
                         # fresh uuid7) so the source site is never moved /
@@ -743,7 +752,7 @@ class GraphIngestor:
                             conn, node_uuid, sito, attrs.get("area") or "1",
                             attrs.get("us"), attrs.get("unita_tipo"))
                         col_payload = {col: attrs.get(col)
-                                       for col in MAPPED_COLUMNS
+                                       for col in _WRITE_COLUMNS
                                        if col in attrs}
                         col_payload["node_uuid"] = eff_uuid
                         col_payload["sito"] = sito
@@ -769,7 +778,7 @@ class GraphIngestor:
                             db_row = existing
                             diff_cols = []
                             diff_vals = []
-                            for col in MAPPED_COLUMNS:
+                            for col in _WRITE_COLUMNS:
                                 if col not in attrs or col == "node_uuid":
                                     continue
                                 if _values_equal(col, db_row.get(col),
@@ -854,6 +863,31 @@ class GraphIngestor:
                                     "datazione": datazione,
                                 },
                             )
+
+                    # Le epoche di EMStudio: periodo e fase pianificati in
+                    # plan_epochs, date e nome dal nodo, l'id nel node_uuid
+                    # perché una seconda importazione le ritrovi.
+                    if create_missing_epochs:
+                        for ep in native_epochs:
+                            def _anno(v):
+                                try:
+                                    return int(float(v))
+                                except (TypeError, ValueError):
+                                    return None
+                            colonne = ["sito", "periodo", "fase", "descrizione",
+                                       "cron_iniziale", "cron_finale", "datazione_estesa"]
+                            valori = {"sito": sito, "periodo": ep["periodo"], "fase": ep["fase"],
+                                      "descrizione": ep["descrizione"],
+                                      "cron_iniziale": _anno(ep["inizio"]),
+                                      "cron_finale": _anno(ep["fine"]),
+                                      "datazione_estesa": ep["nome"]}
+                            if con_uuid:
+                                colonne.append("node_uuid")
+                                valori["node_uuid"] = ep["node_id"]
+                            conn.execute(
+                                text("INSERT INTO periodizzazione_table (%s) VALUES (%s)"
+                                     % (", ".join(colonne), ", ".join(":" + c for c in colonne))),
+                                valori)
 
                 # AI06 D.2: optional SQL UPDATE from group folders in the
                 # source GraphML. Runs INSIDE the same atomic transaction

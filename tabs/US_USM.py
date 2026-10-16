@@ -20633,19 +20633,17 @@ DATABASE SCHEMA KNOWLEDGE:
             site = self.comboBox_sito.currentText()
             area = self.comboBox_area.currentText()
             
-            if not site:
-                QMessageBox.warning(self, "No Site Selected",
-                                  "Please select a site before exporting.",
-                                  QMessageBox.StandardButton.Ok)
-                return
-            
-            # Show integrated export dialog
+            # Senza sito (database vuoto) la finestra si apre
+            # sull'importazione di un em.json: il sito nasce da lì
+            # (Enzo, 16 ottobre 2026).
             dialog = S3DGraphyExportDialog(
                 self,
                 self.DB_MANAGER,
-                site,
+                site or None,
                 area if area else None
             )
+            if not site:
+                dialog.show_import_tab()
             
             if dialog.exec():
                 # Export was successful

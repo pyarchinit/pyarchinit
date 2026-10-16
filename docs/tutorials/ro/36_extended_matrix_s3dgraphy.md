@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `ordine-matrice-5.13.117-alpha` (2026-10-13).
+Tag curent: `em-import-5.13.121-alpha` (2026-10-16).
 
 ---
 
@@ -100,6 +100,29 @@ O unitate poate fi în mai multe grupuri deodată — o arie, un sector, un sond
 ## 5. Round-trip (tab Import)
 
 > **Ce se poate importa**: tab-ul Import citește acum și **em.json** — cel de la EMStudio sau de la nodul StratiGraph — și alege cititorul după extensia fișierului; un `.graphml` de yEd rămâne acceptat pentru fișierele de dinainte. Procedura de mai jos, mutarea UE între grupuri, se referă la calea yEd/GraphML.
+
+### 5.0 Importul unui em.json din EMStudio (chiar și cu baza de date goală)
+
+Un em.json scris de **EMStudio** (nu de pyArchInit) se importă în baza de date pyArchInit **chiar și atunci când baza de date este goală** (din 5.13.121-alpha): situl, perioadele, fișele, relațiile și fișierele media se nasc din fișier, fără a fi nevoie să creezi mai întâi vreun sit.
+
+1. Deschide meniul **Plugins → pyArchInit - Archaeological GIS Tools** și alege intrarea **Extended Matrix → Importa em.json…** (Importă em.json): fereastra Extended Matrix se deschide direct pe tab-ul **Import**, chiar dacă baza de date nu are niciun sit. Din fișa US se ajunge în același loc: butonul verde **Esporta Extended Matrix**, fără un sit ales, deschide aceeași fereastră pe tab-ul Import în loc să se oprească (**exportul**, în schimb, continuă să ceară un sit).
+2. Apasă **Browse…** și alege em.json.
+3. Verifică **Sito target:** (situl-țintă). Dacă este gol — cazul unei baze de date fără situri —, se propune numele grafului scris în em.json (de exemplu «Temple») sau, dacă lipsește, numele fișierului fără «.em.json»; poate fi modificat. Dacă în câmp apare deja un sit (cu o bază de date care are situri: cel al fișei US din care ai pornit sau, din meniu, primul în ordine alfabetică), nu se propune niciun nume: scrie numele sitului nou sau alege-l pe cel în care vrei să imporți. Dedesubt sunt două căsuțe, bifate implicit: **Crea periodi mancanti se assenti** (Creează perioadele lipsă — dacă o debifezi și situl nu are deja perioadele din fișier, importul se oprește cu eroarea «MissingEpochError») și **Importa anche i media citati (file accanto all'em.json)** (Importă și fișierele media citate — fișiere lângă em.json).
+4. Apasă **Anteprima** (Previzualizare): nu scrie nimic și spune câte fișe sunt noi, actualizate și neschimbate, câte perioade sunt noi și, într-o listă, câte fișe de ce tip și câte noduri ale fișierului nu devin fișe.
+5. Apasă **Applica** (Aplică; se activează după previzualizare): importă și arată același rezumat, plus pe cel al fișierelor media.
+
+Ce se întâmplă, pe scurt:
+
+- **Ce devine fișă.** Doar unitățile al căror tip îl cunoaște pyArchInit (US, USM, USD, USVs, USVn, serUSVn, SF, VSF, RSF, USN, USNt…) și paradatele: proprietățile (`property`), extractorii (`Extractor`), combinatorii (`Combinar`) și documentele (`DOC`). Resursele, fișierele, modelele 3D, formele semantice, procesele geamănului digital, grupurile, epocile și narațiunea **nu** devin fișe: înainte de 5.13.121-alpha deveneau toate «US».
+- **Numele (câmpul US).** Numele nodului fără prefixul tipului: USV105 → 105, D.05 → 05, D.05.02 → 05.02. Proprietățile care au același nume (de exemplu «height», care apare la multe unități) primesc între paranteze numele unității de care aparțin: «height (105)». Dacă două tipuri diferite ar da același număr — combinatorul «C.10» și documentul «D.10», US «SU002» și USD «USD002» —, tipul mai puternic (US, apoi celelalte unități, apoi documentele, extractorii, combinatorii) păstrează numărul, iar celălalt păstrează numele complet din EMStudio («C.10», «USD002»), ca relațiile să nu se încurce.
+- **Relațiile.** Între două US/USM sunt cele obișnuite din pyArchInit («Copre» (acoperă), «Taglia» (taie)…), iar relația «vine după» (`is_after`: unitatea este mai recentă decât cealaltă) între două US se scrie «Copre». Între unități de tipuri diferite relațiile fizice se scriu pe larg («Taglia», «Si appoggia a» (se sprijină pe)), relația «vine după» cu `>` (`A > B`: A este mai recentă decât B), iar lanțul paradatelor — unitate → proprietate → extractor sau combinator → document, și descoperirea «parte din» o descoperire virtuală — cu `>>`. Perioadele, activitățile, grupurile și resursele nu sunt relații. La export, aceste semne redevin muchiile Extended Matrix (`is_after`, `has_property`, `has_data_provenance`, `extracted_from`, `combines`, `is_part_of`).
+- **Activitate și descriere.** Activitatea nodului (grupul ActivityNodeGroup) merge în câmpul **Activitate** al fișei; descrierea nodului, în câmpul **Descriere**.
+- **Periodizare.** Epocile din EMStudio, care au doar nume și date, se regăsesc după nume în periodizarea sitului; cele care nu există devin perioade noi, de la cea mai veche, numerotate după ultima perioadă a sitului, în faza 1, cu datele de început și de sfârșit și numele ca datare extinsă. Fiecare unitate preia perioada și faza inițiale de la epoca în care se naște, iar pe cele finale de la ultima epocă în care supraviețuiește (sau aceleași cu cele inițiale).
+- **Fișa sitului.** Dacă situl nu există, este creat, cu «Extended Matrix» ca definiție și o descriere luată din graf: nume, cod, autori și poziție (EPSG și origine).
+- **Fișiere media.** Urmând legăturile din em.json — fișă → resursă → fișier, fișă → model 3D → resursă → fișier, și url-ul documentului —, fișierele care există **lângă em.json** (cu calea relativă la folderul său, sau doar cu numele fișierului din acel folder) devin fișiere media ale fișei: sunt copiate în folderul media al proiectului, cu miniaturi (este folderul importului din QField, tutorialul 38: lângă cel al miniaturilor, **Thumbnail path** în configurare). Contează imaginile, videoclipurile și modelele 3D; PDF-urile rămân în câmpul **Documentare** al fișei documentului; celelalte fișiere (de exemplu `.mtl`, `.zip`) sunt doar numărate. Rezumatul spune câte fișiere media sunt noi, câte erau deja prezente și câte fișiere citate nu au fost găsite: pentru a le importa, pune em.json în folderul său de proiect, cu fișierele alături.
+- **Reimportarea.** Importul aceluiași fișier încă o dată nu dublează nici perioadele, nici fișele: cele deja prezente apar ca «invariate» (neschimbate) sau «aggiornate» (actualizate), iar acolo unde baza de date și fișierul diferă, câștigă fișierul (rezumatul le numără drept «conflitti», conflicte).
+
+Calea yEd/GraphML, pentru mutarea unităților între grupuri, este cea care urmează.
 
 Pentru a modifica baza SQL mutând UE între grupuri în GraphML:
 

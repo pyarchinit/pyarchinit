@@ -9,7 +9,7 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `ordine-matrice-5.13.117-alpha` (2026-10-13).
+Tag actual: `em-import-5.13.121-alpha` (2026-10-16).
 
 ---
 
@@ -100,6 +100,29 @@ Una unitat pot estar en diversos grups alhora — una àrea, un sector, un sonde
 ## 5. Round-trip (pestanya Import)
 
 > **Què es pot importar**: la pestanya Import llegeix ara també **em.json** — el d'EMStudio o el del node StratiGraph — i tria el lector segons l'extensió del fitxer; el `.graphml` de yEd continua acceptant-se per als fitxers d'abans. El procediment de sota, moure UE entre grups, es refereix a la via yEd/GraphML.
+
+### 5.0 Importar un em.json d'EMStudio (fins i tot amb la base de dades buida)
+
+Un em.json escrit per **EMStudio** (no per pyArchInit) s'importa a la base de dades de pyArchInit **fins i tot quan la base de dades és buida** (des de la 5.13.121-alpha): el lloc, els períodes, les fitxes, les relacions i els mèdia neixen del fitxer, sense haver de crear abans cap lloc.
+
+1. Obrir el menú **Plugins → pyArchInit - Archaeological GIS Tools** i triar l'entrada **Extended Matrix → Importa em.json…** (Importar em.json): la finestra de l'Extended Matrix s'obre ja a la pestanya **Import**, encara que la base de dades no tingui cap lloc. Des de la fitxa US s'arriba al mateix punt: el botó verd **Esporta Extended Matrix**, sense cap lloc triat, obre la mateixa finestra a la pestanya Import en lloc d'aturar-se (l'**exportació**, en canvi, continua demanant un lloc).
+2. Prémer **Browse…** i triar l'em.json.
+3. Comprovar el **Sito target:** (lloc de destinació). Si és buit —el cas d'una base de dades sense llocs—, es proposa el nom del graf escrit a l'em.json (per exemple «Temple») o, si falta, el nom del fitxer sense «.em.json»; es pot modificar. Si el camp ja mostra un lloc (amb una base de dades que en té: el de la fitxa US de la qual es parteix o, des del menú, el primer per ordre alfabètic), no es proposa cap nom: escriure el nom del lloc nou o triar aquell on s'ha d'importar. A sota hi ha dues caselles, marcades per defecte: **Crea periodi mancanti se assenti** (Crea els períodes que manquen — si es desmarca i el lloc no té ja els períodes del fitxer, la importació s'atura amb l'error «MissingEpochError») i **Importa anche i media citati (file accanto all'em.json)** (Importa també els mèdia citats — fitxers al costat de l'em.json).
+4. Prémer **Anteprima** (Previsualització): no escriu res, i diu quantes fitxes són noves, actualitzades i sense canvis, quants períodes són nous i, en llista, quantes fitxes de quin tipus i quants nodes del fitxer no esdevenen fitxes.
+5. Prémer **Applica** (Aplica; s'activa després de la previsualització): importa i mostra el mateix resum, més el dels mèdia.
+
+Què passa, en breu:
+
+- **Què esdevé fitxa.** Només les unitats de les quals pyArchInit coneix el tipus (US, USM, USD, USVs, USVn, serUSVn, SF, VSF, RSF, USN, USNt…) i els paradata: propietats (`property`), extractors (`Extractor`), combinadors (`Combinar`) i documents (`DOC`). Els recursos, fitxers, models 3D, formes semàntiques, processos del bessó digital, grups, èpoques i la narrativa **no** esdevenen fitxes: abans de la 5.13.121-alpha esdevenien totes «US».
+- **Els noms (camp US).** El nom del node sense el prefix del tipus: USV105 → 105, D.05 → 05, D.05.02 → 05.02. Les propietats que tenen el mateix nom (per exemple «height», que apareix en moltes unitats) reben entre parèntesis el nom de la unitat a la qual pertanyen: «height (105)». Si dos tipus diferents donarien el mateix número —el combinador «C.10» i el document «D.10», la US «SU002» i la USD «USD002»—, el tipus més fort (la US, després les altres unitats, després els documents, els extractors i els combinadors) conserva el número i l'altre conserva el nom complet d'EMStudio («C.10», «USD002»), perquè les relacions no es confonguin.
+- **Les relacions.** Entre dues US/USM són les de sempre de pyArchInit («Copre» (cobreix), «Taglia» (talla)…), i la relació «ve després de» (`is_after`: la unitat és més recent que l'altra) entre dues US s'escriu «Copre». Entre unitats de tipus diferents les relacions físiques s'escriuen senceres («Taglia», «Si appoggia a» (es recolza a)), la relació «ve després de» amb `>` (`A > B`: A és més recent que B), i la cadena dels paradata —unitat → propietat → extractor o combinador → document, i la troballa «part de» una troballa virtual— amb `>>`. Els períodes, les activitats, els grups i els recursos no són relacions. A l'exportació, aquests signes tornen a ser les arestes de l'Extended Matrix (`is_after`, `has_property`, `has_data_provenance`, `extracted_from`, `combines`, `is_part_of`).
+- **Activitat i descripció.** L'activitat del node (el grup ActivityNodeGroup) va al camp **Activitat** de la fitxa; la descripció del node, al camp **Descripció**.
+- **Periodització.** Les èpoques d'EMStudio, que només tenen nom i dates, es localitzen pel nom a la periodització del lloc; les que no hi són esdevenen períodes nous, des del més antic, numerats després de l'últim període del lloc, en fase 1, amb les dates d'inici i de fi i el nom com a datació estesa. Cada unitat pren el període i la fase inicials de l'època en què neix, i els finals de l'última època en què sobreviu (o iguals als inicials).
+- **Fitxa del lloc.** Si el lloc no existeix, es crea, amb «Extended Matrix» com a definició i una descripció presa del graf: nom, codi, autors i posició (EPSG i origen).
+- **Mèdia.** Seguint els vincles de l'em.json —fitxa → recurs → fitxer, fitxa → model 3D → recurs → fitxer, i l'url del document—, els fitxers que existeixen **al costat de l'em.json** (amb la ruta relativa a la seva carpeta, o amb només el nom del fitxer en aquesta carpeta) esdevenen mèdia de la fitxa: es copien a la carpeta de mèdia del projecte, amb les miniatures (és la carpeta de la importació des de QField, tutorial 38: al costat de la de les miniatures, **Thumbnail path** a la configuració). Compten les imatges, els vídeos i els models 3D; els PDF es queden al camp **Documentació** de la fitxa del document; els altres fitxers (per exemple `.mtl`, `.zip`) només es compten. El resum diu quants mèdia són nous, quants ja hi eren i quants fitxers citats no s'han trobat: per importar-los, cal posar l'em.json a la seva carpeta de projecte, amb els fitxers al costat.
+- **Reimportar.** Tornar a importar el mateix fitxer no duplica ni els períodes ni les fitxes: les que ja hi són surten com a «invariate» (sense canvis) o «aggiornate» (actualitzades), i allà on la base de dades i el fitxer difereixen guanya el fitxer (el resum les compta com a «conflitti», conflictes).
+
+La via yEd/GraphML, per moure unitats entre grups, és la que segueix.
 
 Per modificar la base SQL movent UE entre grups en GraphML:
 

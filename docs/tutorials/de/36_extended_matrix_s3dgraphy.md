@@ -9,7 +9,7 @@ Ab Version **5.2.0-alpha** integriert PyArchInit eine **bidirektionale Bridge** 
 - **Anhängen von Paradata** (Author / License / Embargo) auf Stättenebene
 - **Gruppieren** von SE nach Dimension (struttura, area, attivita, settore, ambient, saggio, quad_par oder Ad-hoc-Gruppen)
 
-Aktueller Tag: `ordine-matrice-5.13.117-alpha` (2026-10-13).
+Aktueller Tag: `em-import-5.13.121-alpha` (2026-10-16).
 
 ---
 
@@ -100,6 +100,29 @@ Eine Einheit kann zugleich in mehreren Gruppen liegen — einem Areal, einem Sek
 ## 5. Round-trip (Import-Tab)
 
 > **Was importiert werden kann**: der Import-Tab liest nun auch **em.json** — aus EMStudio oder von einem StratiGraph-Knoten — und wählt den Leser nach der Dateiendung; eine yEd-`.graphml` wird für ältere Dateien weiterhin angenommen. Das Verfahren unten, SE zwischen Gruppen zu verschieben, betrifft den Weg über yEd/GraphML.
+
+### 5.0 Eine em.json aus EMStudio importieren (auch in eine leere Datenbank)
+
+Eine em.json, die von **EMStudio** (nicht von pyArchInit) geschrieben wurde, lässt sich in die pyArchInit-Datenbank importieren — **auch wenn die Datenbank leer ist** (ab 5.13.121-alpha): Die Stätte, die Perioden, die Datensätze, die Beziehungen und die Medien entstehen aus der Datei, ohne dass zuvor eine Stätte angelegt werden muss.
+
+1. Das Menü **Plugins → pyArchInit - Archaeological GIS Tools** öffnen und den Eintrag **Extended Matrix → Importa em.json…** (em.json importieren) wählen: Das Fenster der Extended Matrix öffnet sich gleich auf dem Tab **Import**, auch wenn die Datenbank keine einzige Stätte enthält. Vom SE-Formular aus gelangt man an dieselbe Stelle: Die grüne Schaltfläche **Esporta Extended Matrix** öffnet, wenn keine Stätte gewählt ist, dasselbe Fenster auf dem Tab Import, statt abzubrechen (der **Export** verlangt dagegen weiterhin eine Stätte).
+2. **Browse…** drücken und die em.json wählen.
+3. Das Feld **Sito target:** (Zielstätte) prüfen. Ist es leer — der Fall einer Datenbank ohne Stätten —, wird der in der em.json geschriebene Name des Graphen vorgeschlagen (zum Beispiel «Temple») oder, falls er fehlt, der Dateiname ohne «.em.json»; er lässt sich ändern. Steht dort bereits eine Stätte (bei einer Datenbank mit Stätten: die des SE-Formulars, von dem man ausgeht, oder, vom Menü aus, die alphabetisch erste), wird kein Name vorgeschlagen: den Namen der neuen Stätte eintippen oder die Stätte wählen, in die importiert werden soll. Darunter stehen zwei Checkboxen, standardmäßig aktiviert: **Crea periodi mancanti se assenti** (Fehlende Perioden anlegen — wird sie deaktiviert und hat die Stätte die Perioden der Datei noch nicht, bricht der Import mit dem Fehler «MissingEpochError» ab) und **Importa anche i media citati (file accanto all'em.json)** (Auch die zitierten Medien importieren — Dateien neben der em.json).
+4. **Anteprima** (Vorschau) drücken: Es wird nichts geschrieben, und die Zusammenfassung sagt, wie viele Datensätze neu, aktualisiert und unverändert sind, wie viele Perioden neu sind und, als Liste, wie viele Datensätze welchen Typs und wie viele Knoten der Datei keine Datensätze werden.
+5. **Applica** (Anwenden; die Schaltfläche wird nach der Vorschau aktiv) drücken: Der Import läuft, und dieselbe Zusammenfassung erscheint, dazu die der Medien.
+
+Was dabei geschieht, in Kürze:
+
+- **Was zum Datensatz wird.** Nur die Einheiten, deren Typ pyArchInit kennt (US, USM, USD, USVs, USVn, serUSVn, SF, VSF, RSF, USN, USNt …), und die Paradata: Eigenschaften (`property`), Extraktoren (`Extractor`), Kombinierer (`Combinar`) und Dokumente (`DOC`). Ressourcen, Dateien, 3D-Modelle, semantische Formen, Prozesse des digitalen Zwillings, Gruppen, Epochen und die Erzählung werden **nicht** zu Datensätzen: Vor 5.13.121-alpha wurden sie alle zu «US».
+- **Die Namen (Feld US).** Der Name des Knotens ohne das Typpräfix: USV105 → 105, D.05 → 05, D.05.02 → 05.02. Eigenschaften mit gleichem Namen (zum Beispiel «height», das bei vielen Einheiten vorkommt) erhalten in Klammern den Namen der Einheit, zu der sie gehören: «height (105)». Würden zwei verschiedene Typen dieselbe Nummer ergeben — der Kombinierer «C.10» und das Dokument «D.10», die US «SU002» und die USD «USD002» —, behält der stärkere Typ (die US, dann die übrigen Einheiten, dann Dokumente, Extraktoren, Kombinierer) die Nummer, und der andere behält den vollständigen EMStudio-Namen («C.10», «USD002»), damit die Beziehungen nicht verwechselt werden.
+- **Die Beziehungen.** Zwischen zwei US/USM sind es die gewohnten pyArchInit-Beziehungen («Copre» (überlagert), «Taglia» (schneidet) …), und die Beziehung «kommt nach» (`is_after`: die Einheit ist jünger als die andere) zwischen zwei US wird «Copre» geschrieben. Zwischen Einheiten verschiedenen Typs werden die physischen Beziehungen ausgeschrieben («Taglia», «Si appoggia a» (lehnt an)), die Beziehung «kommt nach» mit `>` (`A > B`: A ist jünger als B), und die Paradata-Kette — Einheit → Eigenschaft → Extraktor oder Kombinierer → Dokument sowie der Fund «Teil von» einem virtuellen Fund — mit `>>`. Perioden, Aktivitäten, Gruppen und Ressourcen sind keine Beziehungen. Beim Export werden aus diesen Zeichen wieder die Kanten der Extended Matrix (`is_after`, `has_property`, `has_data_provenance`, `extracted_from`, `combines`, `is_part_of`).
+- **Aktivität und Beschreibung.** Die Aktivität des Knotens (die Gruppe ActivityNodeGroup) kommt in das Feld **Aktivität** des Datensatzes, die Beschreibung des Knotens in das Feld **Beschreibung**.
+- **Periodisierung.** Die Epochen aus EMStudio, die nur einen Namen und Daten haben, werden in der Periodisierung der Stätte über den Namen wiedergefunden; fehlende werden zu neuen Perioden, von der ältesten an, nummeriert nach der letzten Periode der Stätte, in Phase 1, mit Anfangs- und Enddatum und dem Namen als erweiterter Datierung. Jede Einheit übernimmt Anfangsperiode und -phase von der Epoche, in der sie entsteht, und Endperiode und -phase von der letzten Epoche, in der sie fortbesteht (oder dieselben wie die anfänglichen).
+- **Stättendatensatz.** Existiert die Stätte nicht, wird sie angelegt, mit «Extended Matrix» als Definition und einer aus dem Graphen entnommenen Beschreibung: Name, Code, Autoren und Position (EPSG und Ursprung).
+- **Medien.** Entlang der Verknüpfungen der em.json — Datensatz → Ressource → Datei, Datensatz → 3D-Modell → Ressource → Datei und die URL des Dokuments — werden die Dateien, die **neben der em.json** liegen (mit ihrem Pfad relativ zu deren Ordner oder allein mit dem Dateinamen in diesem Ordner), zu Medien des Datensatzes: Sie werden in den Medienordner des Projekts kopiert, mit Vorschaubildern (es ist der Ordner des QField-Imports, Tutorial 38: neben dem Vorschaubilder-Ordner, **Thumbnail path** in der Konfiguration). Es zählen Bilder, Videos und 3D-Modelle; PDFs bleiben im Feld **Dokumentation** des Dokument-Datensatzes; die übrigen Dateien (zum Beispiel `.mtl`, `.zip`) werden nur gezählt. Die Zusammenfassung sagt, wie viele Medien neu sind, wie viele schon vorhanden waren und wie viele zitierte Dateien nicht gefunden wurden: Um sie zu importieren, die em.json in ihren Projektordner legen, mit den Dateien daneben.
+- **Erneut importieren.** Dieselbe Datei erneut zu importieren verdoppelt weder Perioden noch Datensätze: Bereits vorhandene erscheinen als «invariate» (unverändert) oder «aggiornate» (aktualisiert), und wo Datenbank und Datei voneinander abweichen, gewinnt die Datei (die Zusammenfassung zählt sie als «conflitti», Konflikte).
+
+Es folgt der Weg über yEd/GraphML, um Einheiten zwischen Gruppen zu verschieben.
 
 Um die SQL-Datenbank durch das Verschieben von SE zwischen Gruppen im GraphML zu aktualisieren:
 

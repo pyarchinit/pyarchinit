@@ -48,6 +48,49 @@ def read_graph_for_import(path):
         % os.path.basename(str(path)))
 
 
+def suggested_site_name(path):
+    """Il nome proposto per il sito di destinazione: il nome del grafo
+    nell'em.json (per lingua, ``{'default': …}``), altrimenti il nome del
+    file senza «.em.json»."""
+    nome_file = os.path.basename(str(path))
+    for coda in (".em.json", ".json", ".graphml"):
+        if nome_file.lower().endswith(coda):
+            nome_file = nome_file[: -len(coda)]
+            break
+    try:
+        import json as _json
+        with open(str(path), encoding="utf-8") as fh:
+            dati = _json.load(fh)
+        grafi = dati.get("graphs") or {}
+        if isinstance(grafi, dict):
+            grafo = grafi.get(dati.get("active_graph_id")) or next(iter(grafi.values()), {})
+        else:
+            grafo = grafi[0] if grafi else {}
+        nome = grafo.get("name")
+        if isinstance(nome, dict):
+            nome = nome.get("default") or next(iter(nome.values()), "")
+        nome = str(nome or "").strip()
+        if nome:
+            return nome
+    except Exception:                               # noqa: BLE001
+        pass
+    return nome_file
+
+
+def _import_breakdown(graph):
+    """Quante schede di che tipo, quanti nodi restano fuori (risorse,
+    file, modelli, processi…): il riepilogo per la finestra."""
+    try:
+        from modules.s3dgraphy.sync import em_native_import as _emn
+        from modules.s3dgraphy.sync.graph_ingestor import (
+            _NON_STRAT_TYPES, _PARADATA_ROW_TYPES, _is_synthetic_node)
+        rows = _emn.row_nodes(graph, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES,
+                              _is_synthetic_node)
+        return _emn.summary_text(*_emn.summarize(graph, rows))
+    except Exception:                               # noqa: BLE001
+        return ""
+
+
 def _pyarchinit_plugin():
     """Il plugin caricato in QGIS, o None fuori da QGIS."""
     try:
@@ -459,8 +502,17 @@ if QGIS_AVAILABLE:
             import_layout.addLayout(sito_row)
 
             self.cb_create_epochs = QCheckBox("Crea periodi mancanti se assenti")
-            self.cb_create_epochs.setChecked(False)
+            # Per default sì: le epoche di un em.json di EMStudio non sono
+            # mai nella periodizzazione del sito (16 ottobre 2026).
+            self.cb_create_epochs.setChecked(True)
             import_layout.addWidget(self.cb_create_epochs)
+
+            # I file che l'em.json cita (immagini, video, modelli 3D accanto
+            # all'em.json) diventano media delle schede (16 ottobre 2026).
+            self.cb_import_media = QCheckBox(
+                "Importa anche i media citati (file accanto all'em.json)")
+            self.cb_import_media.setChecked(True)
+            import_layout.addWidget(self.cb_import_media)
 
             # AI06: opt-in SQL UPDATE for SQL-derived group kinds
             # (struttura/area/attivita/settore/ambient/saggio/quad_par).
@@ -488,6 +540,7 @@ if QGIS_AVAILABLE:
 
             import_tab.setLayout(import_layout)
             self.tabs.addTab(import_tab, "Import")
+            self._import_tab = import_tab
 
             # ---- Verifica rapporti tab ----
             # Same validators + conservative auto-fix as the former
@@ -577,8 +630,22 @@ if QGIS_AVAILABLE:
                 return
             slot()
 
+        def show_import_tab(self):
+            """Porta la finestra sulla scheda «Import» (dal menu, o dalla
+            scheda US senza sito: con il database vuoto si comincia da qui)."""
+            try:
+                self.tabs.setCurrentWidget(self._import_tab)
+            except Exception:                       # noqa: BLE001
+                pass
+
         def on_export(self):
             """Handle export button click"""
+            if not self.site:
+                QMessageBox.warning(
+                    self, "Nessun sito",
+                    "Per esportare scegli prima un sito nella scheda US. "
+                    "Per importare un em.json usa la scheda «Import».")
+                return
             # Get output directory
             output_dir = QFileDialog.getExistingDirectory(
                 self,
@@ -723,6 +790,10 @@ if QGIS_AVAILABLE:
                 "Tutti i file (*)")
             if path:
                 self.le_import_file.setText(path)
+                # Con il database vuoto non c'è un sito da scegliere: si
+                # propone il nome del grafo (o del file).
+                if not self.cb_sito.currentText().strip():
+                    self.cb_sito.setEditText(suggested_site_name(path))
 
         def _on_import_preview(self):
             """Run dry-run populate_list and show summary."""
@@ -822,10 +893,11 @@ if QGIS_AVAILABLE:
             self._last_preview_path = graphml_path    # solo per il ramo yEd
             self._last_source_path = source_path
             self.import_summary.setText(
-                f"Preview: applied={result.applied} "
-                f"(inserted={result.inserted}, updated={result.updated}, "
-                f"skipped={result.skipped}, conflicts={len(result.conflicts)}, "
-                f"epochs_created={result.epochs_created})")
+                f"Anteprima su «{target_sito}»: {result.inserted} schede nuove, "
+                f"{result.updated} aggiornate, {result.skipped} invariate, "
+                f"{result.epochs_created} periodi nuovi, "
+                f"{len(result.conflicts)} conflitti.\n"
+                + _import_breakdown(graph))
             self.btn_apply.setEnabled(True)
 
         def _on_import_apply(self):
@@ -897,14 +969,17 @@ if QGIS_AVAILABLE:
                 QMessageBox.critical(
                     self, "Import failed", f"{type(e).__name__}: {e}")
                 return
+            esito_media = ""
+            if self.cb_import_media.isChecked():
+                esito_media = self._import_media(graph, target_sito)
             QMessageBox.information(
-                self, "Import complete",
-                f"Applied: {result.applied}\n"
-                f"  inserted: {result.inserted}\n"
-                f"  updated: {result.updated}\n"
-                f"  skipped: {result.skipped}\n"
-                f"  epochs created: {result.epochs_created}\n"
-                f"  conflicts (resolved as graph_wins): {len(result.conflicts)}")
+                self, "Importazione completata",
+                (esito_media + "\n\n" if esito_media else "") +
+                f"Sito «{target_sito}»: {result.inserted} schede nuove, "
+                f"{result.updated} aggiornate, {result.skipped} invariate, "
+                f"{result.epochs_created} periodi nuovi, "
+                f"{len(result.conflicts)} conflitti (vince il file).\n\n"
+                + _import_breakdown(graph))
             self.btn_apply.setEnabled(False)
 
             # Steer the user to the "Verifica rapporti" tab on the site just
@@ -916,6 +991,29 @@ if QGIS_AVAILABLE:
                     self.tabs.setCurrentWidget(self.rapporti_panel)
                 except Exception:
                     pass
+
+        def _import_media(self, graph, target_sito):
+            """I media citati dall'em.json, dopo le schede: copiati nella
+            cartella dei media del progetto con le miniature. Torna la riga
+            di riepilogo (o il perché non si è fatto)."""
+            try:
+                from modules.s3dgraphy.sync.em_media_import import import_emjson_media
+                from modules.utility.qfield_importer import default_media_dest
+                thumb_path = thumb_resize = ""
+                try:
+                    from modules.db.pyarchinit_conn_strings import Connection
+                    conn = Connection()
+                    thumb_path = conn.thumb_path().get("thumb_path", "") or ""
+                    thumb_resize = conn.thumb_resize().get("thumb_resize", "") or ""
+                except Exception:                   # noqa: BLE001
+                    pass
+                esito = import_emjson_media(
+                    self.db_manager, graph, target_sito, self._last_source_path,
+                    media_dest=default_media_dest(thumb_path) or None,
+                    thumb_path=thumb_path or None, thumb_resize=thumb_resize or None)
+                return "Media: " + esito.summary()
+            except Exception as e:                  # noqa: BLE001
+                return "Media non importati: %s" % e
 
         def _offer_node_uuid_migration(self, db_input, error) -> bool:
             """Offer to auto-apply the Phase 1 node_uuid backfill migration.
@@ -1030,21 +1128,16 @@ if QGIS_AVAILABLE:
                 site = us_usm_instance.comboBox_sito.currentText()
                 area = us_usm_instance.comboBox_area.currentText()
                 
-                if not site:
-                    QMessageBox.warning(
-                        us_usm_instance,
-                        "No Site Selected",
-                        "Please select a site before exporting."
-                    )
-                    return
-                
-                # Show export dialog
+                # Senza sito (database vuoto) la finestra si apre
+                # sull'importazione: è da lì che il sito nasce.
                 dialog = S3DGraphyExportDialog(
                     us_usm_instance,
                     us_usm_instance.DB_MANAGER,
-                    site,
+                    site or None,
                     area if area else None
                 )
+                if not site:
+                    dialog.show_import_tab()
                 
                 if dialog.exec():
                     # Export was successful

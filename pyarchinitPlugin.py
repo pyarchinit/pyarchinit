@@ -2684,7 +2684,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeCustomActionForLayerType(self.actionViewStyles)
             except Exception:
                 pass
-        for _name in ("actionEmExport", "actionRoomDelivery",
+        for _name in ("actionEmExport", "actionEmImport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
                       "actionEmStudioInstall", "actionEmMatrixView", "actionViewStyles",
                       "actionUuidBackfill", "actionYefOtherLocations",
@@ -2892,6 +2892,17 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmExport)
 
+            # Importare un em.json anche con il database vuoto (16 ottobre
+            # 2026): prima la finestra stava solo dietro il bottone di
+            # esportazione della scheda US, che senza sito si rifiutava.
+            self.actionEmImport = QAction(
+                "Extended Matrix → Importa em.json…",
+                self.iface.mainWindow())
+            self.actionEmImport.triggered.connect(self._run_em_import)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmImport)
+
             self.actionEmMatrixView = QAction(
                 "Extended Matrix → Vedi la matrice…",
                 self.iface.mainWindow())
@@ -3051,6 +3062,29 @@ class PyArchInitPlugin(object):
         except Exception as e:                      # noqa: BLE001
             QMessageBox.warning(self.iface.mainWindow(), "Stili delle viste",
                                 "Non riesco ad aprire la finestra degli stili:\n%s" % e)
+
+    def _run_em_import(self):
+        """Importa un em.json (EMStudio o pyArchInit) nel database del
+        progetto, anche vuoto: la finestra dell'Extended Matrix sulla
+        scheda «Import», senza sito di partenza."""
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        try:
+            db = Pyarchinit_db_management(Connection().conn_str())
+            db.connection()
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "em.json",
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        try:
+            from modules.s3dgraphy.s3dgraphy_dot_bridge import S3DGraphyExportDialog
+            dialog = S3DGraphyExportDialog(self.iface.mainWindow(), db, None, None)
+            dialog.show_import_tab()
+            dialog.exec()
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "em.json",
+                                "La finestra di importazione non si apre:\n%s" % e)
 
     def _run_em_matrix_view(self):
         """La matrice di un sito disegnata dentro QGIS, dall'em.json.
