@@ -507,12 +507,26 @@ if QGIS_AVAILABLE:
             self.cb_create_epochs.setChecked(True)
             import_layout.addWidget(self.cb_create_epochs)
 
-            # I file che l'em.json cita (immagini, video, modelli 3D accanto
-            # all'em.json) diventano media delle schede (16 ottobre 2026).
+            # I file che l'em.json cita (immagini, video, modelli 3D anche
+            # .glb, documenti) diventano media delle schede (16 ottobre 2026).
             self.cb_import_media = QCheckBox(
-                "Importa anche i media citati (file accanto all'em.json)")
+                "Importa anche i media citati (immagini, video, 3D, documenti)")
             self.cb_import_media.setChecked(True)
             import_layout.addWidget(self.cb_import_media)
+
+            # Dove cercarli, oltre alla cartella dell'em.json e al suo
+            # progetto EM (DosCo, proxies, RB…): serve quando l'em.json è
+            # stato copiato da solo, lontano dai suoi file.
+            media_row = QHBoxLayout()
+            media_row.addWidget(QLabel("Cartella dei file:"))
+            self.le_media_dir = QLineEdit()
+            self.le_media_dir.setPlaceholderText(
+                "facoltativa: la cartella del progetto EMStudio, se l'em.json è altrove")
+            self.btn_media_dir = QPushButton("Sfoglia…")
+            self.btn_media_dir.clicked.connect(self._on_browse_media_dir)
+            media_row.addWidget(self.le_media_dir, stretch=1)
+            media_row.addWidget(self.btn_media_dir)
+            import_layout.addLayout(media_row)
 
             # AI06: opt-in SQL UPDATE for SQL-derived group kinds
             # (struttura/area/attivita/settore/ambient/saggio/quad_par).
@@ -795,6 +809,15 @@ if QGIS_AVAILABLE:
                 if not self.cb_sito.currentText().strip():
                     self.cb_sito.setEditText(suggested_site_name(path))
 
+        def _on_browse_media_dir(self):
+            """La cartella in cui cercare i file citati dall'em.json."""
+            cartella = QFileDialog.getExistingDirectory(
+                self, "Cartella del progetto EMStudio (DosCo, proxies, RB…)",
+                self.le_media_dir.text().strip()
+                or os.path.dirname(self.le_import_file.text().strip()))
+            if cartella:
+                self.le_media_dir.setText(cartella)
+
         def _on_import_preview(self):
             """Run dry-run populate_list and show summary."""
             from pathlib import Path
@@ -905,6 +928,10 @@ if QGIS_AVAILABLE:
             from pathlib import Path
             from modules.s3dgraphy.sync.graph_ingestor import (
                 GraphIngestor, GraphSyncError)
+            # Un secondo clic mentre l'importazione gira (le miniature
+            # lasciano lavorare la finestra) la ripeterebbe: Applica si
+            # spegne subito e si riaccende solo con una nuova anteprima.
+            self.btn_apply.setEnabled(False)
             try:
                 graph, _read_warnings = read_graph_for_import(
                     self._last_source_path)
@@ -969,9 +996,25 @@ if QGIS_AVAILABLE:
                 QMessageBox.critical(
                     self, "Import failed", f"{type(e).__name__}: {e}")
                 return
+            # L'em.json com'era, per l'esportazione: risorse, forme, processi,
+            # gruppi, autori, il codice dello studio e i nomi di EMStudio non
+            # hanno una casa nelle schede (em_sources, 16 ottobre 2026).
+            memoria = ""
+            if str(self._last_source_path or "").lower().endswith(".json"):
+                try:
+                    from modules.s3dgraphy.sync.em_sources import remember_source
+                    if not remember_source(self.db_manager, target_sito, self._last_source_path):
+                        memoria = ("Memoria dell'em.json: non salvata (è l'em.json di "
+                                   "pyArchInit di un altro sito, o non si legge).")
+                except Exception as e:              # noqa: BLE001
+                    memoria = ("Memoria dell'em.json NON salvata (%s): all'esportazione "
+                               "non torneranno i nomi di EMStudio, il codice dello studio "
+                               "e i nodi che le schede non tengono." % e)
             esito_media = ""
             if self.cb_import_media.isChecked():
                 esito_media = self._import_media(graph, target_sito)
+            if memoria:
+                esito_media = (esito_media + "\n" if esito_media else "") + memoria
             QMessageBox.information(
                 self, "Importazione completata",
                 (esito_media + "\n\n" if esito_media else "") +
@@ -993,12 +1036,14 @@ if QGIS_AVAILABLE:
                     pass
 
         def _import_media(self, graph, target_sito):
-            """I media citati dall'em.json, dopo le schede: copiati nella
-            cartella dei media del progetto con le miniature. Torna la riga
-            di riepilogo (o il perché non si è fatto)."""
+            """I media citati dall'em.json, dopo le schede: registrati come
+            quelli della scheda (il media punta al file originale), con
+            miniatura e copia nelle cartelle di pyArchInit. Torna il
+            riepilogo (o il perché non si è fatto)."""
+            from qgis.PyQt.QtCore import Qt
+            from qgis.PyQt.QtWidgets import QApplication, QProgressDialog
             try:
                 from modules.s3dgraphy.sync.em_media_import import import_emjson_media
-                from modules.utility.qfield_importer import default_media_dest
                 thumb_path = thumb_resize = ""
                 try:
                     from modules.db.pyarchinit_conn_strings import Connection
@@ -1007,11 +1052,39 @@ if QGIS_AVAILABLE:
                     thumb_resize = conn.thumb_resize().get("thumb_resize", "") or ""
                 except Exception:                   # noqa: BLE001
                     pass
-                esito = import_emjson_media(
-                    self.db_manager, graph, target_sito, self._last_source_path,
-                    media_dest=default_media_dest(thumb_path) or None,
-                    thumb_path=thumb_path or None, thumb_resize=thumb_resize or None)
-                return "Media: " + esito.summary()
+                altrove = self.le_media_dir.text().strip()
+                attesa = QProgressDialog("Media dell'em.json…", "", 0, 0, self)
+                attesa.setCancelButton(None)
+                attesa.setWindowTitle("Importa em.json")
+                attesa.setWindowModality(Qt.WindowModality.WindowModal)
+                attesa.setMinimumDuration(400)
+
+                def avanza(fatti, totale, nome):
+                    attesa.setMaximum(max(totale, 1))
+                    attesa.setValue(fatti)
+                    attesa.setLabelText("Miniature: %d di %d\n%s" % (fatti, totale, nome))
+                    QApplication.processEvents()
+
+                try:
+                    esito = import_emjson_media(
+                        self.db_manager, graph, target_sito, self._last_source_path,
+                        search_dirs=[altrove] if altrove else [],
+                        thumb_path=thumb_path or None, thumb_resize=thumb_resize or None,
+                        progress=avanza)
+                finally:
+                    attesa.close()
+                # query_bool tiene i risultati in cache cinque minuti: senza
+                # svuotarla la scheda non vedrebbe i media appena scritti.
+                if hasattr(self.db_manager, "clear_cache"):
+                    try:
+                        self.db_manager.clear_cache()
+                    except Exception:               # noqa: BLE001
+                        pass
+                riepilogo = "Media: " + esito.summary()
+                if esito.warnings:
+                    riepilogo += "\nAvvisi: " + "; ".join(esito.warnings[:5]) + (
+                        " (e altri %d)" % (len(esito.warnings) - 5) if len(esito.warnings) > 5 else "")
+                return riepilogo
             except Exception as e:                  # noqa: BLE001
                 return "Media non importati: %s" % e
 

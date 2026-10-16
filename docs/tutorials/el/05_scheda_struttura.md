@@ -407,7 +407,10 @@
 ### Υποστηριζόμενες μορφές:
 - Εικόνες: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Βίντεο: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Έγγραφα: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+Το όνομα του αρχείου μπορεί να περιέχει τελείες (για παράδειγμα `D.07.05.jpg`): η επέκταση είναι αυτή που ακολουθεί την τελευταία τελεία.
 
 ---
 

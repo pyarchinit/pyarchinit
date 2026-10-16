@@ -442,7 +442,7 @@ La toolbar offre tutti gli strumenti per la gestione dei record.
 *Figura 16: Gestione media e immagini*
 
 #### Drag & Drop
-E possibile trascinare immagini direttamente nella lista per associarle al reperto.
+E possibile trascinare direttamente nella lista immagini, video, modelli 3D (anche GLB e GLTF) e documenti (PDF, Word, Excel, CSV, TXT…) per associarli al reperto; i documenti si aprono con il programma del sistema.
 
 #### Pulsanti Media
 

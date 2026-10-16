@@ -167,8 +167,18 @@ def export_site(connection_url, site, out_dir, per_saggio=None,
             "Il sito %r non ha righe in us_table: niente da esportare." % site)
     if contenitore is None:
         graph.graph_id = str(site)
+    # Un grafo senza nome EMStudio lo apre come «Untitled» (Enzo,
+    # 16-10-2026): il nome è quello del sito.
+    for g in tutti:
+        if not getattr(g, "name", None):
+            g.name = str(site)
+    # Un sito che viene da un em.json di EMStudio: tornano i nomi, il
+    # codice dello studio, la georeferenziazione e i nodi che le schede non
+    # tengono (risorse, forme, processi, gruppi, autori…). Vedi em_sources.
+    from .sync.em_sources import restore_for_export
+    memoria = restore_for_export(connection_url, site, tutti)
     warnings = [str(w) for g in tutti
-                for w in (getattr(g, "warnings", None) or [])]
+                for w in (getattr(g, "warnings", None) or [])] + memoria
 
 
     try:

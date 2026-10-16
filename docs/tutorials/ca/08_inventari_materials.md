@@ -337,7 +337,7 @@ La barra d'eines ofereix tots els instruments per a la gestió dels registres.
 ### Associació Imatges
 
 #### Arrossega i Deixa
-És possible arrossegar imatges directament a la llista per associar-les a la troballa.
+És possible arrossegar imatges, vídeos, models 3D (també GLB i GLTF) i documents (PDF, Word, Excel, CSV, TXT…) directament a la llista per associar-los a la troballa; els documents s'obren amb el programa del sistema.
 
 #### Botons Media
 

@@ -443,13 +443,17 @@ Visualitza les miniatures dels media associats.
 **Formats suportats:**
 - Imatges: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Vídeo: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documents: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+El nom del fitxer pot contenir punts (per exemple `D.07.05.jpg`): l'extensió és la que hi ha després de l'últim punt.
 
 ### Visualització
 
 - **Doble clic** sobre miniatura: obre el visualitzador
 - Per als vídeos: obre el reproductor de vídeo integrat
-- Per als 3D: obre el visualitzador 3D PyVista
+- Per als 3D: obre el visualitzador 3D PyVista (els GLB i els GLTF amb els seus colors)
+- Per als documents: s'obren amb el programa del sistema (lector de PDF, Word, Excel…); la miniatura és la primera pàgina en els PDF i una icona amb el tipus en els altres
 
 ---
 

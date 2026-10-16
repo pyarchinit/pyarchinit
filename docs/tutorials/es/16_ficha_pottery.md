@@ -241,7 +241,7 @@ Pestaña principal para la descripción del fragmento.
 
 #### Media Viewer
 Área para visualizar las imágenes asociadas:
-- Drag & drop para asociar imágenes
+- Drag & drop para asociar imágenes, videos, modelos 3D (también GLB y GLTF) y documentos (PDF, Word, Excel, CSV, TXT…)
 - Doble clic para abrir viewer completo
 - Botones para gestión de tags
 

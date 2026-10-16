@@ -604,6 +604,8 @@ Describe las características de los aglutinantes (mortero) en las estructuras m
 
 Visualiza las imágenes asociadas a la unidad estratigráfica.
 
+Los medios se añaden arrastrando los archivos a la lista de miniaturas. **Formatos soportados:** imágenes (JPG, JPEG, PNG, TIFF, TIF, BMP), video (MP4, AVI, MOV, MKV, FLV), modelos 3D (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) y documentos (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). El nombre puede contener puntos (`D.07.05.jpg`): cuenta el último. Con un doble clic la miniatura abre la imagen, el video, el visualizador 3D (los GLB y los GLTF con sus colores) o, para los documentos, el programa del sistema.
+
 ### Lista UE
 
 La tabla muestra todas las UE con las imágenes asociadas:

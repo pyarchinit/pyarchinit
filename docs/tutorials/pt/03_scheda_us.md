@@ -689,6 +689,8 @@ Descreve as caracteristicas dos ligantes (argamassa) nas estruturas murarias.
 
 Apresenta as imagens associadas a unidade estratigrafica.
 
+Os media adicionam-se arrastando os ficheiros para a lista de miniaturas. **Formatos suportados:** imagens (JPG, JPEG, PNG, TIFF, TIF, BMP), video (MP4, AVI, MOV, MKV, FLV), modelos 3D (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) e documentos (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). O nome pode conter pontos (`D.07.05.jpg`): conta o ultimo. Com um duplo clique a miniatura abre a imagem, o video, o visualizador 3D (os GLB e os GLTF com as suas cores) ou, para os documentos, o programa do sistema.
+
 <!-- IMAGE: Captura de ecra do separador de media -->
 ![Separador Media](images/03_scheda_us/20_tab_media.png)
 *Figura 20: Separador Media*

@@ -507,13 +507,17 @@ Puteti trage fisiere direct pe formular:
 **Formate suportate:**
 - Imagini: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Video: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documente: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+Numele fisierului poate contine puncte (de exemplu `D.07.05.jpg`): extensia este cea de dupa ultimul punct.
 
 ### Vizualizare
 
 - **Dublu clic** pe miniatura: deschide vizualizatorul
 - Pentru video: deschide playerul video integrat
-- Pentru 3D: deschide vizualizatorul 3D PyVista
+- Pentru 3D: deschide vizualizatorul 3D PyVista (GLB si GLTF cu culorile lor)
+- Pentru documente: se deschid cu programul sistemului (cititor PDF, Word, Excel...); miniatura este prima pagina pentru PDF si o pictograma cu tipul pentru celelalte
 
 ---
 

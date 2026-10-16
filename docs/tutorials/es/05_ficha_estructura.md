@@ -390,13 +390,17 @@ Es posible arrastrar archivos directamente sobre la ficha:
 **Formatos soportados:**
 - Imágenes: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Video: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documentos: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+El nombre del archivo puede contener puntos (por ejemplo `D.07.05.jpg`): la extensión es la que va después del último punto.
 
 ### Visualización
 
 - **Doble clic** en miniatura: abre el visualizador
 - Para videos: abre el reproductor de video integrado
-- Para 3D: abre el visualizador 3D PyVista
+- Para 3D: abre el visualizador 3D PyVista (los GLB y los GLTF con sus colores)
+- Para documentos: se abren con el programa del sistema (lector de PDF, Word, Excel…); la miniatura es la primera página en los PDF y un icono con el tipo en los demás
 
 ---
 

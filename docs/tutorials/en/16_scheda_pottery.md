@@ -214,7 +214,7 @@ Main tab for fragment description.
 
 #### Media Viewer
 Area for viewing associated images:
-- Drag & drop to associate images
+- Drag & drop to associate images, videos, 3D models (also GLB and GLTF) and documents (PDF, Word, Excel, CSV, TXT…)
 - Double-click to open full viewer
 - Buttons for tag management
 

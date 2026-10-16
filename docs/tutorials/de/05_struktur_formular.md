@@ -371,13 +371,17 @@ Dateien können direkt auf das Formular gezogen werden:
 **Unterstützte Formate:**
 - Bilder: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Videos: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Dokumente: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+Der Dateiname darf Punkte enthalten (zum Beispiel `D.07.05.jpg`): Maßgeblich ist die Endung nach dem letzten Punkt.
 
 ### Anzeige
 
 - **Doppelklick** auf Miniatur: öffnet den Viewer
 - Für Videos: öffnet den integrierten Video-Player
-- Für 3D: öffnet den PyVista 3D-Viewer
+- Für 3D: öffnet den PyVista 3D-Viewer (GLB und GLTF mit ihren Farben)
+- Für Dokumente: öffnet das Systemprogramm (PDF-Reader, Word, Excel …); die Miniatur ist bei PDFs die erste Seite, bei den übrigen Dokumenten ein Symbol mit dem Typ
 
 ---
 

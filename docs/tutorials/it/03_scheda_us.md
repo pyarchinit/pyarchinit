@@ -689,6 +689,8 @@ Descrive le caratteristiche dei leganti (malta) nelle strutture murarie.
 
 Visualizza le immagini associate all'unita stratigrafica.
 
+I media si aggiungono trascinando i file sulla lista delle miniature. **Formati supportati:** immagini (JPG, JPEG, PNG, TIFF, TIF, BMP), video (MP4, AVI, MOV, MKV, FLV), modelli 3D (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) e documenti (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). Il nome può contenere dei punti (`D.07.05.jpg`): conta l'ultimo. Con un doppio click la miniatura apre l'immagine, il video, il visualizzatore 3D (i GLB e i GLTF con i loro colori) o, per i documenti, il programma del sistema.
+
 <!-- IMMAGINE: Screenshot tab media -->
 ![Tab Media](images/03_scheda_us/20_tab_media.png)
 *Figura 20: Tab Media*

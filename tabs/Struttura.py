@@ -44,6 +44,12 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings, Qgis
 
 from ..gui.imageViewer import ImageViewer
+# Media: un elenco solo per tutte le schede, glb e documenti compresi, e le
+# anteprime comuni (16 ottobre 2026).
+from ..modules.utility.media_kinds import (ACCEPTED_EXTENSIONS, DOCUMENT_EXTENSIONS,
+                                           MODEL_3D_EXTENSIONS, split_media_name)
+from ..modules.utility.media_preview import (add_model, make_previews, open_with_system,
+                                             read_mesh, render_model_png)
 from ..modules.utility.VideoPlayerStruttura import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import Media_utility, Media_utility_resize, Video_utility, \
     Video_utility_resize
@@ -721,8 +727,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
-        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
-                            "ply", "fbx", "3ds"]
+        accepted_formats = list(ACCEPTED_EXTENSIONS)
 
         if mimeData.hasUrls():
             for url in mimeData.urls():
@@ -925,11 +930,12 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                         "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:
             filename = os.path.basename(filepath)
-            filename, filetype = filename.split(".")[0], filename.split(".")[1]
+            filename, filetype = split_media_name(filename)
             # Check the media type based on the file extension
             accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]
             accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
-            accepted_3d_formats = ["obj", "stl", "ply", "fbx", "3ds"]
+            accepted_3d_formats = list(MODEL_3D_EXTENSIONS)
+            accepted_document_formats = list(DOCUMENT_EXTENSIONS)
 
             if filetype.lower() in accepted_image_formats:
                 mediatype = 'image'
@@ -942,6 +948,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             elif filetype.lower() in accepted_3d_formats:
                 mediatype = '3d_model'
                 media_thumb_suffix = '_3d_thumb.png'
+                media_resize_suffix = '.' + filetype.lower()
+            elif filetype.lower() in accepted_document_formats:
+                mediatype = 'document'
+                media_thumb_suffix = '_doc_thumb.png'
                 media_resize_suffix = '.' + filetype.lower()
             else:
                 raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
@@ -1025,7 +1035,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
                     try:
 
-                        if mediatype == '3d_model':
+                        if mediatype == 'document':
+                            make_previews(media_max_num_id, filepath, filename, filetype, 'document',
+                                          thumb_path_str, thumb_resize_str)
+                        elif mediatype == '3d_model':
                             self.process_3d_model(media_max_num_id, filepath, filename, thumb_path_str,
                                                   thumb_resize_str,
                                                   media_thumb_suffix, media_resize_suffix)
@@ -1039,14 +1052,14 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                             # to save we have two options
                             outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
                             cv2.imwrite(outputfile, im_ar)
-                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
+                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig + "." + filetype, thumb_path_str,
                                                      media_thumb_suffix)
-                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig + "." + filetype, thumb_resize_str,
                                                       media_resize_suffix)
                         else:
-                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str,
+                            MU.resample_images(media_max_num_id, filepath, filenameorig + "." + filetype, thumb_path_str,
                                                media_thumb_suffix)
-                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                            MUR.resample_images(media_max_num_id, filepath, filenameorig + "." + filetype, thumb_resize_str,
                                                 media_resize_suffix)
                     except Exception as e:
                         QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
@@ -1315,7 +1328,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     def load_and_process_3d_model(self, filepath):
         filename = os.path.basename(filepath)
-        filename, filetype = filename.split(".")[0], filename.split(".")[1]
+        filename, filetype = split_media_name(filename)
         mediatype = '3d_model'
 
         # Inserisci il record nel database
@@ -1340,7 +1353,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
 
     def show_3d_model(self, file_path):
-        mesh = pv.read(file_path)
+        mesh = read_mesh(file_path)
         points = []
         measuring = False
         measurement_objects = []
@@ -1403,12 +1416,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         layout.addWidget(plotter.interactor)
         plotter.clear()
 
-        texture_file = os.path.splitext(file_path)[0] + '.jpg'
-        if os.path.exists(texture_file):
-            texture = pv.read_texture(texture_file)
-            plotter.add_mesh(mesh, texture=texture, show_edges=False)
-        else:
-            plotter.add_mesh(mesh, show_edges=False)
+        add_model(plotter, file_path, mesh)
 
         instructions_widget = QTextEdit()
         instructions_widget.setReadOnly(True)
@@ -1683,31 +1691,18 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     def generate_3d_thumbnail(self, filepath):
 
-        mesh = pv.read(filepath)
-        plotter = pv.Plotter(off_screen=True)
-        plotter.add_mesh(mesh)
-        plotter.camera_position = 'xy'
-
         # Genera un nome file unico per la thumbnail
         thumbnail_filename = f"{os.path.splitext(os.path.basename(filepath))[0]}_thumb.png"
         thumbnail_path = os.path.join(self.thumb_path, thumbnail_filename)
 
-        plotter.screenshot(thumbnail_path)
+        render_model_png(filepath, thumbnail_path)
         return thumbnail_path
 
     def process_3d_model(self, media_max_num_id, filepath, filename, thumb_path_str, thumb_resize_str,
                          media_thumb_suffix, media_resize_suffix):
-        import pyvista as pv
-
-        # Carica il modello 3D
-        mesh = pv.read(filepath)
-
-        # Genera una thumbnail
-        plotter = pv.Plotter(off_screen=True)
-        plotter.add_mesh(mesh)
-        plotter.camera_position = 'xy'
+        # La vista del modello, anche .glb e .gltf con i loro materiali
         thumbnail_path = os.path.join(thumb_path_str, f"{media_max_num_id}_{filename}{media_thumb_suffix}")
-        plotter.screenshot(thumbnail_path)
+        render_model_png(filepath, thumbnail_path)
 
         # Copia il file originale nella cartella di resize (non possiamo ridimensionare un modello 3D come un'immagine)
         import shutil
@@ -1763,6 +1758,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 show_image(full_path)
             elif media_type == '3d_model':
                 self.show_3d_model(file_path)
+            elif media_type == 'document':
+                if not open_with_system(full_path):
+                    QMessageBox.warning(self, "Error", f"Cannot open: {full_path}", QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.StandardButton.Ok)
 

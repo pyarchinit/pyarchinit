@@ -689,6 +689,8 @@ Descrie caracteristicile liantilor (mortarelor) in structurile de zidarie.
 
 Afiseaza imaginile asociate unitatii stratigrafice.
 
+Fisierele media se adauga tragandu-le pe lista de miniaturi. **Formate suportate:** imagini (JPG, JPEG, PNG, TIFF, TIF, BMP), video (MP4, AVI, MOV, MKV, FLV), modele 3D (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) si documente (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). Numele poate contine puncte (`D.07.05.jpg`): conteaza ultimul. Cu un dublu clic miniatura deschide imaginea, videoclipul, vizualizatorul 3D (GLB si GLTF cu culorile lor) sau, pentru documente, programul sistemului.
+
 <!-- IMAGINE: Captură de ecran a filei media -->
 ![Fila Media](images/03_scheda_us/20_tab_media.png)
 *Figura 20: Fila Media*

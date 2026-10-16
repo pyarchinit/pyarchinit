@@ -394,7 +394,7 @@ La toolbar offre tous les outils pour la gestion des enregistrements.
 ### Association d'Images
 
 #### Drag & Drop
-Il est possible de glisser des images directement dans la liste pour les associer à l'objet.
+Il est possible de glisser des images, des vidéos, des modèles 3D (y compris GLB et GLTF) et des documents (PDF, Word, Excel, CSV, TXT…) directement dans la liste pour les associer à l'objet ; les documents s'ouvrent avec le programme du système.
 
 #### Boutons Médias
 

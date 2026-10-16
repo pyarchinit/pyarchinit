@@ -625,6 +625,8 @@ Descriu les característiques dels lligants (morter) a les estructures muràries
 
 Visualitza les imatges associades a la unitat estratigràfica.
 
+Els mèdia s'afegeixen arrossegant els fitxers sobre la llista de miniatures. **Formats suportats:** imatges (JPG, JPEG, PNG, TIFF, TIF, BMP), vídeo (MP4, AVI, MOV, MKV, FLV), models 3D (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) i documents (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). El nom pot contenir punts (`D.07.05.jpg`): compta l'últim. Amb un doble clic la miniatura obre la imatge, el vídeo, el visualitzador 3D (els GLB i els GLTF amb els seus colors) o, per als documents, el programa del sistema.
+
 ### Llista US
 
 La taula mostra totes les US amb les imatges associades:

@@ -431,13 +431,17 @@ Il est possible de glisser des fichiers directement sur la fiche :
 **Formats supportés :**
 - Images : JPG, JPEG, PNG, TIFF, TIF, BMP
 - Vidéos : MP4, AVI, MOV, MKV, FLV
-- 3D : OBJ, STL, PLY, FBX, 3DS
+- 3D : OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documents : PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+Le nom du fichier peut contenir des points (par exemple `D.07.05.jpg`) : l'extension est celle qui suit le dernier point.
 
 ### Visualisation
 
 - **Double-clic** sur miniature : ouvre le visualiseur
 - Pour les vidéos : ouvre le lecteur vidéo intégré
-- Pour la 3D : ouvre le visualiseur 3D PyVista
+- Pour la 3D : ouvre le visualiseur 3D PyVista (les GLB et les GLTF avec leurs couleurs)
+- Pour les documents : ils s'ouvrent avec le programme du système (lecteur PDF, Word, Excel…) ; la vignette est la première page pour les PDF et une icône avec le type pour les autres
 
 ---
 

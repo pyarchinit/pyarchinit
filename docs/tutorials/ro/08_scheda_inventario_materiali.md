@@ -332,7 +332,7 @@ Graficele pot fi grupate dupa:
 ### Asociere Imagini
 
 #### Tragere si Plasare
-Puteti trage imaginile direct in lista pentru a le asocia cu descoperirea.
+Puteti trage imagini, videoclipuri, modele 3D (inclusiv GLB si GLTF) si documente (PDF, Word, Excel, CSV, TXT...) direct in lista pentru a le asocia cu descoperirea; documentele se deschid cu programul sistemului.
 
 #### Butoane Media
 

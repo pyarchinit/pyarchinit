@@ -332,7 +332,7 @@ Os graficos podem ser agrupados por:
 ### Associacao de Imagens
 
 #### Arrastar e Largar
-Pode arrastar imagens diretamente para a lista para as associar ao achado.
+Pode arrastar imagens, videos, modelos 3D (tambem GLB e GLTF) e documentos (PDF, Word, Excel, CSV, TXT...) diretamente para a lista para os associar ao achado; os documentos abrem-se com o programa do sistema.
 
 #### Botoes de Media
 

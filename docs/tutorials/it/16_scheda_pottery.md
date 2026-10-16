@@ -241,7 +241,7 @@ Tab principale per la descrizione del frammento.
 
 #### Media Viewer
 Area per visualizzare le immagini associate:
-- Drag & drop per associare immagini
+- Drag & drop per associare immagini, video, modelli 3D (anche GLB e GLTF) e documenti (PDF, Word, Excel, CSV, TXT…)
 - Doppio click per aprire viewer completo
 - Pulsanti per gestione tag
 

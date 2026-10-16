@@ -394,7 +394,7 @@ La barra de herramientas ofrece todas las herramientas para la gestión de regis
 ### Asociación de Imágenes
 
 #### Drag & Drop
-Es posible arrastrar imágenes directamente en la lista para asociarlas al hallazgo.
+Es posible arrastrar imágenes, videos, modelos 3D (también GLB y GLTF) y documentos (PDF, Word, Excel, CSV, TXT…) directamente en la lista para asociarlos al hallazgo; los documentos se abren con el programa del sistema.
 
 #### Botones de Medios
 

@@ -214,7 +214,7 @@ Tab-ul principal pentru descrierea fragmentului.
 
 #### Vizualizator Media
 Zonă pentru vizualizarea imaginilor asociate:
-- Glisare și plasare pentru asocierea imaginilor
+- Glisare și plasare pentru asocierea imaginilor, videoclipurilor, modelelor 3D (inclusiv GLB și GLTF) și documentelor (PDF, Word, Excel, CSV, TXT…)
 - Dublu clic pentru deschiderea vizualizatorului complet
 - Butoane pentru gestionarea etichetelor
 

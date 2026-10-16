@@ -689,6 +689,8 @@ Describes binder (mortar) characteristics in wall structures.
 
 Displays images associated with the stratigraphic unit.
 
+Media are added by dragging files onto the list of thumbnails. **Supported formats:** images (JPG, JPEG, PNG, TIFF, TIF, BMP), video (MP4, AVI, MOV, MKV, FLV), 3D models (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) and documents (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). The name may contain dots (`D.07.05.jpg`): the last one counts. With a double click the thumbnail opens the image, the video, the 3D viewer (GLB and GLTF with their colors) or, for documents, the system program.
+
 <!-- IMAGE: Screenshot of media tab -->
 ![Media Tab](images/03_scheda_us/20_tab_media.png)
 *Figure 20: Media Tab*

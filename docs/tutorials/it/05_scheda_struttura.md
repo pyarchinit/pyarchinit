@@ -507,13 +507,17 @@ E possibile trascinare file direttamente sulla scheda:
 **Formati supportati:**
 - Immagini: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Video: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documenti: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+Il nome del file può contenere dei punti (per esempio `D.07.05.jpg`): l'estensione è quella dopo l'ultimo punto.
 
 ### Visualizzazione
 
 - **Doppio click** su miniatura: apre il visualizzatore
 - Per i video: apre il player video integrato
-- Per i 3D: apre il visualizzatore 3D PyVista
+- Per i 3D: apre il visualizzatore 3D PyVista (i GLB e i GLTF con i loro colori)
+- Per i documenti: si aprono con il programma del sistema (lettore PDF, Word, Excel…); la miniatura è la prima pagina per i PDF e un'icona col tipo per gli altri
 
 ---
 

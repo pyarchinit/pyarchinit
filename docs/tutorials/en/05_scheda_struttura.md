@@ -507,13 +507,17 @@ You can drag files directly onto the form:
 **Supported formats:**
 - Images: JPG, JPEG, PNG, TIFF, TIF, BMP
 - Video: MP4, AVI, MOV, MKV, FLV
-- 3D: OBJ, STL, PLY, FBX, 3DS
+- 3D: OBJ, STL, PLY, FBX, 3DS, GLB, GLTF
+- Documents: PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT
+
+The file name may contain dots (for example `D.07.05.jpg`): the extension is the one after the last dot.
 
 ### Viewing
 
 - **Double click** on thumbnail: opens viewer
 - For video: opens integrated video player
-- For 3D: opens PyVista 3D viewer
+- For 3D: opens PyVista 3D viewer (GLB and GLTF with their colors)
+- For documents: they open with the system program (PDF reader, Word, Excel…); the thumbnail is the first page for PDFs and an icon showing the type for the others
 
 ---
 

@@ -77,4 +77,48 @@ def test_la_finestra_importa_anche_i_media():
     assert corpo.index("populate_list(") < corpo.index("self._import_media(")
     media = BRIDGE[BRIDGE.index("        def _import_media(self, graph, target_sito):"):]
     media = media[:media.index("\n        def ", 10)]
-    assert "import_emjson_media(" in media and "default_media_dest(" in media
+    assert "import_emjson_media(" in media
+
+
+def test_i_media_restano_dove_sono_e_si_cercano_anche_altrove():
+    """Enzo, 16 ottobre 2026: «non trova i media». I file finivano copiati
+    nella radice di pyarchinit_5; ora il media punta all'originale, e chi
+    importa un em.json spostato da solo indica la cartella del progetto."""
+    media = BRIDGE[BRIDGE.index("        def _import_media(self, graph, target_sito):"):]
+    media = media[:media.index("\n        def ", 10)]
+    assert "default_media_dest(" not in media and "media_dest=" not in media
+    assert "search_dirs=" in media and "self.le_media_dir.text()" in media
+    assert "QProgressDialog(" in media                       # i 3D e i PDF chiedono tempo
+    assert "clear_cache()" in media                           # query_bool è in cache 5 minuti
+    assert re.search(r"self\.le_media_dir = QLineEdit\(\)", BRIDGE)
+    sfoglia = BRIDGE[BRIDGE.index("        def _on_browse_media_dir(self):"):]
+    sfoglia = sfoglia[:sfoglia.index("\n        def ", 10)]
+    assert "getExistingDirectory(" in sfoglia and "self.le_media_dir.setText(" in sfoglia
+
+
+def test_l_importazione_ricorda_l_em_json():
+    """Quello che le schede non tengono (risorse, forme, processi, gruppi,
+    il codice dello studio, i nomi) torna all'esportazione solo se
+    l'importazione se lo ricorda (Enzo, 16 ottobre 2026)."""
+    corpo = BRIDGE[BRIDGE.index("        def _on_import_apply(self):"):]
+    corpo = corpo[:corpo.index("\n        def ", 10)]
+    assert "remember_source(" in corpo
+    assert corpo.index("populate_list(") < corpo.index("remember_source(")
+    assert re.search(r'\.lower\(\)\.endswith\("\.json"\)', corpo)
+
+
+def test_chi_importa_sa_se_la_memoria_non_si_e_salvata():
+    corpo = BRIDGE[BRIDGE.index("        def _on_import_apply(self):"):]
+    corpo = corpo[:corpo.index("\n        def ", 10)]
+    assert re.search(r"if not remember_source\(", corpo)
+    assert "Memoria dell'em.json" in corpo
+
+
+def test_applica_non_si_ripete_mentre_importa():
+    corpo = BRIDGE[BRIDGE.index("        def _on_import_apply(self):"):]
+    corpo = corpo[:corpo.index("\n        def ", 10)]
+    assert corpo.index("self.btn_apply.setEnabled(False)") < corpo.index("populate_list(")
+    media = BRIDGE[BRIDGE.index("        def _import_media(self, graph, target_sito):"):]
+    media = media[:media.index("\n        def ", 10)]
+    assert "setWindowModality(" in media and "setCancelButton(None)" in media
+    assert not re.search(r"QProgressDialog\([^)]*None", media)          # PyQt6 vuole un testo

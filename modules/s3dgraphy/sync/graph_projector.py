@@ -298,6 +298,23 @@ def _downgrade_edges_towards_paradata(graph, paradata_ids):
     return toccati
 
 
+def _dedupe_edges(graph) -> int:
+    """Un arco per (sorgente, tipo, destinazione): tiene il primo."""
+    visti, tenuti = set(), []
+    for e in getattr(graph, "edges", None) or []:
+        chiave = (e.edge_source, e.edge_type, e.edge_target)
+        if chiave in visti:
+            continue
+        visti.add(chiave)
+        tenuti.append(e)
+    tolti = len(graph.edges) - len(tenuti)
+    if tolti:
+        graph.edges = tenuti
+        if hasattr(graph, "invalidate_indices"):
+            graph.invalidate_indices()
+    return tolti
+
+
 def _label(graph, node_id):
     for node in graph.nodes:
         if node.node_id == node_id:
@@ -349,6 +366,59 @@ def _close_epoch_spans(graph):
             aggiunti += 1
         except Exception:                           # noqa: BLE001
             continue
+    return aggiunti + _fill_epoch_spans(graph, prima, fisiche)
+
+
+def _fill_epoch_spans(graph, prima, fisiche):
+    """L'unità sopravvive in OGNI epoca fra la prima e l'ultima, non solo
+    nell'ultima. Nella matrice di Emanuel (TempluMare) le unità nate nel II
+    secolo hanno due archi, «Post antiquity» e «XX sec»; la scheda dice solo
+    il periodo finale, e l'export scriveva solo quello (Enzo, 16-10-2026).
+
+    Le epoche si mettono in fila per periodo e fase — l'id
+    ``epoch_<periodo>_<fase>`` che l'export dà a ognuna, gli stessi campi da
+    cui la scheda dice inizio e fine — non per data: un periodo senza data
+    esce dalla libreria con inizio 0.0, e contarlo come anno zero faceva
+    sopravvivere l'unità in un periodo che non la riguarda. Si riempie fra i
+    due estremi in un verso o nell'altro: c'è chi numera i periodi dal più
+    antico e chi dal più recente. Un'epoca con un id diverso non si tocca."""
+    import re as _re
+
+    epoche = [n.node_id for n in graph.nodes if type(n).__name__ == "EpochNode"]
+
+    def ordine(eid):
+        m = _re.match(r"epoch_(-?\d+)_(.*)$", str(eid or ""))
+        if not m:
+            return None
+        fase = m.group(2)
+        return (int(m.group(1)),
+                (0, int(fase), "") if fase.isdigit() else (1, 0, fase))
+
+    fine = {}
+    for edge in graph.edges:
+        if edge.edge_type == "survive_in_epoch" and edge.edge_source in fisiche:
+            fine.setdefault(edge.edge_source, set()).add(edge.edge_target)
+    aggiunti = 0
+    for sorgente, sopravvive in fine.items():
+        prima_epoca = prima.get(sorgente)
+        estremi = [ordine(prima_epoca)] + [ordine(e) for e in sopravvive]
+        if None in estremi:
+            continue
+        basso, alto = min(estremi), max(estremi)
+        for eid in epoche:
+            posto = ordine(eid)
+            if posto is None or eid in sopravvive or eid == prima_epoca:
+                continue
+            if not basso < posto < alto:
+                continue
+            try:
+                graph.add_edge(
+                    edge_id="%s_%s_survive" % (sorgente, eid),
+                    edge_source=sorgente, edge_target=eid,
+                    edge_type="survive_in_epoch")
+                aggiunti += 1
+            except Exception:                       # noqa: BLE001
+                continue
     return aggiunti
 
 
@@ -875,12 +945,22 @@ class GraphProjector(_LibGraphProjector):
 
         handle = _resolve_db_handle(db_path)
         with handle.engine.connect() as conn:
+            # `descrizione` c'è in ogni database di pyArchInit, non nelle
+            # tabelle ridotte di chi proietta un us_table suo (i siti
+            # generati delle prove): si legge solo se esiste.
+            try:
+                from sqlalchemy import inspect as _sa_inspect
+                colonne = {c["name"] for c in _sa_inspect(conn).get_columns("us_table")}
+            except Exception:                       # noqa: BLE001
+                colonne = set()
+            descr = "descrizione" if "descrizione" in colonne else "NULL"
             rows = conn.execute(text(
                 "SELECT us, node_uuid, sito, area, unita_tipo, "
                 "periodo_iniziale, fase_iniziale, "
                 "periodo_finale, fase_finale, rapporti, "
                 "d_stratigrafica, d_interpretativa, attivita, struttura, "
-                "settore, ambient, saggio, quad_par, documentazione "
+                "settore, ambient, saggio, quad_par, documentazione, "
+                + descr + " AS descrizione "
                 "FROM us_table WHERE sito = :sito"), {"sito": sito}).fetchall()
             period_datazione = {}
             try:
@@ -915,7 +995,7 @@ class GraphProjector(_LibGraphProjector):
         for (us_val, node_uuid, sito_v, area, unita_tipo, periodo_ini,
              fase_ini, periodo_fin, fase_fin, rapporti_raw, d_strat,
              d_interp, attivita, struttura, settore, ambient, saggio,
-             quad_par, documentazione) in rows:
+             quad_par, documentazione, descrizione) in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name:
                 continue
@@ -972,6 +1052,13 @@ class GraphProjector(_LibGraphProjector):
                                ("documentazione", documentazione)):
                 if value is not None:
                     attrs[key] = str(value)
+            # La descrizione del nodo: la definizione stratigrafica, come
+            # sempre; senza, la descrizione della scheda — è lì che arriva
+            # il testo di un nodo di EMStudio. Mai la parola «None», che la
+            # libreria scriveva per una definizione vuota (Enzo, 16-10-2026:
+            # tutte le descrizioni dell'export di TempluMare).
+            node.description = (str(d_strat or "").strip()
+                                or str(descrizione or "").strip())
             dat_value = period_datazione.get(
                 (str(periodo_ini) if periodo_ini is not None else "",
                  str(fase_ini) if fase_ini is not None else ""))
@@ -1069,6 +1156,13 @@ class GraphProjector(_LibGraphProjector):
             graph.nodes = [n for n in graph.nodes if id(n) not in dropped]
             if hasattr(graph, "invalidate_indices"):
                 graph.invalidate_indices()
+        # Riagganciati al nodo canonico, gli archi del gemello diventano il
+        # doppione di quelli scritti dopo: la libreria assorbe il gemello
+        # (`_adopt_importer_epoch`) PRIMA di aggiungere i suoi
+        # `hfe_<unità>_epoch_p_f`, e non guarda se l'arco c'è già. Ogni
+        # unità usciva con due has_first_epoch verso la stessa epoca (111
+        # nell'export di TempluMare, Enzo 16-10-2026).
+        _dedupe_edges(graph)
 
     @staticmethod
     def _build_rapporti_edges(graph):

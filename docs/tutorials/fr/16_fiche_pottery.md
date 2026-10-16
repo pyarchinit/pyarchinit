@@ -214,7 +214,7 @@ Onglet principal pour la description du fragment.
 
 #### Visionneuse Médias
 Zone pour visualiser les images associées :
-- Drag & drop pour associer des images
+- Drag & drop pour associer des images, des vidéos, des modèles 3D (y compris GLB et GLTF) et des documents (PDF, Word, Excel, CSV, TXT…)
 - Double-clic pour ouvrir la visionneuse complète
 - Boutons pour gestion des tags
 

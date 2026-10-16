@@ -332,7 +332,7 @@ Charts can be grouped by:
 ### Image Association
 
 #### Drag & Drop
-You can drag images directly into the list to associate them with the find.
+You can drag images, videos, 3D models (also GLB and GLTF) and documents (PDF, Word, Excel, CSV, TXT…) directly into the list to associate them with the find; documents open with the system program.
 
 #### Media Buttons
 

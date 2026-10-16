@@ -214,7 +214,7 @@ Separador principal para a descrição do fragmento.
 
 #### Visualizador de Media
 Área para visualização de imagens associadas:
-- Arrastar e largar para associar imagens
+- Arrastar e largar para associar imagens, vídeos, modelos 3D (também GLB e GLTF) e documentos (PDF, Word, Excel, CSV, TXT…)
 - Duplo clique para abrir o visualizador completo
 - Botões para gestão de etiquetas
 

@@ -214,7 +214,7 @@ Pestanya principal per a la descripció del fragment.
 
 #### Media Viewer
 Àrea per visualitzar les imatges associades:
-- Drag & drop per associar imatges
+- Drag & drop per associar imatges, vídeos, models 3D (també GLB i GLTF) i documents (PDF, Word, Excel, CSV, TXT…)
 - Doble clic per obrir visor complet
 - Botons per gestió etiquetes
 

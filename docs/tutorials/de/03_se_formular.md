@@ -642,6 +642,8 @@ Beschreibt die Eigenschaften der Bindemittel (Mörtel) in Mauerstrukturen.
 
 Zeigt die der stratigraphischen Einheit zugeordneten Bilder an.
 
+Medien werden hinzugefügt, indem man die Dateien auf die Liste der Miniaturen zieht. **Unterstützte Formate:** Bilder (JPG, JPEG, PNG, TIFF, TIF, BMP), Videos (MP4, AVI, MOV, MKV, FLV), 3D-Modelle (OBJ, STL, PLY, FBX, 3DS, GLB, GLTF) und Dokumente (PDF, DOC, DOCX, ODT, RTF, XLS, XLSX, ODS, CSV, TXT). Der Name darf Punkte enthalten (`D.07.05.jpg`): Es zählt der letzte. Mit einem Doppelklick öffnet die Miniatur das Bild, das Video, den 3D-Viewer (GLB und GLTF mit ihren Farben) oder, bei Dokumenten, das Systemprogramm.
+
 ![Tab Medien](images/03_se_formular/20_tab_media.png)
 *Abbildung 20: Tab Medien*
 

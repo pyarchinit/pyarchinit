@@ -394,7 +394,7 @@ Die Toolbar bietet alle Werkzeuge zur Datensatzverwaltung.
 ### Bildzuordnung
 
 #### Drag & Drop
-Es ist möglich, Bilder direkt in die Liste zu ziehen, um sie dem Fund zuzuordnen.
+Es ist möglich, Bilder, Videos, 3D-Modelle (auch GLB und GLTF) und Dokumente (PDF, Word, Excel, CSV, TXT …) direkt in die Liste zu ziehen, um sie dem Fund zuzuordnen; Dokumente öffnen sich mit dem Systemprogramm.
 
 #### Medien-Schaltflächen
 
