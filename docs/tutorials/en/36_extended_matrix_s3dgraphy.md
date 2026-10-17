@@ -515,7 +515,7 @@ The providers are those of the "Provider AI" selectors: **OpenAI** and **Anthrop
 
 \* The progress line and the "Cancel" button are visible only while the AI is writing. In this diagram the list rows are those of the sample site.
 
-<!-- IMMAGINE: Screenshot of the Narrative tab with the chapter list, the text of the chosen chapter and the seven buttons -->
+<!-- IMMAGINE: Screenshot of the Narrative tab with the chapter list, the text of the chosen chapter and the eight buttons -->
 ![Narrative tab](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
 *Figure 3: The Narrative tab*
 

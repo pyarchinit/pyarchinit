@@ -515,7 +515,7 @@ I provider sono quelli dei selettori «Provider AI»: **OpenAI** e **Anthropic (
 
 \* La riga di avanzamento e il pulsante «Annulla» si vedono solo mentre l'AI sta scrivendo. In questo schema le righe dell'elenco sono quelle del sito di esempio.
 
-<!-- IMMAGINE: Screenshot della scheda Narrativa con l'elenco dei capitoli, il testo del capitolo scelto e i sette pulsanti -->
+<!-- IMMAGINE: Screenshot della scheda Narrativa con l'elenco dei capitoli, il testo del capitolo scelto e gli otto pulsanti -->
 ![Scheda Narrativa](images/36_extended_matrix_s3dgraphy/04_scheda_narrativa.png)
 *Figura 3: La scheda Narrativa*
 
