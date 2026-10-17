@@ -186,7 +186,9 @@ def export_site(connection_url, site, out_dir, per_saggio=None,
         path = os.path.join(out_dir, site_filename(site))
         path = _claim_path(path, site)
         if keep_narrative and os.path.exists(path):
-            warnings.extend(_keep_narrative(path, contenitore, graph, site))
+            from .sync.em_sources import source_imported_at
+            warnings.extend(_keep_narrative(path, contenitore, graph, site,
+                                            imported_at=source_imported_at(connection_url, site)))
         if contenitore is not None:
             from s3dgraphy.container import save_container_file
             # `bump=False`: questa è una conversione, non un salvataggio del
@@ -314,11 +316,19 @@ def open_in_emstudio(path, runner=None):
         return False
 
 
-def _keep_narrative(path, contenitore, graph, site):
+def _keep_narrative(path, contenitore, graph, site, imported_at=None):
     """La narrativa del file che sta per essere sovrascritto passa nel
     grafo nuovo (spec 2026-10-12): riesportare dal database non deve
     cancellare la prosa scritta, né le firme. Un file che non si legge
-    non ferma l'esportazione: lo si dice. Restituisce gli avvisi."""
+    non ferma l'esportazione: lo si dice. Restituisce gli avvisi.
+
+    Un sito importato da un em.json ha già, nel grafo nuovo, la narrativa
+    che la memoria dell'importazione rimette (stesso id): vince la più
+    recente. Il file di lavoro è più recente dell'importazione
+    (``imported_at``, secondi) → la sua narrativa sostituisce quella
+    rimessa; prima la riesportazione rimetteva sempre quella importata, e
+    i capitoli preparati e scritti nel pannello sparivano (Enzo, 17 ottobre
+    2026). L'importazione è più recente → resta la sua, e lo si dice."""
     import shutil
     from . import em_narrative as en
     _speak_ui_language(en)
@@ -346,9 +356,18 @@ def _keep_narrative(path, contenitore, graph, site):
     nuovi = (dict(getattr(contenitore, "graphs", None) or {})
              if contenitore is not None else {str(site): graph})
     try:
-        quante = en.carry_over(dict(precedente.graphs), nuovi)
+        file_piu_recente = imported_at is None or os.path.getmtime(path) >= float(imported_at)
+    except (OSError, TypeError, ValueError):
+        file_piu_recente = True
+    try:
+        quante = en.carry_over(dict(precedente.graphs), nuovi, replace=file_piu_recente)
     except Exception as e:                          # noqa: BLE001
         return [en.msg("narrative_not_kept", err=e)]
+    if not quante and not file_piu_recente:
+        from datetime import datetime
+        return [en.msg("narrative_import_newer",
+                       when=datetime.fromtimestamp(float(imported_at)).strftime("%Y-%m-%d %H:%M"),
+                       bak=os.path.basename(bak) or "-")]
     if not quante:
         return [en.msg("narrative_not_travelled",
                        old=", ".join(sorted(vecchi)), new=", ".join(sorted(nuovi)),

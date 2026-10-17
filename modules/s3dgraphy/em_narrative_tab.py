@@ -14,9 +14,9 @@ from typing import List, Optional
 from urllib.parse import unquote
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
-from qgis.PyQt.QtWidgets import (QFileDialog, QHBoxLayout, QInputDialog, QLabel,
-                                 QListWidget, QListWidgetItem, QMenu, QPushButton,
-                                 QTextBrowser, QVBoxLayout, QWidget)
+from qgis.PyQt.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QInputDialog, QLabel,
+                                 QListWidget, QListWidgetItem, QMenu, QMessageBox,
+                                 QPushButton, QTextBrowser, QVBoxLayout, QWidget)
 
 from . import em_narrative as en
 
@@ -69,6 +69,25 @@ _L = {
                    "cambiare file.",
              "en": "Generation in progress: wait for it to finish, or press Cancel, before "
                    "changing file."},
+    "language": {"it": "Lingua della prosa:", "en": "Language of the prose:"},
+    "language_tip": {"it": "La lingua in cui l'AI scrive i capitoli e in cui nascono i titoli dei "
+                           "capitoli nuovi. Parte da quella della narrativa del file, se ne ha una, "
+                           "altrimenti da quella di QGIS. I capitoli già scritti non si traducono.",
+                     "en": "The language the AI writes the chapters in, and the one new chapter "
+                           "titles are born in. It starts from the language of the file's narrative, "
+                           "if it has one, otherwise from QGIS's. Chapters already written are not "
+                           "translated."},
+    "ask_title": {"it": "Prepara i capitoli", "en": "Prepare the chapters"},
+    "ask_text": {"it": "La narrativa del file ha già i suoi {n} capitoli. Aggiungo anche quelli di "
+                       "pyArchInit — la presentazione, il luogo, un capitolo per ogni epoca e per "
+                       "ogni attività che non ne ha uno —, in coda ai suoi?",
+                 "en": "The file's narrative already has its own {n} chapters. Shall I add "
+                       "pyArchInit's too — the presentation, the place, one chapter for each epoch "
+                       "and each activity that has none —, after its own?"},
+    "only_file": {"it": "Solo i capitoli del file", "en": "Only the file's chapters"},
+    "add_ours": {"it": "Aggiungi quelli di pyArchInit", "en": "Add pyArchInit's"},
+    "kept_file": {"it": "Restano i {n} capitoli del file: nessun capitolo aggiunto.",
+                  "en": "The file's {n} chapters stay as they are: no chapter added."},
     "close_emstudio": {"it": "Se EMStudio ha il file aperto, chiudilo prima: chi scrive "
                              "per ultimo vince.",
                        "en": "If EMStudio has the file open, close it first: the last "
@@ -79,6 +98,34 @@ _L = {
 def _t(key: str, **kw) -> str:
     voce = _L[key]
     return voce.get(_lang(), voce["en"]).format(**kw)
+
+
+#: Le lingue in cui l'AI può scrivere: quelle di pyArchInit, col loro nome.
+_LINGUE = (("it", "Italiano"), ("en", "English"), ("de", "Deutsch"), ("fr", "Français"),
+           ("es", "Español"), ("ca", "Català"), ("pt", "Português"), ("ro", "Română"),
+           ("el", "Ελληνικά"), ("ar", "العربية"))
+
+
+def _chiedi_capitoli(parent, quanti: int) -> Optional[str]:
+    """«Prepara i capitoli» su una narrativa che il file porta di suo: solo
+    i suoi capitoli («file»), anche quelli di pyArchInit («pyarchinit»), o
+    niente (None). Si chiede ogni volta (Enzo, 17 ottobre 2026)."""
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Icon.Question)
+    box.setWindowTitle(_t("ask_title"))
+    box.setText(_t("ask_text", n=quanti))
+    solo = box.addButton(_t("only_file"), QMessageBox.ButtonRole.RejectRole)
+    nostri = box.addButton(_t("add_ours"), QMessageBox.ButtonRole.AcceptRole)
+    box.addButton(QMessageBox.StandardButton.Cancel)
+    box.setDefaultButton(solo)
+    fn = getattr(box, "exec", None) or getattr(box, "exec_")
+    fn()
+    premuto = box.clickedButton()
+    if premuto is solo:
+        return "file"
+    if premuto is nostri:
+        return "pyarchinit"
+    return None
 
 
 def _exec(menu, pos):
@@ -93,9 +140,10 @@ class NarrativeThread(QThread):
     progress = pyqtSignal(int, int, str)
     finished_ok = pyqtSignal(bool, str)
 
-    def __init__(self, path, cfg, lang, anchors=None, parent=None):
+    def __init__(self, path, cfg, lang, anchors=None, parent=None, write_lang=None):
         super().__init__(parent)
         self._path, self._cfg, self._lang = str(path), cfg, lang
+        self._write_lang = write_lang
         self._anchors = list(anchors) if anchors is not None else None
         self._stop = False
 
@@ -114,7 +162,7 @@ class NarrativeThread(QThread):
             contenitore, _ = en.load_project(self._path)
             rapporto = en.generate(
                 contenitore, chat=self._chat, model=str(getattr(self._cfg, "model", "")),
-                lang=self._lang, anchors=self._anchors,
+                lang=self._lang, anchors=self._anchors, write_lang=self._write_lang,
                 progress=lambda i, n, t: self.progress.emit(i, n, t),
                 cancelled=lambda: self._stop)
             if rapporto.outcomes:
@@ -134,6 +182,8 @@ class _State:
         self.iface = None
         self.conn = None
         self.media_cache: dict = {}
+        #: il file per cui la lingua della prosa è già stata proposta
+        self.lingua_di: Optional[str] = None
 
 
 def _running(stato: "_State") -> bool:
@@ -259,6 +309,37 @@ def build_tab(parent, iface) -> QWidget:
     avanzamento.setVisible(False)
     colonna.addWidget(avanzamento)
 
+    # La lingua in cui l'AI scrive: la sceglie chi scrive. Parte da quella
+    # della narrativa del file (TempluMare è in inglese) o da quella di QGIS
+    # (Enzo, 17 ottobre 2026: «me li scrive in inglese»).
+    riga_lingua = QHBoxLayout()
+    etichetta_lingua = QLabel(_t("language"), w)
+    lingua = QComboBox(w)
+    lingua.setObjectName("lingua")
+    for codice, nome in _LINGUE:
+        lingua.addItem(nome, codice)
+    lingua.setToolTip(_t("language_tip"))
+    etichetta_lingua.setToolTip(_t("language_tip"))
+    riga_lingua.addWidget(etichetta_lingua)
+    riga_lingua.addWidget(lingua, 1)
+    colonna.addLayout(riga_lingua)
+
+    def _proponi_lingua(contenitore):
+        if stato.lingua_di == stato.path:
+            return                                  # la scelta di chi scrive resta
+        stato.lingua_di = stato.path
+        codice = None
+        for g in (getattr(contenitore, "graphs", {}) or {}).values():
+            n = en.narrative_of(g)
+            if n is not None and (n.data or {}).get("lang"):
+                codice = str(n.data["lang"])[:2].lower()
+                break
+        for scelta in (codice, _lang(), "en"):
+            i = lingua.findData(scelta) if scelta else -1
+            if i >= 0:
+                lingua.setCurrentIndex(i)
+                return
+
     bottoni = {}
     riga1, riga2 = QHBoxLayout(), QHBoxLayout()
     for nome, chiave, riga in (("genera", "generate", riga1), ("rigenera", "regenerate", riga1),
@@ -327,6 +408,7 @@ def build_tab(parent, iface) -> QWidget:
             _aggiorna_bottoni()
             return
         grafi = getattr(contenitore, "graphs", {}) or {}
+        _proponi_lingua(contenitore)
         stato.media_cache = {}
         stato.views = en.overview(contenitore, _lang(), media_of=_media_of_factory(stato, grafi))
         piu_grafi = len(grafi) > 1
@@ -346,7 +428,8 @@ def build_tab(parent, iface) -> QWidget:
         if stato.thread is not None or stato.config is None or not stato.path:
             return
         cfg, _scope = stato.config
-        t = NarrativeThread(stato.path, cfg, _lang(), anchors=anchors, parent=w)
+        t = NarrativeThread(stato.path, cfg, _lang(), anchors=anchors, parent=w,
+                            write_lang=lingua.currentData())
         stato.thread = t
 
         def _progresso(i, n, titolo):
@@ -380,9 +463,25 @@ def build_tab(parent, iface) -> QWidget:
             return
         try:
             contenitore, _ = en.load_project(stato.path)
+        except Exception as e:                      # noqa: BLE001
+            _barra("warn", str(e))
+            return
+        grafi = list(contenitore.graphs.values())
+        # La narrativa che il file porta di suo (TempluMare): i capitoli di
+        # pyArchInit si aggiungono solo se lo si vuole, e lo si chiede ogni volta.
+        del_file = [g for g in grafi if en.needs_template_choice(g)]
+        if del_file:
+            quanti = sum(len(en.narrative_of(g).chapters) for g in del_file)
+            scelta = _chiedi_capitoli(w, quanti)
+            if scelta is None:
+                return
+            if scelta == "file":
+                _barra("info", _t("kept_file", n=quanti))
+                return
+        try:
             n = 0
-            for g in contenitore.graphs.values():
-                n += len(en.scaffold(g, _lang()).chapters)
+            for g in grafi:
+                n += len(en.scaffold(g, _lang(), write_lang=lingua.currentData()).chapters)
             en.save_project(contenitore, stato.path)
         except Exception as e:                      # noqa: BLE001
             _barra("warn", str(e))

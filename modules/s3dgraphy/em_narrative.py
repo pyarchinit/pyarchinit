@@ -112,6 +112,11 @@ _M = {
     "summary": {"it": "{ok} capitoli generati, {failed} falliti",
                 "en": "{ok} chapters generated, {failed} failed"},
     "summary_cancelled": {"it": " (interrotto)", "en": " (cancelled)"},
+    "narrative_import_newer": {
+        "it": "Narrativa del file precedente non conservata: l'em.json importato il {when} è più "
+              "recente, e vale la sua. Copia di sicurezza del file precedente in {bak}.",
+        "en": "The previous file's narrative was not kept: the em.json imported on {when} is "
+              "newer, and its narrative wins. Backup copy of the previous file in {bak}."},
     "narrative_not_travelled": {
         "it": "La narrativa del file precedente (grafi: {old}) non è passata nel file nuovo "
               "(grafi: {new}): la forma del file è cambiata. Copia di sicurezza in {bak}.",
@@ -231,21 +236,103 @@ def narrative_of(graph):
     return trovate[0] if trovate else None
 
 
-def scaffold(graph, lang: Optional[str] = None):
+#: I titoli fissi del template ``site_story`` — la libreria li scrive in
+#: italiano e in inglese, le altre lingue ricadono sull'inglese — e il nome
+#: della narrativa nuova, nelle lingue di pyArchInit. Servono anche a
+#: riconoscere lo stesso capitolo scritto in un'altra lingua: la libreria
+#: fonde i capitoli senza àncora per titolo, e «Presentation» accanto a
+#: «Presentazione» sarebbe un doppione.
+_TITOLI_FISSI = {
+    "presentation": {"en": "Presentation", "it": "Presentazione", "de": "Präsentation",
+                     "fr": "Présentation", "es": "Presentación", "ca": "Presentació",
+                     "pt": "Apresentação", "ro": "Prezentare", "el": "Παρουσίαση",
+                     "ar": "تقديم"},
+    "where": {"en": "Where it is", "it": "Dove si trova", "de": "Wo es liegt",
+              "fr": "Où il se trouve", "es": "Dónde se encuentra", "ca": "On es troba",
+              "pt": "Onde se encontra", "ro": "Unde se află", "el": "Πού βρίσκεται",
+              "ar": "أين يقع"},
+}
+_STORIA_DEL_SITO = {"de": "{site} — die Geschichte des Ortes", "fr": "{site} — l'histoire du site",
+                    "es": "{site} — la historia del sitio", "ca": "{site} — la història del jaciment",
+                    "pt": "{site} — a história do sítio", "ro": "{site} — povestea sitului",
+                    "el": "{site} — η ιστορία του χώρου", "ar": "{site} — قصة الموقع"}
+_LINGUE_DEL_TEMPLATE = ("it", "en")
+
+
+def _chiave_titolo(titolo) -> Optional[str]:
+    testo = str(titolo or "").strip()
+    for chiave, voci in _TITOLI_FISSI.items():
+        if testo in voci.values():
+            return chiave
+    return None
+
+
+def _from_template(narrative) -> bool:
+    """Nata dal template ``site_story`` o completata con lui («Prepara i
+    capitoli» → «Aggiungi»): la libreria lo scrive in ``template_id``."""
+    return bool((getattr(narrative, "data", None) or {}).get("template_id"))
+
+
+def needs_template_choice(graph) -> bool:
+    """La narrativa è quella che il file porta di suo (TempluMare: i
+    capitoli di Emanuel, nessun template): prima di aggiungerle i capitoli
+    di pyArchInit si chiede (Enzo, 17 ottobre 2026)."""
+    n = narrative_of(graph)
+    return n is not None and bool(n.chapters) and not _from_template(n)
+
+
+def scaffold(graph, lang: Optional[str] = None, *, write_lang: Optional[str] = None):
     """Lo scheletro dei capitoli (``site_story``), fuso con la narrativa che
     il grafo ha già. Il nodo entra nel grafo se è nuovo: la libreria lo
-    restituisce soltanto. Una narrativa esistente tiene la sua lingua."""
-    from s3dgraphy.narrative import build_narrative
+    restituisce soltanto. I capitoli nuovi sono nella lingua scelta
+    (``write_lang``), altrimenti in quella della narrativa, altrimenti in
+    ``lang``; quelli che ci sono non si ritraducono, e lo stesso capitolo
+    fisso in un'altra lingua non si aggiunge una seconda volta. Su una
+    narrativa del file aggiunge i capitoli di pyArchInit: è la scelta
+    «Aggiungi» di «Prepara i capitoli» (vedi :func:`ensure_narrative`)."""
+    from s3dgraphy.narrative.registry import get_template, merge_narrative
     esistente = narrative_of(graph)
-    lingua = ((esistente.data or {}).get("lang") if esistente else None) or _lang(lang)
-    narrativa = build_narrative(graph, "site_story", lang=lingua, existing=esistente)
+    lingua = str(write_lang or ((esistente.data or {}).get("lang") if esistente else None)
+                 or _lang(lang))[:2].lower()
+    bozza = get_template("site_story")(graph, lang=lingua)
+    if lingua not in _LINGUE_DEL_TEMPLATE:
+        for cap in bozza.chapters:
+            chiave = None if cap.anchor else _chiave_titolo(cap.title)
+            if chiave:
+                cap.title = _TITOLI_FISSI[chiave].get(lingua, cap.title)
+        if esistente is None and lingua in _STORIA_DEL_SITO:
+            bozza.name = _STORIA_DEL_SITO[lingua].format(
+                site=str(getattr(graph, "name", None) or graph.graph_id))
     if esistente is None:
+        narrativa = bozza
         graph.add_node(narrativa)
+    else:
+        for cap in bozza.chapters:
+            chiave = None if cap.anchor else _chiave_titolo(cap.title)
+            gemello = next((c for c in esistente.chapters if chiave and not c.anchor
+                            and _chiave_titolo(c.title) == chiave), None)
+            if gemello is not None:
+                cap.title = gemello.title           # la libreria li fonde per titolo
+        narrativa = merge_narrative(esistente, bozza)
     for cap in narrativa.chapters:
         if _prose(cap):
             drop_placeholders(cap)
         prose_first(cap)
     return narrativa
+
+
+def ensure_narrative(graph, lang: Optional[str] = None, *, write_lang: Optional[str] = None):
+    """La narrativa pronta per generare o per viaggiare con una
+    riesportazione: creata dal template se manca, fatta crescere (le epoche
+    e le attività nuove) se è del template. Quella che il file porta di suo
+    resta com'è: i capitoli di pyArchInit li aggiunge solo «Prepara i
+    capitoli», quando lo si chiede — prima li aggiungevano anche «Genera»
+    e ogni riesportazione (Enzo, 17 ottobre 2026: «mi dà altri capitoli che
+    non sono in linea con quelli del template»)."""
+    esistente = narrative_of(graph)
+    if esistente is None or _from_template(esistente):
+        return scaffold(graph, lang, write_lang=write_lang)
+    return esistente
 
 
 def is_placeholder(block) -> bool:
@@ -411,13 +498,29 @@ def chapter_html(chapter,
 PRESENTATION_KEY = "presentation"
 
 
+def _scritto_da_una_persona(chapter) -> bool:
+    return any(not getattr(b, "ai_generated", False) for b in _prose(chapter))
+
+
 def is_presentation(narrative, chapter) -> bool:
-    """Il primo capitolo, canonico e senza ancora: la «Presentazione» che
-    ``site_story`` apre con il segnaposto «presentazione di …»."""
+    """La «Presentazione» che ``site_story`` apre con il segnaposto
+    «presentazione di …»: canonica e senza àncora, in una narrativa del
+    template. È quella col titolo fisso, in qualunque lingua — in una
+    narrativa del file completata con i capitoli di pyArchInit sta in fondo
+    —, altrimenti il primo capitolo (rinominato), se non l'ha scritto una
+    persona. Il primo capitolo di una narrativa del file non lo è mai: in
+    TempluMare era l'introduzione di Emanuel, e «Rigenera» ci avrebbe
+    scritto sopra una presentazione dell'AI (17 ottobre 2026)."""
+    if not getattr(chapter, "canonical", False) or getattr(chapter, "anchor", None):
+        return False
+    if not _from_template(narrative):
+        return False
     capitoli = list(getattr(narrative, "chapters", None) or [])
-    return (bool(capitoli) and chapter is capitoli[0]
-            and bool(getattr(chapter, "canonical", False))
-            and not getattr(chapter, "anchor", None))
+    col_titolo = [c for c in capitoli if getattr(c, "canonical", False)
+                  and not getattr(c, "anchor", None) and _chiave_titolo(c.title) == "presentation"]
+    if col_titolo:
+        return chapter is col_titolo[0]
+    return bool(capitoli) and chapter is capitoli[0] and not _scritto_da_una_persona(chapter)
 
 
 def chapter_key(narrative, chapter) -> Optional[str]:
@@ -430,8 +533,8 @@ def chapter_key(narrative, chapter) -> Optional[str]:
 
 def chapter_by_key(narrative, key):
     if key == PRESENTATION_KEY:
-        capitoli = list(getattr(narrative, "chapters", None) or [])
-        return capitoli[0] if capitoli and is_presentation(narrative, capitoli[0]) else None
+        return next((c for c in getattr(narrative, "chapters", None) or []
+                     if is_presentation(narrative, c)), None)
     return narrative.chapter_by_anchor(key)
 
 
@@ -611,6 +714,17 @@ def _prompt_lang(lang: Optional[str]) -> str:
     return lingua if lingua in _SYSTEM else "en"
 
 
+#: Le lingue di pyArchInit che non hanno istruzioni proprie: si danno
+#: quelle inglesi, chiedendo la lingua per nome.
+_NOMI_DELLE_LINGUE = {"de": "German", "fr": "French", "es": "Spanish", "ca": "Catalan",
+                      "pt": "Portuguese", "ro": "Romanian", "el": "Greek", "ar": "Arabic"}
+
+
+def _scrivi_in(testo: str, lang: Optional[str]) -> str:
+    nome = _NOMI_DELLE_LINGUE.get(_lang(lang))
+    return testo.replace("Write in English", "Write in %s" % nome) if nome else testo
+
+
 def _kind_word(brief, lang: str) -> str:
     voce = _KIND.get(brief.get("anchor_kind") or "epoch", _KIND["epoch"])
     return voce.get(lang, voce["en"])
@@ -720,7 +834,7 @@ def messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str
         title=(brief.get("activity") or {}).get("name") or "",
         kind=_kind_word(brief, lingua),
         omitted=_OMITTED[lingua].format(n=omesse) if omesse else "")
-    return [{"role": "system", "content": _system_text(brief, lingua)},
+    return [{"role": "system", "content": _scrivi_in(_system_text(brief, lingua), lang)},
             {"role": "user", "content": testa + json.dumps(_corpo(brief), ensure_ascii=False)}]
 
 
@@ -737,7 +851,7 @@ def prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
     omesse = brief.get("omitted_actions") or 0
     if omesse:
         testa += _OMITTED[lingua].format(n=omesse)
-    return _system_text(brief, lingua) + "\n\n" + testa
+    return _scrivi_in(_system_text(brief, lingua), lang) + "\n\n" + testa
 
 
 # ---------------------------------------------------------------------------
@@ -900,7 +1014,7 @@ _PRESENTATION_HEAD = {
 def presentation_messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str, str]]:
     lingua = _prompt_lang(lang)
     testa = _PRESENTATION_HEAD[lingua].format(site=brief.get("site") or "")
-    return [{"role": "system", "content": _SYSTEM_PRESENTATION[lingua]},
+    return [{"role": "system", "content": _scrivi_in(_SYSTEM_PRESENTATION[lingua], lang)},
             {"role": "user", "content": testa + json.dumps(brief, ensure_ascii=False)}]
 
 
@@ -910,7 +1024,8 @@ def presentation_prompt_record(brief: Dict[str, Any], lang: Optional[str] = None
     lingua = _prompt_lang(lang)
     testa = _PRESENTATION_HEAD[lingua].format(site=brief.get("site") or "").strip()
     fonti = ", ".join(d.get("name") or "" for d in brief.get("documents") or [])
-    return _SYSTEM_PRESENTATION[lingua] + "\n\n" + testa + (" " + fonti if fonti else "")
+    return (_scrivi_in(_SYSTEM_PRESENTATION[lingua], lang) + "\n\n" + testa
+            + (" " + fonti if fonti else ""))
 
 
 def write_ai_prose_in_chapter(graph, narrative, chapter, text: str, *, model: str,
@@ -1068,20 +1183,22 @@ def forget_ai_drafts(chapter) -> int:
 
 def generate(container, *, chat: Callable, model: str, lang: Optional[str] = None,
              anchors: Optional[Sequence[str]] = None, progress=None, cancelled=None,
-             version: str = "") -> Report:
+             version: str = "", write_lang: Optional[str] = None) -> Report:
     """Tutti i grafi del contenitore. ``anchors=None``: i capitoli vuoti;
     ``anchors`` dati: quei capitoli, rigenerati (la bozza vecchia lascia il
     posto alla nuova solo se il modello risponde). Una voce di ``anchors``
     è ``(graph_id, anchor)`` — nell'esportazione per saggi i grafi hanno
     le STESSE epoche, e un'àncora sola avrebbe riscritto il capitolo in
     tutti — oppure una stringa, che vale per tutti i grafi.
-    La prosa nasce nella lingua della narrativa (``data.lang``), quando ne
-    dichiara una; altrimenti in quella chiesta. ``cancelled()`` si legge
-    prima di ogni capitolo."""
+    La prosa nasce nella lingua scelta nel pannello (``write_lang``);
+    senza scelta in quella della narrativa (``data.lang``), quando ne
+    dichiara una; altrimenti in quella chiesta. Una narrativa del file non
+    prende capitoli nuovi (:func:`ensure_narrative`). ``cancelled()`` si
+    legge prima di ogni capitolo."""
     da_fare = []
     for graph_id, graph in (getattr(container, "graphs", None) or {}).items():
-        narrativa = scaffold(graph, lang)
-        lingua = (narrativa.data or {}).get("lang") or lang
+        narrativa = ensure_narrative(graph, lang, write_lang=write_lang)
+        lingua = write_lang or (narrativa.data or {}).get("lang") or lang
         if anchors is None:
             scelti = chapters_to_generate(graph, narrativa, only_empty=True)
         else:
@@ -1262,10 +1379,15 @@ def _support_refs(narrative) -> List[str]:
 
 
 def carry_over(previous_graphs: Dict[str, Any], fresh_graphs: Dict[str, Any],
-               lang: Optional[str] = None) -> int:
+               lang: Optional[str] = None, *, replace: bool = False) -> int:
     """Porta nel grafo nuovo (stesso id) la narrativa del vecchio e quello
-    che la regge, poi le dà un capitolo per ogni epoca nuova. Quante
-    narrative portate."""
+    che la regge, poi — se è del template — le dà un capitolo per ogni
+    epoca nuova. Quante narrative portate.
+
+    ``replace``: se il grafo nuovo ha già una narrativa con lo stesso id —
+    quella che la memoria dell'em.json importato rimette nell'esportazione —
+    il vecchio file la sostituisce. Chi decide quale delle due è più
+    recente è :func:`em_export._keep_narrative`."""
     portate = 0
     for graph_id, nuovo in (fresh_graphs or {}).items():
         vecchio = (previous_graphs or {}).get(graph_id)
@@ -1273,7 +1395,9 @@ def carry_over(previous_graphs: Dict[str, Any], fresh_graphs: Dict[str, Any],
             continue
         for narrativa in narratives_of(vecchio):
             if nuovo.find_node_by_id(narrativa.node_id) is not None:
-                continue
+                if not replace:
+                    continue
+                nuovo.remove_node(narrativa.node_id)
             nuovo.add_node(narrativa)
             riferiti = set(_support_refs(narrativa))
             for e in vecchio.edges:
@@ -1294,7 +1418,7 @@ def carry_over(previous_graphs: Dict[str, Any], fresh_graphs: Dict[str, Any],
                     continue
                 if nuovo.find_edge_by_id(e.edge_id) is None:
                     nuovo.add_edge(e.edge_id, e.edge_source, e.edge_target, e.edge_type)
-            scaffold(nuovo, lang)
+            ensure_narrative(nuovo, lang)
             portate += 1
     return portate
 

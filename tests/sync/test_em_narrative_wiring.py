@@ -503,3 +503,123 @@ def test_mostra_sulla_mappa_e_spento_mentre_si_genera(qgs, tmp_path, monkeypatch
     elenco.setCurrentRow(1)
     assert not w.findChild(QPushButton, "mappa").isEnabled()
     w._stato.thread = None
+
+
+# ------------------------------------------------ la narrativa del file (17-10-2026)
+
+def _file_del_file(tmp_path):
+    """Un em.json con la narrativa sua, come TempluMare: capitoli canonici,
+    in inglese, nessun template."""
+    from s3dgraphy.container import container_of
+    from s3dgraphy.nodes.narrative_node import NarrativeNode
+    from modules.s3dgraphy import em_narrative as en
+    g = _grafo()
+    n = NarrativeNode(node_id="narrative_villa", name="The Villa", lang="en")
+    n.add_chapter("Survey — Introduction", canonical=True).add_prose("Known since 1750.")
+    n.add_chapter("The Roman house", anchor="epoch_1_1", canonical=True).add_prose("Rebuilt.")
+    g.add_node(n)
+    percorso = tmp_path / "villa.em.json"
+    en.save_project(container_of(g), percorso)
+    return percorso
+
+
+def _scheda(tab, percorso, monkeypatch, iface=None):
+    from qgis.PyQt.QtWidgets import QWidget
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    radice = QWidget()
+    w = tab.build_tab(radice, iface or _Iface())
+    w._radice_viva = radice                                     # noqa: SLF001
+    tab.show_file(w, percorso)
+    return w
+
+
+def test_la_lingua_parte_da_quella_della_narrativa_del_file(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QComboBox
+    from modules.s3dgraphy import em_narrative_tab as tab
+    monkeypatch.setattr(tab, "_lang", lambda: "it")
+    w = _scheda(tab, _file_del_file(tmp_path), monkeypatch)
+    lingua = w.findChild(QComboBox, "lingua")
+    assert lingua is not None and lingua.currentData() == "en"
+    assert lingua.count() == 10
+
+
+def test_senza_narrativa_la_lingua_e_quella_di_qgis(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QComboBox
+    from modules.s3dgraphy import em_narrative as en
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from s3dgraphy.container import container_of
+    monkeypatch.setattr(tab, "_lang", lambda: "fr")
+    percorso = tmp_path / "villa.em.json"
+    en.save_project(container_of(_grafo()), percorso)
+    w = _scheda(tab, percorso, monkeypatch)
+    assert w.findChild(QComboBox, "lingua").currentData() == "fr"
+
+
+def _prepara_con(tab, monkeypatch, tmp_path, risposta, lingua="it"):
+    from qgis.PyQt.QtWidgets import QComboBox, QListWidget, QPushButton
+    chieste = []
+    monkeypatch.setattr(tab, "_chiedi_capitoli",
+                        lambda parent, n: chieste.append(n) or risposta)
+    iface = _Iface()
+    percorso = _file_del_file(tmp_path)
+    w = _scheda(tab, percorso, monkeypatch, iface)
+    combo = w.findChild(QComboBox, "lingua")
+    combo.setCurrentIndex(combo.findData(lingua))
+    w.findChild(QPushButton, "prepara").click()
+    elenco = w.findChild(QListWidget, "capitoli")
+    return chieste, [elenco.item(i).text() for i in range(elenco.count())], iface, percorso
+
+
+def test_prepara_sulla_narrativa_del_file_chiede_e_solo_i_suoi_non_aggiunge_niente(qgs, tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative_tab as tab
+    chieste, voci, iface, _p = _prepara_con(tab, monkeypatch, tmp_path, "file")
+    assert chieste == [2] and len(voci) == 2
+    assert iface.messageBar().messaggi[-1][0] == "info"
+
+
+def test_prepara_aggiungendo_quelli_di_pyarchinit_li_scrive_nella_lingua_scelta(qgs, tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative as en
+    from modules.s3dgraphy import em_narrative_tab as tab
+    chieste, voci, _iface, percorso = _prepara_con(tab, monkeypatch, tmp_path, "pyarchinit", "it")
+    assert chieste == [2] and len(voci) > 2
+    assert any(v.startswith("Presentazione") for v in voci)
+    assert voci[0].startswith("Survey — Introduction")
+    n = en.narrative_of(en.load_project(percorso)[0].active())
+    assert n.data.get("template_id") == "site_story"
+
+
+def test_prepara_annullato_non_tocca_il_file(qgs, tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative_tab as tab
+    chieste, voci, iface, percorso = _prepara_con(tab, monkeypatch, tmp_path, None)
+    assert chieste == [2] and len(voci) == 2 and iface.messageBar().messaggi == []
+
+
+def test_genera_passa_al_thread_la_lingua_scelta(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QComboBox, QPushButton, QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+
+    class _Segnale:
+        def connect(self, *_a):
+            pass
+
+    creati = []
+
+    class _Finto:
+        def __init__(self, path, cfg, lang, anchors=None, parent=None, write_lang=None):
+            creati.append({"lang": lang, "write_lang": write_lang})
+            self.progress = self.finished_ok = self.finished = _Segnale()
+
+        def start(self):
+            pass
+
+    class _Cfg:
+        model, provider = "finto", None
+    monkeypatch.setattr(tab, "NarrativeThread", _Finto)
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: (_Cfg(), "us_report"))
+    radice = QWidget()
+    w = tab.build_tab(radice, _Iface())
+    tab.show_file(w, _file_con_narrativa(tmp_path))
+    combo = w.findChild(QComboBox, "lingua")
+    combo.setCurrentIndex(combo.findData("de"))
+    w.findChild(QPushButton, "genera").click()
+    assert creati and creati[-1]["write_lang"] == "de"

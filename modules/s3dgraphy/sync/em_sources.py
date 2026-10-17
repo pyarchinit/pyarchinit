@@ -96,6 +96,27 @@ def remember_source(db, sito: str, emjson_path: str) -> bool:
     return True
 
 
+def source_imported_at(db, sito: str) -> Optional[float]:
+    """Quando è stato importato l'em.json ricordato per il sito (secondi
+    dall'epoca, come ``os.path.getmtime``), o None. All'esportazione dice
+    se la narrativa del file di lavoro è più recente di quella importata."""
+    engine = _engine(db)
+    try:
+        if not sa_inspect(engine).has_table(TABLE.name):
+            return None
+        with engine.connect() as conn:
+            riga = conn.execute(select(TABLE.c.imported_at).where(TABLE.c.sito == str(sito))
+                                .order_by(TABLE.c.id.desc())).first()
+    except Exception:                                        # noqa: BLE001
+        return None
+    if riga is None or not riga[0]:
+        return None
+    try:
+        return datetime.fromisoformat(str(riga[0])).timestamp()
+    except ValueError:
+        return None
+
+
 def load_source(db, sito: str) -> Optional[Dict[str, Any]]:
     """L'em.json ricordato per il sito, o None."""
     engine = _engine(db)
