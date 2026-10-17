@@ -169,3 +169,41 @@ def test_la_voce_di_menu_esporta_il_progetto():
     corpo = corpo[:corpo.index("\n    def ", 10)]
     assert "em_project.project_root_for(" in corpo and "em_project.export_project(" in corpo
     assert "resize_base=" in corpo and "open_in_emstudio(" in corpo and "progress=" in corpo
+
+
+def test_il_file_di_un_locator_dal_database(tmp_path):
+    """media_index/media_file_for, pubbliche dalla 5.13.132 (le usa la scena
+    3D della narrativa): prima l'originale il cui percorso finisce come il
+    locator, poi quello col nome giusto; la copia delle ridotte solo con la
+    stessa estensione."""
+    import sqlite3
+    from modules.s3dgraphy import em_project
+    a = tmp_path / "A" / "proxies"
+    a.mkdir(parents=True)
+    b = tmp_path / "B"
+    b.mkdir()
+    (a / "SU002.glb").write_bytes(b"glTF-A")
+    (b / "SU002.glb").write_bytes(b"glTF-B")
+    ridotte = tmp_path / "ridotte"
+    ridotte.mkdir()
+    (ridotte / "3_D.07.png").write_bytes(b"png")
+    (ridotte / "4_colonna.glb").write_bytes(b"glTF-copia")
+    db = tmp_path / "m.sqlite"
+    con = sqlite3.connect(str(db))
+    con.execute("CREATE TABLE media_table (id_media INTEGER, mediatype TEXT, filename TEXT, "
+                "filetype TEXT, filepath TEXT)")
+    con.execute("CREATE TABLE media_thumb_table (id_media_thumb INTEGER, id_media INTEGER, path_resize TEXT)")
+    con.executemany("INSERT INTO media_table VALUES (?,?,?,?,?)", [
+        (1, "3d_model", "SU002", "glb", str(b / "SU002.glb")),
+        (2, "3d_model", "SU002", "glb", str(a / "SU002.glb")),
+        (3, "image", "D.07", "jpg", str(tmp_path / "staccato" / "D.07.jpg")),
+        (4, "3d_model", "colonna", "glb", str(tmp_path / "staccato" / "colonna.glb"))])
+    con.executemany("INSERT INTO media_thumb_table VALUES (?,?,?)",
+                    [(3, 3, "3_D.07.png"), (4, 4, "4_colonna.glb")])
+    con.commit()
+    con.close()
+    indice = em_project.media_index("sqlite:///" + str(db), str(ridotte) + "/")
+    assert em_project.media_file_for("proxies/SU002.glb", indice) == str(a / "SU002.glb")
+    assert em_project.media_file_for("../RB/colonna.glb", indice) == str(ridotte / "4_colonna.glb")
+    assert em_project.media_file_for("DosCo/D.07.jpg", indice) is None        # la copia è un PNG
+    assert em_project.media_file_for("proxies/SU099.glb", indice) is None

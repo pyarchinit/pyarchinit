@@ -175,7 +175,7 @@ def project_root_for(chosen: str, site: str) -> str:
     return os.path.join(scelta, site_filename(site)[:-len(".em.json")])
 
 
-def _indice_media(connection_url: str, resize_base: str = "") -> Dict[str, List[Tuple[str, bool]]]:
+def media_index(connection_url: str, resize_base: str = "") -> Dict[str, List[Tuple[str, bool]]]:
     """Dal nome del file (minuscolo) ai posti dove sta: l'originale
     registrato nel media e la sua copia nella cartella delle ridotte
     (``media_thumb_table.path_resize``), segnata come copia."""
@@ -206,14 +206,14 @@ def _indice_media(connection_url: str, resize_base: str = "") -> Dict[str, List[
     return indice
 
 
-def _sorgente(locator: str, indice: Dict[str, List[Tuple[str, bool]]]) -> Optional[str]:
+def media_file_for(locator: str, index: Dict[str, List[Tuple[str, bool]]]) -> Optional[str]:
     """Il file da copiare per ``locator``. Prima gli originali: quello il
     cui percorso finisce come il locator (due file con lo stesso nome in
     cartelle diverse), altrimenti il primo che c'è. Se l'originale non si
     raggiunge (il disco del progetto staccato), la copia nella cartella
     delle ridotte, ma solo se è lo stesso tipo di file: un'immagine lì è
     ridotta in PNG, non è più il file citato."""
-    posti = indice.get(os.path.basename(locator).lower(), [])
+    posti = index.get(os.path.basename(locator).lower(), [])
     originali = [p for p, copia in posti if not copia and os.path.isfile(p)]
     coda = "/".join(x for x in re.split(r"[\\/]+", locator) if x not in ("", ".", ".."))
     for p in originali:
@@ -313,7 +313,7 @@ def export_project(connection_url: str, site: str, dest_dir: str, *,
     with open(esito.path, encoding="utf-8") as fh:
         documento = json.load(fh)
     impronte = _impronte(documento)
-    indice = _indice_media(connection_url, resize_base)
+    indice = media_index(connection_url, resize_base)
     locators = project_locators(documento)
     visti = set()
     for i, locator in enumerate(locators):
@@ -327,7 +327,7 @@ def export_project(connection_url: str, site: str, dest_dir: str, *,
             continue                    # «D.05.pdf» e «DosCo/D.05.pdf»: lo stesso file
         visti.add(bersaglio)
         voce = os.path.relpath(bersaglio, radice).replace(os.sep, "/")
-        sorgente = _sorgente(locator, indice)
+        sorgente = media_file_for(locator, indice)
         if sorgente is None:
             (esito.unchanged if os.path.isfile(bersaglio) else esito.missing).append(voce)
             continue
