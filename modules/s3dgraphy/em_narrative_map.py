@@ -4,17 +4,17 @@ quel periodo, contorno ed etichette»).
 
 Quattro pezzi, i primi tre senza QGIS: i periodi delle unità dagli archi
 del grafo (:func:`epochs_of`, :func:`units_meta`), l'SVG dei disegni
-(:func:`svg_map`), l'innesto nell'HTML scritto dalla libreria
-(:func:`inject_map`: menzioni → link, capitoli con l'epoca, CSS e
-JavaScript inline, nessuna dipendenza esterna, va anche sul telefono); e
-il lettore delle geometrie dal database (:func:`drawings_from_db`, QGIS).
-:func:`html_with_map` li mette in fila per :func:`em_narrative.export_file`.
+(:func:`svg_map`), la mappa come vista del pannello (:func:`map_view`: il
+suo CSS e il suo script, che si registra nella selezione comune); e il
+lettore delle geometrie dal database (:func:`drawings_from_db`, QGIS).
+Dalla 5.13.132 i link delle menzioni, i titoli dei capitoli, il pannello e
+i clic sono di :mod:`em_narrative_views`, che mette la mappa accanto alla
+scena 3D (:func:`em_narrative_views.html_with_views`); :func:`inject_map`
+e :func:`html_with_map` restano per la sola mappa.
 """
 from __future__ import annotations
 
 import html as _html
-import json
-import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -30,9 +30,9 @@ class Drawing:
 
 
 _WORDS = {
-    "it": {"site": "Tutto il sito", "reset": "tutto il sito", "drawings": "unità",
+    "it": {"site": "Tutto il sito", "reset": "tutto il sito", "drawings": "unità", "tab": "Mappa",
            "hint": "Clicca il nome di un'unità nel testo o il titolo di un capitolo."},
-    "en": {"site": "Whole site", "reset": "whole site", "drawings": "units",
+    "en": {"site": "Whole site", "reset": "whole site", "drawings": "units", "tab": "Map",
            "hint": "Click a unit name in the text or a chapter title."},
 }
 
@@ -169,19 +169,9 @@ def svg_map(drawings: Sequence[Drawing], meta: Dict[str, Dict[str, Any]]) -> Tup
 
 _CSS = """
 /* pyArchInit: la mappa della narrativa */
-body { max-width: min(96vw, 1500px) !important; }
-.pya-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
-.pya-text { max-width: 46rem; }
-.pya-map { position: sticky; top: 0; align-self: start; z-index: 5; padding: .4rem 0;
-  border-bottom: 1px solid rgba(127,127,127,.35); background: inherit; }
 #pya-svg { display: block; width: 100%; height: auto; max-height: min(78vh, 640px);
   background: rgba(127,127,127,.07); border-radius: 4px; }
-@media (min-width: 900px) {
-  .pya-layout { grid-template-columns: minmax(0, 1fr) minmax(300px, 42%); }
-  .pya-map { order: 2; border-bottom: 0; }
-}
 @media (max-width: 899px) {
-  .pya-map { order: -1; }
   #pya-svg { max-height: 34vh; }
 }
 #pya-svg .u { fill: #e4e4e4; stroke: #b4b4b4; stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -192,9 +182,6 @@ body { max-width: min(96vw, 1500px) !important; }
   paint-order: stroke; stroke: #fff; stroke-width: .28em; stroke-linejoin: round;
   text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
 #pya-svg.focus .l.on { display: block; }
-.pya-caption { font-size: .85rem; opacity: .85; margin: .35rem 0 0; }
-.pya-caption a { margin-left: .5rem; }
-a.pya-u { color: inherit; font-style: italic; text-decoration: underline dotted; cursor: pointer; }
 """
 
 _JS = """
@@ -226,101 +213,40 @@ _JS = """
       cap.firstChild.textContent = testo + ' ';
     }
   }
-  document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a.pya-u') : null;
-    if (a) {
-      ev.preventDefault();
-      var u = a.getAttribute('data-u'), e = a.getAttribute('data-e') || PYA.firstEpoch[u] || null;
-      show(e, u);
-      var mappa = document.getElementById('pya-map');
-      if (mappa && mappa.getBoundingClientRect().top < 0) { mappa.scrollIntoView({ block: 'start' }); }
-      return;
-    }
-    var h = ev.target.closest ? ev.target.closest('h2.pya-cap') : null;
-    if (h && h.getAttribute('data-e')) { show(h.getAttribute('data-e'), null); return; }
-    var r = ev.target.closest ? ev.target.closest('#pya-reset') : null;
-    if (r) { ev.preventDefault(); show(null, null); }
-  });
-  show(null, null);
+  PYA_SEL.add(function (epoch, unit) { show(epoch, unit); });
 })();
 """
 
-_MENTION = re.compile(r'<em class="em-mention">(.*?)</em>', re.S)
-_H2 = re.compile(r"<h2>(.*?)</h2>", re.S)
-
-
-def _resolve(label: str, chapter_units: Sequence[str], meta: Dict[str, Dict[str, Any]]) -> Optional[str]:
-    nome = _html.unescape(label).strip()
-    nel_capitolo = [u for u in chapter_units if u in meta and meta[u].get("name") == nome]
-    if len(nel_capitolo) == 1:
-        return nel_capitolo[0]
-    ovunque = [u for u, m in meta.items() if m.get("name") == nome]
-    return ovunque[0] if len(ovunque) == 1 else None
-
-
-def _link_mentions(segmento: str, epoca: Optional[str], unita: Sequence[str],
-                   meta: Dict[str, Dict[str, Any]]) -> str:
-    def sost(m):
-        uid = _resolve(m.group(1), unita, meta)
-        if uid is None:
-            return m.group(0)
-        e = epoca or (meta[uid].get("epochs") or [""])[0]
-        return ('<a class="em-mention pya-u" href="#pya-map" data-u="%s" data-e="%s">%s</a>'
-                % (_html.escape(uid, quote=True), _html.escape(e, quote=True), m.group(1)))
-    return _MENTION.sub(sost, segmento)
+def map_view(svg: str, boxes: Dict[str, list], meta: Dict[str, Dict[str, Any]],
+             epoch_names_map: Dict[str, str], lang: Optional[str] = None):
+    """La mappa come vista del pannello (:mod:`em_narrative_views`)."""
+    from .em_narrative_html import _json_script
+    from .em_narrative_views import View
+    parole = _WORDS[_lang(lang)]
+    dati = {
+        "boxes": boxes,
+        "epochNames": {k: v for k, v in (epoch_names_map or {}).items()},
+        "units": {u: m.get("name", u) for u, m in meta.items()},
+        "firstEpoch": {u: (m.get("epochs") or [""])[0] for u, m in meta.items()},
+        "words": parole,
+    }
+    pannello = ('%s<p class="pya-caption" id="pya-caption"><span>%s </span>'
+                '<a href="#pya-map" id="pya-reset" class="pya-reset">%s</a> <small>%s</small></p>'
+                % (svg, _html.escape(parole["site"]), _html.escape(parole["reset"]),
+                   _html.escape(parole["hint"])))
+    return View(key="map", label=parole["tab"], panel=pannello, css=_CSS,
+                script="<script>var PYA = %s;%s</script>" % (_json_script(dati), _JS))
 
 
 def inject_map(html: str, svg: str, boxes: Dict[str, list], chapters: Sequence[Dict[str, Any]],
                meta: Dict[str, Dict[str, Any]], epoch_names_map: Dict[str, str],
                lang: Optional[str] = None) -> str:
-    """L'HTML della libreria con la mappa: le menzioni risolte diventano link
-    (``data-u`` l'unità, ``data-e`` l'epoca del capitolo), i titoli dei
-    capitoli portano epoca e unità, la mappa sta in un pannello fisso con
-    CSS e JavaScript inline. Senza SVG torna l'HTML com'è."""
+    """L'HTML della libreria con la sola mappa (:func:`em_narrative_views.
+    inject_views`). Senza SVG torna l'HTML com'è."""
     if not svg or not meta:
         return html
-    parole = _WORDS[_lang(lang)]
-    testa, sep, coda = html.partition('<section class="em-sources">')
-    # i capitoli: il k-esimo <h2> è il k-esimo capitolo (controllo sul titolo)
-    pezzi = _H2.split(testa)                      # [prima, titolo1, corpo1, titolo2, corpo2, ...]
-    out = [pezzi[0]]
-    k = 0
-    for i in range(1, len(pezzi), 2):
-        titolo, corpo = pezzi[i], pezzi[i + 1] if i + 1 < len(pezzi) else ""
-        cap = chapters[k] if k < len(chapters) else None
-        if cap is not None and str(cap.get("title", "")) and _html.escape(str(cap["title"])) != titolo:
-            # titolo diverso: cerco il capitolo con quel titolo, altrimenti per ordine
-            trovato = next((c for c in chapters if _html.escape(str(c.get("title", ""))) == titolo), None)
-            cap = trovato or cap
-        if cap is not None:
-            epoca = cap.get("epoch") or ""
-            unita = list(cap.get("units") or [])
-            out.append('<h2 id="pya-cap-%d" class="pya-cap" data-e="%s" data-units="%s">%s</h2>'
-                       % (k, _html.escape(str(epoca), quote=True), _html.escape(" ".join(unita), quote=True), titolo))
-            out.append(_link_mentions(corpo, epoca or None, unita, meta))
-            k += 1
-        else:
-            out.append("<h2>%s</h2>" % titolo)
-            out.append(_link_mentions(corpo, None, [], meta))
-    testa = "".join(out)
-    dati = {
-        "boxes": boxes,
-        "epochNames": {k2: v for k2, v in (epoch_names_map or {}).items()},
-        "units": {u: m.get("name", u) for u, m in meta.items()},
-        "firstEpoch": {u: (m.get("epochs") or [""])[0] for u, m in meta.items()},
-        "words": parole,
-    }
-    pannello = ('<aside class="pya-map" id="pya-map">%s'
-                '<p class="pya-caption" id="pya-caption"><span>%s </span>'
-                '<a href="#pya-map" id="pya-reset">%s</a> <small>%s</small></p></aside>'
-                % (svg, _html.escape(parole["site"]), _html.escape(parole["reset"]), _html.escape(parole["hint"])))
-    script = "<script>var PYA = %s;%s</script>" % (json.dumps(dati, ensure_ascii=False), _JS)
-    pagina = testa + sep + coda
-    pagina = pagina.replace("</style>", _CSS + "</style>", 1)
-    pagina = re.sub(r"<body([^>]*)>", lambda m: "<body%s>\n<div class=\"pya-layout\"><div class=\"pya-text\">" % m.group(1),
-                    pagina, count=1)
-    pagina = pagina.replace("</body>", "</div>%s</div>%s</body>" % (pannello, script), 1)
-    return pagina
+    from .em_narrative_views import inject_views
+    return inject_views(html, [map_view(svg, boxes, meta, epoch_names_map, lang)], chapters, meta, lang)
 
 
 # ---------------------------------------------------------------- QGIS

@@ -106,3 +106,12 @@ def test_con_la_mappa_la_pagina_si_allarga():
                           [{"title": "A", "epoch": "e", "units": ["u1"]}], meta, {"e": "E"}, lang="it")
     assert re.search(r"body\s*\{[^}]*max-width:\s*min\(96vw,\s*1500px\)\s*!important", fuori)
     assert ".pya-text" in fuori and "max-width: 46rem" in fuori
+
+
+def test_la_mappa_si_registra_nella_selezione_comune():
+    assert "PYA_SEL.add(" in nm._JS
+    assert "addEventListener('click'" not in nm._JS        # i clic li ascolta lo script comune
+    vista = nm.map_view('<svg id="pya-svg"></svg>', {"all": [0, 0, 1, 1]},
+                        {"u1": {"name": "1.US1", "epochs": []}}, {}, lang="en")
+    assert vista.key == "map" and vista.label == "Map" and vista.panel.startswith('<svg id="pya-svg">')
+    assert 'id="pya-reset" class="pya-reset"' in vista.panel and "var PYA = " in vista.script
