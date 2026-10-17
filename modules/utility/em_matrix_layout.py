@@ -21,8 +21,9 @@ import bisect
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from .em_matrix_glyphs import box_size, label_overhang
-from .em_matrix_model import (MatrixModel, Epoch, Unit, PARADATA_KINDS,
+from .em_matrix_glyphs import (GLYPH_LABEL_GAP, box_size, glyph_for, is_sheet,
+                               label_overhang, label_width, short_label)
+from .em_matrix_model import (MatrixModel, Epoch, Relation, Unit, PARADATA_KINDS,
                               PARADATA_NODE_TYPES, CUT_KIND)
 
 #: Il lato del rombo della continuità: piccolo, nero, senza nome sopra
@@ -67,6 +68,18 @@ class LayoutConfig:
     transitive_reduction: bool = True
     #: Oltre questi archi la riduzione costa troppo e si salta.
     reduction_limit: int = 4000
+    #: I paradati (proprietà, estrattori, combinatori, documenti) stanno
+    #: sotto la loro unità, nel suo gruppo, fuori dal calcolo dei livelli —
+    #: come EMStudio (Enzo, 17 ottobre 2026: con TempluMare 739 paradati su
+    #: 853 caselle facevano un «ammasso»).
+    paradata_groups: bool = True
+    #: l'altezza dei pittogrammi dentro un gruppo, e gli spazi
+    paradata_h: float = 22.0
+    paradata_gap: float = 6.0
+    paradata_row_gap: float = 6.0
+    group_pad: float = 5.0
+    #: fra la casella dell'unità e il suo gruppo
+    group_gap: float = 8.0
 
 
 @dataclass
@@ -115,6 +128,18 @@ class Edge:
 
 
 @dataclass
+class Group:
+    """Il gruppo dei paradati di un'unità: la cornice tratteggiata che
+    EMStudio disegna attorno a proprietà, estrattori, combinatori e
+    documenti di un'unità, sotto di lei."""
+    owner: str
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+@dataclass
 class Layout:
     bands: List[Band] = field(default_factory=list)
     boxes: List[Box] = field(default_factory=list)
@@ -123,6 +148,107 @@ class Layout:
     height: float = 0.0
     title: str = ""
     removed_redundant: int = 0
+    groups: List[Group] = field(default_factory=list)
+
+
+@dataclass
+class _Blocco:
+    w: float
+    h: float
+    #: (nodo, dx, dy, larghezza, altezza) rispetto all'angolo del gruppo
+    voci: List[Tuple[str, float, float, float, float]]
+
+
+#: in che ordine stanno i paradati di una stessa profondità
+_ORDINE_PARADATI = {"property": 0, "combiner": 1, "extractor": 2, "document": 3}
+
+
+def _gruppi_dei_paradati(unita: Dict[str, Unit], tutte: Dict[str, Unit],
+                         relations) -> Tuple[Dict[str, List[Tuple[str, int]]], List[str]]:
+    """``{unità: [(paradato, profondità)]}`` e i paradati che nessuna unità
+    raggiunge.
+
+    Si scende la catena dell'Extended Matrix dall'unità: proprietà
+    (``has_property``), estrattori e combinatori (``has_data_provenance``),
+    estrattori combinati (``combines``), documenti (``extracted_from``). Quello
+    che un estrattore legge — il documento, o la proprietà di un'altra unità —
+    sta nel gruppo, ma non si scende oltre: altrimenti un documento condiviso
+    porterebbe nel gruppo le catene di tutte le unità che lo usano. Un
+    paradato raggiunto da più unità sta in ogni loro gruppo, come in EMStudio.
+    """
+    uscite: Dict[str, List[Tuple[str, str]]] = {}
+    for r in relations:
+        destinazione = tutte.get(r.target)
+        if (r.source == r.target or r.source not in tutte or destinazione is None
+                or destinazione.node_type not in PARADATA_NODE_TYPES):
+            continue
+        uscite.setdefault(r.source, []).append((r.target, r.kind))
+    gruppi: Dict[str, List[Tuple[str, int]]] = {}
+    raggiunti = set()
+    for proprietario in sorted(unita):
+        profondita: Dict[str, int] = {}
+        coda = [(proprietario, 0, None)]
+        while coda:
+            nodo, livello, via = coda.pop(0)
+            if nodo != proprietario and via == "extracted_from":
+                continue
+            for destinazione, tipo in uscite.get(nodo, ()):
+                if destinazione in profondita:
+                    continue
+                profondita[destinazione] = livello + 1
+                coda.append((destinazione, livello + 1, tipo))
+        if profondita:
+            gruppi[proprietario] = sorted(
+                profondita.items(),
+                key=lambda kv: (kv[1], _ORDINE_PARADATI.get(tutte[kv[0]].node_type, 9),
+                                tutte[kv[0]].label))
+            raggiunti.update(profondita)
+    orfani = sorted(i for i, u in tutte.items()
+                    if u.node_type in PARADATA_NODE_TYPES and i not in raggiunti)
+    return gruppi, orfani
+
+
+def _impagina_gruppo(voci: Sequence[Tuple[str, int]], tutte: Dict[str, Unit],
+                     config: LayoutConfig, larghezza: float) -> _Blocco:
+    """Le caselle di un gruppo, una riga per profondità (le proprietà, poi
+    estrattori e combinatori, poi i documenti), che va a capo dentro la
+    larghezza. Ogni casella ha il posto per il suo nome: sotto l'icona,
+    sopra il foglio del documento, dentro la proprietà."""
+    pad = config.group_pad
+    utile = max(larghezza - 2 * pad, config.paradata_h)
+    righe: List[List[Tuple[str, float, float, float, float]]] = []
+    corrente: List[Tuple[str, float, float, float, float]] = []
+    x = 0.0
+    profondita_corrente = None
+    for nid, profondita in voci:
+        unita = tutte[nid]
+        w, h = box_size(unita.node_type, unita.label, utile, config.paradata_h)
+        w = min(w, utile)
+        posto_w, posto_h = w, h
+        if glyph_for(unita.node_type) is not None:
+            # il nome scritto è un po' più largo della stima: otto pixel
+            # d'aria perché due nomi vicini non si tocchino
+            posto_w = max(w, min(label_width(short_label(unita.label)) + 8.0, utile))
+            if not is_sheet(unita.node_type):
+                posto_h = h + GLYPH_LABEL_GAP + 4.0
+        if corrente and (profondita != profondita_corrente or x + posto_w > utile):
+            righe.append(corrente)
+            corrente, x = [], 0.0
+        corrente.append((nid, w, h, posto_w, posto_h))
+        x += posto_w + config.paradata_gap
+        profondita_corrente = profondita
+    if corrente:
+        righe.append(corrente)
+    collocate: List[Tuple[str, float, float, float, float]] = []
+    y = pad
+    for riga in righe:
+        alto = max(posto[4] for posto in riga)
+        x = pad
+        for nid, w, h, posto_w, _posto_h in riga:
+            collocate.append((nid, x + (posto_w - w) / 2.0, y, w, h))
+            x += posto_w + config.paradata_gap
+        y += alto + config.paradata_row_gap
+    return _Blocco(w=larghezza, h=y - config.paradata_row_gap + pad, voci=collocate)
 
 
 def _ranks(ids: Sequence[str], archi: Sequence[Tuple[str, str]]) -> Dict[str, int]:
@@ -385,8 +511,23 @@ def _order_within_ranks(per_livello: Dict[int, List[str]],
 
 
 def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
-    """Le coordinate di fasce, caselle e archi."""
-    unita = {u.node_id: u for u in model.units}
+    """Le coordinate di fasce, caselle e archi.
+
+    I paradati non entrano nel calcolo dei livelli: stanno nel gruppo della
+    loro unità, sotto di lei (``config.paradata_groups``), e i paradati che
+    nessuna unità raggiunge hanno una fascia loro, in fondo."""
+    tutte = {u.node_id: u for u in model.units}
+    nodi_paradati = ({i for i, u in tutte.items() if u.node_type in PARADATA_NODE_TYPES}
+                     if config.paradata_groups else set())
+    unita = {i: u for i, u in tutte.items() if i not in nodi_paradati}
+    passo_colonna = config.box_w + config.h_gap
+    gruppi_pd: Dict[str, List[Tuple[str, int]]] = {}
+    orfani: List[str] = []
+    if nodi_paradati:
+        gruppi_pd, orfani = _gruppi_dei_paradati(unita, tutte, model.relations)
+    blocchi = {proprietario: _impagina_gruppo(voci, tutte, config,
+                                              passo_colonna - config.paradata_gap)
+               for proprietario, voci in gruppi_pd.items() if voci}
 
     gruppo_uguali = _equality_groups(unita, model.relations)
     ordinanti = [(r.source, r.target) for r in model.relations
@@ -448,8 +589,13 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             for inizio in range(0, len(ids), config.max_columns):
                 righe_disegno.append(ids[inizio:inizio + config.max_columns])
         righe = len(righe_disegno)
+        # Una riga con dei gruppi di paradati è alta quanto la casella più
+        # il gruppo più alto: le righe sotto scendono, niente si sovrappone.
+        sotto = [max([blocchi[i].h + config.group_gap for i in ids if i in blocchi]
+                     or [0.0]) for ids in righe_disegno]
         altezza = (config.band_pad * 2
-                   + (righe * config.box_h + max(righe - 1, 0) * config.v_gap
+                   + (righe * config.box_h + sum(sotto)
+                      + max(righe - 1, 0) * config.v_gap
                       if righe else config.box_h))
         risultato.bands.append(Band(
             epoch=epoca,
@@ -458,17 +604,34 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                       if epoca else "nessun periodo iniziale nella scheda"),
             color=(epoca.color if epoca else "#F2F2F2"),
             y=y, h=altezza))
-        piani.append((epoca, righe_disegno, y, altezza))
+        piani.append((epoca, righe_disegno, y, altezza, sotto))
         tutte_le_righe.extend(righe_disegno)
         colonne_max = max([colonne_max] + [len(r) for r in righe_disegno])
+        y += altezza
+
+    blocco_orfani = None
+    cima_orfani = y
+    if orfani:
+        blocco_orfani = _impagina_gruppo(
+            [(i, 1) for i in sorted(orfani, key=lambda i: (
+                _ORDINE_PARADATI.get(tutte[i].node_type, 9), tutte[i].label))],
+            tutte, config, max(colonne_max, 1) * passo_colonna - config.paradata_gap)
+        altezza = config.band_pad * 2 + blocco_orfani.h
+        risultato.bands.append(Band(
+            epoch=None, label="Paradati senza unità",
+            sublabel="nessuna unità li raggiunge nella catena",
+            color="#F2F2F2", y=y, h=altezza))
         y += altezza
 
     ascisse = _assign_x(tutte_le_righe, vicini, config.box_w + config.h_gap)
     ascisse = _pin_continuity(ascisse, tutte_le_righe, vicini,
                               {i: u.node_type for i, u in unita.items()},
                               config.box_w + config.h_gap)
-    for _epoca, righe_disegno, cima, _altezza in piani:
+    for _epoca, righe_disegno, cima, _altezza, sotto in piani:
         for riga, ids in enumerate(righe_disegno):
+            cima_riga = (cima + config.band_pad
+                         + sum(config.box_h + sotto[k] + config.v_gap
+                               for k in range(riga)))
             for i in ids:
                 # Un pittogramma dell'Extended Matrix ha la casella
                 # guidata dall'altezza, e la proprietà è larga quanto il
@@ -491,18 +654,42 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                     x=(config.margin + config.band_label_w
                        + ascisse.get(i, 0.0)
                        + (config.box_w - larghezza) / 2.0),
-                    y=cima + config.band_pad + riga * (config.box_h
-                                                       + config.v_gap)
-                      + rialzo,
+                    y=cima_riga + rialzo,
                     w=larghezza, h=altezza_casella))
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
+    # I gruppi dei paradati: sotto la casella dell'unità, nella sua colonna.
+    cornici: List[Box] = []
+    istanze: Dict[str, Dict[str, Box]] = {}
+    for proprietario, blocco in sorted(blocchi.items()):
+        casella = centro.get(proprietario)
+        if casella is None:
+            continue
+        x0 = config.margin + config.band_label_w + ascisse.get(proprietario, 0.0)
+        y0 = casella.y + casella.h + config.group_gap
+        risultato.groups.append(Group(owner=proprietario, x=x0, y=y0,
+                                      w=blocco.w, h=blocco.h))
+        cornici.append(Box(unit=casella.unit, x=x0, y=y0, w=blocco.w, h=blocco.h))
+        mie = istanze.setdefault(proprietario, {proprietario: casella})
+        for nid, dx, dy, w, h in blocco.voci:
+            box = Box(unit=tutte[nid], x=x0 + dx, y=y0 + dy, w=w, h=h)
+            risultato.boxes.append(box)
+            mie[nid] = box
+    if blocco_orfani is not None:
+        x0 = config.margin + config.band_label_w
+        for nid, dx, dy, w, h in blocco_orfani.voci:
+            risultato.boxes.append(Box(unit=tutte[nid], x=x0 + dx,
+                                       y=cima_orfani + config.band_pad + dy, w=w, h=h))
     # Un indice solo per tutto il disegno: le caselle non si muovono più.
-    griglia = _Griglia(risultato.boxes)
+    # I gruppi contano come un ostacolo intero: una linea fra due unità
+    # gira intorno al gruppo, non fra le sue caselle.
+    griglia = _Griglia([b for b in risultato.boxes if b.unit.node_id in unita] + cornici)
     ridondanti = (_redundant(ordinanti, config.reduction_limit)
                   if config.transitive_reduction else set())
     gia_disegnati = set()
     for r in model.relations:
+        if r.source in nodi_paradati or r.target in nodi_paradati:
+            continue                    # nel gruppo, qui sotto
         a, b = centro.get(r.source), centro.get(r.target)
         if a is None or b is None or r.source == r.target:
             continue                    # un cappio non dice niente a vista
@@ -544,6 +731,30 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             points=_route(a, b, simmetrica, scarto=scarto, corsia=corsia,
                           griglia=griglia, accanto=continuita,
                           esclusi=(r.source, r.target))))
+
+    # I legami dei paradati, solo dentro un gruppo: una linea corta e dritta
+    # dalla casella di partenza a quella di arrivo. Un documento che serve
+    # più unità sta in ogni gruppo, come in EMStudio, e nessuna linea va da
+    # un gruppo all'altro.
+    if istanze:
+        per_partenza: Dict[str, List[Relation]] = {}
+        for r in model.relations:
+            if (r.source in nodi_paradati or r.target in nodi_paradati) and r.source != r.target:
+                per_partenza.setdefault(r.source, []).append(r)
+        for proprietario, mie in sorted(istanze.items()):
+            for sorgente, a in mie.items():
+                for r in per_partenza.get(sorgente, ()):
+                    b = mie.get(r.target)
+                    if b is None:
+                        continue
+                    if b.y >= a.y + a.h:
+                        punti = [(a.x + a.w / 2.0, a.y + a.h), (b.x + b.w / 2.0, b.y)]
+                    else:
+                        punti = [(a.x + a.w / 2.0, a.y + a.h / 2.0),
+                                 (b.x + b.w / 2.0, b.y + b.h / 2.0)]
+                    risultato.edges.append(Edge(
+                        kind=r.kind, source=r.source, target=r.target,
+                        paradata=True, points=punti))
 
     # Il nome di un pittogramma è più largo del pittogramma, e non si
     # taglia: la tela deve tenerci dentro anche quello, se no l'ultimo

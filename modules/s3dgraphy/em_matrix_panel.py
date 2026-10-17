@@ -189,12 +189,11 @@ def describe_failure(em_json_path) -> Optional[str]:
 
 
 def summary_line(em_json_path) -> str:
-    """«51 unità · 12 epoche · 93 rapporti», per la barra del pannello."""
-    from ..utility.em_matrix_model import read_em_json
+    """«51 unità · 12 epoche · 93 rapporti», per la barra del pannello (e
+    «· 739 paradati» quando ci sono)."""
+    from ..utility.em_matrix_model import read_em_json, summary_text
 
-    model = read_em_json(Path(em_json_path))
-    return "%d unità · %d epoche · %d rapporti" % (
-        len(model.units), len(model.epochs), len(model.relations))
+    return summary_text(read_em_json(Path(em_json_path)))
 
 
 def _existing(iface):
@@ -457,9 +456,8 @@ def open_in_panel(iface, em_json_path, title: str = "", conn_str=None,
         if schede is not None:
             schede.setCurrentIndex(1 if tab == "narrativa" else 0)
         if conteggi is not None:
-            testo = ("%d unità · %d epoche · %d rapporti"
-                     % (len(model.units), len(model.epochs),
-                        len(model.relations)))
+            from ..utility.em_matrix_model import summary_text
+            testo = summary_text(model)
             if impaginato.removed_redundant:
                 # Altrimenti l'intestazione dice 93 e nel disegno se ne
                 # contano 59, senza che niente spieghi la differenza.

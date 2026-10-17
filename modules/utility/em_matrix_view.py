@@ -257,6 +257,18 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
         anni.setZValue(-10)
         scene.addItem(anni)
 
+    # Il gruppo dei paradati di un'unità: la cornice tratteggiata di
+    # EMStudio, sotto le linee e le caselle.
+    for gruppo in lay.groups:
+        cornice = QGraphicsRectItem(QRectF(gruppo.x, gruppo.y, gruppo.w, gruppo.h))
+        penna = QPen(QColor("#9AA4B2"))
+        penna.setStyle(Qt.PenStyle.DashLine)
+        penna.setWidthF(1.0)
+        cornice.setPen(penna)
+        cornice.setBrush(QBrush(Qt.BrushStyle.NoBrush))
+        cornice.setZValue(-6)
+        scene.addItem(cornice)
+
     for edge in lay.edges:
         percorso = QPainterPath(QPointF(*edge.points[0]))
         if edge.symmetric:

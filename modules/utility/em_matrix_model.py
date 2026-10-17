@@ -235,6 +235,21 @@ class MatrixModel:
         return {u.node_id: u for u in self.units}
 
 
+def summary_text(model: "MatrixModel") -> str:
+    """«114 unità · 739 paradati · 3 epoche · 90 rapporti»: le unità e i
+    paradati a parte, e i rapporti fra unità — quelli dei paradati stanno
+    nei loro gruppi (17 ottobre 2026: TempluMare diceva «853 unità · 1072
+    rapporti»). Senza paradati la riga di sempre."""
+    paradati = {u.node_id for u in model.units if u.node_type in PARADATA_NODE_TYPES}
+    unita = len(model.units) - len(paradati)
+    rapporti = sum(1 for r in model.relations
+                   if r.source not in paradati and r.target not in paradati)
+    if paradati:
+        return "%d unità · %d paradati · %d epoche · %d rapporti" % (
+            unita, len(paradati), len(model.epochs), rapporti)
+    return "%d unità · %d epoche · %d rapporti" % (unita, len(model.epochs), rapporti)
+
+
 def _ends(edge) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     return (edge.get("source") or edge.get("edge_source"),
             edge.get("target") or edge.get("edge_target"),

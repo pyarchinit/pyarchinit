@@ -357,6 +357,12 @@ def to_svg(lay: Layout, title: str = "") -> str:
         pezzi.append('<g transform="translate(0,%.1f)">' % alto)
     for band in lay.bands:
         pezzi.append(_band_svg(band, larghezza))
+    # Il gruppo dei paradati di un'unità: la cornice tratteggiata di EMStudio.
+    for gruppo in getattr(lay, "groups", None) or ():
+        pezzi.append('<rect class="paradata-group" x="%.1f" y="%.1f" width="%.1f" '
+                     'height="%.1f" rx="4" fill="none" stroke="#9AA4B2" '
+                     'stroke-width="1" stroke-dasharray="4 3"/>'
+                     % (gruppo.x, gruppo.y, gruppo.w, gruppo.h))
     for edge in lay.edges:
         pezzi.append(_edge_svg(edge))
     for box in lay.boxes:

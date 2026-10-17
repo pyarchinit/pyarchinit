@@ -5,6 +5,27 @@
 
 ---
 
+## [feat] - 2026-10-17 — Matrice: i paradati nel gruppo della loro unità, come EMStudio — non più 853 «unità» ammassate per TempluMare, ma 114 unità con i loro gruppi — 5.13.126-alpha
+
+> Branch `Stratigraph_00001`. Suite **2308 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +10 test). / Matrix: paradata in the group of their unit, as in EMStudio.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **«quello che non mi trovo è come è gestito questo ammasso … non è come l'ho visto nel matrix di EMStudio»** (Enzo, 17 ottobre 2026, col video). Il pannello della matrice disegnava come unità anche i paradati: per TempluMare 853 caselle, di cui 739 paradati (360 proprietà, 301 estrattori, 55 documenti, 23 combinatori) con 982 dei 1072 legami, tutti nel calcolo delle fasce e dei livelli. Scelta di Enzo: i paradati raccolti sotto la loro unità, come EMStudio.
+- 🇮🇹 **IT**: `modules/utility/em_matrix_layout.py`: i paradati escono dal calcolo dei livelli (`LayoutConfig.paradata_groups`, vero di norma); ogni unità ha il suo **gruppo** (`Layout.groups`, nuovo `Group`), sotto la sua casella e nella sua colonna, una riga per passo della catena — proprietà, poi estrattori e combinatori, poi documenti — che va a capo nella larghezza della colonna (`_gruppi_dei_paradati`, `_impagina_gruppo`); le righe della fascia si alzano quanto il gruppo più alto; quello che un estrattore legge (il documento, o la proprietà di un'altra unità) sta nel gruppo ma non lo si scende, se no un documento condiviso porterebbe dentro le catene di tutte le unità che lo usano; un paradato che serve più unità compare in ogni gruppo («one master per document, re-instanced in every paradata group», EMStudio), e le sue linee restano dentro il gruppo, dritte e corte; i paradati che nessuna unità raggiunge hanno una fascia loro, in fondo. Le linee fra unità girano attorno ai gruppi. SVG e vista disegnano la cornice tratteggiata del gruppo; i nomi dei pittogrammi hanno qualche pixel d'aria in più.
+- 🇮🇹 **IT**: l'intestazione del pannello conta unità e paradati a parte (`em_matrix_model.summary_text`): «114 unità · 739 paradati · 3 epoche · 90 rapporti» per TempluMare, prima «853 unità · 3 epoche · 1072 rapporti». Senza paradati la riga resta quella di sempre.
+- 🇮🇹 **IT**: **misurato su TempluMare** (l'export della prova completa): impaginazione 0,06 s invece di 2,46 s, 111 gruppi, 957 caselle (i documenti condivisi in più gruppi), tela 4643 × 7356 invece di 5250 × 4890; la vista Qt disegna la scena (6797 elementi) senza errori.
+- 🇬🇧 **EN**: the matrix panel no longer ranks paradata as units: each unit carries its paradata group under its box (one row per chain step, wrapped to the column width, shared paradata re-instanced in each group as in EMStudio, lines kept inside the group, unreachable paradata in a band of their own), drawn with a dashed frame in the view and the SVG; the header counts units and paradata apart. TempluMare: 0.06 s instead of 2.46 s, 111 groups.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/utility/test_em_matrix_paradata_blocks.py` (10, visti rossi prima: paradati sotto l'unità e nella sua colonna, livelli delle unità invariati, documento condiviso in ogni gruppo, solo legami dentro il gruppo, niente sovrapposizioni e fascia che li contiene, fascia dei paradati senza unità, disegno invariato senza paradati, cornice nell'SVG, cornice tratteggiata nella vista, titolo con i paradati a parte); `test_em_matrix_svg.py`: E1→D1 si disegna una volta per gruppo (6 linee invece di 5).
+- 🇬🇧 **EN**: 10 new layout tests; SVG paradata test updated for re-instanced groups.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §9 (I paradati stanno sotto la loro unità), in dieci lingue. `metadata.txt` 5.13.126-alpha.
+- 🇬🇧 **EN**: tutorial 36 §9 in ten languages.
+
+---
+
 ## [fix] - 2026-10-17 — Importare TempluMare in un database nuovo come lo vuole pyArchInit: rapporti su tutte e due le schede e mai vuoti, datazione e codice periodo, scheda sito con definizione e toponimi anche nel thesaurus (codici 1.2–1.5), la periodizzazione che non cambia la datazione del primo record, l'esportazione che non gira la catena dei paradati — 5.13.125-alpha
 
 > Branch `Stratigraph_00001`. Suite **2298 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; erano 2274, i 24 in più sono i test nuovi). / Importing TempluMare into a new database the way pyArchInit wants it: relations on both records and never empty, dating and period code, site record with definition and toponyms also in the thesaurus (codes 1.2–1.5), the Periodizzazione sheet no longer changes the first record's dating, the export no longer turns the paradata chain around.

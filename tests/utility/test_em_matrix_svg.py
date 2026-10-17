@@ -365,7 +365,10 @@ def test_paradata_edges_take_the_library_style_and_are_never_solid():
                    ("N1", "C1", "generic_connection"),
                    ("C1", "E1", "combines")))))
     linee = _polilinee(svg, "edge paradata")
-    assert len(linee) == 5, svg
+    # Dal 17-10-2026 i paradati stanno nel gruppo della loro unità, come in
+    # EMStudio: E1 e D1 servono sia US1 sia N1, quindi compaiono in tutti e
+    # due i gruppi, ed E1→D1 si disegna una volta per gruppo (6 linee).
+    assert len(linee) == 6, svg
     colori = {l.split('stroke="')[1].split('"')[0] for l in linee}
     assert colori == {"#A52A2A", "#FFA500", "#FFD700", "#808080", "#FF6347"}, colori
     for l in linee:
