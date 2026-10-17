@@ -263,22 +263,29 @@ _JS = r"""
     function fatto() { attesi -= 1; if (attesi <= 0) { applica(true); } }
     scritta(W.loading);
     D.proxies.forEach(function (p) {
-      var dati;
-      try { dati = buffer(p.glb); } catch (err) { S.failed += 1; fatto(); return; }
-      loader.parse(dati, '', function (gltf) {
-        var it = {u: p.u, k: p.k, root: gltf.scene, mat: [], mesh: [], bordi: null};
-        gltf.scene.traverse(function (o) {
-          if (!o.isMesh) { return; }
-          o.material = Array.isArray(o.material) ? o.material.map(clona) : clona(o.material);
-          [].concat(o.material).forEach(function (m) { it.mat.push(m); });
-          o.userData.pyaUnit = p.u;
-          it.mesh.push(o);
-        });
-        scena.add(gltf.scene);
-        it.box = new T.Box3().setFromObject(gltf.scene);
-        S.items.push(it);
-        fatto();
-      }, function () { S.failed += 1; fatto(); });
+      // il GLTFLoader, per un file che non è un GLB (troppo corto, non JSON,
+      // compresso Draco senza decodificatore), lancia l'errore subito invece
+      // di chiamare onError: ogni proxy si chiude una volta sola, letto o no
+      var chiuso = false, dati;
+      function finito() { if (!chiuso) { chiuso = true; fatto(); } }
+      function guasto() { if (!chiuso) { S.failed += 1; } finito(); }
+      try { dati = buffer(p.glb); } catch (err) { guasto(); return; }
+      try {
+        loader.parse(dati, '', function (gltf) {
+          var it = {u: p.u, k: p.k, root: gltf.scene, mat: [], mesh: [], bordi: null};
+          gltf.scene.traverse(function (o) {
+            if (!o.isMesh) { return; }
+            o.material = Array.isArray(o.material) ? o.material.map(clona) : clona(o.material);
+            [].concat(o.material).forEach(function (m) { it.mat.push(m); });
+            o.userData.pyaUnit = p.u;
+            it.mesh.push(o);
+          });
+          scena.add(gltf.scene);
+          it.box = new T.Box3().setFromObject(gltf.scene);
+          S.items.push(it);
+          finito();
+        }, guasto);
+      } catch (err) { guasto(); }
     });
     if (!D.proxies.length) { applica(true); }
     if (window.ResizeObserver) { new ResizeObserver(misura).observe(tela); }

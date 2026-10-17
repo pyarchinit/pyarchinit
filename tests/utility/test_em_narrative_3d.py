@@ -177,3 +177,71 @@ def test_il_javascript_della_scena_si_legge(tmp_path):
     f = tmp_path / "scena.js"
     f.write_text(n3d._JS, encoding="utf-8")
     subprocess.run(["node", "--check", str(f)], check=True)
+
+
+_BROWSER_FINTO = r"""
+globalThis.window = globalThis;
+globalThis.addEventListener = function () {};
+function finto() {
+  var messi = {}, f = function () {};
+  var p = new Proxy(f, {
+    get: function (t, k) {
+      if (k in messi) { return messi[k]; }
+      return k === Symbol.toPrimitive ? function () { return 0; } : p;
+    },
+    set: function (t, k, v) { messi[k] = v; return true; },
+    apply: function () { return p; },
+    construct: function () { return p; }
+  });
+  return p;
+}
+function Elemento() {
+  this.hidden = false; this.style = {}; this.firstChild = {textContent: ''};
+  this.clientWidth = 400; this.clientHeight = 300;
+}
+Elemento.prototype.appendChild = function () {};
+Elemento.prototype.addEventListener = function () {};
+Elemento.prototype.closest = function () { return new Elemento(); };
+Elemento.prototype.getBoundingClientRect = function () { return {left: 0, top: 0, width: 400, height: 300}; };
+var dati = {proxies: [{k: 'a', u: 'u1', glb: 'AAAA'}, {k: 'b', u: 'u2', glb: 'Z2xURi0xMjM0NTY3OA=='}],
+  unitProxies: {u1: ['a'], u2: ['b']}, names: {u1: 'SU001', u2: 'SU002'}, epochs: {}, epochNames: {},
+  missing: 0, skipped: 0, words: {site: 'Tutto il sito', chapter: 'Capitolo', proxies: 'proxy',
+  noProxy: 'senza', failed: 'non caricati', skipped: 'fuori', missing: 'senza file', noWebgl: 'niente WebGL',
+  loading: 'Carico i proxy'}};
+var elementi = {'pya-3d-data': {textContent: JSON.stringify(dati)}, 'pya-3d': new Elemento(),
+                'pya-3d-caption': new Elemento()};
+globalThis.document = {
+  getElementById: function (id) { return elementi[id] || null; },
+  createElement: function () { var e = new Elemento(); e.getContext = function () { return {}; }; return e; },
+  addEventListener: function () {}
+};
+globalThis.WebGLRenderingContext = function () {};
+globalThis.PYA_SEL = {units: {}, firstEpoch: {}, add: function (fn) { fn(null, null, null); }};
+var T = finto();
+// come il GLTFLoader di three.js: un file che non è un GLB fa lanciare subito
+// un errore (new Uint8Array(data, 0, 4), JSON.parse), senza onError
+T.GLTFLoader = function () {};
+T.GLTFLoader.prototype.parse = function (dati, via, ok, ko) {
+  if (dati.byteLength < 12) { throw new RangeError('Invalid typed array length: 4'); }
+  var mesh = {isMesh: true, userData: {}, material: {opacity: 1, transparent: false, depthWrite: true,
+    userData: {}, clone: function () { return {opacity: 1, transparent: false, depthWrite: true, userData: {}}; }}};
+  ok({scene: {traverse: function (fn) { fn(mesh); }}});
+};
+globalThis.PYA_THREE = T;
+"""
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+def test_un_proxy_che_non_si_legge_non_ferma_la_scena(tmp_path):
+    """Il GLTFLoader di three.js, per un file che non è un GLB (troppo corto,
+    non JSON, compresso Draco senza decodificatore), lancia l'errore subito
+    invece di chiamare onError: la scena restava ferma su «Carico i proxy…»
+    e non si disegnava niente (prova nel browser su TempluMare, 17 ottobre)."""
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    f = tmp_path / "scena.js"
+    f.write_text(_BROWSER_FINTO + n3d._JS
+                 + "\nconsole.log(document.getElementById('pya-3d-caption').firstChild.textContent);\n",
+                 encoding="utf-8")
+    esito = subprocess.run(["node", str(f)], capture_output=True, text=True)
+    assert esito.returncode == 0, esito.stderr
+    assert esito.stdout.strip() == "Tutto il sito · 2 proxy · 1 non caricati"
