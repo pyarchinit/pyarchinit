@@ -5,6 +5,30 @@
 
 ---
 
+## [feat] - 2026-10-17 — La scena 3D dei proxy nella narrativa: tutti i proxy delle unità messi insieme nel pannello della mappa, il clic su un'unità che evidenzia il suo e rende trasparenti gli altri — 5.13.132-alpha
+
+> Branch `Stratigraph_00001`. Suite **2416 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +22 test). / The narrative's HTML gets a 3D tab next to the map with all the units' proxies; one selection drives both views.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **«assemblare insieme tutti i 3D come ad esempio per la mappa e quando nel capitolo si fa riferimento a quello se ci clicco sopra … si evidenzia il proxy interessato e gli altri sono in trasparenza»** (Enzo, 17 ottobre 2026). Nuovi moduli `modules/s3dgraphy/em_narrative_views.py` (`View`, `link_units`, `inject_views`, `html_with_views`: il pannello a schede «Mappa» e «3D», i link delle menzioni anche senza mappa, la selezione comune `PYA_SEL` con epoca, unità e gruppo — il gruppo è un capitolo senza epoca) e `modules/s3dgraphy/em_narrative_3d.py` (`scene_proxies` dalla regola della libreria `proxy_instances`, chi eredita la geometria punta al proxy del proprietario; `build_scene` con i file dal database e i limiti di 15/40 MB; `scene_view` con i proxy in base64 e la scena three.js: colori EM a riposo, il proxy scelto pieno col contorno arancione, lo stesso periodo a 0,25 e gli altri a 0,04, l'inquadratura in 0,6 s, il nome al passaggio, il clic sul proxy che seleziona l'unità anche sulla mappa). three.js 0.186.1 (MIT) con GLTFLoader e OrbitControls in `resources/js/pya_three_scene.min.js`, rifatto da `scripts/build_three_bundle.sh`: la pagina funziona senza rete. `em_narrative_map.map_view`; `em_project.media_index`/`media_file_for` pubbliche. Su TempluMare: 65 proxy, 2,4 MB, la scena di 43 × 14 × 52 m.
+- 🇬🇧 **EN**: new `em_narrative_views` (tabbed panel, mention links without the map, shared `PYA_SEL` selection) and `em_narrative_3d` (proxies from the library's `proxy_instances`, files from the database, three.js scene embedded in the page with transparency, outline, framing, hover names and click-to-select).
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: il CSS del blocco «Unità del capitolo» (5.13.130) su `.pya-u` dava bordo e margine anche ai nomi delle unità nel testo (`a.pya-u`): ora vale solo dentro `.pya-unita`.
+- 🇬🇧 **EN**: the 5.13.130 unit-row CSS no longer styles the mention links.
+- 🇮🇹 **IT**: trovato con la prova nel browser: un proxy che three.js non sa leggere (troppo corto, non JSON, compresso Draco senza decodificatore) bloccava la scena su «Carico i proxy…», perché il `GLTFLoader` lancia l'errore subito invece di chiamare la funzione d'errore. Ora ogni proxy si legge dentro un `try` e si chiude una volta sola: quello guasto si conta fra i «non caricati», gli altri si disegnano (test con un finto browser in `node`).
+- 🇬🇧 **EN**: an unreadable proxy no longer stops the scene: the GLTFLoader throws synchronously, so each proxy is parsed in a try/catch and counted once.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/utility/test_em_narrative_views.py`, `tests/utility/test_em_narrative_3d.py`, `tests/sync/test_em_narrative_3d_db.py`, +1 in `test_em_narrative_map.py`, `test_em_narrative_html.py` e `test_em_project.py`; gli script controllati con `node --check`. Prova nel browser (Chrome senza schermo) su TempluMare: a riposo, dopo il clic su un'unità, dopo il clic su un capitolo, con un proxy guastato, sul telefono.
+- 🇬🇧 **EN**: 22 new tests; headless Chrome check on TempluMare.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §10.7 (la scena 3D dei proxy), dieci lingue. `metadata.txt` 5.13.132-alpha.
+- 🇬🇧 **EN**: tutorial 36 §10.7 in ten languages.
+
+---
+
 ## [feat] - 2026-10-17 — «Esporta progetto EM per EMStudio…»: l'em.json in EM/ con i media del database copiati dove EMStudio li cerca, nell'albero standard della libreria — 5.13.131-alpha
 
 > Branch `Stratigraph_00001`. Suite **2394 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +8 test). / New "Export EM project for EMStudio" menu entry: the site's em.json in EM/ with the database's media copied where EMStudio looks for them.
