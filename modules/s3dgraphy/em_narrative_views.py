@@ -192,3 +192,37 @@ def inject_views(html: str, views: Sequence[View], chapters: Sequence[Dict[str, 
                     lambda m: '<body%s>\n<div class="pya-layout"><div class="pya-text">' % m.group(1),
                     pagina, count=1)
     return pagina.replace("</body>", "</div>%s</div>%s</body>" % (pannello, script), 1)
+
+
+def html_with_views(html: str, graph, conn_str: Optional[str], site: Optional[str],
+                    chapters: Sequence[Dict[str, Any]], lang: Optional[str] = None, *,
+                    resize_base: str = "") -> str:
+    """L'HTML con le viste che il sito ha: la mappa se il database dà dei
+    disegni, la scena 3D se dà i file dei proxy. Ognuna si prova da sola:
+    se una non riesce l'altra resta. Senza database, o senza viste, l'HTML
+    torna com'è."""
+    from . import em_narrative_map as nmap
+    if not conn_str:
+        return html
+    meta = nmap.units_meta(graph)
+    nomi_epoche = nmap.epoch_names(graph)
+    viste = []
+    if meta:
+        try:
+            svg, boxes = nmap.svg_map(nmap.drawings_from_db(conn_str, site, meta, lang), meta)
+            if svg:
+                viste.append(nmap.map_view(svg, boxes, meta, nomi_epoche, lang))
+        except Exception as e:                      # noqa: BLE001
+            _LOG.warning("Mappa della narrativa non aggiunta: %s", e)
+    try:
+        from . import em_narrative_3d as n3d
+        scena = n3d.build_scene(graph, conn_str, resize_base)
+        vista = n3d.scene_view(scena, nomi_epoche, lang) if scena.proxies else None
+        if vista is not None:
+            meta = dict(meta)
+            for u, nome in scena.names.items():
+                meta.setdefault(u, {"name": nome, "epochs": scena.epochs.get(u, [])})
+            viste.append(vista)
+    except Exception as e:                          # noqa: BLE001
+        _LOG.warning("Scena 3D della narrativa non aggiunta: %s", e)
+    return inject_views(html, viste, chapters, meta, lang) if viste else html

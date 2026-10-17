@@ -1323,6 +1323,9 @@ def export_file(graph, narrative, fmt: str, path, *,
     interattiva** delle unità (:mod:`em_narrative_map`): un clic sul nome
     di un'unità la evidenzia e mostra solo quelle del periodo del capitolo;
     senza disegni o senza database l'HTML resta quello della libreria.
+    Con i file dei proxy nel database l'HTML porta anche la **scena 3D**
+    (:mod:`em_narrative_3d`), nella stessa scheda della mappa
+    (:mod:`em_narrative_views`).
     L'HTML porta anche l'**indice** e le **fonti come hotspot**
     (:mod:`em_narrative_html`); ``media_base`` — le cartelle (miniature,
     ridotte) del progetto — serve a trovare i file dei documenti."""
@@ -1339,13 +1342,15 @@ def export_file(graph, narrative, fmt: str, path, *,
         if map_conn:
             try:
                 from . import em_narrative_map as nmap
+                from . import em_narrative_views as nviews
                 capitoli = [{"title": str(getattr(c, "title", "") or ""),
                              "epoch": nmap.epoch_anchor(graph, c),
                              "units": chapter_unit_ids(c)} for c in narrative.chapters]
-                payload = nmap.html_with_map(payload, graph, map_conn, _site_name(graph), capitoli, lang)
+                payload = nviews.html_with_views(payload, graph, map_conn, _site_name(graph), capitoli, lang,
+                                                 resize_base=str((media_base or ("", ""))[1] or ""))
             except Exception as e:                  # noqa: BLE001
                 import logging
-                logging.getLogger(__name__).warning("Mappa della narrativa non aggiunta: %s", e)
+                logging.getLogger(__name__).warning("Mappa e scena 3D della narrativa non aggiunte: %s", e)
         payload = _html_per_chi_legge(payload, graph, narrative, map_conn, media_base, lang)
     elif fmt == "docx":
         try:
