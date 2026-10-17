@@ -9,7 +9,7 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `narrativa-media-5.13.130-alpha` (2026-10-17).
+Tag actual: `progetto-em-5.13.131-alpha` (2026-10-17).
 
 ---
 
@@ -125,6 +125,29 @@ Què passa, en breu:
 - **Reimportar.** Tornar a importar el mateix fitxer no duplica ni els períodes ni les fitxes: les que ja hi són surten com a «invariate» (sense canvis) o «aggiornate» (actualitzades), i allà on la base de dades i el fitxer difereixen guanya el fitxer (el resum les compta com a «conflitti», conflictes). La previsualització compta com a «aggiornate» també les fitxes a les quals la importació afegeix relacions, datació o codi de període (abans figuraven com a «invariate»). Reimportar l'em.json en una base de dades importada abans de la 5.13.125-alpha la repara: definició del lloc, relacions a les dues fitxes, datació i codis de període.
 - **L'em.json queda recordat.** pyArchInit conserva a les seves taules les unitats, els paradata, les relacions i les èpoques; tota la resta del graf —recursos, fitxers, models, formes semàntiques, processos del bessó digital, grups de paradata i d'activitats, autors, llicències, la narrativa—, juntament amb el títol, el **codi de l'estudi** (per exemple GT16: és el prefix amb què Blender torna a lligar els proxies), la georeferenciació (EPSG i desplaçaments) i els noms d'EMStudio, es recorda a la importació (taula `pyarchinit_em_sources`, una fila per lloc; guanya l'última importació). A l'**exportació** de l'em.json del lloc, tot això torna: els noms originals (SU006, D.07.08, height…) per a les fitxes que encara tenen el número donat a la importació —una fitxa reanomenada a pyArchInit conserva el nom nou—, les dades dels nodes (per exemple la propietat «geometry» amb la seva forma, a partir de la qual EMStudio compta els proxies) i els nodes que no són fitxes, amb les seves arestes, lligats a les fitxes que encara existeixen: una branca que ha quedat sense fitxa (per exemple la forma d'una propietat esborrada) no torna. Les relacions, els períodes i les descripcions surten sempre de la base de dades. El missatge del final de l'exportació diu quant ha tornat, per exemple «Dall'em.json importato tornano 851 nomi, 1090 nodi e 1969 archi, codice dello studio GT16.» (De l'em.json importat tornen 851 noms, 1090 nodes i 1969 arestes, codi de l'estudi GT16). Provat a TempluMare_v3.2 (1946 nodes): cap nom ni cap descripció diferents de l'original, i a EMStudio 65 unitats de 114 amb el proxy i 2 èpoques de 3 amb un model, com a l'original. Continuen sent diferents els 9 «ve després de» entre dues US, que pyArchInit escriu «Copre», i els grups d'ubicació del lloc i de l'àrea amb l'estudi, que pyArchInit afegeix.
 
+### 5.0.1 Exportar el projecte EM per a EMStudio, amb els seus fitxers
+
+Des de la **5.13.131-alpha**. L'em.json que pyArchInit escriu a `pyarchinit_EM_folder` porta les rutes dels fitxers (`proxies/SU002.glb`, `DosCo/D.05 ….pdf`, `../RB/…`), però no els fitxers: obert des d'allà, EMStudio no troba ni els proxies ni els documents. L'entrada de menú **Extended Matrix → Esporta progetto EM per EMStudio…** (Exporta el projecte EM per a EMStudio) crea la carpeta d'un projecte EM complet, amb l'arbre estàndard de la biblioteca s3dgraphy —aquell en què EMStudio busca els fitxers—:
+
+```
+<projecte>/
+  EM/            l'em.json
+    DosCo/       els documents (D.01, D.02.03 …)
+    proxies/     els proxies 3D de les unitats (<unitat>.glb)
+  RB/            l'aixecament (LOD0, LOD1 …, textures, tessel·les)
+  SB/            els models obtinguts de les fonts
+  RM/            els models de representació
+```
+
+1. Triar el **lloc**.
+2. Triar la **carpeta del projecte**. Si és buida, o ja és un projecte EM (té una carpeta `EM/`, o és la carpeta `EM/` d'un projecte), el projecte és ella; si no —l'Escriptori, una carpeta amb altres fitxers—, pyArchInit hi crea una carpeta nova amb el nom del lloc (per exemple `Temple/`). La carpeta triada es recorda per a la vegada següent.
+3. pyArchInit exporta el lloc com **Esporta sito in em.json…** (Exporta el lloc a em.json) —a la carpeta de treball `pyarchinit_EM_folder`, i per tant amb la narrativa preparada al panell (§10.8)— i copia l'em.json a `EM/`. Després copia al seu costat, a la ruta que escriu l'em.json, **cada fitxer citat que la base de dades coneix**: els mèdia importats amb l'em.json (§5.0). Un fitxer citat només pel nom —l'url dels documents i dels extractors, que EMStudio pren de `DosCo`— va a `EM/DosCo/`. Si l'original no és accessible (el disc extern desconnectat), el fitxer es pren de la carpeta **Image resize** quan allà hi ha el mateix fitxer (models 3D i PDF, copiats tal qual); una imatge no: allà està reduïda a PNG, ja no és el fitxer citat. Una barra de progrés compta els fitxers.
+4. El resum diu quants fitxers s'han copiat i quants ja hi eren, **quants recursos de l'em.json troba EMStudio des del projecte** —els compta el resolutor de la biblioteca, el mateix que fa servir EMStudio—, els fitxers citats que la base de dades no té, per carpeta, que cal copiar a mà des del projecte original, i els fitxers copiats el **sha256** dels quals no és el que hi ha escrit a l'em.json. **Mostra els detalls…** els enumera un per un. Els botons: **Apri in EMStudio** (Obre a EMStudio: obre l'em.json del projecte), **Apri la cartella** (Obre la carpeta), **Chiudi** (Tanca).
+
+Tornar a exportar a la mateixa carpeta no torna a copiar el que ja hi ha i **no sobreescriu un fitxer del projecte que sigui diferent** del de la base de dades (pot ser feina feta a EMStudio): el resum ho diu («lasciati come sono», deixats tal com són); per substituir-lo, cal esborrar-lo i tornar a exportar. L'em.json anterior, si és diferent, es queda al costat com a `<lloc>.em.json.bak`.
+
+A TempluMare (la base de dades de la importació del §5.0, amb el disc extern desconnectat): 96 fitxers copiats (238,7 MB: els 65 proxies i 31 documents, tots amb el sha256 escrit a l'em.json); EMStudio troba des del projecte 96 dels 536 recursos; queden per copiar a mà els 343 fitxers que la base de dades no ha tingut mai —l'aixecament de `RB/` (158) i els models de `SB/` (175), que no són mèdia, inclosos els `.blend`— més les 10 fotos JPG de `DosCo`, que amb el disc connectat es copien dels originals.
+
 La via yEd/GraphML, per moure unitats entre grups, és la que segueix.
 
 Per modificar la base SQL movent UE entre grups en GraphML:
@@ -176,6 +199,7 @@ Exit codes: 0 = èxit, 1 = error de bridge, 2 = error argparse.
 | `DeprecationWarning` en fitxer 5.5.x | Fitxer legacy `ActivityNodeGroup + group_kind` | El projector el promociona en memòria a `LocationNodeGroup`. Reexporta per migrar el fitxer al disc. |
 | Les files de la swimlane mostren un text llarguíssim | Les versions anteriors usaven la Descrizione de la periodització com a etiqueta | Actualitza el plugin i reexporta, i/o omple **Datazione estesa** amb un nom breu |
 | Les èpoques de la swimlane estan en ordre incorrecte (ex. Bronze per sobre del Tardoantic) | Les files s'ordenen per **Cronologia Inicial**; les dates aC introduïdes com a nombres positius (1650 en lloc de -1650) s'ordenen com a dC | A la Fitxa Periodització introdueix els anys aC com a nombres negatius i reexporta. El resum de l'exportació mostra ara un avís "⚠️ Periodizzazione: ..." amb la llista de períodes a corregir |
+| EMStudio obre l'em.json exportat però no troba ni els proxies 3D ni els documents | L'em.json de `pyarchinit_EM_folder` porta les rutes dels fitxers, no els fitxers | Exporta amb **Extended Matrix → Esporta progetto EM per EMStudio…** (§5.0.1) i obre l'em.json del projecte |
 
 ---
 

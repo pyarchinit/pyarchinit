@@ -9,7 +9,7 @@ Ab Version **5.2.0-alpha** integriert PyArchInit eine **bidirektionale Bridge** 
 - **Anhängen von Paradata** (Author / License / Embargo) auf Stättenebene
 - **Gruppieren** von SE nach Dimension (struttura, area, attivita, settore, ambient, saggio, quad_par oder Ad-hoc-Gruppen)
 
-Aktueller Tag: `narrativa-media-5.13.130-alpha` (2026-10-17).
+Aktueller Tag: `progetto-em-5.13.131-alpha` (2026-10-17).
 
 ---
 
@@ -125,6 +125,29 @@ Was dabei geschieht, in Kürze:
 - **Erneut importieren.** Dieselbe Datei erneut zu importieren verdoppelt weder Perioden noch Datensätze: Bereits vorhandene erscheinen als «invariate» (unverändert) oder «aggiornate» (aktualisiert), und wo Datenbank und Datei voneinander abweichen, gewinnt die Datei (die Zusammenfassung zählt sie als «conflitti», Konflikte). Die Vorschau zählt auch die Datensätze als «aggiornate», denen der Import Beziehungen, Datierung oder Periodencode hinzufügt (zuvor erschienen sie als «invariate»). Die em.json erneut in eine Datenbank zu importieren, die vor 5.13.125-alpha importiert wurde, repariert sie: Definition der Stätte, Beziehungen auf beiden Datensätzen, Datierung und Periodencodes.
 - **Die em.json wird gemerkt.** pyArchInit hält in seinen Tabellen die Einheiten, die Paradata, die Beziehungen und die Epochen; alles Übrige des Graphen — Ressourcen, Dateien, Modelle, semantische Formen, Prozesse des digitalen Zwillings, Gruppen von Paradata und von Aktivitäten, Autoren, Lizenzen, die Erzählung — wird zusammen mit dem Titel, dem **Studiencode** (zum Beispiel GT16: Es ist das Präfix, mit dem Blender die Proxys wieder anhängt), der Georeferenzierung (EPSG und Verschiebungen) und den Namen aus EMStudio beim Import gemerkt (Tabelle `pyarchinit_em_sources`, eine Zeile pro Stätte; der letzte Import gewinnt). Beim **Export** der em.json der Stätte kommt all das zurück: die Originalnamen (SU006, D.07.08, height …) für die Datensätze, die noch die beim Import vergebene Nummer haben — ein in pyArchInit umbenannter Datensatz behält den neuen Namen —, die Daten der Knoten (zum Beispiel die Eigenschaft «geometry» mit ihrer Form, aus der EMStudio die Proxys zählt) und die Knoten, die keine Datensätze sind, mit ihren Kanten, angehängt an die Datensätze, die noch existieren: Ein Zweig, der ohne Datensatz geblieben ist (zum Beispiel die Form einer gelöschten Eigenschaft), kommt nicht zurück. Beziehungen, Perioden und Beschreibungen stammen immer aus der Datenbank. Die Meldung am Ende des Exports sagt, wie viel zurückgekommen ist, zum Beispiel «Dall'em.json importato tornano 851 nomi, 1090 nodi e 1969 archi, codice dello studio GT16.» (Aus der importierten em.json kommen 851 Namen, 1090 Knoten und 1969 Kanten zurück, Studiencode GT16). Getestet an TempluMare_v3.2 (1946 Knoten): kein Name und keine Beschreibung weicht vom Original ab, und in EMStudio haben 65 von 114 Einheiten den Proxy und 2 von 3 Epochen ein Modell, wie im Original. Unterschiedlich bleiben die 9 «kommt nach»-Beziehungen zwischen zwei US, die pyArchInit «Copre» schreibt, und die Ortsgruppen der Stätte und des Areals mit der Studie, die pyArchInit hinzufügt.
 
+### 5.0.1 Das EM-Projekt für EMStudio exportieren, mit seinen Dateien
+
+Ab **5.13.131-alpha**. Die em.json, die pyArchInit in `pyarchinit_EM_folder` schreibt, enthält die Pfade der Dateien (`proxies/SU002.glb`, `DosCo/D.05 ….pdf`, `../RB/…`), aber nicht die Dateien: Von dort aus geöffnet, findet EMStudio weder die Proxys noch die Dokumente. Der Menüpunkt **Extended Matrix → Esporta progetto EM per EMStudio…** (EM-Projekt für EMStudio exportieren) legt den Ordner eines vollständigen EM-Projekts an, mit dem Standardbaum der Bibliothek s3dgraphy — dem, in dem EMStudio die Dateien sucht:
+
+```
+<Projekt>/
+  EM/            die em.json
+    DosCo/       die Dokumente (D.01, D.02.03 …)
+    proxies/     die 3D-Proxys der Einheiten (<Einheit>.glb)
+  RB/            die Vermessung (LOD0, LOD1 …, Texturen, Kacheln)
+  SB/            die aus den Quellen gewonnenen Modelle
+  RM/            die Repräsentationsmodelle
+```
+
+1. Die **Stätte** wählen.
+2. Den **Projektordner** wählen. Ist er leer oder bereits ein EM-Projekt (er enthält einen Ordner `EM/` oder ist selbst der Ordner `EM/` eines Projekts), ist er das Projekt; andernfalls — der Schreibtisch, ein Ordner mit anderen Dateien — legt pyArchInit darin einen neuen Ordner mit dem Namen der Stätte an (zum Beispiel `Temple/`). Der gewählte Ordner wird für das nächste Mal gemerkt.
+3. pyArchInit exportiert die Stätte wie **Esporta sito in em.json…** (Stätte nach em.json exportieren) — in den Arbeitsordner `pyarchinit_EM_folder`, also mit der im Panel vorbereiteten Erzählung (§10.8) — und kopiert die em.json nach `EM/`. Dann kopiert es daneben, unter dem Pfad, den die em.json angibt, **jede zitierte Datei, die die Datenbank kennt**: die mit der em.json importierten Medien (§5.0). Eine nur mit ihrem Namen zitierte Datei — die URL der Dokumente und der Extraktoren, die EMStudio aus `DosCo` nimmt — kommt nach `EM/DosCo/`. Ist das Original nicht erreichbar (externe Festplatte nicht angeschlossen), wird die Datei aus dem Ordner **Image resize** genommen, wenn dort dieselbe Datei liegt (3D-Modelle und PDFs, unverändert kopiert); ein Bild dagegen nicht: Dort ist es als PNG verkleinert und nicht mehr die zitierte Datei. Ein Fortschrittsbalken zählt die Dateien.
+4. Die Zusammenfassung sagt, wie viele Dateien kopiert wurden und wie viele schon vorhanden waren und **wie viele Ressourcen der em.json EMStudio vom Projekt aus findet** — gezählt vom Resolver der Bibliothek, demselben, den EMStudio verwendet —; sie nennt, nach Ordnern, die zitierten Dateien, die die Datenbank nicht hat und die von Hand aus dem Originalprojekt zu kopieren sind, sowie die kopierten Dateien, deren **sha256** nicht die in der em.json geschriebene ist. **Details einblenden…** listet sie einzeln auf. Die Schaltflächen: **Apri in EMStudio** (In EMStudio öffnen: öffnet die em.json des Projekts), **Apri la cartella** (Ordner öffnen), **Chiudi** (Schließen).
+
+Ein erneuter Export in denselben Ordner kopiert nicht noch einmal, was schon da ist, und **überschreibt keine Projektdatei, die von der Fassung der Datenbank abweicht** (es kann in EMStudio geleistete Arbeit sein): Die Zusammenfassung meldet es («lasciati come sono», so belassen, wie sie sind); wer eine solche Datei ersetzen will, löscht sie und exportiert erneut. Die vorherige em.json bleibt, wenn sie abweicht, daneben als `<Stätte>.em.json.bak` erhalten.
+
+Bei TempluMare (der Datenbank des Imports aus §5.0, mit nicht angeschlossener externer Festplatte): 96 Dateien kopiert (238,7 MB: die 65 Proxys und 31 Dokumente, alle mit der in der em.json geschriebenen sha256); EMStudio findet vom Projekt aus 96 der 536 Ressourcen; von Hand zu kopieren bleiben die 343 Dateien, die die Datenbank nie hatte — die Vermessung in `RB/` (158) und die Modelle in `SB/` (175), die keine Medien sind, die `.blend`-Dateien eingeschlossen —, dazu die 10 JPG-Fotos von `DosCo`, die bei angeschlossener Festplatte aus den Originalen kopiert werden.
+
 Es folgt der Weg über yEd/GraphML, um Einheiten zwischen Gruppen zu verschieben.
 
 Um die SQL-Datenbank durch das Verschieben von SE zwischen Gruppen im GraphML zu aktualisieren:
@@ -176,6 +199,7 @@ Exit-Codes: 0 = Erfolg, 1 = Bridge-Fehler, 2 = argparse-Fehler.
 | `DeprecationWarning` bei 5.5.x-Datei | Legacy-Datei mit `ActivityNodeGroup + group_kind` | Der Projector promoviert sie in-memory zu `LocationNodeGroup`. Erneut exportieren, um die Datei auf der Festplatte zu migrieren. |
 | Swimlane-Zeilen zeigen einen sehr langen Text | Ältere Versionen verwendeten die Descrizione der Periodisierung als Beschriftung | Plugin aktualisieren und erneut exportieren und/oder **Datazione estesa** mit einem kurzen Namen füllen |
 | Swimlane-Epochen in falscher Reihenfolge (z. B. Bronzezeit über der Spätantike) | Die Zeilen werden nach **Anfangschronologie** sortiert; als positive Zahlen eingegebene v. Chr.-Jahre (1650 statt -1650) werden wie n. Chr. sortiert | Im Periodisierungsformular v. Chr.-Jahre als negative Zahlen eingeben und erneut exportieren. Die Export-Zusammenfassung zeigt jetzt eine Warnung "⚠️ Periodizzazione: ..." mit der Liste der zu korrigierenden Perioden |
+| EMStudio öffnet die exportierte em.json, findet aber weder die 3D-Proxys noch die Dokumente | Die em.json in `pyarchinit_EM_folder` enthält die Pfade der Dateien, nicht die Dateien | Mit **Extended Matrix → Esporta progetto EM per EMStudio…** (§5.0.1) exportieren und die em.json des Projekts öffnen |
 
 ---
 

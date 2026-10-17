@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `narrativa-media-5.13.130-alpha` (2026-10-17).
+Tag curent: `progetto-em-5.13.131-alpha` (2026-10-17).
 
 ---
 
@@ -125,6 +125,29 @@ Ce se întâmplă, pe scurt:
 - **Reimportarea.** Importul aceluiași fișier încă o dată nu dublează nici perioadele, nici fișele: cele deja prezente apar ca «invariate» (neschimbate) sau «aggiornate» (actualizate), iar acolo unde baza de date și fișierul diferă, câștigă fișierul (rezumatul le numără drept «conflitti», conflicte). Previzualizarea numără ca «aggiornate» și fișele cărora importul le adaugă relații, datare sau codul perioadei (înainte apăreau ca «invariate»). Reimportarea em.json într-o bază de date importată înainte de 5.13.125-alpha o repară: definiția sitului, relațiile pe ambele fișe, datarea și codurile perioadei.
 - **Fișierul em.json rămâne memorat.** pyArchInit păstrează în tabelele sale unitățile, paradatele, relațiile și epocile; tot restul grafului — resurse, fișiere, modele, forme semantice, procesele geamănului digital, grupuri de paradate și de activități, autori, licențe, narațiunea —, împreună cu titlul, **codul studiului** (de exemplu GT16: este prefixul cu care Blender reatașează proxy-urile), georeferențierea (EPSG și deplasări) și numele din EMStudio, este memorat la import (tabela `pyarchinit_em_sources`, un rând pe sit; ultimul import câștigă). La **exportul** em.json al sitului, toate acestea revin: numele originale (SU006, D.07.08, height…) pentru fișele care au încă numărul dat la import — o fișă redenumită în pyArchInit păstrează numele nou —, datele nodurilor (de exemplu proprietatea «geometry» cu forma ei, din care EMStudio numără proxy-urile) și nodurile care nu sunt fișe, cu muchiile lor, atașate la fișele care mai există: o ramură rămasă fără fișă (de exemplu forma unei proprietăți șterse) nu revine. Relațiile, perioadele și descrierile provin întotdeauna din baza de date. Mesajul de la sfârșitul exportului spune cât a revenit, de exemplu «Dall'em.json importato tornano 851 nomi, 1090 nodi e 1969 archi, codice dello studio GT16.» (Din em.json importat revin 851 de nume, 1090 de noduri și 1969 de muchii, codul studiului GT16). Testat pe TempluMare_v3.2 (1946 de noduri): niciun nume și nicio descriere diferite de original, iar în EMStudio 65 de unități din 114 cu proxy și 2 epoci din 3 cu un model, ca în original. Rămân diferite cele 9 «vine după» dintre două US, pe care pyArchInit le scrie «Copre», și grupurile de loc ale sitului și ale ariei cu studiul, pe care pyArchInit le adaugă.
 
+### 5.0.1 Exportul proiectului EM pentru EMStudio, cu fișierele sale
+
+Din **5.13.131-alpha**. Fișierul em.json pe care pyArchInit îl scrie în `pyarchinit_EM_folder` conține căile fișierelor (`proxies/SU002.glb`, `DosCo/D.05 ….pdf`, `../RB/…`), dar nu și fișierele: deschis de acolo, EMStudio nu găsește nici proxy-urile, nici documentele. Intrarea de meniu **Extended Matrix → Esporta progetto EM per EMStudio…** (Exportă proiectul EM pentru EMStudio) creează folderul unui proiect EM complet, cu arborele standard al bibliotecii s3dgraphy — cel în care EMStudio caută fișierele:
+
+```
+<proiect>/
+  EM/            fișierul em.json
+    DosCo/       documentele (D.01, D.02.03 …)
+    proxies/     proxy-urile 3D ale unităților (<unitate>.glb)
+  RB/            releveul (LOD0, LOD1 …, texturi, plăcuțe)
+  SB/            modelele obținute din surse
+  RM/            modelele de reprezentare
+```
+
+1. Alege **situl**.
+2. Alege **folderul proiectului**. Dacă este gol sau este deja un proiect EM (are un folder `EM/` sau este chiar folderul `EM/` al unui proiect), el este proiectul; altfel — desktopul, un folder cu alte fișiere — pyArchInit creează în el un folder nou cu numele sitului (de exemplu `Temple/`). Folderul ales este memorat pentru data următoare.
+3. pyArchInit exportă situl ca **Esporta sito in em.json…** (Exportă situl în em.json) — în folderul de lucru `pyarchinit_EM_folder`, deci cu narațiunea pregătită în panou (§10.8) — și copiază fișierul em.json în `EM/`. Apoi copiază alături, la calea pe care o scrie em.json, **fiecare fișier citat pe care baza de date îl cunoaște**: fișierele media importate cu em.json (§5.0). Un fișier citat doar prin nume — url-ul documentelor și al extractorilor, pe care EMStudio îl ia din `DosCo` — merge în `EM/DosCo/`. Dacă originalul nu poate fi accesat (discul extern deconectat), fișierul este luat din folderul **Image resize** atunci când același fișier se află acolo (modele 3D și PDF-uri, copiate ca atare); o imagine nu: acolo este redusă la PNG, nu mai este fișierul citat. O bară de progres numără fișierele.
+4. Rezumatul spune câte fișiere au fost copiate și câte existau deja, **câte resurse din em.json găsește EMStudio pornind de la proiect** — le numără resolver-ul bibliotecii, același pe care îl folosește EMStudio —, fișierele citate pe care baza de date nu le are, pe foldere, de copiat manual din proiectul original, și fișierele copiate al căror **sha256** nu este cel scris în em.json. **Show Details…** le enumeră unul câte unul. Butoanele: **Apri in EMStudio** (Deschide în EMStudio: deschide fișierul em.json al proiectului), **Apri la cartella** (Deschide folderul), **Chiudi** (Închide).
+
+Reexportarea în același folder nu copiază din nou ce există deja și **nu suprascrie un fișier al proiectului care diferă** de cel din baza de date (poate fi muncă făcută în EMStudio): rezumatul o spune («lasciati come sono», lăsate așa cum sunt); pentru a-l înlocui, șterge-l și reexportă. Fișierul em.json anterior, dacă este diferit, rămâne alături ca `<sit>.em.json.bak`.
+
+Pe TempluMare (baza de date a importului din §5.0, cu discul extern deconectat): 96 de fișiere copiate (238,7 MB: cele 65 de proxy-uri și 31 de documente, toate cu sha256-ul scris în em.json); EMStudio găsește pornind de la proiect 96 din cele 536 de resurse; rămân de copiat manual cele 343 de fișiere pe care baza de date nu le-a avut niciodată — releveul din `RB/` (158) și modelele din `SB/` (175), care nu sunt fișiere media, inclusiv fișierele `.blend` — plus cele 10 fotografii JPG din `DosCo`, care se copiază din originale atunci când discul este conectat.
+
 Calea yEd/GraphML, pentru mutarea unităților între grupuri, este cea care urmează.
 
 Pentru a modifica baza SQL mutând UE între grupuri în GraphML:
@@ -176,6 +199,7 @@ Exit codes: 0 = succes, 1 = eroare bridge, 2 = eroare argparse.
 | `DeprecationWarning` pe fișier 5.5.x | Fișier legacy `ActivityNodeGroup + group_kind` | Projector-ul îl promovează în memorie la `LocationNodeGroup`. Reexportă pentru a migra fișierul pe disc. |
 | Rândurile swimlane-ului afișează un text foarte lung | Versiunile anterioare foloseau Descrizione din periodizare ca etichetă | Actualizează plugin-ul și reexportă, și/sau completează **Datazione estesa** cu un nume scurt |
 | Epocile din swimlane sunt în ordine greșită (ex. Bronz deasupra Antichității târzii) | Rândurile sunt ordonate după **Cronologia Inițială**; datele î.Hr. introduse ca numere pozitive (1650 în loc de -1650) sunt ordonate ca d.Hr. | În Fișa de Periodizare introdu anii î.Hr. ca numere negative și reexportă. Rezumatul exportului afișează acum un avertisment „⚠️ Periodizzazione: ..." cu lista perioadelor de corectat |
+| EMStudio deschide fișierul em.json exportat, dar nu găsește nici proxy-urile 3D, nici documentele | Fișierul em.json din `pyarchinit_EM_folder` conține căile fișierelor, nu fișierele | Exportă cu **Extended Matrix → Esporta progetto EM per EMStudio…** (§5.0.1) și deschide fișierul em.json al proiectului |
 
 ---
 
