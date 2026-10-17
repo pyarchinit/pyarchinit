@@ -9,7 +9,7 @@ A partir da versão **5.2.0-alpha** o PyArchInit integra um **bridge bidireciona
 - **Anexar paradata** (Author / License / Embargo) a nível de sítio
 - **Agrupar** UE por dimensão (struttura, area, attivita, settore, ambient, saggio, quad_par ou grupos ad-hoc)
 
-Tag atual: `narrativa-del-file-5.13.128-alpha` (2026-10-17).
+Tag atual: `narrativa-indice-fonti-5.13.129-alpha` (2026-10-17).
 
 ---
 
@@ -617,9 +617,12 @@ Clique em **Export…**: abre-se a janela para guardar o ficheiro, com três for
 O documento contém:
 
 - o título da narrativa (por exemplo «Scavo archeologico — the story of the site», em português «Escavação arqueológica — a história do sítio»), os responsáveis («a cura di») e o modelo como assistente («con l'assistenza di»);
+- **o índice** (desde a 5.13.129-alpha), depois do título: os capítulos — agrupados por partes quando os títulos o indicam, como em «Rilievo e analisi — Introduction» —, sob cada um os seus subtítulos e, no fim, «Sources» (Fontes). No HTML cada entrada leva ao seu capítulo; no PDF o índice tem os números de página e os capítulos são também marcadores do PDF; no Word é um índice a sério (um campo), com os títulos já escritos, que o Word atualiza com os números de página ao abrir o ficheiro (responda «Sim» quando perguntar se quer atualizar os campos; no LibreOffice: clique com o botão direito no índice → Atualizar);
 - para cada capítulo, primeiro a prosa, com as unidades citadas pelo seu nome, e depois a lista das unidades do capítulo; para as unidades citadas que têm fotos, uma faixa de fotos ocupa o lugar da sua linha (§10.11);
+- os **subtítulos** escritos na prosa com «### » (o TempluMare tem doze, a partir de «Past researches») tornam-se títulos, no HTML, no Word e no PDF, e o itálico escrito «\*…\*» é também itálico no Word e no PDF (desde a 5.13.129-alpha; antes imprimiam-se os sinais);
+- no fim de cada capítulo, a linha **Chapter sources** (Fontes do capítulo; desde a 5.13.129-alpha): os documentos em que assentam as unidades de que o capítulo fala — seguindo os paradata: unidade → propriedade → extrator (ou combinador) → documento — e os que o próprio capítulo cita. No HTML cada fonte é um **hotspot**: ao passar o rato por cima aparece um cartão com a pré-visualização (a primeira página do PDF ou a imagem), o tipo e a descrição; ao clicar abre-se à direita um painel com o ficheiro — o PDF lê-se ali, a imagem vê-se inteira —, a hiperligação «Open the file» (Abrir o ficheiro), o caminho do original e as **leituras** que dele resultam (unidade — propriedade, com o extrator). Esc ou o × fecham o painel. O ficheiro é incorporado na página se pesar até 2 MB (25 MB ao todo); passado esse limite, o cartão e o painel mostram a pré-visualização e a hiperligação para o original, que se abre no computador que exportou a página. Os ficheiros encontram-se como os encontra a ficha: os media da linha do documento, o original ou a sua cópia na pasta das cópias reduzidas; sem uma base de dados ligada, as fontes têm título, descrição e leituras, mas não os ficheiros. No Word e no PDF a linha enumera as fontes com a sua descrição;
 - **o mapa do sítio** (desde a 5.13.115-alpha, só no HTML), numa caixa fixa: à direita nos ecrãs largos, no topo no telemóvel. Com o mapa a página alarga-se (desde a 5.13.116-alpha) e o texto mantém uma coluna legível. Em repouso mostra todas as unidades do grafo em cinzento-claro; um clique no nome de uma unidade no texto mostra **só as unidades do período desse capítulo** como contornos com o número por cima, a unidade clicada **colorida**, e enquadra o grupo; um clique no título de um capítulo faz o mesmo, sem a unidade colorida. A linha por baixo do mapa indica o período e quantas unidades; «whole site» (todo o sítio) volta à vista completa. As geometrias vêm das vistas US e USM da base de dados do projeto no momento da exportação (sítio do grafo, unidades associadas por área e número): uma unidade citada mas sem desenho tem a hiperligação e nada no mapa; sem uma base de dados ligada, o documento não tem mapa;
-- no fim, a secção **Fonti** (fontes): os documentos em que a história assenta e a entrada «Prompt», que remete para o prompt registado no ficheiro.
+- no fim, a secção **Fonti** (fontes): os documentos em que a história assenta e a entrada «Prompt», que remete para o prompt registado no ficheiro. Desde a 5.13.129-alpha a lista inclui também as fontes dos capítulos, cada uma com a sua descrição, e no HTML são hotspots como as dos capítulos; também o são as fichas «fonte» dentro dos capítulos e os documentos citados no texto.
 
 Algumas coisas que convém saber:
 
@@ -627,7 +630,7 @@ Algumas coisas que convém saber:
 - **entram todos os capítulos**, mesmo os que ainda estão «to be written»: o respetivo marcador de posição «[to be written: …]» fica no texto;
 - a prosa fica **no início** do capítulo, antes da lista das unidades; numa narrativa escrita com uma versão anterior pode ainda estar no fim, e põe-se no sítio certo exportando de novo o sítio (§10.8) ou com **Prepare the chapters** (Preparar os capítulos);
 - as figuras que um autor previu no EMStudio (por exemplo a matriz de uma época) não são desenhadas pela exportação do pyArchInit: no documento fica um marcador de posição;
-- o HTML é um único ficheiro, que não depende de outros (as fotos também vão incorporadas, e o mapa é um SVG dentro do ficheiro, sem bibliotecas externas: abre-se também no telemóvel sem rede); o DOCX abre-se com o Word ou o LibreOffice e requer o pacote `python-docx`, e o PDF a biblioteca ReportLab (§10.11): ambos estão entre os requisitos do plugin.
+- o HTML é um único ficheiro, que não depende de outros (as fotos também vão incorporadas, e o mapa é um SVG dentro do ficheiro, sem bibliotecas externas: abre-se também no telemóvel sem rede); o DOCX abre-se com o Word ou o LibreOffice e requer o pacote `python-docx`, e o PDF a biblioteca ReportLab (§10.11): ambos estão entre os requisitos do plugin; desde a 5.13.129-alpha o HTML leva também incorporados os ficheiros das fontes, até 2 MB cada um e 25 MB ao todo: com muitos PDF a página pesa mais.
 
 <!-- IMMAGINE: Captura de ecrã do documento HTML exportado: um capítulo com um rascunho precedido de «⚠︎ non validato da una persona» -->
 ![Documento HTML exportado](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

@@ -9,7 +9,7 @@ A partir de la versió **5.2.0-alpha** PyArchInit integra un **bridge bidireccio
 - **Adjuntar paradata** (Author / License / Embargo) a nivell de lloc
 - **Agrupar** UE per dimensió (struttura, area, attivita, settore, ambient, saggio, quad_par o grups ad-hoc)
 
-Tag actual: `narrativa-del-file-5.13.128-alpha` (2026-10-17).
+Tag actual: `narrativa-indice-fonti-5.13.129-alpha` (2026-10-17).
 
 ---
 
@@ -617,9 +617,12 @@ Clica **Export…**: s'obre la finestra de desament amb tres formats: «HTML pag
 El document conté:
 
 - el títol de la narrativa (per exemple, «Scavo archeologico — the story of the site»), els responsables («a cura di») i el model com a assistent («con l'assistenza di»);
+- **l'índex** (des de la 5.13.129-alpha), després del títol: els capítols —agrupats per parts quan els títols ho indiquen, com ara «Rilievo e analisi — Introduction»—, sota cadascun els seus subtítols i, al final, «Sources» (Fonts). A l'HTML cada entrada porta al seu capítol; al PDF l'índex té els números de pàgina i els capítols són també marcadors del PDF; al Word és un índex de debò (un camp), amb els títols ja escrits, que el Word actualitza amb els números de pàgina en obrir el fitxer (respon «Sí» quan et pregunti si vols actualitzar els camps; al LibreOffice: clic dret a l'índex → Actualitza);
 - per a cada capítol, primer la prosa, amb les unitats citades pel seu nom, i després la llista de les unitats del capítol; per a les unitats citades que tenen fotos, una tira de fotos ocupa el lloc de la seva línia (§10.11);
+- els **subtítols** escrits a la prosa amb «### » (TempluMare en té dotze, a partir de «Past researches») es converteixen en títols, a l'HTML, al Word i al PDF, i la cursiva escrita «\*…\*» és també cursiva al Word i al PDF (des de la 5.13.129-alpha; abans s'imprimien els signes);
+- al final de cada capítol, la línia **Chapter sources** (Fonts del capítol; des de la 5.13.129-alpha): els documents en què es basen les unitats de què parla el capítol —seguint els paradata: unitat → propietat → extractor (o combinador) → document— i els que el mateix capítol cita. A l'HTML cada font és un **hotspot**: en passar-hi el ratolí apareix una targeta amb la previsualització (la primera pàgina del PDF o la imatge), el tipus i la descripció; en fer-hi clic s'obre a la dreta un panell amb el fitxer —el PDF s'hi llegeix, la imatge es veu sencera—, l'enllaç «Open the file» (Obre el fitxer), la ruta de l'original i les **lectures** que se'n deriven (unitat — propietat, amb l'extractor). Esc o la × tanquen el panell. El fitxer s'incorpora a la pàgina si pesa fins a 2 MB (25 MB en total); passat aquest límit, la targeta i el panell mostren la previsualització i l'enllaç a l'original, que s'obre a l'ordinador que ha exportat la pàgina. Els fitxers es troben com els troba la fitxa: els mèdia de la fila del document, l'original o la seva còpia a la carpeta de les còpies reduïdes; sense una base de dades connectada, les fonts tenen títol, descripció i lectures, però no els fitxers. Al Word i al PDF la línia enumera les fonts amb la seva descripció;
 - **el mapa del lloc** (des de la 5.13.115-alpha, només a l'HTML), en un requadre fix: a la dreta en les pantalles amples, a dalt al telèfon. Amb el mapa la pàgina s'eixampla (des de la 5.13.116-alpha) i el text manté una columna llegible. En repòs mostra totes les unitats del graf en gris clar; un clic al nom d'una unitat dins del text mostra **només les unitats del període d'aquell capítol** com a contorns amb el número a sobre, la unitat clicada **en color**, i enquadra el grup; un clic al títol d'un capítol fa el mateix, sense la unitat en color. La línia sota el mapa indica el període i quantes unitats; «whole site» (tot el lloc) torna a la vista completa. Les geometries provenen de les vistes US i USM de la base de dades del projecte en el moment de l'exportació (lloc del graf, unitats associades per àrea i número): una unitat citada però sense dibuix té l'enllaç i res al mapa; sense una base de dades connectada, el document no té mapa;
-- al final, la secció **Fonti** (fonts): els documents en què es basa el relat i l'entrada «Prompt», que remet al prompt registrat al fitxer.
+- al final, la secció **Fonti** (fonts): els documents en què es basa el relat i l'entrada «Prompt», que remet al prompt registrat al fitxer. Des de la 5.13.129-alpha la llista inclou també les fonts dels capítols, cadascuna amb la seva descripció, i a l'HTML són hotspots com les dels capítols; també ho són les fitxes «fonte» dins dels capítols i els documents citats al text.
 
 Coses que convé saber:
 
@@ -627,7 +630,7 @@ Coses que convé saber:
 - **hi entren tots els capítols**, fins i tot els que encara són «to be written»: el seu marcador de posició «[to be written: …]» es queda al text;
 - la prosa va **al principi** del capítol, abans de la llista de les unitats; en una narrativa escrita amb una versió anterior pot ser encara al final, i es posa al seu lloc tornant a exportar el lloc (§10.8) o amb **Prepare the chapters** (Prepara els capítols);
 - les figures que un autor ha previst a EMStudio (per exemple, la matriu d'una època) no les dibuixa l'exportació de pyArchInit: al document hi queda un marcador de posició;
-- l'HTML és un sol fitxer, autosuficient (les fotos també hi van incorporades, i el mapa és un SVG dins del fitxer, sense biblioteques externes: s'obre també al telèfon sense xarxa); el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, i el PDF la biblioteca ReportLab (§10.11): tots dos són entre els requisits del connector.
+- l'HTML és un sol fitxer, autosuficient (les fotos també hi van incorporades, i el mapa és un SVG dins del fitxer, sense biblioteques externes: s'obre també al telèfon sense xarxa); el DOCX s'obre amb Word o LibreOffice i requereix el paquet `python-docx`, i el PDF la biblioteca ReportLab (§10.11): tots dos són entre els requisits del connector; des de la 5.13.129-alpha l'HTML porta incorporats també els fitxers de les fonts, fins a 2 MB cadascun i 25 MB en total: amb molts PDF la pàgina pesa més.
 
 <!-- IMMAGINE: Captura de pantalla del document HTML exportat: un capítol amb un esborrany precedit de «⚠︎ non validato da una persona» -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

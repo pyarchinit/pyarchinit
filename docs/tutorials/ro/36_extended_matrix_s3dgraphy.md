@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `narrativa-del-file-5.13.128-alpha` (2026-10-17).
+Tag curent: `narrativa-indice-fonti-5.13.129-alpha` (2026-10-17).
 
 ---
 
@@ -617,9 +617,12 @@ Apasă **Export…**: se deschide fereastra de salvare, cu trei formate: „HTML
 Documentul conține:
 
 - titlul narațiunii (de exemplu „Scavo archeologico — the story of the site”, adică „Săpătură arheologică — povestea sitului”), responsabilii („a cura di”) și modelul ca asistent („con l'assistenza di”);
+- **cuprinsul** (începând cu 5.13.129-alpha), după titlu: capitolele — grupate pe părți când titlurile o indică, ca în „Rilievo e analisi — Introduction” —, sub fiecare capitol, subtitlurile lui și, la urmă, „Sources” (Surse). În HTML fiecare intrare duce la capitolul ei; în PDF cuprinsul are numerele de pagină, iar capitolele sunt și marcaje ale PDF-ului; în Word este un cuprins adevărat (un câmp), cu titlurile deja scrise, pe care Word îl actualizează cu numerele de pagină la deschiderea fișierului (răspunde „Da” când întreabă dacă să actualizeze câmpurile; în LibreOffice: clic dreapta pe cuprins → Actualizare);
 - pentru fiecare capitol, întâi textul, cu unitățile citate prin numele lor, apoi lista unităților capitolului; pentru unitățile citate care au fotografii, o bandă de fotografii ia locul rândului lor (§10.11);
+- **subtitlurile** scrise în text cu „### ” (TempluMare are douăsprezece, începând cu „Past researches”) devin titluri, în HTML, în Word și în PDF, iar cursivul scris „\*…\*” este cursiv și în Word și în PDF (începând cu 5.13.129-alpha; înainte se tipăreau semnele);
+- la sfârșitul fiecărui capitol, rândul **Chapter sources** (Surse ale capitolului; începând cu 5.13.129-alpha): documentele pe care se sprijină unitățile despre care vorbește capitolul — urmărind paradatele: unitate → proprietate → extractor (sau combinator) → document — și cele citate chiar de capitol. În HTML fiecare sursă este un **hotspot**: la trecerea mouse-ului peste ea apare o casetă informativă cu previzualizarea (prima pagină a PDF-ului sau imaginea), tipul și descrierea; la clic se deschide în dreapta un panou cu fișierul — PDF-ul se citește acolo, imaginea se vede întreagă —, linkul „Open the file” (Deschide fișierul), calea originalului și **citirile** care rezultă din el (unitate — proprietate, cu extractorul). Esc sau × închid panoul. Fișierul este încorporat în pagină dacă are cel mult 2 MB (25 MB în total); peste această limită, caseta și panoul arată previzualizarea și linkul către original, care se deschide pe computerul care a exportat pagina. Fișierele se găsesc așa cum le găsește fișa: fișierele media ale rândului documentului, originalul sau copia lui din folderul copiilor reduse; fără o bază de date conectată, sursele au titlu, descriere și citiri, dar nu și fișierele. În Word și în PDF rândul enumeră sursele împreună cu descrierea lor;
 - **harta sitului** (începând cu 5.13.115-alpha, doar în HTML), într-un chenar fix: în dreapta pe ecranele late, sus pe telefon. Cu harta, pagina se lărgește (începând cu 5.13.116-alpha), iar textul păstrează o coloană lizibilă. În repaus arată toate unitățile grafului în gri deschis; un clic pe numele unei unități din text arată **doar unitățile din perioada acelui capitol** ca contururi cu numărul deasupra, unitatea apăsată **colorată**, și încadrează grupul; un clic pe titlul unui capitol face la fel, fără unitatea colorată. Rândul de sub hartă indică perioada și câte unități; „whole site” (tot situl) revine la vederea de ansamblu. Geometriile provin din vederile US și USM ale bazei de date a proiectului, în momentul exportului (situl grafului, unități asociate după arie și număr): o unitate citată, dar fără desen, are linkul și nimic pe hartă; fără o bază de date conectată, documentul nu are hartă;
-- la sfârșit, secțiunea **Fonti** (surse): documentele pe care se sprijină povestea și intrarea „Prompt”, care trimite la promptul înregistrat în fișier.
+- la sfârșit, secțiunea **Fonti** (surse): documentele pe care se sprijină povestea și intrarea „Prompt”, care trimite la promptul înregistrat în fișier. Începând cu 5.13.129-alpha, lista cuprinde și sursele capitolelor, fiecare cu descrierea ei, iar în HTML ele sunt hotspot-uri, ca cele ale capitolelor; hotspot-uri sunt și fișele „fonte” din interiorul capitolelor și documentele citate în text.
 
 Câteva lucruri de știut:
 
@@ -627,7 +630,7 @@ Câteva lucruri de știut:
 - **intră toate capitolele**, chiar și cele încă „to be written”: substituentul lor „[to be written: …]” rămâne în text;
 - textul stă **la începutul** capitolului, înaintea listei unităților; într-o narațiune scrisă cu o versiune anterioară poate fi încă la sfârșit și se pune la loc reexportând situl (§10.8) sau cu **Prepare the chapters** (Pregătește capitolele);
 - figurile pe care un autor le-a prevăzut în EMStudio (de exemplu matricea unei epoci) nu sunt desenate de exportul pyArchInit: în document rămâne un substituent;
-- HTML-ul este un singur fișier, autonom (și fotografiile sunt încorporate, iar harta este un SVG în interiorul fișierului, fără biblioteci externe: se deschide și pe telefon, fără rețea); DOCX-ul se deschide cu Word sau LibreOffice și are nevoie de pachetul `python-docx`, iar PDF-ul de biblioteca ReportLab (§10.11): ambele fac parte din cerințele pluginului.
+- HTML-ul este un singur fișier, autonom (și fotografiile sunt încorporate, iar harta este un SVG în interiorul fișierului, fără biblioteci externe: se deschide și pe telefon, fără rețea); DOCX-ul se deschide cu Word sau LibreOffice și are nevoie de pachetul `python-docx`, iar PDF-ul de biblioteca ReportLab (§10.11): ambele fac parte din cerințele pluginului; începând cu 5.13.129-alpha, HTML-ul poartă încorporate și fișierele surselor, până la 2 MB fiecare și 25 MB în total: cu multe PDF-uri pagina devine mai grea.
 
 <!-- IMMAGINE: Captură de ecran a documentului HTML exportat: un capitol cu o ciornă precedată de „⚠︎ non validato da una persona” -->
 ![Document HTML exportat](images/36_extended_matrix_s3dgraphy/07_documento_html.png)
