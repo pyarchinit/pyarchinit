@@ -623,3 +623,68 @@ def test_genera_passa_al_thread_la_lingua_scelta(qgs, tmp_path, monkeypatch):
     combo.setCurrentIndex(combo.findData("de"))
     w.findChild(QPushButton, "genera").click()
     assert creati and creati[-1]["write_lang"] == "de"
+
+
+# ------------------------------------------------ i media scelti (5.13.130)
+
+def test_scegli_i_media_avvia_il_thread_con_database_cartelle_e_lingua(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QComboBox, QPushButton, QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+
+    class _Segnale:
+        def connect(self, *_a):
+            pass
+
+    creati = []
+
+    class _Finto:
+        def __init__(self, path, cfg, conn, bases, write_lang=None, parent=None):
+            creati.append({"conn": conn, "bases": bases, "cfg": cfg, "write_lang": write_lang})
+            self.progress = self.finished_ok = self.finished = _Segnale()
+
+        def start(self):
+            pass
+
+    monkeypatch.setattr(tab, "MediaThread", _Finto)
+    monkeypatch.setattr(tab, "_bases", lambda: ("/t/", "/r/"))
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    radice = QWidget()
+    w = tab.build_tab(radice, _Iface())
+    tab.show_file(w, _file_con_narrativa(tmp_path), conn_str="sqlite:///db.sqlite")
+    bottone = w.findChild(QPushButton, "media")
+    assert bottone is not None and bottone.isEnabled()          # anche senza AI: scelta automatica
+    combo = w.findChild(QComboBox, "lingua")
+    combo.setCurrentIndex(combo.findData("en"))
+    bottone.click()
+    assert creati == [{"conn": "sqlite:///db.sqlite", "bases": ("/t/", "/r/"), "cfg": None,
+                       "write_lang": "en"}]
+
+
+def test_il_thread_dei_media_sceglie_con_l_ai_e_salva(qgs, tmp_path, monkeypatch):
+    import json as _json
+    from modules.s3dgraphy import em_narrative as en
+    from modules.s3dgraphy import em_narrative_media as nm
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from modules.utility import llm_providers as lp
+    temperature_viste = []
+
+    def finto_stream(cfg, messages, max_tokens=None, temperature=None, meta=None):
+        temperature_viste.append(temperature)
+        yield _json.dumps({"choices": [{"key": "k1", "after": 1, "caption": "Il muro."}]})
+    monkeypatch.setattr(lp.LLMProviderManager, "stream_chat", staticmethod(finto_stream))
+    monkeypatch.setattr(nm, "chapter_media_candidates",
+                        lambda graph, chapter, *a, **k: [nm.MediaCandidate("k1", "u2", "1.US2", "m.glb", "3d")]
+                        if getattr(chapter, "anchor", None) == "epoch_1_1" else [])
+
+    class _Cfg:
+        model = "finto"
+    percorso = _file_con_narrativa(tmp_path)
+    t = tab.MediaThread(percorso, _Cfg(), "sqlite:///db.sqlite", ("", ""), write_lang="it")
+    esiti = []
+    t.finished_ok.connect(lambda ok, m: esiti.append((ok, m)))
+    t.run()
+    assert esiti and esiti[0][0] is True and "1" in esiti[0][1]
+    assert temperature_viste == [0]
+    n = en.narrative_of(en.load_project(percorso)[0].active())
+    scelte = nm.stored_choices(n, n.chapter_by_anchor("epoch_1_1"))
+    assert scelte and scelte[0]["key"] == "k1" and scelte[0]["by"] == "ai"

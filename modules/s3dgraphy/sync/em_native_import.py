@@ -565,7 +565,12 @@ def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str
         ut_src, ut_tgt = rows[src][1], rows[tgt][1]
         canonici = (canonical_unita_tipo(ut_src) in CANONICAL_UNIT_TYPES
                     and canonical_unita_tipo(ut_tgt) in CANONICAL_UNIT_TYPES)
-        if canonici:
+        if tipo in TEMPORAL_EDGES:
+            # Anche fra due US: «dopo» non è «copre». La tabella della
+            # libreria ne faceva «Copre», e l'esportazione rifaceva
+            # ``overlies`` (17 ottobre 2026, i nove is_after di TempluMare).
+            segno = ">" if EDGE_TYPE_DIRECTION_FORWARD.get(tipo, True) else "<"
+        elif canonici:
             if tipo in NON_RAPPORTI_EDGE_TYPES:
                 continue
             segno = select_rapporti_label(tipo, ut_src, ut_tgt)
@@ -576,8 +581,6 @@ def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str
                     pass
         elif tipo in PHYSICAL_EDGES:
             segno = EDGE_TYPE_TO_RAPPORTI_IT.get(tipo, str(tipo))
-        elif tipo in TEMPORAL_EDGES:
-            segno = ">" if EDGE_TYPE_DIRECTION_FORWARD.get(tipo, True) else "<"
         elif tipo in PARADATA_EDGES:
             segno = ">>" if EDGE_TYPE_DIRECTION_FORWARD.get(tipo, True) else "<<"
         elif tipo in NON_RAPPORTI_EDGE_TYPES:

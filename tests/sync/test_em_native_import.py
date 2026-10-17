@@ -536,3 +536,37 @@ def test_l_anteprima_conta_le_schede_che_l_import_cambiera(importato):
     grafo, _ = read_graph_for_import(str(sorgente))
     esito = GraphIngestor().populate_list(grafo, db, sito=SITO, create_missing_epochs=True, dry_run=True)
     assert (esito.inserted, esito.updated, esito.skipped) == (0, 3, totale - 3)
+
+
+# ------------------------------------------------ «prima / dopo» fra due US
+
+def test_prima_e_dopo_fra_due_us_resta_prima_e_dopo(tmp_path):
+    """TempluMare ha nove «SU019 is_after SU001»: un «dopo» che non dice un
+    contatto fisico. Fra due US l'importazione prendeva la parola della
+    tabella della libreria, «Copre», e l'esportazione ne rifaceva
+    ``overlies`` (17 ottobre 2026, confronto con l'em.json originale).
+    Come fra gli altri tipi, è la freccia ``>`` / ``<``, che torna
+    ``is_after``."""
+    nodi = [_nodo("ep", "EpochNode", "II A.D.", start_time=100, end_time=199),
+            _nodo("a", "US", "SU019", "Livello di cantiere"),
+            _nodo("b", "US", "SU001", "Fondazione")]
+    archi = [_arco("a", "is_after", "b"), _arco("a", "has_first_epoch", "ep"),
+             _arco("b", "has_first_epoch", "ep")]
+    sorgente = tmp_path / "dopo.em.json"
+    sorgente.write_text(json.dumps({
+        "version": "1.0", "header": {"format": "em.json", "version": "1.0", "schema_version": "2"},
+        "active_graph_id": "g", "graphs": {"g": {"graph_id": "g", "name": "Dopo",
+                                                 "nodes": nodi, "edges": archi}}}), encoding="utf-8")
+    db = tmp_path / "vuoto.sqlite"
+    shutil.copy2(TEMPLATE_DB, db)
+    from modules.s3dgraphy.s3dgraphy_dot_bridge import read_graph_for_import
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    grafo, _ = read_graph_for_import(str(sorgente))
+    GraphIngestor().populate_list(grafo, db, sito=SITO, create_missing_epochs=True)
+    righe = {r["node_uuid"]: r for r in _righe(db).values()}
+    assert [s for s, _ in _rapporti(righe["a"])] == [">"]
+    assert [s for s, _ in _rapporti(righe["b"])] == ["<"]
+    esportato = GraphProjector().populate_graph(db, sito=SITO)
+    tipi = {e.edge_type for e in esportato.edges if {e.edge_source, e.edge_target} == {"a", "b"}}
+    assert tipi == {"is_after"}

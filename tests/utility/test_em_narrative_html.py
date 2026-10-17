@@ -282,3 +282,70 @@ def test_l_esportazione_html_porta_le_fonti_e_l_indice(tmp_path):
 def test_la_scheda_passa_le_cartelle_dei_media_all_esportazione():
     src = (_ROOT / "modules" / "s3dgraphy" / "em_narrative_tab.py").read_text(encoding="utf-8")
     assert "media_base=(thumb, resize)" in src
+
+
+# ------------------------------------------------ le unità raggruppate (Enzo, 17-10-2026)
+
+def test_le_schede_delle_unita_e_dei_paradati_si_raggruppano_per_unita(tmp_path):
+    """«i paradati sembrano note tutte in fila una sotto l'altra»: nel capitolo
+    di un'epoca la libreria metteva 367 schede in fila — i paradati senza
+    dire di quale unità. Ora una riga per unità, e dentro i suoi paradati."""
+    from s3dgraphy.nodes.narrative_node import NarrativeNode
+    g = _grafo_fonti()
+    n = NarrativeNode(node_id="narr", name="T")
+    cap = n.add_chapter("II A.D.", anchor="a1")
+    cap.add_prose("Il capitolo.")
+    for ref, vista in (("u1", "us"), ("p1", "paradata"), ("u2", "us"), ("p2", "paradata"), ("d5", "source")):
+        cap.add_embed(ref, vista)
+    g.add_node(n)
+    percorso = tmp_path / "n.html"
+    en.export_file(g, n, "html", percorso, lang="it")
+    pagina = percorso.read_text(encoding="utf-8")
+    capitolo = pagina[pagina.index(">II A.D.</h2>"):]
+    assert '<div class="em-kind">paradata</div>' not in capitolo
+    assert '<div class="em-kind">us</div>' not in capitolo
+    assert '<div class="em-kind">fonte</div>' not in capitolo       # è nella riga delle fonti
+    blocco = capitolo[capitolo.index('class="pya-unita"'):]
+    assert "2 unità" in blocco and "2 paradati" in blocco
+    u1 = blocco[blocco.index(">SU001<"):blocco.index(">USV101<")]
+    assert "height" in u1 and 'data-src="d5"' in u1 and "D.05.01" in u1
+    assert capitolo.index("Il capitolo.") < capitolo.index('class="pya-unita"')
+
+
+def test_un_capitolo_senza_schede_non_ha_il_blocco_delle_unita(tmp_path):
+    g, n = _grafo()
+    percorso = tmp_path / "n.html"
+    en.export_file(g, n, "html", percorso, lang="it")
+    assert 'class="pya-unita"' not in percorso.read_text(encoding="utf-8")
+
+
+def test_i_paradati_di_un_unita_si_leggono_per_documento():
+    """Nel TempluMare vero «Proxy Geometry» viene da un combinatore con otto
+    estrattori dello stesso documento: un documento per riga, con i suoi
+    estrattori, non otto volte «← D.01»; e un valore che è l'id di un nodo
+    si legge col nome del nodo, non con l'uuid."""
+    from s3dgraphy.graph import Graph
+    from s3dgraphy.nodes.combiner_node import CombinerNode
+    from s3dgraphy.nodes.document_node import DocumentNode
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    from s3dgraphy.nodes.property_node import PropertyNode
+    from s3dgraphy.nodes.semantic_shape_node import SemanticShapeNode
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    g = Graph(graph_id="T")
+    g.add_node(StratigraphicUnit("u", "SU002"))
+    g.add_node(PropertyNode("p", "Proxy Geometry"))
+    forma = "20b29157-83b4-5c34-a474-6c824cf7d20b"
+    g.add_node(PropertyNode("q", "geometry", value=forma))
+    g.add_node(SemanticShapeNode(forma, "Shape for SU002"))
+    g.add_node(CombinerNode("c", "C.1101"))
+    g.add_node(DocumentNode("d", "D.01"))
+    archi = [("u", "p", "has_property"), ("u", "q", "has_property"), ("p", "c", "has_data_provenance")]
+    for k in ("41", "53", "54"):
+        g.add_node(ExtractorNode("x" + k, "D.01." + k))
+        archi += [("c", "x" + k, "combines"), ("x" + k, "d", "extracted_from")]
+    for i, (s, t, tipo) in enumerate(archi):
+        g.add_edge("e%d" % i, s, t, tipo)
+    righe = "".join(nh._righe_paradati("u", {n.node_id: n for n in g.nodes}, nh._uscite(g), {"d": {}}))
+    assert righe.count('data-src="d"') == 1
+    assert "D.01.41, D.01.53, D.01.54" in righe and "C.1101" in righe
+    assert "Shape for SU002" in righe and forma not in righe

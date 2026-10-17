@@ -1365,19 +1365,41 @@ def export_file(graph, narrative, fmt: str, path, *,
 
 
 def _html_per_chi_legge(payload: str, graph, narrative, conn, media_base, lang) -> str:
-    """Le fonti come hotspot e l'indice (17 ottobre 2026). Un inciampo non
-    porta via l'esportazione: la pagina resta com'era, e lo si scrive nel log."""
+    """I media scelti dentro i capitoli, le fonti come hotspot e l'indice
+    (17 ottobre 2026). Un inciampo non porta via l'esportazione: la pagina
+    resta com'era, e lo si scrive nel log."""
     import logging
     from . import em_narrative_html as nh
+    from . import em_narrative_media as nm
+    registro: Dict[str, dict] = {}
+    titoli = [str(getattr(c, "title", "") or "") for c in narrative.chapters]
+    ordine = nh.align_chapters(payload, titoli)
+
+    def allineati(liste):
+        return [liste[i] if i is not None and i < len(liste) else [] for i in ordine]
+    # le fonti per prime: i loro documenti stanno anche nelle tabelle delle unità
+    per_capitolo: List[List[str]] = []
     try:
         per_capitolo, fonti = nh.sources_for_chapters(graph, narrative)
         if fonti:
             miniature, ridotte = media_base or ("", "")
-            registro = nh.sources_registry(graph, fonti, conn, miniature, ridotte)
-            ordine = nh.align_chapters(payload, [str(getattr(c, "title", "") or "")
-                                                 for c in narrative.chapters])
-            payload = nh.add_sources(payload, [per_capitolo[i] if i is not None else []
-                                               for i in ordine], registro, lang)
+            registro.update(nh.sources_registry(graph, fonti, conn, miniature, ridotte))
+    except Exception as e:                          # noqa: BLE001
+        logging.getLogger(__name__).warning("Fonti della narrativa non trovate: %s", e)
+    try:
+        payload = nh.group_units(payload, graph, narrative, ordine, registro, lang)
+    except Exception as e:                          # noqa: BLE001
+        logging.getLogger(__name__).warning("Unità della narrativa non raggruppate: %s", e)
+    try:
+        per_media, voci_media = nm.media_registry(graph, narrative, conn, media_base or ("", ""))
+        if voci_media:
+            payload = nm.add_media(payload, allineati(per_media), voci_media, lang)
+            registro.update(voci_media)
+    except Exception as e:                          # noqa: BLE001
+        logging.getLogger(__name__).warning("Media della narrativa non aggiunti: %s", e)
+    try:
+        if registro:
+            payload = nh.add_sources(payload, allineati(per_capitolo), registro, lang)
     except Exception as e:                          # noqa: BLE001
         logging.getLogger(__name__).warning("Fonti della narrativa non aggiunte: %s", e)
     try:

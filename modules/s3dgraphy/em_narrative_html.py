@@ -250,16 +250,24 @@ def chapter_units(graph, chapter) -> List[str]:
 # ---------------------------------------------------------------------------
 
 _PAROLE = {
-    "it": {"chapter_sources": "Fonti del capitolo", "sources": "Fonti", "open": "Apri il file",
+    "it": {"units": "Unità del capitolo", "n_units": "unità", "n_paradata": "paradati",
+           "property": "proprietà", "value": "valore", "provenance": "da dove viene",
+           "chapter_sources": "Fonti del capitolo", "sources": "Fonti", "open": "Apri il file",
            "used_for": "Letture", "close": "Chiudi", "original": "File originale",
            "not_embedded": "Il file non è dentro la pagina (troppo grande): si apre dal percorso "
                            "originale, sul computer che l'ha esportata.",
-           "no_file": "Nessun file collegato a questa fonte."},
-    "en": {"chapter_sources": "Chapter sources", "sources": "Sources", "open": "Open the file",
+           "no_file": "Nessun file collegato a questa fonte.",
+           "viewer_offline": "Il visore 3D si carica da internet: senza rete resta la vista del "
+                             "modello, e il file si apre con «Apri il file»."},
+    "en": {"units": "Units of the chapter", "n_units": "units", "n_paradata": "paradata",
+           "property": "property", "value": "value", "provenance": "where it comes from",
+           "chapter_sources": "Chapter sources", "sources": "Sources", "open": "Open the file",
            "used_for": "Readings", "close": "Close", "original": "Original file",
            "not_embedded": "The file is not inside the page (too large): it opens from its "
                            "original path, on the computer that exported it.",
-           "no_file": "No file linked to this source."},
+           "no_file": "No file linked to this source.",
+           "viewer_offline": "The 3D viewer loads from the internet: offline the view of the "
+                             "model stays, and the file opens with “Open the file”."},
 }
 
 
@@ -338,7 +346,9 @@ _JS_FONTI = r"""
   function apri(a) {
     var f = fonte(a); if (!f) { return; }
     var url = blob(f), vista = '';
-    if (url && f.mime === 'application/pdf') { vista = '<iframe class="pya-vista" src="' + url + '" title="' + esc(f.title) + '"></iframe>'; }
+    if (f.model) { vista = f.preview ? '<img class="pya-vista" id="pya-3d" src="' + f.preview + '" alt="' + esc(f.title) + '">' : '<div id="pya-3d"></div>'; }
+    else if (url && /^video\//.test(f.mime || '')) { vista = '<video class="pya-vista" controls src="' + url + '"></video>'; }
+    else if (url && f.mime === 'application/pdf') { vista = '<iframe class="pya-vista" src="' + url + '" title="' + esc(f.title) + '"></iframe>'; }
     else if (url && /^image\//.test(f.mime || '')) { vista = '<img class="pya-vista" src="' + url + '" alt="' + esc(f.title) + '">'; }
     else if (f.preview) { vista = '<img class="pya-vista" src="' + f.preview + '" alt="' + esc(f.title) + '">'; }
     var usi = (f.uses || []).map(function (u) { return '<li>' + esc(u[0]) + ' — ' + esc(u[1]) + ' <small>(' + esc(u[2]) + ')</small></li>'; }).join('');
@@ -353,6 +363,25 @@ _JS_FONTI = r"""
       (usi ? '<h4>' + esc(W.used_for) + '</h4><ul>' + usi + '</ul>' : '');
     pan.hidden = false; tip.hidden = true;
     var b = pan.querySelector('.pya-chiudi'); if (b) { b.focus(); }
+    if (f.model && url && f.mime === 'model/gltf-binary') { visore(url, f.title); }
+  }
+  function visore(url, titolo) {
+    var dove = document.getElementById('pya-3d');
+    function metti() {
+      var mv = document.createElement('model-viewer');
+      mv.setAttribute('src', url); mv.setAttribute('camera-controls', ''); mv.setAttribute('auto-rotate', '');
+      mv.setAttribute('shadow-intensity', '1'); mv.setAttribute('alt', titolo || ''); mv.className = 'pya-vista';
+      if (dove && dove.parentNode) { dove.parentNode.replaceChild(mv, dove); }
+    }
+    if (window.customElements && customElements.get('model-viewer')) { metti(); return; }
+    var s = document.createElement('script');
+    s.type = 'module'; s.src = 'https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js';
+    s.onload = function () { customElements.whenDefined('model-viewer').then(metti); };
+    s.onerror = function () {
+      var n = document.createElement('p'); n.textContent = W.viewer_offline;
+      if (dove && dove.parentNode) { dove.parentNode.insertBefore(n, dove.nextSibling); }
+    };
+    document.head.appendChild(s);
   }
   document.addEventListener('mouseover', function (e) { var a = e.target.closest && e.target.closest('a.pya-fonte'); if (a) { mostra(a); } });
   document.addEventListener('mouseout', function (e) { var a = e.target.closest && e.target.closest('a.pya-fonte'); if (a) { tip.hidden = true; } });
@@ -485,7 +514,7 @@ def _data_uri(dati: bytes, mime: str) -> str:
     return "data:%s;base64,%s" % (mime, base64.b64encode(dati).decode("ascii"))
 
 
-def _anteprima_di(percorso: str, ext: str) -> str:
+def _anteprima_di(percorso: str, ext: str, lato: int = _LATO_ANTEPRIMA) -> str:
     """La prima pagina del PDF o l'immagine, ridotte, come data URI; vuoto
     quando non si legge."""
     try:
@@ -494,7 +523,7 @@ def _anteprima_di(percorso: str, ext: str) -> str:
             doc = fitz.open(percorso)
             try:
                 pagina = doc.load_page(0)
-                scala = _LATO_ANTEPRIMA / float(max(pagina.rect.width, pagina.rect.height, 1))
+                scala = lato / float(max(pagina.rect.width, pagina.rect.height, 1))
                 png = pagina.get_pixmap(matrix=fitz.Matrix(scala, scala), alpha=False).tobytes("png")
             finally:
                 doc.close()
@@ -503,7 +532,7 @@ def _anteprima_di(percorso: str, ext: str) -> str:
             from PIL import Image
             with Image.open(percorso) as im:
                 im = im.convert("RGB")
-                im.thumbnail((_LATO_ANTEPRIMA, _LATO_ANTEPRIMA))
+                im.thumbnail((lato, lato))
                 buffer = io.BytesIO()
                 im.save(buffer, format="JPEG", quality=82)
             return _data_uri(buffer.getvalue(), "image/jpeg")
@@ -829,3 +858,169 @@ def improve_docx(dati: bytes, graph, narrative, lang: Optional[str] = None) -> b
     uscita = io.BytesIO()
     documento.save(uscita)
     return uscita.getvalue()
+
+
+# ---------------------------------------------------------------------------
+# Le unità del capitolo, raggruppate (Enzo, 17 ottobre 2026: «i paradati
+# sembrano note tutte in fila una sotto l'altra»)
+# ---------------------------------------------------------------------------
+
+#: le schede della libreria che il blocco delle unità sostituisce: unità,
+#: paradati (senza dire di quale unità), documenti (che sono nella riga
+#: delle fonti) e le strisce di foto delle unità
+_SCHEDA = re.compile(
+    r'<div class="em-embed"><div class="em-kind">(?:us|paradata|fonte)</div>.*?</div></div>\n?'
+    r'|<figure class="em-embed"><div class="em-kind">immagine</div>.*?</figure>\n?', re.S)
+
+_CSS_UNITA = """
+/* pyArchInit: le unità del capitolo, una riga per unità */
+.pya-unita { margin: 1.2rem 0; padding-top: .6rem; border-top: 1px solid rgba(128,128,128,.25);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: .9rem; }
+.pya-unita-titolo { font-size: .95rem; margin: 0 0 .4rem; color: #444; }
+.pya-u { border-bottom: 1px solid rgba(128,128,128,.15); padding: .25rem 0; }
+.pya-u summary { cursor: pointer; list-style: none; }
+.pya-u summary::-webkit-details-marker { display: none; }
+.pya-u summary::before { content: "\\25B8"; display: inline-block; width: 1.1em; color: #888; }
+.pya-u[open] summary::before { content: "\\25BE"; }
+.pya-u-sola::before { content: ""; display: inline-block; width: 1.1em; }
+.pya-u-nome { font-weight: 600; }
+.pya-u-desc { color: #555; }
+.pya-u-conta { float: right; color: #888; font-size: .8rem; }
+.pya-u-corpo { padding: .4rem 0 .6rem 1.1rem; display: flex; gap: .8rem; align-items: flex-start; }
+.pya-u-corpo img { width: 140px; height: auto; border-radius: 4px; flex: none; }
+.pya-paradati { border-collapse: collapse; width: 100%; font-size: .85rem; }
+.pya-paradati th, .pya-paradati td { text-align: left; padding: .2rem .45rem; vertical-align: top;
+  border-bottom: 1px solid rgba(128,128,128,.15); }
+.pya-paradati td:first-child { width: 22%; }
+.pya-paradati td:nth-child(2) { width: 43%; }
+.pya-paradati th { color: #666; font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+  .pya-unita-titolo, .pya-u-desc, .pya-paradati th { color: #9aa3ae; }
+}
+"""
+
+
+def _testo_nodo(nodo, massimo: int = 220) -> str:
+    testo = str(getattr(nodo, "value", None) or getattr(nodo, "description", None) or "").strip()
+    return testo if len(testo) <= massimo else testo[:massimo - 1].rstrip() + "…"
+
+
+_UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+
+
+def _valore(proprieta, nodi) -> str:
+    """Il valore della proprietà; quando è l'id di un nodo (la «geometry»
+    che punta alla sua forma) il nome di quel nodo, e un id che non porta a
+    niente non si mostra."""
+    testo = _testo_nodo(proprieta)
+    if testo in nodi:
+        return _nome(nodi[testo])
+    return "" if _UUID.fullmatch(testo) else testo
+
+
+def _righe_paradati(uid, nodi, uscite, registro) -> List[str]:
+    """Le proprietà dell'unità, con il valore e da dove vengono: un
+    documento per volta — hotspot quando è una fonte della pagina — con gli
+    estrattori che ne leggono il valore (anche dentro un combinatore)."""
+    righe = []
+    for pid in uscite[uid]["has_property"]:
+        proprieta = nodi.get(pid)
+        if proprieta is None:
+            continue
+        provenienza = []
+        for prov in uscite[pid]["has_data_provenance"]:
+            nodo = nodi.get(prov)
+            combinatore = getattr(nodo, "node_type", "") == "combiner"
+            estrattori = uscite[prov]["combines"] if combinatore else [prov]
+            per_documento: Dict[str, List[str]] = {}
+            senza = []
+            for xid in estrattori:
+                nome_x = _html.escape(_nome(nodi.get(xid)))
+                documenti = [d for d in uscite[xid]["extracted_from"] if d in nodi]
+                if not documenti:
+                    senza.append(nome_x)
+                for did in documenti:
+                    per_documento.setdefault(did, []).append(nome_x)
+            pezzi = []
+            for did, nomi in per_documento.items():
+                titolo = _html.escape(_nome(nodi[did]))
+                pezzi.append("%s (%s)" % (_chip(did, titolo) if did in registro else titolo, ", ".join(nomi)))
+            pezzi.extend(senza)
+            if pezzi:
+                provenienza.append((_html.escape(_nome(nodo)) + ": " if combinatore else "") + "; ".join(pezzi))
+        righe.append("<tr><td>%s</td><td>%s</td><td>%s</td></tr>"
+                     % (_html.escape(_nome(proprieta)), _html.escape(_valore(proprieta, nodi)),
+                        "<br>".join(provenienza)))
+    return righe
+
+
+def group_units(pagina: str, graph, narrative, ordine: List[Optional[int]],
+                registro: Dict[str, dict], lang: Optional[str] = None) -> str:
+    """In ogni capitolo, al posto delle schede in fila della libreria (unità,
+    paradati, documenti, strisce di foto), un blocco «Unità del capitolo»:
+    una riga per unità — nome, tipo, descrizione — che si apre sulla tabella
+    dei suoi paradati (proprietà, valore, estrattore, documento) e sulla sua
+    foto. Le unità vengono dal grafo (:func:`chapter_units`); i documenti
+    restano nella riga delle fonti del capitolo."""
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
+    parole = _parole(lang)
+    nodi = {n.node_id: n for n in getattr(graph, "nodes", None) or []}
+    uscite = _uscite(graph)
+    capitoli = list(getattr(narrative, "chapters", None) or [])
+    fine = _fine_dei_capitoli(pagina)
+    inizi = [m.start() for m in re.finditer(r"<h2[\s>]", pagina[:fine])]
+    cambiata = False
+    for k in range(len(inizi) - 1, -1, -1):
+        a, b = inizi[k], (inizi[k + 1] if k + 1 < len(inizi) else fine)
+        segmento = pagina[a:b]
+        schede = list(_SCHEDA.finditer(segmento))
+        if not schede:
+            continue
+        i = ordine[k] if k < len(ordine) else None
+        cap = capitoli[i] if i is not None and i < len(capitoli) else None
+        immagini: Dict[str, str] = {}
+        for m in schede:
+            im = re.search(r'<img src="([^"]+)" alt="([^"]*)"', m.group(0))
+            if m.group(0).startswith("<figure") and im:
+                immagini[_html.unescape(im.group(2))] = im.group(1)
+        unita = [u for u in (chapter_units(graph, cap) if cap is not None else [])
+                 if isinstance(nodi.get(u), StratigraphicNode)]
+        blocco = ""
+        if unita:
+            righe, paradati = [], 0
+            for uid in unita:
+                nodo = nodi[uid]
+                nome = _nome(nodo)
+                tabella = _righe_paradati(uid, nodi, uscite, registro)
+                paradati += len(tabella)
+                testa = ('<span class="pya-u-nome">%s</span> <span class="pya-tipo">%s</span> '
+                         '<span class="pya-u-desc">%s</span>'
+                         % (_html.escape(nome), _html.escape(str(getattr(nodo, "node_type", "") or "")),
+                            _html.escape(_testo_nodo(nodo, 160))))
+                foto = immagini.get(nome)
+                if not tabella and not foto:
+                    righe.append('<div class="pya-u pya-u-sola">%s</div>' % testa)
+                    continue
+                corpo = ('<img src="%s" alt="%s" loading="lazy">' % (foto, _html.escape(nome, quote=True))
+                         if foto else "")
+                if tabella:
+                    corpo += ('<table class="pya-paradati"><tr><th>%s</th><th>%s</th><th>%s</th></tr>%s</table>'
+                              % (_html.escape(parole["property"]), _html.escape(parole["value"]),
+                                 _html.escape(parole["provenance"]), "".join(tabella)))
+                righe.append('<details class="pya-u"><summary>%s<span class="pya-u-conta">%s</span></summary>'
+                             '<div class="pya-u-corpo">%s</div></details>'
+                             % (testa, len(tabella) or "", corpo))
+            blocco = ('\n<div class="pya-unita"><h4 class="pya-unita-titolo">%s · %d %s, %d %s</h4>%s</div>\n'
+                      % (_html.escape(parole["units"]), len(unita), _html.escape(parole["n_units"]),
+                         paradati, _html.escape(parole["n_paradata"]), "".join(righe)))
+        primo = schede[0].start()
+        pezzi, pos = [], 0
+        for m in schede:
+            pezzi.append(segmento[pos:m.start()])
+            pos = m.end()
+        pezzi.append(segmento[pos:])
+        nuovo = "".join(pezzi)
+        nuovo = nuovo[:primo] + blocco + nuovo[primo:]
+        pagina = pagina[:a] + nuovo + pagina[b:]
+        cambiata = True
+    return pagina.replace("</style>", _CSS_UNITA + "</style>", 1) if cambiata else pagina

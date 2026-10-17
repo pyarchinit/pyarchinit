@@ -88,6 +88,26 @@ _L = {
     "add_ours": {"it": "Aggiungi quelli di pyArchInit", "en": "Add pyArchInit's"},
     "kept_file": {"it": "Restano i {n} capitoli del file: nessun capitolo aggiunto.",
                   "en": "The file's {n} chapters stay as they are: no chapter added."},
+    "choose_media": {"it": "Scegli i media", "en": "Choose the media"},
+    "media_tip": {"it": "Per ogni capitolo sceglie fra i media delle sue unità (modelli 3D, immagini, "
+                        "video) quelli da mettere nel testo, dopo il paragrafo che ne parla, con una "
+                        "didascalia: con l'AI (temperatura zero) se è impostata, altrimenti nell'ordine "
+                        "in cui il testo nomina le unità. La scelta resta nel file e l'esportazione HTML "
+                        "la usa.",
+                  "en": "For every chapter it chooses among the media of its units (3D models, images, "
+                        "videos) those to put in the text, after the paragraph that talks about them, with "
+                        "a caption: with the AI (temperature zero) when one is set, otherwise in the order "
+                        "the text names the units. The choice stays in the file and the HTML export uses it."},
+    "media_done": {"it": "Media scelti: {n} in {c} capitoli ({how}).",
+                   "en": "Media chosen: {n} in {c} chapters ({how})."},
+    "media_ai": {"it": "con l'AI", "en": "with the AI"},
+    "media_auto": {"it": "automatici, senza AI", "en": "automatic, no AI"},
+    "media_failed": {"it": "In {n} capitoli l'AI non ha risposto bene: lì la scelta è automatica.",
+                     "en": "In {n} chapters the AI did not answer properly: there the choice is automatic."},
+    "media_none": {"it": "Nessun capitolo ha media fra le sue unità: servono il database del progetto e "
+                         "i media delle schede (per esempio quelli importati dall'em.json).",
+                   "en": "No chapter has media among its units: the project database and the records' "
+                         "media are needed (for instance those imported from the em.json)."},
     "close_emstudio": {"it": "Se EMStudio ha il file aperto, chiudilo prima: chi scrive "
                              "per ultimo vince.",
                        "en": "If EMStudio has the file open, close it first: the last "
@@ -169,6 +189,59 @@ class NarrativeThread(QThread):
                 en.save_project(contenitore, self._path)
             self.finished_ok.emit(rapporto.failed == 0 and not rapporto.cancelled,
                                   rapporto.summary(self._lang))
+        except Exception as e:                      # noqa: BLE001
+            self.finished_ok.emit(False, str(e))
+
+
+class MediaThread(QThread):
+    """Sceglie i media dei capitoli fuori dal filo dell'interfaccia e salva
+    la scelta nel file (17 ottobre 2026)."""
+
+    progress = pyqtSignal(int, int, str)
+    finished_ok = pyqtSignal(bool, str)
+
+    def __init__(self, path, cfg, conn, bases, write_lang=None, parent=None):
+        super().__init__(parent)
+        self._path, self._cfg, self._conn = str(path), cfg, conn
+        self._bases = tuple(bases or ("", ""))
+        self._write_lang = write_lang
+        self._stop = False
+
+    def cancel(self):
+        self._stop = True
+
+    def _chat(self, messages):
+        from ..utility.llm_providers import LLMProviderManager
+        meta = {}
+        return "".join(LLMProviderManager.stream_chat(
+            self._cfg, messages, max_tokens=800, temperature=0, meta=meta))
+
+    def run(self):                                  # noqa: D401
+        from . import em_narrative_media as nm
+        try:
+            contenitore, _ = en.load_project(self._path)
+            scelti = capitoli = falliti = 0
+            for g in contenitore.graphs.values():
+                narrativa = en.narrative_of(g)
+                if narrativa is None:
+                    continue
+                lingua = self._write_lang or (narrativa.data or {}).get("lang") or _lang()
+                esito = nm.choose_media(
+                    g, narrativa, chat=self._chat if self._cfg is not None else None,
+                    model=str(getattr(self._cfg, "model", "") or ""), lang=lingua,
+                    connection=self._conn, media_base=self._bases,
+                    progress=lambda i, n, t: self.progress.emit(i, n, t),
+                    cancelled=lambda: self._stop)
+                scelti, capitoli, falliti = scelti + esito.chosen, capitoli + esito.chapters, falliti + esito.failed
+            if not capitoli:
+                self.finished_ok.emit(True, _t("media_none"))
+                return
+            en.save_project(contenitore, self._path)
+            messaggio = _t("media_done", n=scelti, c=capitoli,
+                           how=_t("media_ai") if self._cfg is not None else _t("media_auto"))
+            if falliti:
+                messaggio += " " + _t("media_failed", n=falliti)
+            self.finished_ok.emit(True, messaggio)
         except Exception as e:                      # noqa: BLE001
             self.finished_ok.emit(False, str(e))
 
@@ -344,7 +417,7 @@ def build_tab(parent, iface) -> QWidget:
     riga1, riga2 = QHBoxLayout(), QHBoxLayout()
     for nome, chiave, riga in (("genera", "generate", riga1), ("rigenera", "regenerate", riga1),
                                ("convalida", "endorse", riga1), ("prepara", "prepare", riga2),
-                               ("mappa", "map", riga2),
+                               ("media", "choose_media", riga2), ("mappa", "map", riga2),
                                ("esporta", "export", riga2), ("emstudio", "emstudio", riga2),
                                ("annulla", "cancel", riga2)):
         b = QPushButton(_t(chiave), w)
@@ -352,6 +425,7 @@ def build_tab(parent, iface) -> QWidget:
         riga.addWidget(b)
         bottoni[nome] = b
     bottoni["annulla"].setVisible(False)
+    bottoni["media"].setToolTip(_t("media_tip"))
     colonna.addLayout(riga1)
     colonna.addLayout(riga2)
 
@@ -384,6 +458,7 @@ def build_tab(parent, iface) -> QWidget:
         occupato = stato.thread is not None
         for nome, acceso in (("genera", ha_file and ha_ai),
                              ("prepara", ha_file),
+                             ("media", ha_narrativa),
                              ("convalida", ha_narrativa),
                              ("esporta", ha_narrativa),
                              ("mappa", False),             # lo accende _mostra_scelta
@@ -457,6 +532,27 @@ def build_tab(parent, iface) -> QWidget:
     def _annulla():
         if stato.thread is not None:
             stato.thread.cancel()
+
+    def _scegli_media():
+        if stato.thread is not None or not stato.path:
+            return
+        cfg = stato.config[0] if stato.config is not None else None
+        t = MediaThread(stato.path, cfg, stato.conn, _bases(), write_lang=lingua.currentData(), parent=w)
+        stato.thread = t
+
+        def _progresso(i, n, titolo):
+            avanzamento.setText(_t("progress", i=i, n=n, title=titolo))
+
+        def _fine(ok, messaggio):
+            stato.thread = None
+            _ricarica()
+            _barra("info" if ok else "warn", messaggio)
+        t.progress.connect(_progresso)
+        t.finished_ok.connect(_fine)
+        t.finished.connect(t.deleteLater)
+        avanzamento.setText(_t("starting"))
+        _aggiorna_bottoni()
+        t.start()
 
     def _prepara():
         if not stato.path:
@@ -616,6 +712,7 @@ def build_tab(parent, iface) -> QWidget:
     bottoni["rigenera"].clicked.connect(_rigenera)
     bottoni["convalida"].clicked.connect(_convalida)
     bottoni["prepara"].clicked.connect(_prepara)
+    bottoni["media"].clicked.connect(_scegli_media)
     bottoni["esporta"].clicked.connect(_esporta)
     bottoni["emstudio"].clicked.connect(_emstudio)
     bottoni["mappa"].clicked.connect(_mappa)
