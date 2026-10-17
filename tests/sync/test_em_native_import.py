@@ -221,7 +221,7 @@ def test_la_scheda_sito_nasce_dal_grafo(importato):
     sito = con.execute("SELECT sito, definizione_sito, descrizione FROM site_table").fetchall()
     con.close()
     assert len(sito) == 1 and sito[0][0] == SITO
-    assert sito[0][1] == "Extended Matrix"
+    assert sito[0][1] == "Tempio"           # il nome del grafo, non «Extended Matrix»
     assert "Tempio" in sito[0][2] and "Autrice Prova" in sito[0][2] and "31700" in sito[0][2]
 
 
@@ -277,3 +277,262 @@ def test_i_nomi_brevi_non_si_confondono_fra_tipi(importato):
     assert ("property", "has_data_provenance", "combiner") in tipi
     assert ("USD", "abuts", "US") in tipi
     assert not any(a == "document" and t == "has_property" for a, t, _b in tipi)
+
+
+# ---------------------------------------------------------------------------
+# I rapporti come li vuole la scheda US (Enzo, 17 ottobre 2026, video e log
+# «log_rapporti_US_Temple»): ogni rapporto anche sulla scheda collegata,
+# rovesciato, e mai un campo vuoto (NULL) — la verifica dei rapporti della
+# scheda US dava 135 «malformed node or string: None» e centinaia di
+# «Rapporto reciproco non trovato».
+# ---------------------------------------------------------------------------
+
+#: l'inverso di ogni segno, come lo cerca la verifica della scheda US
+#: (``conversion_dict`` in ``tabs/US_USM.py``)
+_INVERSO = {
+    "Copre": "Coperto da", "Coperto da": "Copre", "Taglia": "Tagliato da",
+    "Tagliato da": "Taglia", "Riempie": "Riempito da", "Riempito da": "Riempie",
+    "Si appoggia a": "Gli si appoggia", "Gli si appoggia": "Si appoggia a",
+    "Si lega a": "Si lega a", "Uguale a": "Uguale a",
+    ">": "<", "<": ">", ">>": "<<", "<<": ">>",
+}
+
+
+def test_nessuna_scheda_ha_i_rapporti_vuoti(importato):
+    db, _, _ = importato
+    for (us, ut), riga in _righe(db).items():
+        assert riga["rapporti"] is not None, (us, ut)
+        assert isinstance(ast.literal_eval(riga["rapporti"]), list), (us, ut)
+    assert ast.literal_eval(_righe(db)[("4", "USNt")]["rapporti"]) == []   # senza rapporti: lista vuota
+
+
+def test_ogni_rapporto_ha_il_reciproco_sulla_scheda_collegata(importato):
+    db, _, _ = importato
+    righe = _righe(db)
+    per_us = {us: riga for (us, _ut), riga in righe.items()}
+    mancanti = []
+    for (us, _ut), riga in righe.items():
+        for segno, altra, area, sito in ast.literal_eval(riga["rapporti"]):
+            voluto = [_INVERSO[segno], us, str(riga["area"]), sito]
+            if voluto not in ast.literal_eval(per_us[altra]["rapporti"]):
+                mancanti.append((us, segno, altra))
+    assert mancanti == []
+    assert ("Coperto da", "1") in _rapporti(righe[("2", "US")])
+    assert ("Tagliato da", "3") in _rapporti(righe[("2", "US")])
+    assert ("Gli si appoggia", "USD2") in _rapporti(righe[("1", "US")])
+    assert ("<", "105") in _rapporti(righe[("106", "USVn")])
+    assert ("<<", "105") in _rapporti(righe[("height (105)", "property")])
+    assert ("<<", "05.02") in _rapporti(righe[("05", "DOC")])
+
+
+def test_i_reciproci_non_raddoppiano_gli_archi(importato):
+    """Il rapporto scritto sulle due schede resta UN arco nell'export."""
+    db, _, _ = importato
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    grafo = GraphProjector().populate_graph(db, sito=SITO)
+    per_id = {n.node_id: n for n in grafo.nodes}
+
+    def nome(nid):
+        n = per_id.get(nid)
+        return str((getattr(n, "attributes", None) or {}).get("us") or n.name)
+
+    terne = [(nome(e.edge_source), e.edge_type, nome(e.edge_target)) for e in grafo.edges]
+    assert len(terne) == len(set(terne))
+    coppie = [(s, t) for s, tipo, t in terne
+              if tipo in ("overlies", "is_overlain_by", "is_after", "is_before",
+                          "has_property", "has_data_provenance", "extracted_from", "combines")]
+    doppie = [c for c in coppie if (c[1], c[0]) in coppie]
+    assert doppie == []
+    assert ("1", "overlies", "2") in terne
+
+
+# ---------------------------------------------------------------------------
+# Datazione e codice periodo (Enzo, 17 ottobre 2026): «la periodizzazione ci
+# sta ma manca la datazione»; «dovrebbe crearmi anche il codice periodo in
+# automatico, da 1 a n in sequenza: periodo 1 fase 1 → 1, periodo 2 fase 1
+# → 2, periodo 3 fase 1 → 3».
+# ---------------------------------------------------------------------------
+
+def test_i_codici_periodo_vanno_in_sequenza():
+    from modules.s3dgraphy.sync.em_native_import import plan_period_codes
+    periodi = [{"periodo": 3, "fase": "1"}, {"periodo": 1, "fase": "2"},
+               {"periodo": 1, "fase": "1"}, {"periodo": 10, "fase": "1"}]
+    assert plan_period_codes(periodi) == {("1", "1"): 1, ("1", "2"): 2, ("3", "1"): 3, ("10", "1"): 4}
+    # i codici già dati restano; i nuovi vengono dopo il più alto
+    gia = [{"periodo": 1, "fase": "1", "cont_per": 7}, {"periodo": 2, "fase": "1", "cont_per": None}]
+    assert plan_period_codes(gia) == {("1", "1"): 7, ("2", "1"): 8}
+
+
+def test_il_codice_periodo_della_us_come_crea_codice_periodo():
+    from modules.s3dgraphy.sync.em_native_import import us_period_code
+    codici = {("1", "1"): 1, ("2", "1"): 2, ("3", "1"): 3}
+    assert us_period_code(codici, "1", "1", "3", "1") == "1/2/3"
+    assert us_period_code(codici, "2", "1", "2", "1") == "2"
+    assert us_period_code(codici, "2", "1", None, None) == "2"
+    assert us_period_code(codici, None, None, None, None) is None
+    assert us_period_code(codici, "9", "1", None, None) is None        # periodo sconosciuto
+
+
+def test_la_periodizzazione_ha_il_codice_e_le_us_la_datazione(importato):
+    db, _, _ = importato
+    con = sqlite3.connect(str(db))
+    codici = con.execute("SELECT periodo, fase, cont_per FROM periodizzazione_table WHERE sito = ? "
+                         "ORDER BY periodo", (SITO,)).fetchall()
+    con.close()
+    assert codici == [(1, "1", 1), (2, "1", 2)]
+    r = _righe(db)
+    assert r[("2", "US")]["datazione"] == "II A.D."                 # nasce nel periodo 1
+    assert r[("1", "US")]["datazione"] == "Post antiquity"
+    assert r[("105", "USVn")]["datazione"] == "II A.D."
+    assert r[("2", "US")]["cont_per"] == "1/2"                      # vive dal periodo 1 al 2
+    assert r[("1", "US")]["cont_per"] == "2"
+    assert not r[("Material", "property")]["datazione"]             # senza periodo, niente data
+
+
+# ---------------------------------------------------------------------------
+# La scheda sito dall'em.json (Enzo, 17 ottobre 2026): «nella definizione non
+# dovrebbe mettere Extended Matrix ma la definizione del Temple, e questo
+# dovrebbe essere scritto anche nel thesaurus perché dovrebbe prenderlo da
+# lì»; «se nell'em.json ci sono nazione, regione, provincia, comune questi
+# andrebbero riempiti, e aggiornati anche nel thesaurus». Decisioni: il bene
+# dichiarato (HC1), altrimenti il nome del grafo; i toponimi passano dal
+# thesaurus, codici 1.2–1.5.
+# ---------------------------------------------------------------------------
+
+def _con_luoghi(tmp_path):
+    """L'em.json di prova con la catena dei luoghi come la scrive
+    l'esportazione di pyArchInit: comune ⊂ provincia ⊂ regione ⊂ nazione,
+    e il sito nel comune."""
+    sorgente = _em_json(tmp_path)
+    dati = json.loads(sorgente.read_text(encoding="utf-8"))
+    grafo = dati["graphs"]["g-1"]
+    luoghi = [("t-naz", "nazione", "Italia"), ("t-reg", "regione", "Toscana"),
+              ("t-pro", "provincia", "Pisa"), ("t-com", "comune", "Volterra")]
+    for nid, livello, nome in luoghi:
+        grafo["nodes"].append(_nodo(nid, "LocationNodeGroup", nome, group_kind="toponym",
+                                    kind="toponym", propagation="additive",
+                                    level=livello, name=nome))
+    grafo["nodes"].append(_nodo("t-sito", "LocationNodeGroup", "Tempio", group_kind="toponym",
+                                kind="toponym", propagation="additive",
+                                level="sito", name="Tempio"))
+    catena = ["t-sito", "t-com", "t-pro", "t-reg", "t-naz"]
+    for basso, alto in zip(catena, catena[1:]):
+        grafo["edges"].append(_arco(basso, "is_in_location", alto))
+    sorgente.write_text(json.dumps(dati), encoding="utf-8")
+    return sorgente
+
+
+def _importa(db, sorgente, about=None):
+    from modules.s3dgraphy.s3dgraphy_dot_bridge import read_graph_for_import
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    grafo, _ = read_graph_for_import(str(sorgente))
+    if about:
+        from s3dgraphy import api
+        api.declare_hdto(grafo, study={"name": "Saggio 2013"}, about={"name": about})
+    return GraphIngestor().populate_list(grafo, db, sito=SITO, create_missing_epochs=True)
+
+
+def _thesaurus_sito(db):
+    con = sqlite3.connect(str(db))
+    righe = con.execute("SELECT tipologia_sigla, sigla, sigla_estesa, lingua FROM pyarchinit_thesaurus_sigle "
+                        "WHERE nome_tabella = 'site_table' ORDER BY tipologia_sigla, sigla_estesa").fetchall()
+    con.close()
+    return righe
+
+
+def test_la_scheda_sito_prende_definizione_e_toponimi_dall_em_json(tmp_path, monkeypatch):
+    from modules.s3dgraphy.sync import em_native_import as emn
+    monkeypatch.setattr(emn, "thesaurus_lingua", lambda locale=None: "IT")
+    db = tmp_path / "vuoto.sqlite"
+    shutil.copy2(TEMPLATE_DB, db)
+    _importa(db, _con_luoghi(tmp_path))
+    con = sqlite3.connect(str(db))
+    sito = con.execute("SELECT definizione_sito, nazione, regione, provincia, comune "
+                       "FROM site_table WHERE sito = ?", (SITO,)).fetchone()
+    con.close()
+    assert sito == ("Tempio", "Italia", "Toscana", "Pisa", "Volterra")   # il nome del grafo
+    voci = {(cod, estesa, lingua) for cod, _sigla, estesa, lingua in _thesaurus_sito(db)}
+    assert {("1.1", "Tempio", "IT"), ("1.2", "Italia", "IT"), ("1.3", "Toscana", "IT"),
+            ("1.4", "Pisa", "IT"), ("1.5", "Volterra", "IT")} <= voci
+    _importa(db, _con_luoghi(tmp_path))                                    # una seconda volta
+    assert len(_thesaurus_sito(db)) == len(voci)                          # niente doppioni
+
+
+def test_il_bene_dichiarato_vince_sul_nome_del_grafo(tmp_path, monkeypatch):
+    from modules.s3dgraphy.sync import em_native_import as emn
+    monkeypatch.setattr(emn, "thesaurus_lingua", lambda locale=None: "IT")
+    db = tmp_path / "vuoto.sqlite"
+    shutil.copy2(TEMPLATE_DB, db)
+    _importa(db, _em_json(tmp_path), about="Grande Tempio")
+    con = sqlite3.connect(str(db))
+    definizione = con.execute("SELECT definizione_sito FROM site_table WHERE sito = ?", (SITO,)).fetchone()[0]
+    con.close()
+    assert definizione == "Grande Tempio"
+    assert ("1.1", "Grande Tempio") in {(c, e) for c, _s, e, _l in _thesaurus_sito(db)}
+
+
+def test_una_scheda_sito_del_vecchio_import_si_ripara(tmp_path, monkeypatch):
+    """Il database di Enzo ha già la scheda con «Extended Matrix» e i
+    toponimi vuoti: reimportare li sistema; quello che l'utente ha scritto
+    resta."""
+    from modules.s3dgraphy.sync import em_native_import as emn
+    monkeypatch.setattr(emn, "thesaurus_lingua", lambda locale=None: "IT")
+    db = tmp_path / "vuoto.sqlite"
+    shutil.copy2(TEMPLATE_DB, db)
+    con = sqlite3.connect(str(db))
+    con.execute("INSERT INTO site_table (sito, nazione, regione, definizione_sito, descrizione) "
+                "VALUES (?, '', 'Lazio', 'Extended Matrix', 'mia')", (SITO,))
+    con.commit()
+    con.close()
+    _importa(db, _con_luoghi(tmp_path))
+    con = sqlite3.connect(str(db))
+    sito = con.execute("SELECT definizione_sito, nazione, regione, provincia, comune, descrizione "
+                       "FROM site_table WHERE sito = ?", (SITO,)).fetchone()
+    con.close()
+    assert sito == ("Tempio", "Italia", "Lazio", "Pisa", "Volterra", "mia")
+
+
+def test_la_lingua_del_thesaurus_come_la_scheda_sito():
+    from modules.s3dgraphy.sync.em_native_import import thesaurus_lingua
+    assert thesaurus_lingua("it_IT") == "IT"
+    assert thesaurus_lingua("en_US") == "EN_US"
+    assert thesaurus_lingua("de") == "DE"
+    assert thesaurus_lingua("el_GR") == "EL"
+    assert thesaurus_lingua("xx_YY") == "IT"
+
+
+def test_le_sigle_restano_uniche():
+    from modules.s3dgraphy.sync.em_native_import import unique_sigla
+    assert unique_sigla("Barletta", {"BAR"}) not in {"BAR"}
+    assert len(unique_sigla("Barletta", {"BAR"})) <= 3
+    assert unique_sigla("Roma", set()) == "ROM"
+
+
+def test_l_inverso_tiene_la_forma_della_parola():
+    from modules.s3dgraphy.sync.em_native_import import inverse_rapporto
+    assert inverse_rapporto("Copre") == "Coperto da"
+    assert inverse_rapporto("copre") == "coperto da"           # schede scritte a mano
+    assert inverse_rapporto("Si lega a") == "Si lega a"
+    assert inverse_rapporto("Covers") == "Covered by"
+    assert inverse_rapporto(">>") == "<<" and inverse_rapporto("<") == ">"
+    assert inverse_rapporto("parola sconosciuta") is None
+
+
+def test_l_anteprima_conta_le_schede_che_l_import_cambiera(importato):
+    """Riimportando in un database del vecchio import l'anteprima diceva
+    «850 invariate» e poi le cambiava: ora conta i rapporti con i reciproci,
+    la datazione e il codice periodo come la scrittura."""
+    db, sorgente, _ = importato
+    con = sqlite3.connect(str(db))
+    con.execute("UPDATE us_table SET rapporti = NULL WHERE us = '4' AND sito = ?", (SITO,))
+    con.execute("UPDATE us_table SET rapporti = ? WHERE us = '2' AND sito = ?",
+                ("[['Coperto da', '1', '1', '%s']]" % SITO, SITO))
+    con.execute("UPDATE us_table SET datazione = NULL WHERE us = '1' AND sito = ?", (SITO,))
+    con.commit()
+    totale = con.execute("SELECT count(*) FROM us_table WHERE sito = ?", (SITO,)).fetchone()[0]
+    con.close()
+    from modules.s3dgraphy.s3dgraphy_dot_bridge import read_graph_for_import
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    grafo, _ = read_graph_for_import(str(sorgente))
+    esito = GraphIngestor().populate_list(grafo, db, sito=SITO, create_missing_epochs=True, dry_run=True)
+    assert (esito.inserted, esito.updated, esito.skipped) == (0, 3, totale - 3)

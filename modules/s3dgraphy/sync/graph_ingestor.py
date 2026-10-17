@@ -112,8 +112,11 @@ _PARADATA_ROW_TYPES: frozenset = frozenset({
 })
 
 #: Le colonne che l'import scrive: quelle del giro di andata e ritorno più
-#: la descrizione (di un nodo di EMStudio) e il periodo finale.
-_WRITE_COLUMNS: tuple = MAPPED_COLUMNS + ("descrizione", "periodo_finale", "fase_finale")
+#: la descrizione (di un nodo di EMStudio), il periodo finale, la datazione
+#: e il codice periodo (questi due dalla periodizzazione, solo se la scheda
+#: non li ha: Enzo, 17 ottobre 2026).
+_WRITE_COLUMNS: tuple = MAPPED_COLUMNS + ("descrizione", "periodo_finale", "fase_finale",
+                                          "datazione", "cont_per")
 
 
 # ---------------------------------------------------------------------------
@@ -289,6 +292,87 @@ def _resolve_target_row(conn, node_uuid, sito, area, us, unita_tipo):
         return dict(zip(keys, row)), row[keys.index("node_uuid")]
     # No copy yet — INSERT a fresh, independent identity for the copy.
     return None, str(uuid7())
+
+
+def _completa_scheda_sito(conn, sito, definizione, toponimi):
+    """Una scheda sito che c'è già: si riempie solo quello che è vuoto, e la
+    definizione «Extended Matrix» che l'import scriveva fino alla
+    5.13.124 si sostituisce. Quello che l'utente ha scritto resta."""
+    riga = conn.execute(
+        text("SELECT definizione_sito, nazione, regione, provincia, comune "
+             "FROM site_table WHERE sito = :sito"), {"sito": sito}).fetchone()
+    if riga is None:
+        return
+    cambi = {}
+    if definizione and (not riga[0] or str(riga[0]).strip() == "Extended Matrix"):
+        cambi["definizione_sito"] = definizione
+    for i, campo in enumerate(("nazione", "regione", "provincia", "comune"), start=1):
+        if toponimi.get(campo) and not (riga[i] or "").strip():
+            cambi[campo] = toponimi[campo]
+    if cambi:
+        conn.execute(
+            text("UPDATE site_table SET %s WHERE sito = :sito"
+                 % ", ".join("%s = :%s" % (c, c) for c in cambi)),
+            dict(cambi, sito=sito))
+
+
+def _aggiungi_al_thesaurus(conn, tabella, voci, lingua):
+    """Le voci ``(codice, sigla_estesa, che cos'è)`` che mancano nel
+    thesaurus, nella lingua della scheda; una sigla nuova non ripete quelle
+    dello stesso codice. Senza la tabella del thesaurus non fa niente."""
+    if not voci:
+        return
+    try:
+        if not sa_inspect(conn).has_table("pyarchinit_thesaurus_sigle"):
+            return
+    except Exception:                               # noqa: BLE001
+        return
+    for codice, estesa, che_cosa in voci:
+        righe = conn.execute(
+            text("SELECT sigla, sigla_estesa FROM pyarchinit_thesaurus_sigle "
+                 "WHERE nome_tabella = :t AND tipologia_sigla = :c "
+                 "AND UPPER(lingua) = UPPER(:l)"),
+            {"t": tabella, "c": codice, "l": lingua}).fetchall()
+        if any(str(r[1] or "").strip().lower() == estesa.lower() for r in righe):
+            continue
+        sigla = _emn.unique_sigla(estesa, [r[0] for r in righe])
+        conn.execute(
+            text("INSERT INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, "
+                 "sigla_estesa, descrizione, tipologia_sigla, lingua) "
+                 "VALUES (:t, :s, :e, :d, :c, :l)"),
+            {"t": tabella, "s": sigla, "e": estesa,
+             "d": "%s — %s" % (che_cosa, estesa), "c": codice, "l": lingua})
+
+
+def _pyarchinit_epoch(node):
+    """Un'epoca scritta da pyArchInit (``epoch_<periodo>_<fase>``, o con
+    periodo e fase negli attributi): ``{periodo, fase, descrizione,
+    cron_ini, cron_fin, datazione}``, oppure ``None``."""
+    if not _is_epoch_node_local(node):
+        return None
+    eattrs = getattr(node, "attributes", None) or {}
+    periodo = eattrs.get("periodo")
+    fase = eattrs.get("fase")
+    # Fall back to parsing from node_id when attrs are stripped by the importer.
+    if periodo is None:
+        m = _re.match(r"^epoch_([^_]+)_(.+?)(_synthetic)?$",
+                      str(getattr(node, "node_id", "") or ""))
+        if m:
+            periodo, fase = m.group(1), m.group(2)
+    if periodo is None:
+        return None
+    descrizione = getattr(node, "name", "") or ""
+    cron_ini = getattr(node, "start_time", None)
+    cron_fin = getattr(node, "end_time", None)
+    return {
+        "periodo": periodo, "fase": fase, "descrizione": descrizione,
+        # cron columns are INTEGER in pyarchinit
+        "cron_ini": int(cron_ini) if cron_ini not in (None, 0, 0.0) else None,
+        "cron_fin": int(cron_fin) if cron_fin not in (None, 0, 0.0) else None,
+        # datazione_estesa: free-text human label, often the epoch name.
+        "datazione": (eattrs.get("datazione") or eattrs.get("datazione_estesa")
+                      or descrizione),
+    }
 
 
 class GraphIngestor:
@@ -574,6 +658,13 @@ class GraphIngestor:
                     text("SELECT COUNT(*) FROM site_table WHERE sito = :sito"),
                     {"sito": sito},
                 ).fetchone()
+                # La scheda sito dal grafo: la definizione è il bene che lo
+                # studio dichiara o il nome del grafo (non «Extended
+                # Matrix»), i toponimi vengono dalla catena dei luoghi, e
+                # tutti finiscono anche nel thesaurus, da cui la scheda li
+                # legge (Enzo, 17 ottobre 2026).
+                definizione_sito = _emn.site_definition(graph)
+                toponimi = _emn.site_toponyms(graph)
                 if count_row[0] == 0:
                     if not dry_run:
                         # La scheda sito nasce dal grafo (anche in un
@@ -581,55 +672,25 @@ class GraphIngestor:
                         conn.execute(
                             text(
                                 "INSERT INTO site_table (sito, nazione, regione, "
-                                "definizione_sito, descrizione) VALUES (:sito, '', '', "
-                                ":definizione, :descrizione)"
+                                "provincia, comune, definizione_sito, descrizione) "
+                                "VALUES (:sito, :nazione, :regione, :provincia, "
+                                ":comune, :definizione, :descrizione)"
                             ),
-                            {"sito": sito, "definizione": "Extended Matrix",
-                             "descrizione": _emn.site_description(graph)},
+                            {"sito": sito, "definizione": definizione_sito,
+                             "descrizione": _emn.site_description(graph),
+                             "nazione": toponimi.get("nazione", ""),
+                             "regione": toponimi.get("regione", ""),
+                             "provincia": toponimi.get("provincia", ""),
+                             "comune": toponimi.get("comune", "")},
                         )
                     sito_created = True
-                for nid, (node, unita_tipo) in rows.items():
-                    pronto = _prepara(nid, node, unita_tipo)
-                    if pronto is None:
-                        continue
-                    node_uuid, attrs = pronto
-                    # area is part of the natural key used by
-                    # _resolve_target_row to detect an existing cross-site copy.
-                    area = attrs.get("area") or "1"
-                    # Resolve the target row: same-site UPDATE, cross-site
-                    # COPY (INSERT, fresh uuid) or idempotent copy re-import.
-                    db_row, _eff_uuid = _resolve_target_row(
-                        conn, node_uuid, sito, area,
-                        attrs.get("us"), attrs.get("unita_tipo"))
-                    if db_row is None:
-                        inserted += 1
-                        continue
-                    row_changed = False
-                    for col in MAPPED_COLUMNS:
-                        if col not in attrs:
-                            continue
-                        if col == "node_uuid":
-                            # Identity column — never counts as a change
-                            # (a natural-key copy match has a different uuid
-                            # by design and must not be rewritten).
-                            continue
-                        db_val = db_row.get(col)
-                        graph_val = attrs.get(col)
-                        if _values_equal(col, db_val, graph_val):
-                            continue
-                        row_changed = True
-                        self._resolver.resolve(
-                            db_row=db_row, graph_value=graph_val, field=col)
-                        conflicts.append(ConflictRecord(
-                            node_uuid=node_uuid, field=col,
-                            db_value=db_val, graph_value=graph_val,
-                            resolution=ConflictResolution.GRAPH_WINS.value,
-                        ))
-                    if row_changed:
-                        updated += 1
-                    else:
-                        skipped += 1
-
+                elif not dry_run:
+                    _completa_scheda_sito(conn, sito, definizione_sito, toponimi)
+                if not dry_run:
+                    _aggiungi_al_thesaurus(
+                        conn, "site_table",
+                        _emn.site_thesaurus_entries(definizione_sito, toponimi),
+                        _emn.thesaurus_lingua())
                 # ---- EpochNode loop ----
                 # Read existing (periodo, fase) pairs FOR THIS SITO. The
                 # UNIQUE constraint on periodizzazione_table is
@@ -656,6 +717,7 @@ class GraphIngestor:
                     text(
                         "SELECT periodo, fase, datazione_estesa, descrizione"
                         + (", node_uuid" if con_uuid else ", NULL")
+                        + (", cont_per" if "cont_per" in colonne_per else ", NULL")
                         + " FROM periodizzazione_table WHERE sito = :sito"
                     ),
                     {"sito": sito},
@@ -664,6 +726,26 @@ class GraphIngestor:
                     {"periodo": r[0], "fase": r[1], "datazione_estesa": r[2],
                      "descrizione": r[3], "node_uuid": r[4]} for r in righe_per])
                 unit_epochs = _emn.unit_epochs(graph, epoch_map)
+                # Tutti i periodi del sito dopo l'import (quelli che ci sono,
+                # quelli di EMStudio e quelli di pyArchInit da creare): la
+                # datazione che le US copiano e il codice periodo, da 1 a n
+                # in ordine di periodo e fase (Enzo, 17 ottobre 2026).
+                periodi_sito = [{"periodo": r[0], "fase": r[1], "datazione_estesa": r[2],
+                                 "cont_per": r[5]} for r in righe_per]
+                periodi_sito += [{"periodo": ep["periodo"], "fase": ep["fase"],
+                                  "datazione_estesa": ep["nome"]} for ep in native_epochs]
+                for node in graph.nodes:
+                    epoca = _pyarchinit_epoch(node)
+                    if epoca is not None:
+                        periodi_sito.append({"periodo": epoca["periodo"], "fase": epoca["fase"],
+                                             "datazione_estesa": epoca["datazione"]})
+                codici_periodo = _emn.plan_period_codes(periodi_sito)
+                datazione_di = {}
+                for r in periodi_sito:
+                    chiave = (str(r["periodo"]), str(r["fase"] if r["fase"] is not None else ""))
+                    if r.get("datazione_estesa") and chiave not in datazione_di:
+                        datazione_di[chiave] = str(r["datazione_estesa"])
+                colonne_us = {c["name"] for c in sa_inspect(conn).get_columns("us_table")}
                 missing_epochs: list[tuple] = []
                 if native_epochs:
                     if create_missing_epochs:
@@ -698,6 +780,121 @@ class GraphIngestor:
                     # no-op once the transaction is already rolled back).
                     raise MissingEpochError(missing=missing_epochs)
 
+                def _completa(nid, node, attrs):
+                    """Quello che l'import scrive di una scheda oltre ai suoi
+                    attributi — area, rapporti, periodi, datazione e codice
+                    periodo — calcolato allo stesso modo per l'anteprima e
+                    per la scrittura. Ritorna ``(riga esistente, uuid)``."""
+                    # area is part of the UNIQUE constraint
+                    # (sito, area, us, unita_tipo) — default to "1"
+                    # if the graph doesn't carry it.
+                    if "area" not in attrs or attrs["area"] is None:
+                        attrs["area"] = "1"
+                    # rapporti from edges (#4): walk graph edges grouped
+                    # by source node_id and serialise as the pyarchinit
+                    # list-of-lists format. Edges-derived takes priority
+                    # over a graphml-hydrated rapporti string because
+                    # the latter may carry the SOURCE sito (e.g.
+                    # "TestSite") which we want overridden to the
+                    # target sito.
+                    if nid in rapporti_by_source:
+                        attrs["rapporti"] = str(rapporti_by_source[nid])
+                    elif "rapporti" in attrs and attrs["rapporti"]:
+                        # Hydrated string — rewrite the sito in each
+                        # rapporto to the target sito.
+                        attrs["rapporti"] = _rewrite_rapporti_sito(
+                            attrs["rapporti"], sito)
+                    # periodizzazione from has_first_epoch edges (#5),
+                    # anche dalle epoche di EMStudio; il periodo finale
+                    # (survive_in_epoch) solo per i nodi di EMStudio:
+                    # quelli nati da una scheda lo portano già.
+                    epoche_unita = unit_epochs.get(nid, {})
+                    for campo in ("periodo_iniziale", "fase_iniziale"):
+                        valore = epoche_unita.get(campo)
+                        if valore is not None and not attrs.get(campo):
+                            attrs[campo] = str(valore)
+                    if not _emn.is_row_born(node):
+                        for campo in ("periodo_finale", "fase_finale"):
+                            valore = epoche_unita.get(campo)
+                            if valore is not None and not attrs.get(campo):
+                                attrs[campo] = str(valore)
+                    # Resolve the target row. Same-site → UPDATE in
+                    # place; cross-site → COPY (INSERT with eff_uuid =
+                    # fresh uuid7) so the source site is never moved /
+                    # azzerato; idempotent copy re-import → UPDATE the
+                    # existing copy (eff_uuid = that row's own uuid).
+                    existing, eff_uuid = _resolve_target_row(
+                        conn, attrs.get("node_uuid") or getattr(node, "node_id", None),
+                        sito, attrs.get("area") or "1",
+                        attrs.get("us"), attrs.get("unita_tipo"))
+                    # Una scheda senza rapporti ha la lista vuota, non
+                    # NULL: la verifica della scheda US legge il campo
+                    # con literal_eval e su NULL dava «malformed node or
+                    # string: None» (135 schede di TempluMare). Un
+                    # campo già pieno nel database non si tocca.
+                    if not attrs.get("rapporti") and (
+                            existing is None or not existing.get("rapporti")):
+                        attrs["rapporti"] = "[]"
+                    # La datazione è quella del periodo iniziale, come la
+                    # scheda US la legge dalla periodizzazione; il codice
+                    # periodo come «Crea codice periodo». Solo se mancano.
+                    if ("datazione" in colonne_us and not attrs.get("datazione")
+                            and (existing is None or not existing.get("datazione"))):
+                        datazione = datazione_di.get((
+                            str(attrs.get("periodo_iniziale")),
+                            str(attrs.get("fase_iniziale") or "")))
+                        if datazione and attrs.get("periodo_iniziale"):
+                            attrs["datazione"] = datazione
+                    if ("cont_per" in colonne_us and not attrs.get("cont_per")
+                            and (existing is None or not existing.get("cont_per"))):
+                        codice = _emn.us_period_code(
+                            codici_periodo, attrs.get("periodo_iniziale"),
+                            attrs.get("fase_iniziale"), attrs.get("periodo_finale"),
+                            attrs.get("fase_finale"))
+                        if codice:
+                            attrs["cont_per"] = codice
+                    return existing, eff_uuid
+
+                # Rilevazione: nuove, aggiornate, invariate — sui valori che
+                # l'import scriverà davvero (rapporti con i reciproci,
+                # periodi, datazione, codice periodo), non sui soli attributi
+                # del nodo: riimportando TempluMare l'anteprima diceva «850
+                # invariate» e ne cambiava 850 (17 ottobre 2026).
+                for nid, (node, unita_tipo) in rows.items():
+                    pronto = _prepara(nid, node, unita_tipo)
+                    if pronto is None:
+                        continue
+                    node_uuid, attrs = pronto
+                    db_row, _eff_uuid = _completa(nid, node, attrs)
+                    if db_row is None:
+                        inserted += 1
+                        continue
+                    row_changed = False
+                    for col in _WRITE_COLUMNS:
+                        if col not in attrs or col == "node_uuid":
+                            # Identity column — never counts as a change
+                            # (a natural-key copy match has a different uuid
+                            # by design and must not be rewritten).
+                            continue
+                        db_val = db_row.get(col)
+                        graph_val = attrs.get(col)
+                        if _values_equal(col, db_val, graph_val):
+                            continue
+                        row_changed = True
+                        if col not in MAPPED_COLUMNS:
+                            continue
+                        self._resolver.resolve(
+                            db_row=db_row, graph_value=graph_val, field=col)
+                        conflicts.append(ConflictRecord(
+                            node_uuid=node_uuid, field=col,
+                            db_value=db_val, graph_value=graph_val,
+                            resolution=ConflictResolution.GRAPH_WINS.value,
+                        ))
+                    if row_changed:
+                        updated += 1
+                    else:
+                        skipped += 1
+
                 # ---- Write block (Group D): INSERT new rows + UPDATE existing ----
                 # In dry-run mode, this loop is skipped entirely and the
                 # transaction is rolled back below. In write mode, we re-walk
@@ -709,48 +906,7 @@ class GraphIngestor:
                         if pronto is None:
                             continue
                         node_uuid, attrs = pronto
-                        # area is part of the UNIQUE constraint
-                        # (sito, area, us, unita_tipo) — default to "1"
-                        # if the graph doesn't carry it.
-                        if "area" not in attrs or attrs["area"] is None:
-                            attrs["area"] = "1"
-                        # rapporti from edges (#4): walk graph edges grouped
-                        # by source node_id and serialise as the pyarchinit
-                        # list-of-lists format. Edges-derived takes priority
-                        # over a graphml-hydrated rapporti string because
-                        # the latter may carry the SOURCE sito (e.g.
-                        # "TestSite") which we want overridden to the
-                        # target sito.
-                        if nid in rapporti_by_source:
-                            attrs["rapporti"] = str(
-                                rapporti_by_source[nid])
-                        elif "rapporti" in attrs and attrs["rapporti"]:
-                            # Hydrated string — rewrite the sito in each
-                            # rapporto to the target sito.
-                            attrs["rapporti"] = _rewrite_rapporti_sito(
-                                attrs["rapporti"], sito)
-                        # periodizzazione from has_first_epoch edges (#5),
-                        # anche dalle epoche di EMStudio; il periodo finale
-                        # (survive_in_epoch) solo per i nodi di EMStudio:
-                        # quelli nati da una scheda lo portano già.
-                        epoche_unita = unit_epochs.get(nid, {})
-                        for campo in ("periodo_iniziale", "fase_iniziale"):
-                            valore = epoche_unita.get(campo)
-                            if valore is not None and not attrs.get(campo):
-                                attrs[campo] = str(valore)
-                        if not _emn.is_row_born(node):
-                            for campo in ("periodo_finale", "fase_finale"):
-                                valore = epoche_unita.get(campo)
-                                if valore is not None and not attrs.get(campo):
-                                    attrs[campo] = str(valore)
-                        # Resolve the target row. Same-site → UPDATE in
-                        # place; cross-site → COPY (INSERT with eff_uuid =
-                        # fresh uuid7) so the source site is never moved /
-                        # azzerato; idempotent copy re-import → UPDATE the
-                        # existing copy (eff_uuid = that row's own uuid).
-                        existing, eff_uuid = _resolve_target_row(
-                            conn, node_uuid, sito, attrs.get("area") or "1",
-                            attrs.get("us"), attrs.get("unita_tipo"))
+                        existing, eff_uuid = _completa(nid, node, attrs)
                         col_payload = {col: attrs.get(col)
                                        for col in _WRITE_COLUMNS
                                        if col in attrs}
@@ -806,63 +962,36 @@ class GraphIngestor:
                     # numeric (year), datazione is the human label.
                     if create_missing_epochs:
                         for node in graph.nodes:
-                            if not _is_epoch_node_local(node):
+                            epoca = _pyarchinit_epoch(node)
+                            if epoca is None:
                                 continue
-                            eattrs = getattr(node, "attributes", None) or {}
-                            periodo = eattrs.get("periodo")
-                            fase = eattrs.get("fase")
-                            # Fall back to parsing from node_id when attrs
-                            # are stripped by the importer.
-                            if periodo is None:
-                                tid = getattr(node, "node_id", "") or ""
-                                m = _re.match(
-                                    r"^epoch_([^_]+)_(.+?)(_synthetic)?$",
-                                    str(tid))
-                                if m:
-                                    periodo, fase = m.group(1), m.group(2)
-                            if periodo is None:
-                                continue
+                            periodo, fase = epoca["periodo"], epoca["fase"]
                             ekey = (str(periodo),
                                     str(fase) if fase is not None else "")
                             if ekey in existing_epochs:
                                 continue
-                            descrizione = getattr(node, "name", "") or ""
-                            cron_ini = getattr(node, "start_time", None)
-                            cron_fin = getattr(node, "end_time", None)
-                            # cron columns are INTEGER in pyarchinit
-                            cron_ini_i = (int(cron_ini)
-                                          if cron_ini not in (None, 0, 0.0)
-                                          else None)
-                            cron_fin_i = (int(cron_fin)
-                                          if cron_fin not in (None, 0, 0.0)
-                                          else None)
-                            # datazione_estesa: free-text human label,
-                            # often the epoch name for external graphs.
-                            datazione = (eattrs.get("datazione")
-                                         or eattrs.get("datazione_estesa")
-                                         or descrizione)
                             # The UNIQUE constraint on periodizzazione_table
                             # is (sito, periodo, fase), so populate sito.
                             try:
                                 periodo_i = int(periodo)
                             except (TypeError, ValueError):
                                 periodo_i = None
+                            colonne = ["sito", "periodo", "fase", "descrizione",
+                                       "cron_iniziale", "cron_finale", "datazione_estesa"]
+                            valori = {
+                                "sito": sito, "periodo": periodo_i, "fase": fase,
+                                "descrizione": epoca["descrizione"],
+                                "cron_iniziale": epoca["cron_ini"],
+                                "cron_finale": epoca["cron_fin"],
+                                "datazione_estesa": epoca["datazione"],
+                            }
+                            if "cont_per" in colonne_per and ekey in codici_periodo:
+                                colonne.append("cont_per")
+                                valori["cont_per"] = codici_periodo[ekey]
                             conn.execute(
-                                text(
-                                    "INSERT INTO periodizzazione_table "
-                                    "(sito, periodo, fase, descrizione, "
-                                    " cron_iniziale, cron_finale, "
-                                    " datazione_estesa) "
-                                    "VALUES (:sito, :periodo, :fase, :descrizione, "
-                                    " :cron_ini, :cron_fin, :datazione)"
-                                ),
-                                {
-                                    "sito": sito, "periodo": periodo_i, "fase": fase,
-                                    "descrizione": descrizione,
-                                    "cron_ini": cron_ini_i, "cron_fin": cron_fin_i,
-                                    "datazione": datazione,
-                                },
-                            )
+                                text("INSERT INTO periodizzazione_table (%s) VALUES (%s)"
+                                     % (", ".join(colonne), ", ".join(":" + c for c in colonne))),
+                                valori)
 
                     # Le epoche di EMStudio: periodo e fase pianificati in
                     # plan_epochs, date e nome dal nodo, l'id nel node_uuid
@@ -884,10 +1013,27 @@ class GraphIngestor:
                             if con_uuid:
                                 colonne.append("node_uuid")
                                 valori["node_uuid"] = ep["node_id"]
+                            chiave_ep = (str(ep["periodo"]), str(ep["fase"]))
+                            if "cont_per" in colonne_per and chiave_ep in codici_periodo:
+                                colonne.append("cont_per")
+                                valori["cont_per"] = codici_periodo[chiave_ep]
                             conn.execute(
                                 text("INSERT INTO periodizzazione_table (%s) VALUES (%s)"
                                      % (", ".join(colonne), ", ".join(":" + c for c in colonne))),
                                 valori)
+
+                    # I periodi che c'erano già senza codice ricevono il loro
+                    # (un import di prima, o creati a mano senza codice).
+                    if "cont_per" in colonne_per:
+                        for r in righe_per:
+                            chiave_r = (str(r[0]), str(r[1] if r[1] is not None else ""))
+                            if r[5] in (None, "") and chiave_r in codici_periodo:
+                                conn.execute(
+                                    text("UPDATE periodizzazione_table SET cont_per = :c "
+                                         "WHERE sito = :sito AND periodo = :p AND fase = :f "
+                                         "AND (cont_per IS NULL)"),
+                                    {"c": codici_periodo[chiave_r], "sito": sito,
+                                     "p": r[0], "f": r[1]})
 
                 # AI06 D.2: optional SQL UPDATE from group folders in the
                 # source GraphML. Runs INSIDE the same atomic transaction
@@ -1218,10 +1364,17 @@ def _values_equal(col: str, a, b) -> bool:
     if a is None or b is None:
         return False
     if col == "rapporti":
+        # Gli stessi rapporti in un altro ordine, o «copre» per «Copre», sono
+        # gli stessi rapporti: una scheda così non è cambiata.
         try:
             import ast
-            return ast.literal_eval(str(a)) == ast.literal_eval(str(b))
-        except (ValueError, SyntaxError):
+
+            def forma(v):
+                return sorted(
+                    tuple([str(r[0]).strip().lower()] + [str(x).strip() for x in r[1:]])
+                    for r in ast.literal_eval(str(v)) or [])
+            return forma(a) == forma(b)
+        except (ValueError, SyntaxError, TypeError, IndexError):
             return str(a) == str(b)
     return str(a) == str(b)
 

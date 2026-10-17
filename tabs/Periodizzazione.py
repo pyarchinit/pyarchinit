@@ -39,6 +39,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 # MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
+from ..modules.utility.combo_value import add_items_keeping_text
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
@@ -494,9 +495,6 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def read_epoche(self):
         try:
-            # Memorizza il valore corrente del comboBox
-            current_value = self.comboBox_per_estesa.currentText()
-
             # Leggi il file CSV con il formato corretto
             df = pd.read_csv(self.CSV,
                              quotechar='"',  # Usa le virgolette doppie per le stringhe
@@ -632,15 +630,16 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     anni_fine.append(0)
 
             # Formatta le epoche per il comboBox
-            # USA L'ANNO ORIGINALE NEL DISPLAY, NON I VALORI ESTRATTI
-            formatted_epoche = []
-            for epoca, evento, anno_display, anno_inizio, anno_fine in zip(epoche, evento, anni, anni_inizio, anni_fine):
-                # Mantieni il formato originale dell'anno nel display
-                f = f'{epoca} - {evento} ({anno_display})'
-                formatted_epoche.append(f)
-                if self.comboBox_per_estesa.findText(f) == -1:
-                    # Salva i valori numerici come dati associati per uso interno
-                    self.comboBox_per_estesa.addItem(f, (anno_inizio, anno_fine))
+            # USA L'ANNO ORIGINALE NEL DISPLAY, NON I VALORI ESTRATTI;
+            # i valori numerici restano come dati associati per uso interno.
+            # La datazione del record mostrato resta quella che è, anche se
+            # non è un'epoca del CSV («II A.D.» di un em.json): la prima voce
+            # aggiunta a una tendina vuota la sostituiva, e salvando si
+            # scriveva «Età Contemporanea - XXI secolo» (17 ottobre 2026).
+            add_items_keeping_text(self.comboBox_per_estesa, [
+                (f'{epoca} - {ev} ({anno_display})', (anno_inizio, anno_fine))
+                for epoca, ev, anno_display, anno_inizio, anno_fine
+                in zip(epoche, evento, anni, anni_inizio, anni_fine)])
 
             # Connetti il segnale di cambiamento
             try:
@@ -648,10 +647,6 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             except TypeError:
                 pass  # Ignora se non era connesso
             self.comboBox_per_estesa.currentIndexChanged.connect(self.update_anni)
-
-            # Ripristina il valore precedente se possibile
-            if current_value in formatted_epoche:
-                self.comboBox_per_estesa.setCurrentText(current_value)
 
         except Exception as e:
             print(f"Errore nella lettura del file CSV: {str(e)}")

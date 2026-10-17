@@ -101,3 +101,51 @@ def test_the_sheet_shows_those_values_by_choosing_them():
     for name in _COMBOS:
         assert not re.search(r'self\.%s\.setEditText' % name, _US_USM), name
         assert 'show_value(self.%s,' % name in _US_USM, name
+
+
+# ---------------------------------------------------------------------------
+# Riempire la lista senza cambiare quello che la tendina mostra (17 ottobre
+# 2026, video di Enzo): la scheda Periodizzazione apriva il suo primo record
+# con «Età Contemporanea - XXI secolo (2001-2023)», la prima epoca del CSV,
+# al posto della datazione del record («II A.D.»), e salvando la scriveva.
+# ---------------------------------------------------------------------------
+
+from modules.utility.combo_value import add_items_keeping_text  # noqa: E402
+
+_EPOCHE = [("Età Contemporanea - XXI secolo (2001-2023)", (2001, 2023)),
+           ("Età Contemporanea - XX secolo (1901-2000)", (1901, 2000))]
+
+
+def test_adding_items_keeps_what_the_box_shows(qgs):
+    from qgis.PyQt.QtWidgets import QComboBox
+    combo = QComboBox()
+    combo.setEditable(True)
+    combo.setEditText("II A.D.")                     # la datazione del record
+    add_items_keeping_text(combo, _EPOCHE)
+    assert combo.currentText() == "II A.D."
+    assert combo.count() == 2 and combo.itemData(0) == (2001, 2023)
+
+
+def test_adding_items_does_not_wake_the_handlers(qgs):
+    from qgis.PyQt.QtWidgets import QComboBox
+    combo = QComboBox()
+    combo.setEditable(True)
+    chiamate = []
+    combo.currentIndexChanged.connect(chiamate.append)
+    add_items_keeping_text(combo, _EPOCHE)
+    assert chiamate == []                            # le date del record non cambiano
+
+
+def test_items_already_there_are_not_repeated(qgs):
+    from qgis.PyQt.QtWidgets import QComboBox
+    combo = QComboBox()
+    add_items_keeping_text(combo, ["a", "b"])
+    add_items_keeping_text(combo, ["b", "c"])
+    assert [combo.itemText(i) for i in range(combo.count())] == ["a", "b", "c"]
+
+
+def test_the_periodizzazione_sheet_keeps_the_dating_of_the_record():
+    src = (_ROOT / "tabs" / "Periodizzazione.py").read_text(encoding="utf-8")
+    corpo = src[src.index("    def read_epoche(self):"):src.index("    def update_anni(self, index):")]
+    assert "add_items_keeping_text(self.comboBox_per_estesa" in corpo
+    assert "self.comboBox_per_estesa.addItem(" not in corpo

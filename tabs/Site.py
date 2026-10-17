@@ -53,6 +53,7 @@ import sys,  json
 
 from ..modules.utility.debug_config import DEBUG
 from ..modules.utility.record_compare import records_equal
+from ..modules.utility.site_toponyms import TOPONYM_CODES, toponym_choices
 NAM = NetworkAccessManager()
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Site.ui'))
 
@@ -716,38 +717,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
-        if self.L=='it':
-            regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
-                            'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
-                            'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
-            self.comboBox_regione.clear()
-            self.comboBox_regione.addItems(regioni_list)
-
-            province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
-                             'Bari', 'Barletta-Andria-Trani',  'Belluno', 'Benevento', 'Bergamo', 'Biella',
-                             'Bologna', 'Bolzano', 'Brescia', 'Brindisi', 'Cagliari',  'Caltanissetta',
-                             'Campobasso', 'Carbonia-Iglesias', 'Caserta', 'Catania', 'Catanzaro', 'Chieti',
-                             'Como', 'Cosenza', 'Cremona', 'Crotone', 'Cuneo',  'Enna', 'Fermo', 'Ferrara',
-                             'Firenze', 'Foggia', "Forlì-Cesena", 'Frosinone', 'Genova', 'Gorizia', 'Grosseto', 'Imperia',
-                             'Isernia', "L'Aquila", 'La Spezia', 'Latina', 'Lecce', 'Lecco', 'Livorno', 'Lodi', 'Lucca',
-                             'Macerata', 'Mantova', 'Massa e Carrara', 'Matera', 'Medio Campidano', 'Messina', 'Milano',
-                             'Modena', 'Monza e Brianza', 'Napoli', 'Novara', 'Nuoro', 'Ogliastra', 'Olbia-Tempio',
-                             'Oristano', 'Padova', 'Palermo', 'Parma', 'Pavia', 'Perugia', 'Pesaro e Urbino', 'Pescara',
-                             'Piacenza', 'Pisa', 'Pistoia', 'Pordenone', 'Potenza', 'Prato', 'Ragusa', 'Ravenna',
-                             'Reggio Calabria', 'Reggio Emilia', 'Rieti', 'Rimini', 'Roma', 'Rovigo', 'Salerno', 'Sassari',
-                             'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
-                             'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
-                             'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-            self.comboBox_provincia.clear()
-            self.comboBox_provincia.addItems(province_list)
-        else:
-            regioni_list = []
-            self.comboBox_regione.clear()
-            self.comboBox_regione.addItems(regioni_list)
-
-            province_list = []
-            self.comboBox_provincia.clear()
-            self.comboBox_provincia.addItems(province_list)
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang=""
         for key, values in self.LANG.items():
@@ -761,6 +730,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             'nome_tabella': "'" + 'site_table' + "'",
             'tipologia_sigla': "'" + '1.1' + "'"
         }
+        definizione_scritta = self.comboBox_definizione_sito.currentText()
         self.comboBox_definizione_sito.clear()
         d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
 
@@ -771,6 +741,29 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
         d_sito_vl.sort()
         self.comboBox_definizione_sito.addItems(d_sito_vl)
+        self.comboBox_definizione_sito.setEditText(definizione_scritta)
+
+        # Nazione, regione, provincia e comune dal thesaurus (site_table,
+        # codici 1.2–1.5: Enzo, 17 ottobre 2026); senza voci, per l'italiano,
+        # le regioni e le province di prima. Il testo scritto nella tendina
+        # resta: riempire una tendina vuota la porterebbe sulla prima voce.
+        voci_toponimi = {}
+        for campo, codice in TOPONYM_CODES:
+            righe = self.DB_MANAGER.query_bool({
+                'lingua': lang,
+                'nome_tabella': "'site_table'",
+                'tipologia_sigla': "'%s'" % codice
+            }, 'PYARCHINIT_THESAURUS_SIGLE')
+            voci_toponimi[campo] = [r.sigla_estesa for r in righe if r.sigla_estesa]
+        scelte = toponym_choices(voci_toponimi, self.L)
+        for campo, tendina in (("nazione", self.comboBox_nazione),
+                               ("regione", self.comboBox_regione),
+                               ("provincia", self.comboBox_provincia),
+                               ("comune", self.comboBox_comune)):
+            testo = tendina.currentText()
+            tendina.clear()
+            tendina.addItems(scelte[campo])
+            tendina.setEditText(testo)
 
         # buttons functions
 

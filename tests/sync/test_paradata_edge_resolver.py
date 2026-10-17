@@ -194,3 +194,41 @@ def test_the_refinement_asks_the_library_with_the_graph():
     corpo = inspect.getsource(mod.refine_generic_connections)
     assert "resolve_edge_type_for_nodes" in corpo, \
         "la raffinazione deve passare dal risolutore col grafo"
+
+
+# ---------------------------------------------------------------------------
+# Il verso scritto nei dati vince, e l'ordine degli archi non conta
+# (17 ottobre 2026). TempluMare: «max level (101)» —has_data_provenance→
+# l'estrattore 108.max_level.01, che —extracted_from→ «max level (108)». Con
+# i rapporti scritti su tutte e due le schede, gli archi arrivavano in un
+# altro ordine e l'esportazione li girava entrambi: la lettura dell'estrattore
+# si decide guardando quali proprietà alimenta già, e se l'arco «legge»
+# veniva tipizzato prima della provenienza la risposta era sbagliata.
+# ---------------------------------------------------------------------------
+
+def _catena_max_level(prima_la_lettura: bool):
+    from s3dgraphy import Graph
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    from s3dgraphy.nodes.property_node import PropertyNode
+
+    g = Graph(graph_id="max_level")
+    for n in (ExtractorNode(node_id="E01", name="108.max_level.01"),
+              PropertyNode(node_id="P101", name="max level", value="2.1"),
+              PropertyNode(node_id="P108", name="max level", value="3.4")):
+        g.add_node(n)
+    archi = [("lettura", "E01", "P108"), ("provenienza", "P101", "E01")]
+    if not prima_la_lettura:
+        archi.reverse()
+    for eid, s, t in archi:
+        g.add_edge(eid, s, t, "generic_connection")
+    return g
+
+
+def test_the_direction_written_in_the_data_wins_whatever_the_order():
+    from modules.s3dgraphy.sync.paradata_edge_resolver import refine_generic_connections
+    for prima_la_lettura in (True, False):
+        g = _catena_max_level(prima_la_lettura)
+        assert refine_generic_connections(g) == 2
+        terne = {(e.edge_source, e.edge_type, e.edge_target) for e in g.edges}
+        assert terne == {("P101", "has_data_provenance", "E01"),
+                         ("E01", "extracted_from", "P108")}, (prima_la_lettura, terne)

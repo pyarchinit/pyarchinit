@@ -167,12 +167,24 @@ def resolve_edge_type_for_nodes(src, tgt, graph):
         indietro = set(candidate_edge_types(tgt, src, graph=graph) or ())
     except Exception:                               # noqa: BLE001
         return resolve_edge_type(_class_names(src), _class_names(tgt))
+    # Il verso scritto nei dati vince: si gira l'arco solo quando in avanti
+    # non va bene nessun tipo. Scorrendo i tipi una volta sola, un tipo «al
+    # contrario» che nell'ordine viene prima girava un arco valido così com'era
+    # (17 ottobre 2026, «max level» di TempluMare).
     for et in _CANDIDATE_ORDER:
         if et in avanti:
             return et, False
+    for et in _CANDIDATE_ORDER:
         if et in indietro:
             return et, True
     return None
+
+
+def _da_leggere_per_ultimo(src, tgt) -> bool:
+    """Un estrattore verso una proprietà: la sola coppia che la libreria
+    decide guardando il grafo (quali proprietà l'estrattore alimenta già)."""
+    return (getattr(src, "node_type", None) == "extractor"
+            and getattr(tgt, "node_type", None) == "property")
 
 
 def refine_generic_connections(graph) -> int:
@@ -186,9 +198,16 @@ def refine_generic_connections(graph) -> int:
     by_id = {getattr(n, "node_id", None): n
              for n in getattr(graph, "nodes", [])}
     retyped = 0
-    for edge in getattr(graph, "edges", []):
-        if getattr(edge, "edge_type", None) != "generic_connection":
-            continue
+    # Le linee estrattore → proprietà si nominano per ultime: la libreria le
+    # dice letture se l'estrattore alimenta già un'altra proprietà, quindi
+    # la provenienza deve essere già al suo posto. Prima dipendeva
+    # dall'ordine degli archi (17 ottobre 2026).
+    generici = [e for e in getattr(graph, "edges", [])
+                if getattr(e, "edge_type", None) == "generic_connection"]
+    generici.sort(key=lambda e: _da_leggere_per_ultimo(
+        by_id.get(getattr(e, "edge_source", None)),
+        by_id.get(getattr(e, "edge_target", None))))
+    for edge in generici:
         src = by_id.get(getattr(edge, "edge_source", None))
         tgt = by_id.get(getattr(edge, "edge_target", None))
         if src is None or tgt is None:

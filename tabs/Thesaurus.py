@@ -961,7 +961,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         # Define code descriptions for each table - multilingual support
         code_descriptions = {
             'site_table': {
-                '1.1': {'it': 'Definizione sito', 'en': 'Site definition', 'de': 'Fundortdefinition', 'es': 'Definición del sitio', 'fr': 'Définition du site', 'ar': 'تعريف الموقع'}
+                '1.1': {'it': 'Definizione sito', 'en': 'Site definition', 'de': 'Fundortdefinition', 'es': 'Definición del sitio', 'fr': 'Définition du site', 'ar': 'تعريف الموقع'},
+                # i toponimi della scheda sito (17 ottobre 2026)
+                '1.2': {'it': 'Nazione', 'en': 'Nation', 'de': 'Staat', 'es': 'Nación', 'fr': 'Nation', 'ar': 'الدولة'},
+                '1.3': {'it': 'Regione', 'en': 'Region', 'de': 'Region', 'es': 'Región', 'fr': 'Région', 'ar': 'الإقليم'},
+                '1.4': {'it': 'Provincia', 'en': 'Province', 'de': 'Provinz', 'es': 'Provincia', 'fr': 'Province', 'ar': 'المحافظة'},
+                '1.5': {'it': 'Comune', 'en': 'Municipality', 'de': 'Gemeinde', 'es': 'Municipio', 'fr': 'Commune', 'ar': 'البلدية'}
             },
             'us_table': {
                 '2.1': {'it': 'Settore', 'en': 'Sector', 'de': 'Sektor', 'es': 'Sector', 'fr': 'Secteur', 'ar': 'القطاع'},

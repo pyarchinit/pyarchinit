@@ -27,6 +27,9 @@ RADICE = Path(__file__).resolve().parents[1]
 DB = RADICE / "resources" / "dbfiles" / "pyarchinit_db.sqlite"
 LINGUA = "IT"
 
+sys.path.insert(0, str(RADICE))
+from modules.utility.site_toponyms import NAZIONI_IT, PROVINCE_IT, REGIONI_IT  # noqa: E402
+
 #: Le aree dello scavo. Una lista sola, usata da tutte le schede che hanno
 #: un campo «area»: `tabs/Thesaurus.py` le tiene sincronizzate
 #: (`SYNCHRONIZED_FIELDS['area']`), e scriverne due versioni diverse
@@ -40,6 +43,13 @@ AREE = ["1", "2", "3", "4", "5"]
 #: descrizione: serve a chi aprirà il thesaurus fra un anno e si chiederà
 #: cosa sia «8.4».
 VOCABOLARI = {
+    # I toponimi della scheda sito passano dal thesaurus (Enzo, 17 ottobre
+    # 2026): prima regione e provincia erano elenchi scritti nella scheda.
+    # Le sigle sono quelle delle targhe e tre lettere per le regioni:
+    # uniche per codice, come vuole il vincolo del thesaurus su PostgreSQL.
+    ("site_table", "1.2"): ("Nazione", NAZIONI_IT),
+    ("site_table", "1.3"): ("Regione", REGIONI_IT),
+    ("site_table", "1.4"): ("Provincia", PROVINCE_IT),
     ("campioni_table", "4.1"): ("Tipo di campione", [
         "Carbone", "Terreno", "Malta", "Osso animale", "Osso umano",
         "Intonaco", "Semi carbonizzati", "Ceramica", "Metallo",

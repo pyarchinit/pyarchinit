@@ -15,6 +15,10 @@ LANGUAGES = ['IT', 'EN', 'DE', 'ES', 'FR', 'AR', 'CA']
 FIELD_NAMES = {
     # site_table (1.x)
     '1.1': 'Definizione sito',
+    '1.2': 'Nazione',
+    '1.3': 'Regione',
+    '1.4': 'Provincia',
+    '1.5': 'Comune',
 
     # us_table (2.x)
     '2.1': 'Settore',

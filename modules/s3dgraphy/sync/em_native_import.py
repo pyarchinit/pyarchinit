@@ -406,6 +406,63 @@ def unit_epochs(graph, mappa: Dict[str, Tuple[str, str]]) -> Dict[str, Dict[str,
 
 # ---------------------------------------------------------------- rapporti
 
+def _ordine_periodo(chiave: Tuple[str, str]):
+    """Periodo e fase in ordine di numero (10 dopo 9), poi di testo."""
+    def parte(v):
+        try:
+            return (0, float(v), "")
+        except (TypeError, ValueError):
+            return (1, 0.0, str(v))
+    return (parte(chiave[0]), parte(chiave[1]))
+
+
+def plan_period_codes(periodi: Iterable[Dict[str, Any]]) -> Dict[Tuple[str, str], int]:
+    """``{(periodo, fase): codice periodo}`` per tutti i periodi del sito.
+
+    «Dovrebbe crearmi il codice periodo in automatico, da 1 a n in
+    sequenza: periodo 1 fase 1 → 1, periodo 2 fase 1 → 2» (Enzo, 17
+    ottobre 2026). I codici che ci sono restano; i periodi senza ricevono i
+    numeri dopo il più alto, in ordine di periodo e fase."""
+    noti: Dict[Tuple[str, str], Optional[int]] = {}
+    for r in periodi:
+        chiave = (str(r.get("periodo")), str(r.get("fase") if r.get("fase") is not None else ""))
+        codice = r.get("cont_per")
+        try:
+            codice = int(codice) if codice not in (None, "") else None
+        except (TypeError, ValueError):
+            codice = None
+        if noti.get(chiave) is None:
+            noti[chiave] = codice
+    prossimo = max([c for c in noti.values() if c is not None] or [0]) + 1
+    out: Dict[Tuple[str, str], int] = {}
+    for chiave in sorted(noti, key=_ordine_periodo):
+        if noti[chiave] is None:
+            out[chiave] = prossimo
+            prossimo += 1
+        else:
+            out[chiave] = noti[chiave]
+    return out
+
+
+def us_period_code(codici: Dict[Tuple[str, str], int], periodo_iniziale, fase_iniziale,
+                   periodo_finale, fase_finale) -> Optional[str]:
+    """Il codice periodo di una US, come lo scrive «Crea codice periodo»
+    della scheda US (``update_cont_per``): il codice del periodo iniziale,
+    o tutti quelli fra l'iniziale e il finale separati da «/»."""
+    if periodo_iniziale in (None, ""):
+        return None
+    inizio = codici.get((str(periodo_iniziale), str(fase_iniziale or "")))
+    if inizio is None:
+        return None
+    if periodo_finale in (None, ""):
+        return str(inizio)
+    fine = codici.get((str(periodo_finale), str(fase_finale or "")))
+    if fine is None:
+        return str(inizio)
+    a, b = sorted((int(inizio), int(fine)))
+    return "/".join(str(v) for v in range(a, b + 1))
+
+
 def activity_of(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, str]:
     """L'attività di ogni scheda (``is_in_activity``), per la colonna
     «attivita»: prima finiva nei rapporti come «>> VAct.04 Temple»."""
@@ -422,6 +479,53 @@ def activity_of(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, str]:
     return out
 
 
+#: le coppie di segni abbreviati (prima/dopo, catena dei paradati)
+_INVERSI_ABBREVIATI = {">": "<", "<": ">", ">>": "<<", "<<": ">>"}
+
+#: il ripiego italiano, se la tabella della libreria non si legge
+_INVERSI_IT = {
+    "Copre": "Coperto da", "Coperto da": "Copre", "Taglia": "Tagliato da",
+    "Tagliato da": "Taglia", "Riempie": "Riempito da", "Riempito da": "Riempie",
+    "Si appoggia a": "Gli si appoggia", "Gli si appoggia": "Si appoggia a",
+    "Si lega a": "Si lega a", "Uguale a": "Uguale a",
+}
+
+
+def inverse_rapporto(segno: str) -> Optional[str]:
+    """Il rapporto rovesciato, nella stessa lingua: «Copre» → «Coperto da»,
+    «Si lega a» → «Si lega a», «>» → «<», «>>» → «<<». ``None`` se il
+    segno non è conosciuto.
+
+    La scheda US vuole ogni rapporto su tutte e due le schede, e la sua
+    verifica cerca proprio questo inverso (Enzo, 17 ottobre 2026). Le
+    parole vengono dalla tabella a coppie della libreria (dieci lingue,
+    ``s3dgraphy.rapporti``): Copre/Coperto da, Riempie/Riempito da,
+    Taglia/Tagliato da, Si appoggia a/Gli si appoggia, e le due simmetriche."""
+    segno = str(segno or "").strip()
+    if segno in _INVERSI_ABBREVIATI:
+        return _INVERSI_ABBREVIATI[segno]
+    try:
+        from s3dgraphy.rapporti import _REL_TERMS_BY_LANG
+    except Exception:                               # noqa: BLE001
+        _REL_TERMS_BY_LANG = {}
+    # Le schede scritte a mano a volte hanno «copre» in minuscolo: si
+    # riconosce, e l'inverso torna nella stessa forma.
+    minuscolo = segno == segno.lower() and segno != segno.upper()
+    basso = segno.lower()
+    for termini in _REL_TERMS_BY_LANG.values():
+        bassi = [t.lower() for t in termini]
+        if basso in bassi:
+            i = bassi.index(basso)
+            j = i if i < 2 else (i + 1 if i % 2 == 0 else i - 1)
+            if j >= len(termini):
+                return None
+            return termini[j].lower() if minuscolo else termini[j]
+    for parola, inversa in _INVERSI_IT.items():
+        if parola.lower() == basso:
+            return inversa.lower() if minuscolo else inversa
+    return None
+
+
 def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str],
                    sito: str, area_of: Dict[str, str]) -> Dict[str, List[List[str]]]:
     """I rapporti di ogni scheda, ``[segno, us, area, sito]``.
@@ -430,7 +534,12 @@ def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str
     ancorate ai termini della scheda d'origine). Fra tipi diversi: i fisici
     per esteso, il prima/dopo con ``>``/``<``, la catena dei paradati con
     ``>>``/``<<``. Periodi, attività, gruppi, risorse e processi non sono
-    rapporti."""
+    rapporti.
+
+    Ogni rapporto va anche sulla scheda collegata, rovesciato
+    (:func:`inverse_rapporto`): la scheda US li tiene tutti e due, e la
+    sua verifica segnalava «Rapporto reciproco non trovato» per ognuno
+    (Enzo, 17 ottobre 2026). L'esportazione ne fa sempre un arco solo."""
     from s3dgraphy.rapporti import (CANONICAL_UNIT_TYPES, EDGE_TYPE_DIRECTION_FORWARD,
                                     EDGE_TYPE_TO_RAPPORTI_IT, NON_RAPPORTI_EDGE_TYPES,
                                     canonical_unita_tipo, select_rapporti_label)
@@ -479,6 +588,12 @@ def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str
         cesto = out.setdefault(src, [])
         if voce not in cesto:
             cesto.append(voce)
+        inverso = inverse_rapporto(segno)
+        if inverso:
+            ritorno = [inverso, names[src], str(area_of.get(src) or "1"), sito]
+            cesto = out.setdefault(tgt, [])
+            if ritorno not in cesto:
+                cesto.append(ritorno)
     return out
 
 
@@ -488,6 +603,149 @@ def _testo(valore) -> str:
     if isinstance(valore, dict):
         valore = valore.get("default") or next(iter(valore.values()), "")
     return str(valore or "").strip()
+
+
+#: Il codice del thesaurus della definizione del sito, e quelli dei
+#: toponimi (Enzo, 17 ottobre 2026: la scheda sito li legge dal thesaurus).
+from ...utility.site_toponyms import SITE_DEFINITION_CODE, TOPONYM_CODES  # noqa: E402
+
+#: i nomi dei livelli della catena dei luoghi: quelli dell'esportazione di
+#: pyArchInit e quelli dell'HDT-O (nation → region → province → comune)
+_LIVELLI = {
+    "nazione": ("nazione", "nation", "country", "stato", "state"),
+    "regione": ("regione", "region"),
+    "provincia": ("provincia", "province", "county"),
+    "comune": ("comune", "municipality", "municipio", "city", "town"),
+}
+_LIVELLI_SITO = ("sito", "site")
+
+#: locale → lingua del thesaurus, come ``tabs/Site.py`` (``LANG``)
+_LINGUE_THESAURUS = {
+    "IT": ("it_IT", "IT", "it", "IT_IT"), "EN_US": ("en_US", "EN_US", "en", "EN"),
+    "DE": ("de_DE", "de", "DE", "DE_DE"), "FR": ("fr_FR", "fr", "FR", "FR_FR"),
+    "ES": ("es_ES", "es", "ES", "ES_ES"), "PT": ("pt_PT", "pt", "PT", "PT_PT"),
+    "RO": ("ro_RO", "ro", "RO", "RO_RO"),
+    "AR": ("ar_LB", "ar", "AR", "AR_LB", "ar_AR", "AR_AR"),
+    "CA": ("ca_ES", "ca", "CA", "CA_ES"), "EL": ("el_GR", "el", "EL", "EL_GR"),
+    "PT_BR": ("pt_BR", "PT_BR"),
+}
+
+
+def thesaurus_lingua(locale: Optional[str] = None) -> str:
+    """La lingua delle voci del thesaurus, come la sceglie la scheda sito
+    dal locale di QGIS; ``IT`` se non si riconosce."""
+    if locale is None:
+        try:
+            from qgis.core import QgsSettings
+            locale = str(QgsSettings().value("locale/userLocale", "it") or "it")
+        except Exception:                           # noqa: BLE001
+            locale = "it"
+    for lingua, nomi in _LINGUE_THESAURUS.items():
+        if locale in nomi:
+            return lingua
+    prefisso = str(locale).split("_")[0].lower()
+    for lingua, nomi in _LINGUE_THESAURUS.items():
+        if prefisso in nomi:
+            return lingua
+    return "IT"
+
+
+def unique_sigla(estesa: str, prese: Iterable[str]) -> str:
+    """Una sigla di tre caratteri al più, diversa da quelle ``prese`` (su
+    PostgreSQL il thesaurus può avere ``UNIQUE (lingua, nome_tabella,
+    tipologia_sigla, sigla)``)."""
+    prese = {str(x).strip().upper() for x in prese if x is not None}
+    lettere = "".join(c for c in str(estesa).upper() if c.isalnum()) or "X"
+    candidati = [lettere[:3]]
+    candidati += [lettere[0] + c2 + c3 for c2 in lettere[1:] for c3 in lettere[2:]][:50]
+    candidati += ["%s%d" % (lettere[:2], n) for n in range(1, 10)]
+    candidati += ["%s%02d" % (lettere[:1], n) for n in range(1, 100)]
+    for c in candidati:
+        if c and c not in prese:
+            return c
+    return lettere[:3]
+
+
+def _valore(node, chiave: str):
+    for fonte in (getattr(node, "attributes", None), getattr(node, "data", None)):
+        if isinstance(fonte, dict) and fonte.get(chiave) not in (None, ""):
+            return fonte.get(chiave)
+    return getattr(node, chiave, None)
+
+
+def _luoghi(graph) -> List[Any]:
+    return [n for n in getattr(graph, "nodes", None) or []
+            if type(n).__name__ == "LocationNodeGroup"
+            or getattr(n, "node_type", None) == "LocationNodeGroup"]
+
+
+def _campo_del_livello(livello) -> Optional[str]:
+    livello = str(livello or "").strip().lower()
+    for campo, nomi in _LIVELLI.items():
+        if livello in nomi:
+            return campo
+    return None
+
+
+def site_toponyms(graph) -> Dict[str, str]:
+    """``{nazione, regione, provincia, comune}`` dalla catena dei luoghi del
+    grafo (``LocationNodeGroup`` con il loro ``level``, uniti da
+    ``is_in_location``), come la scrive l'esportazione di pyArchInit dalla
+    scheda sito. Si parte dal luogo del sito e si sale; senza, vale un luogo
+    per livello quando è uno solo."""
+    luoghi = _luoghi(graph)
+    per_id = {str(n.node_id): n for n in luoghi}
+    sopra: Dict[str, List[str]] = {}
+    for e in getattr(graph, "edges", None) or []:
+        if getattr(e, "edge_type", None) == "is_in_location" and str(e.edge_target) in per_id:
+            sopra.setdefault(str(e.edge_source), []).append(str(e.edge_target))
+    out: Dict[str, str] = {}
+    siti = [n for n in luoghi if str(_valore(n, "level") or "").lower() in _LIVELLI_SITO]
+    for sito in siti[:1]:
+        corrente, visti = str(sito.node_id), set()
+        while corrente in sopra and corrente not in visti:
+            visti.add(corrente)
+            corrente = sopra[corrente][0]
+            nodo = per_id[corrente]
+            campo = _campo_del_livello(_valore(nodo, "level"))
+            if campo and campo not in out:
+                out[campo] = _testo(getattr(nodo, "name", None) or _valore(nodo, "name"))
+    if not out:
+        per_campo: Dict[str, List[str]] = {}
+        for n in luoghi:
+            campo = _campo_del_livello(_valore(n, "level"))
+            if campo:
+                per_campo.setdefault(campo, []).append(
+                    _testo(getattr(n, "name", None) or _valore(n, "name")))
+        out = {c: v[0] for c, v in per_campo.items() if len(set(v)) == 1}
+    return {c: v for c, v in out.items() if v}
+
+
+def site_definition(graph) -> str:
+    """La definizione del sito: il bene che lo studio dichiara (HC1, HDT-O),
+    altrimenti il nome del grafo — per TempluMare «Temple» (Enzo, 17 ottobre
+    2026: non «Extended Matrix»)."""
+    try:
+        from s3dgraphy.hdto import read_hdto
+        bene = (read_hdto(graph) or {}).get("about") or {}
+        nome = _testo(bene.get("name"))
+        if nome:
+            return nome
+    except Exception:                               # noqa: BLE001
+        pass
+    return graph_title(graph)
+
+
+def site_thesaurus_entries(definizione: str, toponimi: Dict[str, str]) -> List[Tuple[str, str, str]]:
+    """Le voci del thesaurus della scheda sito che l'import deve garantire:
+    ``(codice, sigla_estesa, che cos'è)``."""
+    out: List[Tuple[str, str, str]] = []
+    if _testo(definizione):
+        out.append((SITE_DEFINITION_CODE, _testo(definizione), "Definizione del sito"))
+    for campo, codice in TOPONYM_CODES:
+        if _testo(toponimi.get(campo)):
+            out.append((codice, _testo(toponimi[campo]), campo.capitalize()))
+    return out
 
 
 def graph_title(graph) -> str:

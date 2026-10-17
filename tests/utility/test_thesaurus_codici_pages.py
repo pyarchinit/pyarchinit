@@ -41,7 +41,8 @@ def test_ogni_pagina_dei_codici_si_apre_nella_sua_lingua():
 @pytest.mark.parametrize("pagina", PAGINE, ids=LINGUE)
 def test_ogni_pagina_elenca_i_codici_che_le_schede_usano(pagina):
     codici = set(_righe(pagina))
-    attesi = ({"2.%d" % n for n in range(1, 44)} | {"11.%d" % n for n in range(1, 17)}
+    attesi = ({"1.%d" % n for n in range(1, 6)}          # i toponimi del sito (17-10-2026)
+              | {"2.%d" % n for n in range(1, 44)} | {"11.%d" % n for n in range(1, 17)}
               | {"12.%d" % n for n in range(1, 8)} | {"3.1", "3.2", "3.3", "3.11", "7.2", "7.7", "7.8",
                                                        "9.2", "10.2", "10.3", "10.4", "10.5", "10.6",
                                                        "10.12", "10.15"})

@@ -170,14 +170,20 @@ def test_populate_list_dry_run_counts_skipped_when_unchanged(mini_volterra):
     graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
     result = GraphIngestor().populate_list(
         graph, mini_volterra, sito=sito, dry_run=True)
-    # Every projected node is already in DB, no value differences →
-    # all skipped.
+    # Every projected node is already in DB. The only differences allowed
+    # are the reciprocals the fixture lacks (it has «copre» on one side
+    # only): since 17 October 2026 the import writes every relation on both
+    # records, as the US form wants. Nothing else may change.
+    import ast
     n_strat = sum(1 for n in graph.nodes
                   if (getattr(n, "attributes", None) or {}).get("us") is not None)
-    assert result.skipped == n_strat
+    assert result.skipped + result.updated == n_strat
     assert result.inserted == 0
-    assert result.updated == 0
-    assert len(result.conflicts) == 0
+    for c in result.conflicts:
+        assert c.field == "rapporti", c
+        prima = {tuple(str(x).lower() for x in r) for r in ast.literal_eval(c.db_value)}
+        dopo = {tuple(str(x).lower() for x in r) for r in ast.literal_eval(c.graph_value)}
+        assert prima <= dopo, (prima, dopo)                 # solo reciproci in più
 
 
 def _make_graph_with_extra_epoch(mini_volterra, periodo, fase):

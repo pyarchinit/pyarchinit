@@ -44,3 +44,36 @@ def show_value(combo, value):
         return True
     finally:
         combo.blockSignals(blocked)
+
+
+def add_items_keeping_text(combo, items):
+    """Add to ``combo`` the ``items`` — texts, or ``(text, data)`` pairs —
+    its list does not have yet, without changing what the box shows and
+    without waking its handlers.
+
+    Adding the first item to an empty box makes it show that item: the
+    Periodizzazione sheet filled its list of epochs after showing the first
+    record, so the record of «II A.D.» opened with «Età Contemporanea - XXI
+    secolo (2001-2023)», the first epoch of the CSV, and saving it wrote
+    that (17 October 2026).
+    """
+    text = combo.currentText()
+    blocked = combo.blockSignals(True)
+    try:
+        for item in items:
+            if isinstance(item, (tuple, list)):
+                label, data = str(item[0]), item[1]
+            else:
+                label, data = str(item), None
+            if combo.findText(label) != -1:
+                continue
+            if data is None:
+                combo.addItem(label)
+            else:
+                combo.addItem(label, data)
+        if combo.isEditable():
+            combo.setEditText(text)
+        else:
+            combo.setCurrentIndex(combo.findText(text))
+    finally:
+        combo.blockSignals(blocked)
