@@ -106,16 +106,17 @@ Código numérico que identifica el campo de destino.
 **Estructura de códigos:**
 ```
 X.Y donde:
-X = número de tabla
+X = número de ficha (1 Sitio, 2 UE/UEM, 3 Inventario de materiales, 4 Muestras, 6 Estructura,
+    7 Tumba, 8 Individuos, 9 Documentación, 10 TMA, 11 Pottery, 12 UT, 13 Fauna)
 Y = número de campo
 ```
 
 **Ejemplos para us_table:**
 | Código | Campo |
 |--------|-------|
-| 1.1 | Definición estratigráfica |
-| 1.2 | Modo de formación |
-| 1.3 | Tipo UE |
+| 2.1 | Sector |
+| 2.3 | Definición estratigráfica |
+| 2.4 | Definición interpretada |
 
 ### Idioma
 
@@ -185,8 +186,8 @@ Para bases de datos SQLite es posible importar vocabularios desde archivo CSV.
 **Formato CSV requerido:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Muro,Estructura muraria,1.3,IT
-us_table,PV,Pavimento,Superficie de tránsito,1.3,IT
+us_table,MR,Muro,Estructura muraria,2.4,IT
+us_table,PV,Pavimento,Superficie de tránsito,2.4,IT
 ```
 
 **Procedimiento:**
@@ -216,7 +217,7 @@ us_table,PV,Pavimento,Superficie de tránsito,1.3,IT
    ```
    Sigla: PZ
    Sigla extendida: Pozo
-   Tipología sigla: 1.3
+   Tipología sigla: 2.4
    Idioma: ES
    ```
 
@@ -251,34 +252,36 @@ us_table,PV,Pavimento,Superficie de tránsito,1.3,IT
 
 ## Organización de Códigos de Tipología
 
-### Estructura Recomendada
+### Los Códigos de las Fichas
 
-Para cada tabla, organizar los códigos de forma sistemática:
+Los códigos no se eligen: cada lista desplegable de una ficha lee su propio código, fijo. Algunos ejemplos — la lista completa, ficha por ficha, se abre desde la ventana del Tesauro con el botón **Ver lista de códigos**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Código | Campo |
 |--------|-------|
-| 1.1 | Definición estratigráfica |
-| 1.2 | Modo de formación |
-| 1.3 | Tipo UE |
-| 1.4 | Consistencia |
-| 1.5 | Color |
+| 1.1 | Definición del sitio |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Código | Campo |
 |--------|-------|
-| 2.1 | Tipo de hallazgo |
-| 2.2 | Clase de material |
-| 2.3 | Definición |
-| 2.4 | Estado de conservación |
+| 2.1 | Sector |
+| 2.3 | Definición estratigráfica |
+| 2.4 | Definición interpretada |
+| 2.8 | Método de excavación |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Código | Campo |
 |--------|-------|
-| 3.1 | Form |
-| 3.2 | Ware |
-| 3.3 | Fabric |
-| 3.4 | Surface treatment |
+| 3.1 | Tipo de hallazgo |
+| 3.2 | Clase de material |
+| 3.3 | Definición |
+
+**pottery_table (11.x):**
+| Código | Campo |
+|--------|-------|
+| 11.1 | Fabric |
+| 11.4 | Forma |
+| 11.6 | Ware |
 
 ---
 

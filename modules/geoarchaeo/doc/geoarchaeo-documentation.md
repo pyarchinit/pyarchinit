@@ -28,7 +28,6 @@ GeoArchaeo è un plugin QGIS professionale per l'analisi geostatistica avanzata 
 - **Fusione multi-sensore** di prospezioni geofisiche
 - **Pattern recognition** automatico di strutture sepolte
 - **Ottimizzazione** delle strategie di scavo
-- **Analisi predittiva** per la localizzazione di siti
 
 ### 1.2 A chi è rivolto?
 
@@ -59,23 +58,16 @@ GeoArchaeo è un plugin QGIS professionale per l'analisi geostatistica avanzata 
 # Apri OSGeo4W Shell come amministratore
 python -m pip install --upgrade pip
 pip install numpy scipy pandas scikit-learn plotly
-pip install rasterio  # opzionale, per export GeoTIFF avanzato
 ```
 
 #### Linux/Ubuntu
 ```bash
-# Installa SpatiaLite
-sudo apt-get update
-sudo apt-get install libspatialite-dev spatialite-bin
-
 # Installa dipendenze Python
 pip3 install numpy scipy pandas scikit-learn plotly
 ```
 
 #### macOS
 ```bash
-# Con Homebrew
-brew install spatialite-tools
 pip3 install numpy scipy pandas scikit-learn plotly
 ```
 
@@ -91,11 +83,11 @@ pip3 install numpy scipy pandas scikit-learn plotly
 ```bash
 # Linux/Mac
 cd ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
-git clone https://github.com/geoarchaeo/plugin geoarchaeo
+git clone https://github.com/enzococca/GeoArchaeo.git
 
 # Windows
 cd %APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\
-git clone https://github.com/geoarchaeo/plugin geoarchaeo
+git clone https://github.com/enzococca/GeoArchaeo.git
 ```
 
 ### 2.3 Prima Configurazione
@@ -107,21 +99,21 @@ git clone https://github.com/geoarchaeo/plugin geoarchaeo
    - Click su icona GeoArchaeo
    - Se il pannello si apre, installazione OK
 
-### 2.4 Configurazione Database SpatiaLite
+### 2.4 Verifica delle Dipendenze
 
 ```python
-# Test SpatiaLite in QGIS Python Console
-import sqlite3
-conn = sqlite3.connect(':memory:')
-conn.enable_load_extension(True)
+# Test in QGIS Python Console
+import importlib
 
-# Prova a caricare spatialite
-try:
-    conn.load_extension('mod_spatialite')
-    print("✓ SpatiaLite funzionante")
-except:
-    print("✗ SpatiaLite non trovato - alcune funzioni saranno limitate")
+for modulo in ("numpy", "scipy", "pandas", "sklearn", "plotly"):
+    try:
+        importlib.import_module(modulo)
+        print(f"✓ {modulo}")
+    except ImportError:
+        print(f"✗ {modulo} mancante")
 ```
+
+All'avvio il plugin esegue lo stesso controllo e, se manca qualcosa, propone di installarlo (`pip install --user`).
 
 ---
 
@@ -133,9 +125,9 @@ except:
 |-----------|---------|------|
 | Vettoriali punti | SHP, GPKG, CSV, GeoJSON | Coordinate proiettate (no lat/lon) |
 | Vettoriali poligoni | SHP, GPKG | Per boundaries e aree scavo |
-| Raster | GeoTIFF, ASC, IMG | DEM, geofisica griglia |
+| Raster | GeoTIFF | Solo output (stima e incertezza): non è un formato di input, converti prima DEM e griglie geofisiche in punti |
 | Database | SpatiaLite, PostGIS | Per progetti grandi |
-| Tabellari | CSV, XLSX | Con colonne X, Y |
+| Tabellari | CSV, XLSX | Con colonne X, Y: da caricare come layer di punti |
 
 ### 3.2 Struttura Dati Archeologici
 
@@ -242,7 +234,7 @@ GA003,345685.5,4567885.3,20,7.1,156,3.8,42,36,22
 
 Per co-kriging di GPR + Magnetometria:
 
-1. **Allineamento spaziale**: stesso grid o buffer tolerance
+1. **Allineamento spaziale**: per ogni punto primario il Co-Kriging usa il valore secondario più vicino (nessuna distanza massima o tolleranza): meglio lo stesso grid o punti vicini
 2. **Normalizzazione scale**: 
    ```python
    # Normalizza 0-1
@@ -333,8 +325,8 @@ Vantaggi:
 **Workflow**:
 1. Import CSV con coordinate e quantità frammenti
 2. Analisi esplorativa:
-   - Moran's I per autocorrelazione spaziale
-   - Se I > 0.3: pattern spaziale significativo
+   - Statistiche e istogramma (scheda Dati)
+   - Il variogramma (passo 3) mostra se c'è autocorrelazione spaziale
 3. Variogramma:
    - Modello sferico tipico per ceramica
    - Range = distanza massima influenza (es. 20m)
@@ -361,20 +353,20 @@ Vantaggi:
 2. Pre-processing:
    - Detrend magnetometria
    - Time-slice GPR a profondità target
-3. Co-Kriging:
+3. Co-Kriging (Processing → GeoArchaeo, vedi Tutorial 2):
    ```
-   Primary: GPR amplitude
-   Secondary: MAG gradient
-   Cross-correlation: calcolo automatico
+   Layer primario: GPR (campo amplitude)
+   Layer secondario: MAG (campo gradient)
+   Metodo: regressione primario ~ secondario + kriging dei residui
    ```
 4. Validation:
-   - Cross-validation leave-one-out
+   - R² della regressione e cross-validation leave-one-out (sui residui) nel log di Processing
    - RMSE < 10% del range
 5. Interpretazione:
    - Anomalie concordanti = alta probabilità struttura
    - Anomalie discordanti = verifica necessaria
 
-**Output**: Mappa probabilità strutture con confidence levels
+**Output**: Raster di predizione (e, opzionale, raster dell'incertezza)
 
 ### 5.3 Analisi Composizionale Terreni
 
@@ -384,18 +376,15 @@ Vantaggi:
 
 **Workflow**:
 1. Import dati con sabbia%, limo%, argilla%
-2. Trasformazione CLR (Centered Log-Ratio):
+2. Analisi composizionale del suolo (Processing), trasformazione CLR (Centered Log-Ratio):
    - Risolve problema closure (somma=100%)
    - Permette kriging valido
-3. Kriging su componenti trasformate
-4. Back-transformation per interpretazione
-5. Classificazione USDA:
-   - Sandy loam, Clay loam, etc.
-6. Correlazione con fosfati per aree antropizzate
+3. Kriging ordinario di ogni componente trasformata (lo stesso algoritmo li esegue in sequenza)
+4. Interpretazione: il raster multibanda contiene le componenti trasformate; la back-transformation non è inclusa nel plugin
+5. Classificazione USDA (Sandy loam, Clay loam, etc.) e correlazione con fosfati per aree antropizzate: da fare con altri strumenti sulle bande del raster
 
 **Output**: 
-- Mappe tessitura terreno
-- Zone alta attività antropica (P > 200 ppm)
+- Raster multibanda delle componenti trasformate (CLR: una banda per componente; ILR/ALR: una in meno)
 
 ### 5.4 Pattern Recognition Tombe
 
@@ -404,25 +393,25 @@ Vantaggi:
 **Obiettivo**: Identificare raggruppamenti e pattern
 
 **Workflow**:
-1. Features per ML:
+1. Features per ML (coordinate X, Y e tutti i campi numerici del layer, usati automaticamente):
    - Coordinate X, Y
-   - Orientamento tomba
+   - Orientamento tomba (in gradi)
    - Dimensioni
    - Corredo (ricchezza 1-5)
-   - Periodo
+   - Periodo (solo se codificato come numero: i campi testo vengono ignorati)
 2. DBSCAN clustering:
-   - eps = 5m (distanza cluster)
-   - min_samples = 3
+   - eps e min_samples sono stimati automaticamente dai dati
+   - I punti senza gruppo sono segnati come "Isolati / rumore"
 3. Analisi cluster:
-   - Statistiche per cluster
-   - Test chi-quadro per associazioni
-4. Random Forest per predizione:
-   - Training su tombe note
-   - Predizione aree non scavate
+   - Dimensione di ogni gruppo (riquadro dei risultati e campo cluster_size)
+   - Statistiche per cluster e test di associazione (es. chi-quadro): fuori dal plugin
+4. Random Forest per classificazione (Processing → Pattern recognition ML):
+   - Training sulle tombe con etichetta nota (campo etichetta)
+   - Classificazione delle tombe senza etichetta
 
 **Output**: 
 - Gruppi familiari/sociali
-- Predizione probabilità tombe in aree non scavate
+- Etichetta di classe per le tombe non etichettate (nessuna probabilità)
 
 ### 5.5 Ottimizzazione Campagna Scavo
 
@@ -436,18 +425,14 @@ Vantaggi:
    - Geofisica se disponibile
    - Ricognizioni superficie
 2. Kriging preliminare con alta incertezza
-3. Design ottimale:
-   - Metodo: Riduzione Varianza
-   - Constraint: min 10m tra saggi
+3. Design ottimale (scheda Campionamento):
+   - Criterio: Riduzione incertezza (varianza di kriging)
    - Priorità zone alta varianza
-4. Simulazione Monte Carlo:
-   - 100 realizzazioni
-   - Calcolo information gain
-5. Ranking saggi per priorità
+4. Ranking saggi per priorità:
+   - I punti proposti sono numerati nell'ordine in cui vengono scelti
 
 **Output**: 
 - Coordinate 20 saggi ottimali
-- Riduzione incertezza attesa: -40%
 - Ordine priorità esecuzione
 
 ### 5.6 Analisi Spazio-Temporale
@@ -463,21 +448,17 @@ Vantaggi:
    - Romano repubblicano
    - Romano imperiale
    - Tardoantico
-2. Kriging spazio-temporale:
-   - Coordinate: X, Y, T (fase)
-   - Peso temporale: 0.3
-   - Peso spaziale: 0.7
-3. Animazione temporale:
-   - Time-slices ogni 100 anni
-   - Smooth transitions
-4. Change detection:
-   - Aree espansione/contrazione
-   - Shift baricentro insediamento
+2. Kriging spazio-temporale (Processing):
+   - Campo temporale: data o anno di ogni punto (es. anno centrale della fase)
+   - Tempo target: l'istante da ricostruire
+   - Il tempo è trattato come terza dimensione, scalata automaticamente (nessun peso da impostare)
+3. Serie temporale:
+   - Un'esecuzione per ogni tempo target (es. ogni 100 anni)
+4. Confronto fra i raster:
+   - Aree espansione/contrazione e shift del baricentro si valutano confrontando i raster con altri strumenti
 
 **Output**: 
-- Serie mappe temporali
-- Grafico evoluzione superficie occupata
-- Vettori spostamento centro abitato
+- Un raster di predizione per ogni tempo target (e, opzionale, il raster dell'incertezza)
 
 ---
 
@@ -510,10 +491,10 @@ Vantaggi:
 #### Step 3: Esplorazione Dati
 ```
 1. Click icona GeoArchaeo nella toolbar
-2. Nel dock, tab "Dati":
-   - Layer: reperti_tutorial
-   - Campo valore: quantita
-3. Click "Analisi Esplorativa"
+2. In alto nel dock (valido per tutte le schede):
+   - Layer punti: reperti_tutorial
+   - Campo valore (numerico): quantita
+3. Tab "Dati" → Click "Calcola statistiche"
 4. Osserva:
    - Media: ~25 frammenti
    - Std Dev: ~12
@@ -524,53 +505,53 @@ Vantaggi:
 ```
 1. Tab "Variogramma"
 2. Parametri:
-   - Distanza max: 50m (auto-calcolata)
-   - N° lags: 15
+   - Distanza max: 50m (auto-calcolata, pulsante "Auto")
+   - N° lags: 15 (fisso nel pannello, regolabile solo in Processing)
    - Modello: Sferico
-   - ✓ Verifica anisotropia
-3. Click "Calcola Variogramma"
+   - ✓ Verifica anisotropia (variogrammi direzionali)
+3. Click "Calcola variogramma"
 4. Interpretazione:
    - Nugget: 20 (variabilità piccola scala)
    - Sill: 150 (varianza totale)
    - Range: 25m (distanza correlazione)
-   - Anisotropia: 1.3 a 45° (leggera)
+   - Anisotropia: rapporto 1.3 tra i range (nessuna anisotropia rilevante, soglia 2)
 ```
 
 #### Step 5: Kriging
 ```
 1. Tab "Kriging"
 2. Parametri:
-   - Metodo: Ordinary Kriging
-   - Risoluzione: 2m
-   - Search radius: 30m (auto da variogramma)
-   - Max punti: 20
-3. Click "Esegui Kriging"
+   - Risoluzione cella: 2m
+   - ✓ Usa il variogramma calcolato
+   - ✓ Crea anche il raster dell'incertezza (dev. standard)
+   - Il pannello esegue sempre l'Ordinary Kriging, con i 20 punti più vicini a ogni cella
+3. Click "Esegui kriging"
 4. Attendere progress bar (30 sec)
 5. Risultati:
-   - Layer "kriging_prediction" aggiunto
-   - Layer "kriging_variance" aggiunto
+   - Layer "Kriging_quantita" aggiunto (stima)
+   - Layer "Kriging_quantita_incertezza" aggiunto (dev. standard, spento per default)
 ```
 
 #### Step 6: Visualizzazione
 ```
-1. Per prediction:
+1. Per la stima (il plugin applica già una rampa di colori, modificabile):
    - Tasto destro → Properties → Symbology
    - Render: Singleband pseudocolor
    - Color ramp: Spectral (invertito)
    - Mode: Equal interval, 10 classi
-2. Per variance:
+2. Per l'incertezza (dev. standard):
    - Color ramp: Reds
    - Trasparenza 40%
-3. Overlay variance su prediction
+3. Overlay incertezza sulla stima (accendi prima il layer dell'incertezza)
 ```
 
 #### Step 7: Validazione
 ```
-1. Processing → Toolbox → GeoArchaeo → Cross Validation
-2. Input: reperti_tutorial
-3. Method: Leave-one-out
-4. Run
-5. Risultati attesi:
+1. Nel riquadro dei risultati della scheda Kriging (compare dopo "Esegui kriging"):
+   - Cross-validation leave-one-out su al massimo 200 punti scelti a caso
+   - Metriche: RMSE, MAE, ME, R², MSDR, con una lettura in parole
+2. In Processing la stessa cross-validation è nel log di "Ordinary Kriging" e negli output CV_RMSE, CV_MAE, CV_R2
+3. Risultati attesi:
    - RMSE: ~8.5 frammenti
    - R²: 0.72
    - MAE: 6.2 frammenti
@@ -627,35 +608,43 @@ data.to_csv('geofisica.csv', index=False)
 ```
 
 #### Step 3: Configurazione Co-Kriging
+
+Il Co-Kriging non è nel pannello: è l'algoritmo di Processing «Co-Kriging (regressione + kriging residui)».
 ```
-1. Tab "Kriging" → Metodo: "Co-Kriging"
-2. Appare pannello esteso:
-   - Primary variable: GPR / campo 'gpr'
-   - Secondary: MAG / campo 'mag'
-   - Cross-correlation: Auto
-3. Parametri:
-   - Resolution: 0.5m (come input)
-   - Search radius: 10m
+1. Processing → Toolbox → GeoArchaeo → Co-Kriging (regressione + kriging residui)
+2. Parametri:
+   - Layer primario (es. GPR): GPR
+   - Campo primario: gpr
+   - Layer secondari (es. magnetometria): MAG
+   - Campi secondari separati da virgola: mag
+     (se vuoto si usa il primo campo numerico del layer, qui x: indicalo sempre)
+   - Estensione output: vuota (estensione del layer primario)
+   - Dimensione cella: 0.5
+3. Output:
+   - Raster predizione: file di output
+   - Raster incertezza (dev. standard): opzionale, non creato per default
 ```
 
 #### Step 4: Esecuzione
 ```
-1. Click "Esegui Co-Kriging"
-2. Progress:
-   - Calcolo cross-variogramma (30s)
-   - Costruzione sistema (20s)
-   - Kriging (40s)
-3. Output: "cokriging_result"
+1. Click "Esegui"
+2. Nel log di Processing:
+   - Punti letti per ogni layer secondario
+   - Regressione lineare primario ~ secondari: R² e coefficienti
+   - Cross-validation leave-one-out (RMSE, MAE, ME, R², MSDR) calcolata sul kriging dei residui:
+     se la regressione spiega gran parte del segnale, l'R² può essere vicino a 0
+3. Output: "Raster predizione" = trend dalla regressione sui valori secondari + residui interpolati
 ```
 
 #### Step 5: Confronto con Kriging Singolo
 ```
-1. Esegui OK solo su GPR
-2. Esegui OK solo su MAG
-3. Confronta i 3 risultati:
-   - Co-Kriging: bordi più netti
-   - Minor varianza nelle predizioni
-   - Migliore delineazione struttura
+1. Esegui Ordinary Kriging solo su GPR (scheda Kriging, oppure Processing)
+2. Confronta i due risultati:
+   - Co-Kriging: regressione sui valori MAG più vicini + kriging dei residui GPR
+   - Ordinary Kriging: solo i punti GPR
+   - R² della regressione (nel log del Co-Kriging): quanto la MAG spiega del segnale GPR
+3. Il Co-Kriging è pensato per fondere dati con densità diverse (es. GPR rado + magnetometria fitta):
+   con rilievi sulle stesse posizioni non è detto che migliori la stima, confronta sempre i due risultati
 ```
 
 ### Tutorial 3: Machine Learning per Pattern Recognition
@@ -696,60 +685,44 @@ tombe.to_csv('necropoli.csv', index=False)
 #### Step 2: Caricamento e Preprocessing
 ```
 1. Carica necropoli.csv
-2. Tab "ML" → Seleziona layer necropoli
-3. Features automatiche estratte:
+2. Tab "Pattern (ML)" → Seleziona layer necropoli
+3. Features automatiche estratte (e standardizzate):
    - Coordinate spaziali
-   - Attributi numerici
-   - One-hot encoding categoriche
+   - Tutti i campi numerici del layer (anche id e coordinate x, y se sono colonne): i campi testo, es. periodo, vengono ignorati
 ```
 
 #### Step 3: Clustering Non Supervisionato
 ```
-1. Metodo: DBSCAN
-2. Parametri panel:
-   - eps: 8m (distanza max cluster)
-   - min_samples: 4 tombe
-3. Click "Avvia Pattern Recognition"
+1. Metodo: DBSCAN (gruppi per densità)
+2. Parametri: nessuno da impostare, eps e min_samples sono stimati automaticamente dai dati
+3. Click "Avvia pattern recognition"
 4. Risultati:
-   - 5-7 cluster identificati
-   - Outliers: tombe isolate
+   - Gruppi trovati e tombe isolate ("Isolati / rumore")
    - Visualizzazione: colori per cluster
+5. Se DBSCAN produce un solo gruppo (o tutto "isolati"), prova K-Means con il numero di gruppi atteso (es. 5)
 ```
 
 #### Step 4: Analisi Cluster
 ```
-1. Statistiche per cluster (generate auto):
-   - Cluster 1: 18 tombe, periodo Romano 70%
-   - Cluster 2: 22 tombe, ricche (metallo 60%)
-   - Outliers: 8 tombe, sparse
-2. Test significatività:
-   - Chi-quadro per associazioni
-   - p-value < 0.05: pattern significativo
+1. Riquadro dei risultati: per ogni gruppo nome e numero di punti
+   (es. "Gruppo A (n=18)", "Isolati / rumore (n=8)")
+2. Layer "Gruppi_ML": campi cluster_id, cluster_name, cluster_size
+3. Statistiche per gruppo (es. periodo, metallo) e test di significatività (es. chi-quadro):
+   da fare fuori dal plugin
 ```
 
 #### Step 5: Modello Predittivo
 ```
-1. Metodo: Random Forest
-2. Training/Test split:
-   - 70% training (105 tombe)
-   - 30% test (45 tombe)
-3. Target: presenza_metallo (indicatore ricchezza)
-4. Run training
+1. Processing → Toolbox → GeoArchaeo → Pattern recognition ML
+2. Metodo: Random Forest (supervised)
+3. Campo etichetta: presenza_metallo (le tombe con etichetta addestrano il modello,
+   quelle con etichetta vuota vengono classificate: svuota il campo per le tombe da classificare)
+4. Esegui
 5. Risultati:
-   - Accuracy: 78%
-   - Feature importance:
-     1. n_oggetti (35%)
-     2. profondita (22%)
-     3. periodo (18%)
-```
-
-#### Step 6: Predizione Zone Non Scavate
-```
-1. Crea griglia punti 5×5m area limitrofa
-2. Applica modello trained
-3. Output: probabilità presenza tombe ricche
-4. Genera mappa calore probabilità
-5. Identifica top 10 locations per futuri saggi
+   - Layer "Punti classificati" con l'etichetta di classe di ogni tomba
+   - Nel log: numero di punti di training, classi e feature importance
+     (nell'ordine: X, Y, poi i campi numerici del layer senza il campo etichetta)
+   - Nessuna divisione training/test e nessuna accuracy: la validazione va fatta a parte
 ```
 
 ---
@@ -796,41 +769,36 @@ Dove:
 
 #### Matérn
 ```
-γ(h) = c₀ + c₁[1 - (2^(1-ν)/Γ(ν))(√(2ν)h/a)^ν K_ν(√(2ν)h/a)]
+γ(h) = c₀ + c₁[1 - (1 + t)·exp(-t)]    con t = 4.744·h/a
 
-ν = smoothness parameter (0.5, 1.5, 2.5)
+ν = 1.5 (fisso, non configurabile); a = range pratico
 ```
 
 **Quando usarlo**:
-- Flessibilità massima
-- ν=0.5 → Esponenziale
-- ν→∞ → Gaussiano
+- Modello intermedio tra esponenziale (ν=0.5) e gaussiano (ν→∞)
+- Nel plugin ν è fisso a 1.5
 
 ### 7.2 Parametri Kriging
 
 #### Search Parameters
 
+Il kriging usa, per ogni cella, i punti più vicini (ricerca con k-d tree): non esistono raggio di ricerca, numero minimo di punti o settori.
+
 | Parametro | Default | Range | Note |
 |-----------|---------|-------|------|
-| Search radius | 1.5×range | range - 3×range | Da variogramma |
-| Min points | 3 | 2-5 | Stabilità sistema |
-| Max points | 20 | 10-30 | Performance vs accuracy |
-| Sector type | Full circle | 4/8 sectors | Per anisotropia |
+| Max points | 20 | 3-200 | Solo Processing (`MAX_NEIGHBORS`), nel pannello è fisso a 20 |
 
-#### Optimization
+#### Validazione
 
-**Block Kriging** (per dati rumorosi):
-- Block size: 2-5× punto spacing
-- Riduce varianza 30-50%
-- Smoothing naturale
-
-**Cross-Validation Metrics**:
+**Cross-Validation Metrics** (leave-one-out su al massimo 200 punti scelti a caso):
 - **RMSE** < 15% del range dati → Buono
 - **ME** (bias) ≈ 0 → Non-biased
-- **MSPE** ≈ 1 → Varianza ben stimata
-- **R²** > 0.7 → Buona predizione
+- **MSDR** ≈ 1 → Varianza ben stimata (> 1.5 incertezza sottostimata, < 0.5 sovrastimata)
+- **R²** ≥ 0.5 → Buona predizione (< 0.2 scarsa)
 
 ### 7.3 Trasformazioni Dati
+
+Il plugin non trasforma i valori (se non con CLR/ILR/ALR nell'analisi composizionale, senza trasformazione inversa): Box-Cox e Normal Score vanno applicati prima, ad esempio in Python.
 
 #### Box-Cox (normalizzazione)
 ```python
@@ -866,45 +834,37 @@ def clr_inverse(Y):
 
 ### 7.4 Machine Learning Parameters
 
-#### Random Forest
+Le feature sono le coordinate X, Y più tutti i campi numerici dei layer scelti, standardizzate (media 0, dev. standard 1); i valori mancanti sono sostituiti dalla media della colonna. I parametri qui sotto sono fissi o stimati dai dati: nel plugin non sono configurabili (salvo il numero di gruppi di K-Means).
+
+#### K-Means
 ```python
 params = {
-    'n_estimators': 100,      # N° alberi
-    'max_depth': 10,          # Profondità max
-    'min_samples_split': 5,   # Min per split
-    'min_samples_leaf': 2,    # Min per foglia
-    'max_features': 'sqrt',   # Features per split
+    'n_clusters': None,       # 0 = automatico: max(2, min(5, n_punti // 10))
+    'n_init': 10,
     'random_state': 42
 }
 ```
 
 #### DBSCAN
 ```python
-params = {
-    'eps': 5.0,              # Raggio vicinato (m)
-    'min_samples': 4,        # Min punti per cluster
-    'metric': 'euclidean',   # Metrica distanza
-    'algorithm': 'ball_tree' # Per performance
-}
-
-# Stima eps ottimale
-from sklearn.neighbors import NearestNeighbors
-nbrs = NearestNeighbors(n_neighbors=4).fit(data)
-distances, indices = nbrs.kneighbors(data)
-distances = np.sort(distances[:, 3], axis=0)
-# Plot distances, cerca "gomito"
+# eps e min_samples sono stimati automaticamente
+min_samples = max(3, min(5, n_punti // 20))
+eps = max(percentile_90(k_distance), 0.3)   # k = min_samples, sulle feature standardizzate
 ```
 
-#### Neural Network
+#### Isolation Forest
 ```python
 params = {
-    'hidden_layer_sizes': (100, 50, 25),  # Architettura
-    'activation': 'relu',                  # Funzione
-    'solver': 'adam',                      # Ottimizzatore
-    'learning_rate': 0.001,                # Learning rate
-    'max_iter': 500,                       # Epoche
-    'early_stopping': True,                # Stop automatico
-    'validation_fraction': 0.2             # Validazione
+    'contamination': 0.1,     # circa il 10% dei punti segnalato come anomalo
+    'random_state': 42
+}
+```
+
+#### Random Forest (solo Processing)
+```python
+params = {
+    'n_estimators': 200,      # N° alberi
+    'random_state': 42        # gli altri parametri sono i default di scikit-learn
 }
 ```
 
@@ -921,7 +881,7 @@ pip install plotly --user
 # Riavvia QGIS
 ```
 
-#### Errore: "CRS units not in meters"
+#### Avviso: "Il layer usa un CRS geografico"
 ```python
 # Soluzione: reproietta layer
 processing.run("native:reprojectlayer", {
@@ -931,7 +891,9 @@ processing.run("native:reprojectlayer", {
 })
 ```
 
-#### Errore: "Singular matrix in kriging"
+#### Risultati instabili: matrice singolare nel kriging
+Il motore risolve i sistemi singolari ai minimi quadrati, quindi non compare un errore, ma la stima peggiora.
+
 **Cause**:
 - Punti duplicati
 - Punti troppo vicini
@@ -980,20 +942,20 @@ A:
 
 **Q: Come scelgo la risoluzione della griglia?**
 A: 
-- Default: 1/3 della distanza media tra punti
+- Default del pannello: circa 1/100 del lato maggiore dell'estensione del layer (≈ 100 celle sul lato lungo)
 - Dettaglio alto: 1/5 distanza media
 - Performance: non sotto 1m per aree > 1 ettaro
 
-**Q: Ordinary vs Universal Kriging?**
+**Q: Posso usare l'Universal Kriging (con trend)?**
 A:
-- **Ordinary**: no trend, usa per dati stazionari
-- **Universal**: con trend (es. pendenza), usa se vedi pattern direzionale chiaro
+- **No**: il plugin implementa solo l'**Ordinary Kriging** (media costante ma sconosciuta), adatto a dati stazionari
+- Con un trend marcato (es. pendenza): rimuovilo prima (es. regressione sulle coordinate con altri strumenti) e interpola i residui, oppure usa il Co-Kriging di Processing, che sottrae un trend lineare stimato sui dati secondari
 
 **Q: Come interpreto il nugget?**
 A:
 - Nugget/Sill < 25%: bassa variabilità microscala ✓
-- Nugget/Sill 25-50%: media variabilità ⚠️
-- Nugget/Sill > 50%: alta variabilità o errori misura ✗
+- Nugget/Sill 25-60%: media variabilità ⚠️
+- Nugget/Sill > 60%: alta variabilità o errori misura ✗
 
 **Q: Posso usare coordinate geografiche (lat/lon)?**
 A: **NO!** Sempre riproietta in sistema metrico. Il kriging richiede distanze euclidee.
@@ -1095,8 +1057,6 @@ variogramma:
   
 kriging:
   metodo: ordinary
-  search_radius: 30m
-  min_points: 3
   max_points: 20
   risoluzione: 2m
   
@@ -1136,7 +1096,7 @@ exporter.exportToPdf('figura_kriging.pdf',
 ```
 Analisi geostatistiche eseguite con:
 - QGIS 3.28 (QGIS Development Team, 2023)
-- Plugin GeoArchaeo v1.0 (Archaeological GIS Lab, 2024)
+- Plugin GeoArchaeo v1.3.1 (Cocca, 2024)
 - Python libraries: NumPy 1.24, SciPy 1.10, scikit-learn 1.2
 ```
 
@@ -1289,22 +1249,18 @@ result = processing.run('geoarchaeo:variogram', {
 
 print(f"Variogramma salvato: {result['OUTPUT']}")
 
-# 3. Ordinary Kriging
+# 3. Ordinary Kriging (con il variogramma del passo 2)
 kriging = processing.run('geoarchaeo:ordinarykriging', {
     'INPUT': layer,
     'FIELD': 'ceramica_fr',
     'EXTENT': layer.extent(),
     'PIXEL_SIZE': 2.0,
+    'VARIOGRAM': result['OUTPUT'],
     'OUTPUT': 'kriging_result.tif'
 })
 
-# 4. Cross-validation
-validation = processing.run('geoarchaeo:crossvalidation', {
-    'INPUT': layer,
-    'FIELD': 'ceramica_fr',
-    'METHOD': 0,  # LOO
-    'OUTPUT': 'validation.json'
-})
+# 4. Cross-validation (leave-one-out): la calcola lo stesso algoritmo
+print(f"RMSE={kriging['CV_RMSE']:.2f}  MAE={kriging['CV_MAE']:.2f}  R²={kriging['CV_R2']:.3f}")
 
 print("Pipeline completata!")
 ```
@@ -1727,7 +1683,7 @@ project = create_archaeological_project('Scavo_2024', crs_epsg=32633)
 |---------|------------|
 | **Anisotropia** | Variazione delle proprietà spaziali in base alla direzione |
 | **CLR** | Centered Log-Ratio, trasformazione per dati composizionali |
-| **Co-Kriging** | Kriging che usa variabili secondarie correlate |
+| **Co-Kriging** | Kriging che usa variabili secondarie correlate (nel plugin: regressione sui dati secondari + kriging dei residui) |
 | **Cross-validation** | Tecnica di validazione che testa il modello su sottoinsiemi dei dati |
 | **DBSCAN** | Density-Based Spatial Clustering, algoritmo di clustering |
 | **Nugget** | Varianza a distanza zero nel variogramma |
@@ -1748,4 +1704,4 @@ project = create_archaeological_project('Scavo_2024', crs_epsg=32633)
 
 ---
 
-*Documentazione versione 1.0 - Ultimo aggiornamento: 2025*
+*Documentazione versione 1.3.1 - Ultimo aggiornamento: 2026*

@@ -358,26 +358,28 @@ No **Separador DB Sync** da janela de configuracao encontra-se a seccao **Parada
 Sem override, o caminho resolvido e:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sitio>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sitio>/
 ```
 
-Exemplo: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Exemplo: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+E a pasta de dados do pyArchInit 5; o campo vazio mostra-a como sugestao.
 
 ### Personalizar o caminho
 
 - **Procurar...** abre um dialogo de ficheiros para escolher uma pasta. O caminho e guardado imediatamente nas QSettings do QGIS.
 - Tambem se pode **escrever** o caminho diretamente no campo de texto: o valor e persistido ao sair do campo (sinal `editingFinished`). Deixar o campo vazio remove o override.
-- **Repor** limpa o campo, remove a chave das QSettings e restaura o caminho predefinido.
+- **Repor** limpa o campo, remove a chave das QSettings e restaura o caminho predefinido, `~/pyarchinit_5/pyarchinit_DB_folder` (antes da 5.13.124-alpha voltava por engano para a pasta do pyArchInit 4, `~/pyarchinit`).
 
 ### Cadeia de resolucao (quem ganha)
 
-O caminho efetivo segue uma cadeia de fallback em 3 niveis:
+Dentro do QGIS o caminho efetivo decide-se assim:
 
-1. **Variavel de ambiente `PYARCHINIT_WORKSPACE_DIR`** (prioridade maxima — util para scripts CI/teste).
-2. **QSettings `pyarchinit/paradata_workspace`** (override da UI — esta seccao).
-3. **Predefinido** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. O **Paradata Workspace** desta seccao (QSettings `pyarchinit/paradata_workspace`), se estiver definido.
+2. A **variavel de ambiente `PYARCHINIT_WORKSPACE_DIR`**, se ja estava definida antes de iniciar o QGIS (util para scripts CI/teste).
+3. O valor **predefinido** `~/pyarchinit_5/pyarchinit_DB_folder/`, que segue a pasta de dados (`PYARCHINIT_HOME`, se estiver definida).
 
-Valores vazios sao ignorados: se `PYARCHINIT_WORKSPACE_DIR=""`, a resolucao passa para o nivel 2; se as QSettings tambem estiverem vazias, usa-se o predefinido.
+Fora do QGIS (scripts, testes, linha de comandos) so conta a variavel de ambiente, e os scripts do pyArchInit definem-na eles proprios na pasta de dados. Os valores vazios sao ignorados.
 
 ### Quando produz efeito
 

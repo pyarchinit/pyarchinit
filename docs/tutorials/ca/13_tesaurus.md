@@ -106,16 +106,17 @@ Codi numèric que identifica el camp de destinació.
 **Estructura codis:**
 ```
 X.Y on:
-X = número taula
-Y = número camp
+X = número de fitxa (1 Lloc, 2 US/USM, 3 Inventari de materials, 4 Mostres, 6 Estructura,
+    7 Tomba, 8 Individus, 9 Documentació, 10 TMA, 11 Pottery, 12 UT, 13 Fauna)
+Y = número del camp
 ```
 
 **Exemples per a us_table:**
 | Codi | Camp |
 |------|------|
-| 1.1 | Definició estratigràfica |
-| 1.2 | Mode de formació |
-| 1.3 | Tipus US |
+| 2.1 | Sector |
+| 2.3 | Definició estratigràfica |
+| 2.4 | Definició interpretada |
 
 ### Llengua
 
@@ -185,8 +186,8 @@ Per a base de dades SQLite és possible importar vocabularis des de fitxer CSV.
 **Format CSV requerit:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Mur,Estructura muràlia,1.3,CA
-us_table,PV,Paviment,Superfície de trepig,1.3,CA
+us_table,MR,Mur,Estructura muràlia,2.4,CA
+us_table,PV,Paviment,Superfície de trepig,2.4,CA
 ```
 
 **Procediment:**
@@ -216,7 +217,7 @@ us_table,PV,Paviment,Superfície de trepig,1.3,CA
    ```
    Sigla: PO
    Sigla estesa: Pou
-   Tipologia sigla: 1.3
+   Tipologia sigla: 2.4
    Llengua: CA
    ```
 
@@ -251,34 +252,36 @@ us_table,PV,Paviment,Superfície de trepig,1.3,CA
 
 ## Organització Codis Tipologia
 
-### Estructura Recomanada
+### Els Codis de les Fitxes
 
-Per a cada taula, organitzar els codis de manera sistemàtica:
+Els codis no s'escullen: cada llista desplegable d'una fitxa llegeix el seu codi, fix. Alguns exemples — la llista completa, fitxa per fitxa, s'obre des de la finestra del Tesaurus amb el botó **Veure llista de codis**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Codi | Camp |
 |------|------|
-| 1.1 | Definició estratigràfica |
-| 1.2 | Mode formació |
-| 1.3 | Tipus US |
-| 1.4 | Consistència |
-| 1.5 | Color |
+| 1.1 | Definició del lloc |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Codi | Camp |
 |------|------|
-| 2.1 | Tipus troballa |
-| 2.2 | Classe material |
-| 2.3 | Definició |
-| 2.4 | Estat conservació |
+| 2.1 | Sector |
+| 2.3 | Definició estratigràfica |
+| 2.4 | Definició interpretada |
+| 2.8 | Mètode d'excavació |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Codi | Camp |
 |------|------|
-| 3.1 | Form |
-| 3.2 | Ware |
-| 3.3 | Fabric |
-| 3.4 | Surface treatment |
+| 3.1 | Tipus troballa |
+| 3.2 | Classe material |
+| 3.3 | Definició |
+
+**pottery_table (11.x):**
+| Codi | Camp |
+|------|------|
+| 11.1 | Fabric |
+| 11.4 | Forma |
+| 11.6 | Ware |
 
 ---
 

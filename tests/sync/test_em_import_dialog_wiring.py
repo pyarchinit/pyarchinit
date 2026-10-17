@@ -68,6 +68,39 @@ def test_il_riepilogo_dice_cosa_diventa_scheda():
     assert "488 nodi non sono schede" in testo and "resource 485" in testo
 
 
+def _grafo_3d(con_proxy):
+    from s3dgraphy.importer.emjson_importer import parse_emjson
+    nodi = [{"id": "u1", "node_type": "US", "name": "SU002", "data": {}},
+            {"id": "u2", "node_type": "US", "name": "SU003", "data": {}}]
+    archi = []
+    if con_proxy:
+        nodi += [{"id": "p1", "node_type": "property", "name": "geometry",
+                  "data": {"property_type": "geometry", "value": "sh1"}},
+                 {"id": "sh1", "node_type": "semantic_shape", "name": "Shape", "data": {}},
+                 {"id": "rp1", "node_type": "resource", "name": "SU002.glb",
+                  "data": {"url": "proxies/SU002.glb", "url_type": "proxy_model"}}]
+        archi += [{"id": "a1", "edge_type": "has_property", "source": "u1", "target": "p1"},
+                  {"id": "a2", "edge_type": "has_semantic_shape", "source": "p1", "target": "sh1"},
+                  {"id": "a3", "edge_type": "has_linked_resource", "source": "sh1", "target": "rp1"}]
+    grafo, _ = parse_emjson({"version": "1.0", "active_graph_id": "g",
+                             "header": {"format": "em.json", "version": "1.0", "schema_version": "2"},
+                             "graphs": {"g": {"graph_id": "g", "name": "T", "nodes": nodi, "edges": archi}}})
+    return grafo
+
+
+def test_il_riepilogo_conta_i_proxy_3d_come_emstudio():
+    """s3dgraphy 1.6.0.dev57, ``api.units_without_3d``: le unità col loro
+    proxy si contano con le regole della libreria (TempluMare: 65 su 112;
+    EMStudio mostra le stesse 65 su 114, contando anche i 2 nodi di
+    continuità), e il conto si legge nel riepilogo prima di importare."""
+    pytest.importorskip("s3dgraphy")
+    from modules.s3dgraphy.sync.em_native_import import proxy_text
+    testo = proxy_text(_grafo_3d(True))
+    assert "1 unità su 2" in testo and "proxy 3D" in testo, testo
+    assert proxy_text(_grafo_3d(False)) == ""          # niente 3D, niente riga
+    assert "proxy_text(graph)" in BRIDGE
+
+
 def test_la_finestra_importa_anche_i_media():
     assert re.search(r'self\.cb_import_media = QCheckBox\(\s*"Importa anche i media citati', BRIDGE)
     assert "self.cb_import_media.setChecked(True)" in BRIDGE

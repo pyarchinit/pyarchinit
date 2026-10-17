@@ -9,13 +9,12 @@ email=enzo.ccc@gmail.com
 
 about=Complete geostatistical toolkit for archaeology including:
     - Variogram analysis with anisotropy detection
-    - Multiple kriging methods (OK, UK, Co-Kriging, Spatio-temporal)
+    - Multiple kriging methods (Ordinary, Co-Kriging, Spatio-temporal)
     - Compositional data analysis (CLR/ILR transforms)
     - Machine Learning pattern recognition
     - Optimal sampling design
     - Interactive Plotly visualizations
     - Batch processing for large datasets
-    - Integration with SpatiaLite
 
 tracker=https://github.com/enzococca/GeoArchaeo/issues
 repository=https://github.com/enzococca/GeoArchaeo

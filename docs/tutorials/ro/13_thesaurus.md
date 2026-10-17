@@ -106,16 +106,17 @@ Cod numeric care identifică câmpul de destinație.
 **Structura codului:**
 ```
 X.Y unde:
-X = numărul tabelului
+X = numărul fișei (1 Sit, 2 US/USM, 3 Inventar materiale, 4 Probe, 6 Structură,
+    7 Mormânt, 8 Indivizi, 9 Documentație, 10 TMA, 11 Ceramică, 12 UT, 13 Faună)
 Y = numărul câmpului
 ```
 
 **Exemple pentru us_table:**
 | Cod | Câmp |
 |-----|------|
-| 1.1 | Definiția stratigrafică |
-| 1.2 | Modul de formare |
-| 1.3 | Tipul US |
+| 2.1 | Sectorul |
+| 2.3 | Definiția stratigrafică |
+| 2.4 | Definiția interpretată |
 
 ### Limba
 
@@ -185,8 +186,8 @@ Pentru baze de date SQLite, vocabularele pot fi importate din fișiere CSV.
 **Formatul CSV necesar:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,ZD,Zid,Structură de zid,1.3,EN_US
-us_table,PD,Podea,Suprafață de călcat,1.3,EN_US
+us_table,ZD,Zid,Structură de zid,2.4,EN_US
+us_table,PD,Podea,Suprafață de călcat,2.4,EN_US
 ```
 
 **Procedură:**
@@ -216,7 +217,7 @@ us_table,PD,Podea,Suprafață de călcat,1.3,EN_US
    ```
    Cod: FT
    Cod extins: Fântână
-   Tipul codului: 1.3
+   Tipul codului: 2.4
    Limba: EN_US
    ```
 
@@ -250,34 +251,36 @@ us_table,PD,Podea,Suprafață de călcat,1.3,EN_US
 
 ## Organizarea Tipurilor de Cod
 
-### Structură Recomandată
+### Codurile Fișelor
 
-Pentru fiecare tabel, organizați codurile sistematic:
+Codurile nu se aleg: fiecare listă derulantă dintr-o fișă citește codul ei, fix. Câteva exemple — lista completă, fișă cu fișă, se deschide din fereastra Tezaurului cu butonul **Vezi lista de coduri**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Cod | Câmp |
 |-----|------|
-| 1.1 | Definiția stratigrafică |
-| 1.2 | Modul de formare |
-| 1.3 | Tipul US |
-| 1.4 | Consistența |
-| 1.5 | Culoarea |
+| 1.1 | Definiția sitului |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Cod | Câmp |
 |-----|------|
-| 2.1 | Tipul artefactului |
-| 2.2 | Clasa materialului |
-| 2.3 | Definiția |
-| 2.4 | Starea de conservare |
+| 2.1 | Sectorul |
+| 2.3 | Definiția stratigrafică |
+| 2.4 | Definiția interpretată |
+| 2.8 | Metoda de săpătură |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Cod | Câmp |
 |-----|------|
-| 3.1 | Forma |
-| 3.2 | Clasa ceramică |
-| 3.3 | Pasta |
-| 3.4 | Tratament de suprafață |
+| 3.1 | Tipul artefactului |
+| 3.2 | Clasa materialului |
+| 3.3 | Definiția |
+
+**pottery_table (11.x):**
+| Cod | Câmp |
+|-----|------|
+| 11.1 | Fabric |
+| 11.4 | Forma |
+| 11.6 | Ware |
 
 ---
 

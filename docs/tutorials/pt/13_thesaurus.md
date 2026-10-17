@@ -106,16 +106,17 @@ Código numérico que identifica o campo de destino.
 **Estrutura do código:**
 ```
 X.Y onde:
-X = número da tabela
+X = número da ficha (1 Sítio, 2 UE/UEM, 3 Inventário de materiais, 4 Amostras, 6 Estrutura,
+    7 Sepultura, 8 Indivíduos, 9 Documentação, 10 TMA, 11 Cerâmica, 12 UT, 13 Fauna)
 Y = número do campo
 ```
 
 **Exemplos para us_table:**
 | Código | Campo |
 |--------|-------|
-| 1.1 | Definição estratigráfica |
-| 1.2 | Modo de formação |
-| 1.3 | Tipo de UE |
+| 2.1 | Setor |
+| 2.3 | Definição estratigráfica |
+| 2.4 | Definição interpretada |
 
 ### Idioma
 
@@ -185,8 +186,8 @@ Para bases de dados SQLite, os vocabulários podem ser importados de ficheiros C
 **Formato CSV necessário:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Muro,Estrutura de muro,1.3,EN_US
-us_table,PV,Pavimento,Superfície de circulação,1.3,EN_US
+us_table,MR,Muro,Estrutura de muro,2.4,EN_US
+us_table,PV,Pavimento,Superfície de circulação,2.4,EN_US
 ```
 
 **Procedimento:**
@@ -216,7 +217,7 @@ us_table,PV,Pavimento,Superfície de circulação,1.3,EN_US
    ```
    Código: PC
    Código alargado: Poço
-   Tipo de código: 1.3
+   Tipo de código: 2.4
    Idioma: EN_US
    ```
 
@@ -251,34 +252,36 @@ us_table,PV,Pavimento,Superfície de circulação,1.3,EN_US
 
 ## Organização dos Tipos de Código
 
-### Estrutura Recomendada
+### Os Códigos das Fichas
 
-Para cada tabela, organize os códigos sistematicamente:
+Os códigos não se escolhem: cada lista suspensa de uma ficha lê o seu código, fixo. Alguns exemplos — a lista completa, ficha a ficha, abre-se a partir da janela do Tesauro com o botão **Vista code list**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Código | Campo |
 |--------|-------|
-| 1.1 | Definição estratigráfica |
-| 1.2 | Modo de formação |
-| 1.3 | Tipo de UE |
-| 1.4 | Consistência |
-| 1.5 | Cor |
+| 1.1 | Definição do sítio |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Código | Campo |
 |--------|-------|
-| 2.1 | Tipo de achado |
-| 2.2 | Classe de material |
-| 2.3 | Definição |
-| 2.4 | Estado de conservação |
+| 2.1 | Setor |
+| 2.3 | Definição estratigráfica |
+| 2.4 | Definição interpretada |
+| 2.8 | Método de escavação |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Código | Campo |
 |--------|-------|
-| 3.1 | Forma |
-| 3.2 | Classe cerâmica |
-| 3.3 | Pasta |
-| 3.4 | Tratamento de superfície |
+| 3.1 | Tipo de achado |
+| 3.2 | Classe de material |
+| 3.3 | Definição |
+
+**pottery_table (11.x):**
+| Código | Campo |
+|--------|-------|
+| 11.1 | Fabric |
+| 11.4 | Forma |
+| 11.6 | Ware |
 
 ---
 

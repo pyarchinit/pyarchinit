@@ -1,13 +1,11 @@
-"""Public API for the s3dgraphy ↔ host-application SQL sync layer.
+"""pyArchInit's layer over the s3dgraphy ↔ SQL sync library.
 
-This package was moved from pyArchInit (issue #10) and provides a
-backend-agnostic (SQLite + PostgreSQL via SQLAlchemy) bridge between
-s3dgraphy Graph objects and the host application's relational tables.
-
-Originally lived inside pyArchInit at
-``modules/s3dgraphy/sync/``. Moved into the s3dgraphy package proper
-in 1.6.0 after a Qt/QGIS decoupling pass — see
-zalmoxes-laran/s3Dgraphy#10 for the design discussion.
+The backend-agnostic (SQLite + PostgreSQL via SQLAlchemy) bridge
+between s3dgraphy Graph objects and the relational tables used to live
+here; it moved into the library as ``s3dgraphy.sync`` in s3dgraphy
+1.6.0, after a Qt/QGIS decoupling pass (zalmoxes-laran/s3Dgraphy#10,
+PR #11, merged 2026-06-03). This package re-exports the library's
+public surface next to the pyArchInit modules listed below.
 
 pyArchInit-local note
 ---------------------
@@ -51,14 +49,15 @@ Errors:
 
 Workspace configuration
 -----------------------
-``_workspace._resolve_workspace_root()`` (pyArchInit copy) resolves the
-paradata workspace via a 3-tier fallback: the ``PYARCHINIT_WORKSPACE_DIR``
-env var, then the QSettings key ``pyarchinit/paradata_workspace`` (UI
-override), then the default ``~/pyarchinit/pyarchinit_DB_folder``. The
-upstream package drops the QSettings tier to stay Qt-free; the vendored
-copy keeps it because the plugin may import ``qgis.*``. The plugin also
-mirrors the QSettings value into the env var at boot and on config-dialog
-save — see ``modules/s3dgraphy/sync/README.md`` for the canonical wiring.
+The library's ``s3dgraphy.sync._workspace._resolve_workspace_root()``
+reads only the ``PYARCHINIT_WORKSPACE_DIR`` env var and otherwise falls
+back to the pyArchInit-4 folder ``~/pyarchinit/pyarchinit_DB_folder``
+(no QSettings tier: the library stays Qt-free). pyArchInit therefore
+always seeds the variable: the root ``__init__.py`` defaults it to the
+data home (``~/pyarchinit_5/pyarchinit_DB_folder``), ``initGui`` copies
+the QSettings override, and the config dialog re-mirrors it through
+``modules.utility.pyarchinit_home.mirror_workspace`` — see
+``modules/s3dgraphy/sync/README.md`` for the canonical wiring.
 
 Dependency note
 ---------------

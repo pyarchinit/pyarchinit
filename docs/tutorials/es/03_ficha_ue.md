@@ -808,8 +808,8 @@ Si una UE tiene cientos de relaciones estratigráficas (p. ej. un estrato cortad
 ### Tesauro
 
 Los campos con tesauro (definiciones) usan la tabla `pyarchinit_thesaurus_sigle`:
-- tipologia_sigla = '1.1' para definición estratigráfica
-- tipologia_sigla = '1.2' para definición interpretativa
+- tipologia_sigla = '2.3' para definición estratigráfica
+- tipologia_sigla = '2.4' para definición interpretativa
 
 ---
 

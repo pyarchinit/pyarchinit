@@ -2276,6 +2276,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'fr': 'codici_fr.html',
             'ar': 'codici_ar.html',
             'ca': 'codici_ca.html',
+            # le pagine c'erano, ma l'elenco no: chi usava queste lingue
+            # vedeva la pagina inglese (17 ottobre 2026)
+            'el': 'codici_el.html',
+            'pt': 'codici_pt.html',
+            'ro': 'codici_ro.html',
         }
         # Get the file for current language, default to English
         filename = lang_files.get(self.L, 'codici_en.html')

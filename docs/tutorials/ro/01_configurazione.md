@@ -358,26 +358,28 @@ In **Fila DB Sync** a ferestrei de configurare se gaseste sectiunea **Paradata W
 Fara override, calea rezolvata este:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sit>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sit>/
 ```
 
-Exemplu: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Exemplu: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+Este folderul de date pyArchInit 5; campul gol il afiseaza ca sugestie.
 
 ### Personalizarea caii
 
 - **Browse...** deschide un dialog pentru a alege un director. Calea este salvata imediat in QSettings QGIS.
 - Calea poate fi si **tastata** direct in campul text: valoarea este persistata la iesirea din camp (semnalul `editingFinished`). Lasarea campului gol elimina override-ul.
-- **Reset** goleste campul, elimina cheia din QSettings si restaureaza calea implicita.
+- **Reset** goleste campul, elimina cheia din QSettings si restaureaza calea implicita, `~/pyarchinit_5/pyarchinit_DB_folder` (inainte de 5.13.124-alpha revenea din greseala la folderul pyArchInit 4, `~/pyarchinit`).
 
 ### Lantul de rezolutie (cine castiga)
 
-Calea efectiva urmeaza un lant de fallback in 3 nivele:
+In QGIS, calea efectiva se decide astfel:
 
-1. **Variabila de mediu `PYARCHINIT_WORKSPACE_DIR`** (prioritate maxima — utila pentru scripturi CI/test).
-2. **QSettings `pyarchinit/paradata_workspace`** (override UI — aceasta sectiune).
-3. **Implicit** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. **Paradata Workspace** din aceasta sectiune (QSettings `pyarchinit/paradata_workspace`), daca este setat.
+2. **Variabila de mediu `PYARCHINIT_WORKSPACE_DIR`**, daca era deja setata inainte de pornirea QGIS (utila pentru scripturi CI/test).
+3. Valoarea **implicita** `~/pyarchinit_5/pyarchinit_DB_folder/`, care urmeaza folderul de date (`PYARCHINIT_HOME`, daca este setata).
 
-Valorile goale sunt sarite: daca `PYARCHINIT_WORKSPACE_DIR=""`, rezolutia trece la nivelul 2; daca si QSettings este gol, se foloseste calea implicita.
+In afara QGIS (scripturi, teste, linia de comanda) conteaza doar variabila de mediu, iar scripturile pyArchInit o seteaza singure pe folderul de date. Valorile goale sunt sarite.
 
 ### Cand are efect
 

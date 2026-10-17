@@ -193,3 +193,69 @@ def test_senza_cartelle_delle_miniature_registra_e_lo_dice(progetto):
     esito = _importa(progetto, thumb_path="", thumb_resize="")
     assert esito.inserted == 4 and esito.thumbnails == 0
     assert any("miniature" in w for w in esito.warnings)
+
+
+# ---------------------------------------------------------------------------
+# s3dgraphy 1.6.0.dev57: chi possiede davvero una proprietà, e gli indirizzi
+# alternativi di un file
+# ---------------------------------------------------------------------------
+
+def _grafo(nodi, archi):
+    from s3dgraphy.importer.emjson_importer import parse_emjson
+    grafo, _ = parse_emjson({"version": "1.0", "active_graph_id": "g",
+                             "header": {"format": "em.json", "version": "1.0", "schema_version": "2"},
+                             "graphs": {"g": {"graph_id": "g", "name": "Tempio",
+                                              "nodes": nodi, "edges": archi}}})
+    return grafo
+
+
+def _schede(grafo):
+    from modules.s3dgraphy.sync import em_native_import as emn
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        _NON_STRAT_TYPES, _PARADATA_ROW_TYPES, _is_synthetic_node)
+    return emn.row_nodes(grafo, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES, _is_synthetic_node)
+
+
+def test_il_proxy_di_una_proprieta_ereditata_va_al_proprietario_originale():
+    """Una USV che completa la SU002 ne eredita la proprietà (E.D.: una
+    proprietà, più proprietari, ognuno col suo has_property; quello che
+    eredita è marcato ``inherited``). Il proxy prendeva la strada del primo
+    arco del file e finiva sulla USV: va alla SU002, come lo disegna EMStudio
+    (``s3dgraphy.ownership.original_owner``)."""
+    nodi = [_nodo("u1", "US", "SU002"), _nodo("v9", "USVs", "USV9"),
+            _nodo("p1", "property", "geometry"),
+            _nodo("sh1", "semantic_shape", "Shape for SU002"),
+            _nodo("rp1", "resource", "SU002.glb", url="proxies/SU002.glb")]
+    eredita = dict(_arco("v9", "has_property", "p1"), attributes={"inherited": True})
+    archi = [eredita, _arco("u1", "has_property", "p1"),
+             _arco("p1", "has_semantic_shape", "sh1"), _arco("sh1", "has_linked_resource", "rp1")]
+    from modules.s3dgraphy.sync.em_media_import import collect_files
+    grafo = _grafo(nodi, archi)
+    file_di = collect_files(grafo, _schede(grafo))
+    assert [v["locator"] for v in file_di.get("u1", [])] == ["proxies/SU002.glb"]
+    assert "v9" not in file_di
+
+
+def test_un_file_nel_bucket_con_la_copia_sul_disco_si_importa(progetto, tmp_path):
+    """Una risorsa può avere più indirizzi degli stessi byte (il bucket e il
+    disco, ``data.addresses``): il risolutore della libreria, quando
+    l'indirizzo principale non è locale, prova quello locale. Noi la
+    scartavamo prima di chiederglielo, come un semplice riferimento web."""
+    nodi = [dict(n) for n in NODI]
+    for n in nodi:
+        if n["id"] == "rp2":
+            n["data"] = {"url": "https://bucket.example.org/tempio/SU003.glb",
+                         "addresses": [{"locator": "proxies/SU003.glb"}]}
+    radice = progetto["radice"]
+    shutil.copy2(GLB, radice / "EM" / "proxies" / "SU003.glb")
+    em = radice / "EM" / "tempio_bucket.em.json"
+    em.write_text(json.dumps({"version": "1.0", "active_graph_id": "g",
+                              "header": {"format": "em.json", "version": "1.0", "schema_version": "2"},
+                              "graphs": {"g": {"graph_id": "g", "name": "Tempio",
+                                               "nodes": nodi, "edges": ARCHI}}}), encoding="utf-8")
+    from modules.s3dgraphy.s3dgraphy_dot_bridge import read_graph_for_import
+    grafo, _ = read_graph_for_import(str(em))
+    esito = _importa(dict(progetto, grafo=grafo), em=em)
+    collegati = {(r[0], r[1]) for r in _collegati(progetto["db"])}
+    assert ("u2", "SU003") in collegati, collegati
+    assert esito.missing == [] and esito.references == 1     # resta solo la scheda online

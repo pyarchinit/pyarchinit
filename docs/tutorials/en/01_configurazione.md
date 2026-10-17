@@ -359,26 +359,28 @@ The **DB Sync tab** of the configuration window exposes a **Paradata Workspace**
 Without any override, the resolved path is:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<site>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<site>/
 ```
 
-Example: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Example: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+It is the pyArchInit 5 data folder; the empty field shows it as a hint.
 
 ### Customising the path
 
 - **Browse...** opens a file dialog to pick a directory. The path is persisted to QGIS QSettings immediately.
 - You can also **type** the path directly into the text field: the value is saved when the field loses focus (`editingFinished` signal). Leaving it empty removes the override.
-- **Reset** clears the field, removes the QSettings key, and falls back to the default path.
+- **Reset** clears the field, removes the QSettings key, and falls back to the default path, `~/pyarchinit_5/pyarchinit_DB_folder` (before 5.13.124-alpha it wrongly went back to pyArchInit 4's folder, `~/pyarchinit`).
 
 ### Resolution chain (who wins)
 
-The effective path follows a 3-tier fallback chain:
+Inside QGIS the effective path is decided like this:
 
-1. **`PYARCHINIT_WORKSPACE_DIR` environment variable** (highest priority — useful for CI/test scripts).
-2. **QSettings `pyarchinit/paradata_workspace`** (UI override — this section).
-3. **Default** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. The **Paradata Workspace** of this section (QSettings `pyarchinit/paradata_workspace`), if it is set.
+2. The **`PYARCHINIT_WORKSPACE_DIR` environment variable**, if it was already set before QGIS was started (useful for CI/test scripts).
+3. The **default** `~/pyarchinit_5/pyarchinit_DB_folder/`, which follows the data folder (`PYARCHINIT_HOME`, if it is set).
 
-Empty values are skipped: if `PYARCHINIT_WORKSPACE_DIR=""`, resolution falls through to tier 2; if QSettings is also empty, the default is used.
+Outside QGIS (scripts, tests, command line) only the environment variable counts, and pyArchInit's scripts set it themselves to the data folder. Empty values are skipped.
 
 ### When it takes effect
 

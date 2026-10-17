@@ -811,6 +811,99 @@ Explanation in Italian:"""
         except Exception as e:
             return f"Errore nella spiegazione: {e}"
 
+    # ------------------------------------------------------ modello locale
+    # La finestra Text2SQL della scheda US scarica un modello GGUF (Phi-3
+    # mini, circa 2 GB) e poi chiamava `make_local_request` ed
+    # `explain_local_request`, che non esistevano: scegliere «modello locale»
+    # dava un AttributeError (17 ottobre 2026). Il GGUF si usa con
+    # llama-cpp-python quando c'è; senza, si passa a Ollama se è acceso;
+    # senza nessuno dei due si dice che cosa manca.
+
+    #: il motore llama-cpp, caricato una volta sola (il modello è grande)
+    _llama = None
+
+    @staticmethod
+    def _local_model_path():
+        """Il GGUF che la finestra Text2SQL scarica."""
+        return os.path.join(pyarchinit_home_bin(), "phi3_text2sql.gguf")
+
+    @staticmethod
+    def _llama_engine():
+        """Il modello scaricato, aperto con llama-cpp-python; None se manca
+        il file o il pacchetto."""
+        if MakeSQL._llama is not None:
+            return MakeSQL._llama
+        percorso = MakeSQL._local_model_path()
+        if not os.path.exists(percorso):
+            return None
+        try:
+            from llama_cpp import Llama
+        except Exception:                                    # noqa: BLE001
+            return None
+        MakeSQL._llama = Llama(model_path=percorso, n_ctx=4096, verbose=False)
+        return MakeSQL._llama
+
+    @staticmethod
+    def _ollama_model():
+        """Il modello Ollama da usare: un Phi-3 se c'è (lo stesso del GGUF),
+        altrimenti il primo installato."""
+        modelli = MakeSQL.get_ollama_models() or []
+        for nome in modelli:
+            if "phi3" in str(nome).lower():
+                return nome
+        return modelli[0] if modelli else "llama3.2"
+
+    @staticmethod
+    def _local_unavailable(parent=None):
+        QMessageBox.information(
+            parent, "Text2SQL locale",
+            "Il modello locale scaricato (%s) si usa con il pacchetto llama-cpp-python, "
+            "che non è installato. In alternativa avvia Ollama ('ollama serve') e riprova, "
+            "oppure scegli la modalità API." % MakeSQL._local_model_path())
+
+    @staticmethod
+    def _llama_chat(motore, sistema, utente, max_tokens):
+        risposta = motore.create_chat_completion(
+            messages=[{"role": "system", "content": sistema},
+                      {"role": "user", "content": utente}],
+            max_tokens=max_tokens, temperature=0.1)
+        return str(risposta["choices"][0]["message"]["content"] or "")
+
+    @staticmethod
+    def make_local_request(prompt, db_type, parent=None):
+        """La query SQL dal modello locale (llama-cpp o Ollama), o None."""
+        motore = MakeSQL._llama_engine()
+        if motore is not None:
+            schema = MakeSQL.schema_to_text(database_schema.get_metadata())
+            sistema = ("You are an SQL expert for archaeological databases. "
+                       "Database type: %s.\n%s\nAnswer with ONLY the SQL query, directly "
+                       "executable; after it, on a new line preceded by '---', a short "
+                       "explanation in Italian." % (db_type, schema))
+            testo = MakeSQL._llama_chat(
+                motore, sistema, "Convert this natural language query to SQL: %s" % prompt, 800)
+            return MakeSQL.clean_sql_query(testo.split("---", 1)[0])
+        if MakeSQL.check_ollama_status():
+            sql, _spiegazione = MakeSQL.make_ollama_request(
+                prompt, db_type, model=MakeSQL._ollama_model(), parent=parent)
+            return sql
+        MakeSQL._local_unavailable(parent)
+        return None
+
+    @staticmethod
+    def explain_local_request(sql_query, parent=None):
+        """La spiegazione di una query dal modello locale, o None."""
+        motore = MakeSQL._llama_engine()
+        if motore is not None:
+            return MakeSQL._llama_chat(
+                motore, "You are an expert in archaeological databases. Explain SQL queries "
+                        "clearly and briefly, in Italian.",
+                "Spiega questa query: %s" % sql_query, 600).strip()
+        if MakeSQL.check_ollama_status():
+            return MakeSQL.explain_ollama_request(
+                sql_query, model=MakeSQL._ollama_model(), parent=parent)
+        MakeSQL._local_unavailable(parent)
+        return None
+
     @staticmethod
     def make_api_request(prompt, db, apikey):
         """Metodo legacy per compatibilità - ora usa OpenAI GPT-4 invece di text2sql.ai"""

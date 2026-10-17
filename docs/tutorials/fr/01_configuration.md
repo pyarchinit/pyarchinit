@@ -327,26 +327,28 @@ Dans l'**onglet DB Sync** de la fenêtre de configuration se trouve la section *
 Sans override, le chemin résolu est :
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<site>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<site>/
 ```
 
-Exemple : `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Exemple : `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+C'est le dossier de données de pyArchInit 5 ; le champ vide l'affiche comme suggestion.
 
 ### Personnaliser le chemin
 
 - **Parcourir...** ouvre une boîte de dialogue pour choisir un répertoire. Le chemin est immédiatement enregistré dans les QSettings de QGIS.
 - Vous pouvez également **saisir** le chemin directement dans le champ texte : la valeur est persistée à la sortie du champ (signal `editingFinished`). Laisser le champ vide supprime l'override.
-- **Réinitialiser** efface le champ, supprime la clé des QSettings et restaure le chemin par défaut.
+- **Réinitialiser** efface le champ, supprime la clé des QSettings et restaure le chemin par défaut, `~/pyarchinit_5/pyarchinit_DB_folder` (avant la 5.13.124-alpha, il revenait par erreur au dossier de pyArchInit 4, `~/pyarchinit`).
 
 ### Chaîne de résolution (qui l'emporte)
 
-Le chemin effectif suit une chaîne de fallback à 3 niveaux :
+Dans QGIS, le chemin effectif se décide ainsi :
 
-1. **Variable d'environnement `PYARCHINIT_WORKSPACE_DIR`** (priorité maximale — utile pour les scripts CI/test).
-2. **QSettings `pyarchinit/paradata_workspace`** (override de l'UI — cette section).
-3. **Valeur par défaut** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. Le **Paradata Workspace** de cette section (QSettings `pyarchinit/paradata_workspace`), s'il est défini.
+2. La **variable d'environnement `PYARCHINIT_WORKSPACE_DIR`**, si elle était déjà définie avant le démarrage de QGIS (utile pour les scripts CI/test).
+3. La **valeur par défaut** `~/pyarchinit_5/pyarchinit_DB_folder/`, qui suit le dossier de données (`PYARCHINIT_HOME`, si elle est définie).
 
-Les valeurs vides sont ignorées : si `PYARCHINIT_WORKSPACE_DIR=""`, la résolution passe au niveau 2 ; si les QSettings sont également vides, on utilise la valeur par défaut.
+En dehors de QGIS (scripts, tests, ligne de commande), seule la variable d'environnement compte, et les scripts de pyArchInit la définissent eux-mêmes sur le dossier de données. Les valeurs vides sont ignorées.
 
 ### Quand le changement prend effet
 

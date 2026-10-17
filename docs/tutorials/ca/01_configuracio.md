@@ -477,26 +477,28 @@ A la **Pestanya DB Sync** de la finestra de configuració hi ha la secció **Par
 Sense override, la ruta resolta és:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<lloc>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<lloc>/
 ```
 
-Exemple: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Exemple: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+És la carpeta de dades de pyArchInit 5; el camp buit la mostra com a suggeriment.
 
 ### Personalitzar la ruta
 
 - **Examinar...** obre un diàleg de fitxers per triar un directori. La ruta es desa immediatament a les QSettings de QGIS.
 - També es pot **escriure** la ruta directament al camp de text: el valor es persisteix en sortir del camp (senyal `editingFinished`). Deixar-lo buit elimina l'override.
-- **Restablir** buida el camp, elimina la clau de QSettings i restaura la ruta per defecte.
+- **Restablir** buida el camp, elimina la clau de QSettings i restaura la ruta per defecte, `~/pyarchinit_5/pyarchinit_DB_folder` (abans de la 5.13.124-alpha tornava per error a la carpeta de pyArchInit 4, `~/pyarchinit`).
 
 ### Cadena de resolució (qui guanya)
 
-La ruta efectiva segueix una cadena de fallback de 3 nivells:
+Dins de QGIS la ruta efectiva es decideix així:
 
-1. **Variable d'entorn `PYARCHINIT_WORKSPACE_DIR`** (prioritat màxima — útil per a scripts de CI/test).
-2. **QSettings `pyarchinit/paradata_workspace`** (override de la UI — aquesta secció).
-3. **Per defecte** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. El **Paradata Workspace** d'aquesta secció (QSettings `pyarchinit/paradata_workspace`), si està definit.
+2. La **variable d'entorn `PYARCHINIT_WORKSPACE_DIR`**, si ja estava definida abans d'iniciar QGIS (útil per a scripts de CI/test).
+3. El valor **per defecte** `~/pyarchinit_5/pyarchinit_DB_folder/`, que segueix la carpeta de dades (`PYARCHINIT_HOME`, si està definida).
 
-Els valors buits se salten: si `PYARCHINIT_WORKSPACE_DIR=""`, la resolució passa al nivell 2; si les QSettings també són buides, s'utilitza el valor per defecte.
+Fora de QGIS (scripts, tests, línia d'ordres) només compta la variable d'entorn, i els scripts de pyArchInit l'estableixen ells mateixos a la carpeta de dades. Els valors buits se salten.
 
 ### Quan té efecte
 
@@ -584,7 +586,7 @@ A la part superior de la pestanya principal, hi ha una secció per comparar base
 ## Notes Tècniques
 
 - Les configuracions es desen a les QgsSettings de QGIS
-- La base de dades per defecte és `Home/pyarchint/pyarchinit_DB_folder/pyarchinit_db.sqlite`
+- La base de dades per defecte és `Home/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite`
 - Els logs de depuració es desen a `[TEMP]/pyarchinit_debug.log`
 - La variable d'entorn `PYARCHINIT_HOME` apunta a la carpeta `pyarchinit` instal·lada a la Home de l'usuari
 

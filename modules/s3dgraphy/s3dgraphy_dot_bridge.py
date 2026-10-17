@@ -86,7 +86,9 @@ def _import_breakdown(graph):
             _NON_STRAT_TYPES, _PARADATA_ROW_TYPES, _is_synthetic_node)
         rows = _emn.row_nodes(graph, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES,
                               _is_synthetic_node)
-        return _emn.summary_text(*_emn.summarize(graph, rows))
+        testo = _emn.summary_text(*_emn.summarize(graph, rows))
+        proxy = _emn.proxy_text(graph)
+        return testo + ("\n" + proxy if proxy else "")
     except Exception:                               # noqa: BLE001
         return ""
 

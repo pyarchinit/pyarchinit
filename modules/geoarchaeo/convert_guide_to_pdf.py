@@ -129,8 +129,8 @@ def create_pdf_from_markdown():
         story.append(Spacer(1, 0.5*inch))
         story.append(Paragraph("Analisi Geostatistica per l'Archeologia in QGIS", subtitle_style))
         story.append(Spacer(1, 2*inch))
-        story.append(Paragraph("Versione 1.0.0", normal_style))
-        story.append(Paragraph("Gennaio 2024", normal_style))
+        story.append(Paragraph("Versione 1.3.1", normal_style))
+        story.append(Paragraph("Ottobre 2026", normal_style))
         story.append(PageBreak())
         
         # Indice
@@ -196,13 +196,12 @@ def create_pdf_from_markdown():
         
         libs_data = [
             ["Libreria", "Versione", "Uso"],
-            ["numpy", ">= 1.19.0", "Calcoli numerici"],
-            ["scipy", ">= 1.5.0", "Algoritmi scientifici"],
-            ["pandas", ">= 1.1.0", "Gestione dati"],
-            ["scikit-learn", ">= 0.23.0", "Machine Learning (opz.)"],
-            ["plotly", ">= 4.14.0", "Visualizzazioni interattive"],
-            ["pykrige", ">= 1.5.0", "Kriging avanzato"],
-            ["reportlab", "qualsiasi", "PDF professionali (opz.)"]
+            ["numpy", ">= 1.20", "Calcoli numerici"],
+            ["scipy", ">= 1.5", "Algoritmi scientifici"],
+            ["pandas", ">= 1.0", "Gestione dati"],
+            ["scikit-learn", ">= 0.24", "Machine Learning"],
+            ["plotly", ">= 5.0", "Visualizzazioni interattive"],
+            ["matplotlib", "qualsiasi", "Anteprima grafici (opz.)"]
         ]
         
         libs_table = Table(libs_data, colWidths=[4*cm, 3*cm, 7*cm])

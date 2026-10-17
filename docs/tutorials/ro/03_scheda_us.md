@@ -1068,8 +1068,8 @@ Butonul **Convertire in Word** permite:
 ### Tezaur
 
 Campurile cu tezaur (definitii) folosesc tabelul `pyarchinit_thesaurus_sigle`:
-- tipologia_sigla = '1.1' pentru definitia stratigrafica
-- tipologia_sigla = '1.2' pentru definitia interpretativa
+- tipologia_sigla = '2.3' pentru definitia stratigrafica
+- tipologia_sigla = '2.4' pentru definitia interpretativa
 
 ### Straturi GIS
 

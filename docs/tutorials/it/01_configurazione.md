@@ -620,26 +620,28 @@ Nel **Tab DB Sync** della finestra di configurazione e disponibile la sezione **
 Senza override, il percorso usato e:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sito>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sito>/
 ```
 
-Esempio: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Esempio: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+È la cartella dei dati di pyArchInit 5; il campo vuoto la mostra come suggerimento.
 
 ### Personalizzare il percorso
 
 - **Browse...** apre un file dialog per selezionare una directory. Il percorso viene salvato immediatamente nelle QSettings di QGIS.
 - E possibile anche **digitare** il percorso direttamente nel campo di testo: il valore viene persistito quando si esce dal campo (signal `editingFinished`). Lasciandolo vuoto si rimuove l'override.
-- **Reset** cancella il campo, rimuove la chiave dalle QSettings e ripristina il percorso predefinito.
+- **Reset** cancella il campo, rimuove la chiave dalle QSettings e ripristina il percorso predefinito, `~/pyarchinit_5/pyarchinit_DB_folder` (prima della 5.13.124-alpha tornava per errore alla cartella di pyArchInit 4, `~/pyarchinit`).
 
 ### Catena di risoluzione (chi vince)
 
-Il path effettivo segue una catena di fallback a 3 livelli:
+Dentro QGIS il percorso effettivo si decide così:
 
-1. **Variabile d'ambiente `PYARCHINIT_WORKSPACE_DIR`** (priorita massima — utile per script CI/test).
-2. **QSettings `pyarchinit/paradata_workspace`** (override da UI — questa sezione).
-3. **Default** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. **Paradata Workspace** di questa sezione (QSettings `pyarchinit/paradata_workspace`), se è impostato.
+2. La **variabile d'ambiente `PYARCHINIT_WORKSPACE_DIR`**, se era già impostata prima di avviare QGIS (utile per script CI/test).
+3. Il **default** `~/pyarchinit_5/pyarchinit_DB_folder/`, che segue la cartella dei dati (`PYARCHINIT_HOME`, se è impostata).
 
-I valori vuoti vengono saltati: se `PYARCHINIT_WORKSPACE_DIR=""` si passa al livello 2; se anche le QSettings sono vuote, si usa il default.
+Fuori da QGIS (script, test, riga di comando) conta solo la variabile d'ambiente, e gli script di pyArchInit la impostano da soli sulla cartella dei dati. I valori vuoti vengono saltati.
 
 ### Quando ha effetto
 
@@ -784,7 +786,7 @@ Nella parte superiore della scheda principale, c'e una sezione per confrontare d
 ## Note Tecniche
 
 - Le impostazioni sono salvate nelle QgsSettings di QGIS
-- Il database predefinito e `Home/pyarchint/pyarchinit_DB_folder/pyarchinit_db.sqlite`
+- Il database predefinito e `Home/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite`
 - I log di debug sono salvati in `[TEMP]/pyarchinit_debug.log`
 - La variabile d'ambiente `PYARCHINIT_HOME` punta alla cartella `pyarchinit` installata nella Home dell'utente
 

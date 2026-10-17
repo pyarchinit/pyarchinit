@@ -97,9 +97,12 @@ VOCABOLARI = {
         "Rettilineo", "Curvilineo", "Absidato", "Rettangolare",
         "Quadrangolare", "Circolare", "Irregolare", "Non determinabile"]),
 
-    ("tomba_table", "7.2"): ("Tipo di copertura", [
-        "Lastre litiche", "Cassa in laterizi", "Coppi", "Terra di riempimento",
-        "Assente", "Non determinabile"]),
+    # 7.2 è lo **stato di conservazione**: la scheda lo mette in
+    # `comboBox_conservazione_taf`, colonna `stato_di_conservazione`, e i
+    # record ci scrivono «Buono», «Scarso». Qui era «Tipo di copertura», con
+    # lastre litiche e coppi: la copertura è il 7.3 (`copertura_tipo`).
+    ("tomba_table", "7.2"): ("Stato di conservazione", [
+        "Ottimo", "Buono", "Discreto", "Scarso", "Non determinabile"]),
     # 7.8 è **area**, non il corredo: lo dice `SYNCHRONIZED_FIELDS` in
     # `tabs/Thesaurus.py`, dove `('tomba_table', '7.8')` sta nel gruppo
     # «area» insieme a `us_table 2.43` e `individui_table 8.6`. Quel

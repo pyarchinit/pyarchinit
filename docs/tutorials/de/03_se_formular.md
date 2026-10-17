@@ -853,8 +853,8 @@ Hat eine SE Hunderte stratigraphischer Beziehungen (z. B. eine Schicht, die von 
 ### Thesaurus
 
 Felder mit Thesaurus (Definitionen) verwenden die Tabelle `pyarchinit_thesaurus_sigle`:
-- tipologia_sigla = '1.1' für stratigraphische Definition
-- tipologia_sigla = '1.2' für interpretative Definition
+- tipologia_sigla = '2.3' für stratigraphische Definition
+- tipologia_sigla = '2.4' für interpretative Definition
 
 ---
 

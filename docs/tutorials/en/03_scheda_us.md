@@ -1068,8 +1068,8 @@ The **Convert to Word** button allows:
 ### Thesaurus
 
 Fields with thesaurus (definitions) use table `pyarchinit_thesaurus_sigle`:
-- tipologia_sigla = '1.1' for stratigraphic definition
-- tipologia_sigla = '1.2' for interpretive definition
+- tipologia_sigla = '2.3' for stratigraphic definition
+- tipologia_sigla = '2.4' for interpretive definition
 
 ### GIS Layers
 

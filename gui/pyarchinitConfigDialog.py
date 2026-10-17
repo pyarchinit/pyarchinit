@@ -1153,20 +1153,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # and ALSO mirrored into the PYARCHINIT_WORKSPACE_DIR env var
             # (s3dgraphy #10: env var is the single channel s3dgraphy.sync
             # reads — it no longer touches QSettings directly). Empty =
-            # use default (~/pyarchinit/pyarchinit_DB_folder).
-            import os as _os
+            # use default (<data home>/pyarchinit_DB_folder).
             from qgis.PyQt.QtCore import QSettings as _QSettings
             from pathlib import Path
+            from modules.utility.pyarchinit_home import (
+                default_workspace_dir, mirror_workspace)
 
             def _propagate_workspace_to_env():
                 """Mirror QSettings paradata_workspace into the env var
-                so s3dgraphy.sync._workspace sees the override."""
-                _v = _QSettings().value(
-                    "pyarchinit/paradata_workspace", "") or ""
-                if _v:
-                    _os.environ["PYARCHINIT_WORKSPACE_DIR"] = str(_v)
-                else:
-                    _os.environ.pop("PYARCHINIT_WORKSPACE_DIR", None)
+                so s3dgraphy.sync._workspace sees the override. A blank
+                value goes back to the data home: dropping the variable
+                sent the library to ~/pyarchinit (pyArchInit 4)."""
+                mirror_workspace(_QSettings().value(
+                    "pyarchinit/paradata_workspace", "") or "")
             workspace_group = QGroupBox(self.tr("Paradata Workspace"))
             workspace_group.setStyleSheet("""
                 QGroupBox { font-weight: bold; border: 2px solid #607D8B; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
@@ -1179,8 +1178,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "and group files are stored. SQLite continues to store these "
                 "files next to the .sqlite database (this setting does not "
                 "affect SQLite). Leave blank to use the default "
-                "(~/pyarchinit/pyarchinit_DB_folder)."
-            ))
+                "({0})."
+            ).format(default_workspace_dir()))
             workspace_info_label.setWordWrap(True)
             workspace_layout.addWidget(workspace_info_label)
 
@@ -1193,8 +1192,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "pyarchinit/paradata_workspace", "") or ""
             self._workspace_lineedit.setText(str(_current_ws))
             self._workspace_lineedit.setPlaceholderText(self.tr(
-                "(default: ~/pyarchinit/pyarchinit_DB_folder)"
-            ))
+                "(default: {0})"
+            ).format(default_workspace_dir()))
             workspace_path_row.addWidget(self._workspace_lineedit, stretch=1)
 
             def _on_workspace_edit_finished():

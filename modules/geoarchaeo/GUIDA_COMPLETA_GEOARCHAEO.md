@@ -1,6 +1,8 @@
 # Guida Completa GeoArchaeo Plugin
 ## Analisi Geostatistica per l'Archeologia in QGIS
 
+Enzo Cocca
+
 ---
 
 ## Indice
@@ -38,13 +40,12 @@ GeoArchaeo è un plugin QGIS specializzato per l'analisi geostatistica di dati a
 - Python 3.6+
 - Librerie Python richieste:
   ```
-  numpy >= 1.19.0
-  scipy >= 1.5.0
-  pandas >= 1.1.0
-  scikit-learn >= 0.23.0 (opzionale, per ML)
-  plotly >= 4.14.0 (per visualizzazioni interattive)
-  pykrige >= 1.5.0 (per kriging avanzato)
-  reportlab (opzionale, per PDF professionali)
+  numpy >= 1.20
+  scipy >= 1.5
+  pandas >= 1.0
+  scikit-learn >= 0.24 (per ML)
+  plotly >= 5.0 (per visualizzazioni interattive)
+  matplotlib (opzionale, anteprima statica dei grafici senza QtWebEngine)
   ```
 
 ### Installazione:
@@ -57,7 +58,7 @@ GeoArchaeo è un plugin QGIS specializzato per l'analisi geostatistica di dati a
 
 ### Primo Utilizzo:
 1. Clicca sull'icona GeoArchaeo nella toolbar
-2. Usa "Carica Layer di Test" per dati di esempio
+2. Usa "Carica dati di esempio" (toolbar o pannello) per i dati di esempio
 3. Esplora le varie funzionalità con i dati forniti
 
 ---
@@ -117,9 +118,10 @@ Output:
 ### 4.2 Kriging (Interpolazione)
 
 **Tipi disponibili:**
-1. **Ordinary Kriging**: Standard, assume media costante ma sconosciuta
-2. **Universal Kriging**: Con trend spaziale (deriva)
-3. **Co-Kriging**: Usa variabili secondarie correlate
+1. **Ordinary Kriging**: Standard, assume media costante ma sconosciuta (scheda Kriging e Processing)
+2. **Co-Kriging semplificato**: Regressione sulle variabili secondarie correlate + Ordinary Kriging dei residui (solo Processing)
+3. **Kriging spazio-temporale**: Il tempo come terza dimensione (solo Processing)
+4. **Batch kriging**: Ordinary Kriging a tile per dataset grandi (solo Processing)
 
 **Input:**
 - Layer punti con valori
@@ -129,13 +131,13 @@ Output:
 
 **Output:**
 - Raster interpolato (.tif)
-- Raster varianza predizione
-- Cross-validation metrics (RMSE, MAE, R²)
+- Raster incertezza (deviazione standard della predizione)
+- Cross-validation leave-one-out (RMSE, MAE, ME, R², MSDR)
 
 **Interpretazione Cross-Validation:**
 - RMSE < 10% del range dati = Ottimo
 - MAE = Errore medio assoluto
-- R² > 0.7 = Buona capacità predittiva
+- R² >= 0.5 = Buona capacità predittiva (< 0.2 = bassa)
 
 ### 4.3 Machine Learning
 
@@ -149,16 +151,16 @@ Output:
 #### DBSCAN (Density-Based Clustering)
 - **Uso**: Identificare concentrazioni anomale
 - **Vantaggio**: Trova cluster di forma irregolare
-- **Parametri**: eps (raggio), min_samples
+- **Parametri**: eps e min_samples stimati automaticamente dai dati
 
 #### Random Forest
-- **Uso**: Classificare siti/periodi
-- **Richiede**: Layer training con etichette
-- **Output**: Probabilità di appartenenza
+- **Uso**: Classificare siti/periodi (solo Processing)
+- **Richiede**: Campo etichetta (i punti con etichetta addestrano il modello, gli altri vengono classificati)
+- **Output**: Etichetta di classe per ogni punto
 
 #### Isolation Forest
 - **Uso**: Detectare anomalie (es. sepolture, strutture)
-- **Output**: Score anomalia (0=normale, 1=anomalo)
+- **Output**: Etichetta anomalia (0=normale, 1=anomalo; circa il 10% dei punti)
 
 ### 4.4 Campionamento Ottimale
 
@@ -170,19 +172,21 @@ Output:
 2. **Riduzione Varianza**: Minimizza varianza kriging
    - Ottimale per interpolazione accurata
 
-3. **Stratificato**: Basato su zone/strati
-   - Utile per aree eterogenee
+3. **Stratificato**: Griglia regolare con leggera perturbazione casuale
+   - Copertura regolare dell'area di studio
+
+4. **Adattivo**: Estrazione casuale pesata verso le zone con pochi punti esistenti
+   - Privilegia le zone meno campionate
 
 **Input:**
 - Punti esistenti
 - Numero nuovi punti desiderati
-- Area di studio (poligono)
+- Area di studio (poligono, opzionale)
 - Metodo selezione
 
 **Output:**
 - Layer punti suggeriti (stelle gialle)
-- Priorità campionamento
-- Riduzione varianza attesa
+- Priorità campionamento (ordine di scelta)
 
 ---
 
@@ -226,9 +230,9 @@ Output:
 
 **Procedura:**
 1. **Carica entrambi i dataset**
-2. **Co-Kriging** con GPR primario, MAG secondario
-3. **ML Anomaly Detection** su raster combinato
-4. **Risultato**: Mappa probabilità strutture
+2. **Co-Kriging** (Processing) con GPR primario, MAG secondario
+3. **ML Anomaly Detection** (Isolation Forest) sui punti dei rilievi
+4. **Risultato**: Raster di predizione (con incertezza) e layer delle anomalie
 
 ### Esempio 3: Pianificazione Scavo
 
@@ -238,7 +242,6 @@ Output:
 1. **Variogramma** su dati esistenti
 2. **Campionamento ottimale** - Metodo varianza
 3. **Risultato**: 10 posizioni che massimizzano informazione
-4. **Stima miglioramento**: -35% varianza predizione
 
 ---
 
@@ -259,16 +262,16 @@ Output:
 **Interpretazioni comuni:**
 - **Nugget alto**: Molta variabilità locale o errori misura
 - **Range corto**: Fenomeno molto variabile spazialmente
-- **Crescita lineare**: Presenza di trend, usa Universal Kriging
+- **Crescita lineare**: Presenza di trend: il plugin applica solo l'Ordinary Kriging, rimuovi prima il trend
 
 ### 6.2 Mappe Kriging
 
 **Raster Predizione**:
 - Colori caldi = Valori alti
 - Colori freddi = Valori bassi
-- Contour lines = Isovalore
+- Curve di livello (opzionali, da generare con gli strumenti di QGIS) = Isovalore
 
-**Raster Varianza**:
+**Raster Incertezza** (deviazione standard):
 - Bassa vicino ai punti campionati
 - Alta in aree scoperte
 - Guida per nuovo campionamento
@@ -280,10 +283,10 @@ Output:
 - Punti isolati = Possibili outlier
 - Cluster grandi = Pattern dominanti
 
-**Anomaly Score**:
-- 0-0.3 = Normale
-- 0.3-0.7 = Interessante
-- 0.7-1.0 = Anomalia forte
+**Anomalie (Isolation Forest)**:
+- Normale = punto in linea con gli altri
+- Anomalia = punto isolato dal resto (circa il 10% dei punti)
+- Nessun punteggio continuo: ogni punto è normale o anomalo
 
 ---
 
@@ -337,16 +340,16 @@ Dove E(h(x)) = lunghezza media percorso negli alberi
 ### 8.3 Scavi Stratigrafici
 **Problema**: Correlare strati tra saggi distanti
 **Soluzione**:
-- Kriging 3D (quota + attributi)
+- Kriging spazio-temporale (fasi o date come terza dimensione)
 - Pattern recognition su ceramica diagnostica
 - Interpolazione cronologica
 
 ### 8.4 Survey Territoriale
 **Problema**: Ottimizzare copertura in area vasta
 **Soluzione**:
-- Campionamento adattivo basato su primi risultati
-- Stratificazione per geomorfologia
-- Predizione aree alto potenziale
+- Campionamento adattivo (privilegia le zone meno campionate)
+- Griglia stratificata sull'area di studio
+- Raster dell'incertezza per individuare le aree scoperte
 
 ---
 
@@ -354,8 +357,8 @@ Dove E(h(x)) = lunghezza media percorso negli alberi
 
 ### Errori Comuni e Soluzioni
 
-**"Troppi pochi punti per kriging"**
-- Minimo: 10-15 punti
+**"Servono almeno 5 punti con valore valido"**
+- Il pannello richiede almeno 5 punti (gli algoritmi di Processing almeno 3); per un variogramma affidabile ne servono 10-15 o più
 - Soluzione: Aggregare aree o usare metodi deterministici
 
 **"Variogramma non converge"**
@@ -364,7 +367,7 @@ Dove E(h(x)) = lunghezza media percorso negli alberi
 
 **"Memory error in ML"**
 - Dataset troppo grande
-- Usa batch processing o riduci features
+- Riduci il numero di punti o di campi numerici (il batch processing esiste solo per il kriging)
 
 **"Raster vuoto/nero"**
 - Controlla CRS compatibili
@@ -485,10 +488,10 @@ Per supporto e contributi:
 Se usi GeoArchaeo in pubblicazioni:
 ```
 {Autore} (2024). GeoArchaeo: Geostatistical Analysis for Archaeology. 
-QGIS Plugin v1.0. DOI: [xxx]
+QGIS Plugin v1.3.1. DOI: [xxx]
 ```
 
 ---
 
-*Documento aggiornato: Gennaio 2024*
-*Versione Plugin: 1.0.0*
+*Documento aggiornato: Ottobre 2026*
+*Versione Plugin: 1.3.1*

@@ -14,13 +14,15 @@ Da ogni scheda importata si seguono i legami del grafo verso i file:
 Il proxy di un'unità, nel grafo, sta sulla sua proprietà «geometry»
 (unità —has_property→ geometry —has_semantic_shape→ forma → proxies/SU002.glb):
 quello che si trova partendo da una proprietà va all'unità che la possiede,
-dove la scheda e il pannello della matrice lo cercano.
+dove la scheda e il pannello della matrice lo cercano; se la proprietà è
+ereditata da altre unità, al proprietario originale (regole della libreria).
 
 I file si cercano come li cerca EMStudio, con il risolutore della libreria
 (``s3dgraphy.resources.locate``): l'albero di un progetto EM (``EM/``,
 ``EM/DosCo``, ``EM/proxies``, ``RB``, ``RM``, ``SB``) attorno all'em.json e
-alle cartelle indicate da chi importa. Un file che è lì ma con i byte a zero
-(un segnaposto del cloud) si dice, non si importa.
+alle cartelle indicate da chi importa; un file nel bucket con una copia sul
+disco (``data.addresses``) si prende dal disco. Un file che è lì ma con i
+byte a zero (un segnaposto del cloud) si dice, non si importa.
 
 Il media punta al file ORIGINALE, come quelli della scheda; la miniatura e la
 copia vanno nelle cartelle di pyArchInit (``media_preview``). Prima si
@@ -130,20 +132,47 @@ def _checksum(node) -> str:
     return str(dati.get("checksum") or "") if isinstance(dati, dict) else ""
 
 
+def _indirizzi(node) -> List[str]:
+    """Gli altri indirizzi degli stessi byte (``data.addresses``: il bucket e
+    il disco), come li legge ``s3dgraphy.resources.locate.entries_of``."""
+    dati = getattr(node, "data", None)
+    voci = dati.get("addresses") if isinstance(dati, dict) else None
+    return [str(a["locator"]) for a in voci or ()
+            if isinstance(a, dict) and a.get("locator")]
+
+
+def _remoto(locatore: str) -> bool:
+    basso = locatore.lower()
+    return "://" in basso and not basso.startswith("file://")
+
+
 def owners_of_properties(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, str]:
-    """``{id della proprietà: id della scheda che la possiede}``."""
-    out: Dict[str, str] = {}
+    """``{id della proprietà: id della scheda che la possiede}``.
+
+    Una proprietà può avere più proprietari (una USV eredita la geometria
+    o il materiale della US che completa, ognuna col suo has_property): i
+    file vanno al proprietario ORIGINALE, con le regole della libreria
+    (``s3dgraphy.ownership.original_owner``: l'arco non marcato
+    ``inherited``, poi il gruppo dei paradati, poi la data di creazione),
+    come lo disegna EMStudio. Quando nemmeno la libreria sa dirlo resta il
+    primo arco del file."""
+    from s3dgraphy.ownership import original_owner
+    primi: Dict[str, str] = {}
     for e in getattr(graph, "edges", None) or []:
         if getattr(e, "edge_type", None) != "has_property":
             continue
         src, tgt = str(e.edge_source), str(e.edge_target)
         if src in rows and tgt in rows and rows[tgt][1] == "property":
-            out.setdefault(tgt, src)
+            primi.setdefault(tgt, src)
+    out: Dict[str, str] = {}
+    for proprieta, primo in primi.items():
+        originale = original_owner(graph, proprieta)
+        out[proprieta] = originale if originale in rows else primo
     return out
 
 
 def collect_files(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, List[Dict[str, str]]]:
-    """``{id della scheda: [{id, locator, checksum}]}``: i file raggiungibili
+    """``{id della scheda: [{id, locator, checksum, addresses}]}``: i file raggiungibili
     da ogni scheda attraverso risorse e modelli (al massimo tre passi, senza
     attraversare altre schede). Quelli di una proprietà vanno all'unità che
     la possiede."""
@@ -158,7 +187,8 @@ def collect_files(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, List[Dic
         trovati = []
         proprio = _locatore(nodo)
         if proprio:
-            trovati.append({"id": nid, "locator": proprio, "checksum": _checksum(nodo)})
+            trovati.append({"id": nid, "locator": proprio, "checksum": _checksum(nodo),
+                            "addresses": _indirizzi(nodo)})
         visti, frontiera = {nid}, [nid]
         for _passo in range(3):
             prossimi = []
@@ -173,7 +203,8 @@ def collect_files(graph, rows: Dict[str, Tuple[Any, str]]) -> Dict[str, List[Dic
                         loc = _locatore(nodo_file)
                         if loc:
                             trovati.append({"id": dopo, "locator": loc,
-                                            "checksum": _checksum(nodo_file)})
+                                            "checksum": _checksum(nodo_file),
+                                            "addresses": _indirizzi(nodo_file)})
             frontiera = prossimi
         if trovati:
             out[proprietari.get(nid, nid)].extend(trovati)
@@ -252,17 +283,27 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
                 chiave = basso.split("://", 1)[0]
                 esito.skipped_types[chiave] = esito.skipped_types.get(chiave, 0) + 1
                 continue
-            if "://" in loc and not basso.startswith("file://"):
-                esito.references += 1
-                continue
-            if media_type_of(loc) is None:
-                estensione = split_media_name(loc)[1].lower() or "?"
+            # Un file nel bucket con una copia sul disco (``data.addresses``)
+            # si importa: il risolutore della libreria, quando l'indirizzo
+            # principale non è locale, prova quello locale.
+            nome = loc
+            if _remoto(loc):
+                locali = [a for a in voce.get("addresses") or () if not _remoto(a)]
+                if not locali:
+                    esito.references += 1
+                    continue
+                nome = locali[0]
+            if media_type_of(nome) is None:
+                estensione = split_media_name(nome)[1].lower() or "?"
                 esito.skipped_types[estensione] = esito.skipped_types.get(estensione, 0) + 1
                 continue
             if loc not in risolti:
                 stato = resolve(voce, base_dirs=basi)
                 if stato["state"] in ("on_disk", "both") and os.path.isfile(stato["path"]):
                     risolti[loc] = os.path.realpath(stato["path"])
+                elif _remoto(loc) and stato["state"] != "empty_copy":
+                    risolti[loc] = None          # la copia locale non c'è: resta in rete
+                    esito.references += 1
                 else:
                     risolti[loc] = None
                     (vuoti if stato["state"] == "empty_copy" else mancanti).append(loc)

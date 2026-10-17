@@ -26,6 +26,29 @@ def pyarchinit_home_bin() -> str:
     return os.path.join(pyarchinit_home(), "bin")
 
 
+def default_workspace_dir() -> str:
+    """`<home>/pyarchinit_DB_folder` — the s3dgraphy workspace by default.
+
+    The library (s3dgraphy.sync._workspace) reads only the env var
+    PYARCHINIT_WORKSPACE_DIR and, without it, falls back to the
+    pyArchInit-4 folder ~/pyarchinit: the host must always seed it.
+    """
+    return os.path.join(pyarchinit_home(), "pyarchinit_DB_folder")
+
+
+def mirror_workspace(override) -> str:
+    """Write the workspace the library will use into PYARCHINIT_WORKSPACE_DIR.
+
+    A blank override (the «Reset» of the settings dialog) goes back to
+    default_workspace_dir(); dropping the variable instead would send the
+    library to ~/pyarchinit. Returns the value written.
+    """
+    value = str(override).strip() if override else ""
+    value = value or default_workspace_dir()
+    os.environ["PYARCHINIT_WORKSPACE_DIR"] = value
+    return value
+
+
 def legacy_pyarchinit_home() -> str:
     """`~/pyarchinit` — the legacy master home (migration source only)."""
     return os.path.join(os.path.expanduser("~"), LEGACY_HOME_NAME)

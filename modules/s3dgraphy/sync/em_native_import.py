@@ -195,6 +195,27 @@ def summary_text(schede: Counter, altri: Counter, massimo: int = 10) -> str:
     return "\n".join(righe)
 
 
+def proxy_text(graph) -> str:
+    """Quante unità hanno il loro proxy 3D, con le regole della libreria
+    (``s3dgraphy.api.units_without_3d``: la proprietà «geometry» con una
+    forma che porta un file o degli inviluppi). I nodi di continuità non
+    contano: in TempluMare 65 su 112, dove EMStudio mostra le stesse 65 su
+    114. Vuoto quando il grafo non ha 3D, o se la libreria non lo sa dire."""
+    try:
+        from s3dgraphy import api
+        conto = api.units_without_3d(graph)
+    except Exception:                               # noqa: BLE001
+        return ""
+    con, vuote = len(conto.get("with") or ()), len(conto.get("empty") or ())
+    if not con and not vuote:
+        return ""
+    totale = con + len(conto.get("without") or ())
+    riga = "%d unità su %d hanno il loro proxy 3D" % (con, totale)
+    if vuote:
+        riga += " (%d con la proprietà «geometry» vuota)" % vuote
+    return riga + "."
+
+
 # ---------------------------------------------------------------- nomi
 
 #: Chi tiene il nome breve quando due tipi lo condividono: la stratigrafia

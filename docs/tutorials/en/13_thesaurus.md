@@ -106,16 +106,17 @@ Numeric code identifying the destination field.
 **Code structure:**
 ```
 X.Y where:
-X = table number
+X = form number (1 Site, 2 SU/WSU, 3 Materials Inventory, 4 Samples, 6 Structure,
+    7 Grave, 8 Individuals, 9 Documentation, 10 TMA, 11 Pottery, 12 UT, 13 Fauna)
 Y = field number
 ```
 
 **Examples for us_table:**
 | Code | Field |
 |------|-------|
-| 1.1 | Stratigraphic definition |
-| 1.2 | Formation mode |
-| 1.3 | SU type |
+| 2.1 | Sector |
+| 2.3 | Stratigraphic definition |
+| 2.4 | Interpreted definition |
 
 ### Language
 
@@ -185,8 +186,8 @@ For SQLite database, vocabularies can be imported from CSV files.
 **Required CSV format:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,WL,Wall,Wall structure,1.3,EN_US
-us_table,FL,Floor,Walking surface,1.3,EN_US
+us_table,WL,Wall,Wall structure,2.4,EN_US
+us_table,FL,Floor,Walking surface,2.4,EN_US
 ```
 
 **Procedure:**
@@ -216,7 +217,7 @@ us_table,FL,Floor,Walking surface,1.3,EN_US
    ```
    Code: WE
    Extended code: Well
-   Code type: 1.3
+   Code type: 2.4
    Language: EN_US
    ```
 
@@ -250,34 +251,36 @@ us_table,FL,Floor,Walking surface,1.3,EN_US
 
 ## Code Type Organization
 
-### Recommended Structure
+### The Form Codes
 
-For each table, organize codes systematically:
+You do not choose the codes: each drop-down list of a form reads its own fixed code. A few examples — the complete list, form by form, opens from the Thesaurus window with the **View code list** button:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Code | Field |
 |------|-------|
-| 1.1 | Stratigraphic definition |
-| 1.2 | Formation mode |
-| 1.3 | SU type |
-| 1.4 | Consistency |
-| 1.5 | Color |
+| 1.1 | Site definition |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Code | Field |
 |------|-------|
-| 2.1 | Find type |
-| 2.2 | Material class |
-| 2.3 | Definition |
-| 2.4 | Conservation status |
+| 2.1 | Sector |
+| 2.3 | Stratigraphic definition |
+| 2.4 | Interpreted definition |
+| 2.8 | Excavation method |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Code | Field |
 |------|-------|
-| 3.1 | Form |
-| 3.2 | Ware |
-| 3.3 | Fabric |
-| 3.4 | Surface treatment |
+| 3.1 | Find type |
+| 3.2 | Material class |
+| 3.3 | Definition |
+
+**pottery_table (11.x):**
+| Code | Field |
+|------|-------|
+| 11.1 | Fabric |
+| 11.4 | Form |
+| 11.6 | Ware |
 
 ---
 

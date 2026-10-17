@@ -532,26 +532,28 @@ Im **Tab DB Sync** des Konfigurationsfensters befindet sich der Abschnitt **Para
 Ohne Override ergibt sich der Pfad:
 
 ```
-~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<standort>/
+~/pyarchinit_5/pyarchinit_DB_folder/<host>_<port>_<dbname>/<standort>/
 ```
 
-Beispiel: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+Beispiel: `~/pyarchinit_5/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+Es ist der pyArchInit-5-Datenordner; das leere Feld zeigt ihn als Vorschlag an.
 
 ### Pfad anpassen
 
 - **Durchsuchen...** öffnet einen Dateidialog zur Auswahl eines Verzeichnisses. Der Pfad wird sofort in den QGIS-QSettings gespeichert.
 - Sie können den Pfad auch direkt im Textfeld **eintippen**: Der Wert wird beim Verlassen des Feldes (`editingFinished`-Signal) gespeichert. Ein leerer Wert entfernt den Override.
-- **Zurücksetzen** leert das Feld, entfernt den Schlüssel aus den QSettings und stellt den Standardpfad wieder her.
+- **Zurücksetzen** leert das Feld, entfernt den Schlüssel aus den QSettings und stellt den Standardpfad wieder her, `~/pyarchinit_5/pyarchinit_DB_folder` (vor 5.13.124-alpha fiel es fälschlicherweise auf den Ordner von pyArchInit 4 zurück, `~/pyarchinit`).
 
 ### Auflösungskette (Priorität)
 
-Der effektive Pfad folgt einer dreistufigen Fallback-Kette:
+Innerhalb von QGIS wird der effektive Pfad so bestimmt:
 
-1. **Umgebungsvariable `PYARCHINIT_WORKSPACE_DIR`** (höchste Priorität — nützlich für CI-/Test-Skripte).
-2. **QSettings `pyarchinit/paradata_workspace`** (UI-Override — dieser Abschnitt).
-3. **Standard** `~/pyarchinit/pyarchinit_DB_folder/`.
+1. Der **Paradata Workspace** dieses Abschnitts (QSettings `pyarchinit/paradata_workspace`), falls gesetzt.
+2. Die **Umgebungsvariable `PYARCHINIT_WORKSPACE_DIR`**, falls sie bereits vor dem Start von QGIS gesetzt war (nützlich für CI-/Test-Skripte).
+3. Der **Standard** `~/pyarchinit_5/pyarchinit_DB_folder/`, der dem Datenordner folgt (`PYARCHINIT_HOME`, falls gesetzt).
 
-Leere Werte werden übersprungen: Ist `PYARCHINIT_WORKSPACE_DIR=""`, fällt die Auflösung auf Stufe 2 zurück; ist auch QSettings leer, wird der Standard verwendet.
+Außerhalb von QGIS (Skripte, Tests, Kommandozeile) zählt nur die Umgebungsvariable, und die Skripte von pyArchInit setzen sie selbst auf den Datenordner. Leere Werte werden übersprungen.
 
 ### Wann es wirksam wird
 
@@ -625,7 +627,7 @@ Zeigt in Echtzeit die Datenbankaktivitäten und verbundenen Benutzer an.
 ## Technische Hinweise
 
 - Die Einstellungen werden in den QgsSettings von QGIS gespeichert
-- Die Standard-Datenbank ist `Home/pyarchinit/pyarchinit_DB_folder/pyarchinit_db.sqlite`
+- Die Standard-Datenbank ist `Home/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite`
 - Debug-Logs werden in `[TEMP]/pyarchinit_debug.log` gespeichert
 - Die Umgebungsvariable `PYARCHINIT_HOME` zeigt auf den `pyarchinit`-Ordner im Home-Verzeichnis
 

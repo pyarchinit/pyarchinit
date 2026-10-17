@@ -106,16 +106,17 @@ Numerischer Code, der das Zielfeld identifiziert.
 **Code-Struktur:**
 ```
 X.Y wobei:
-X = Tabellennummer
+X = Formularnummer (1 Fundort, 2 SE/USM, 3 Materialinventar, 4 Proben, 6 Struktur,
+    7 Grab, 8 Individuen, 9 Dokumentation, 10 TMA, 11 Keramik, 12 UT, 13 Fauna)
 Y = Feldnummer
 ```
 
 **Beispiele für us_table:**
 | Code | Feld |
 |------|------|
-| 1.1 | Stratigraphische Definition |
-| 1.2 | Entstehungsweise |
-| 1.3 | SE-Typ |
+| 2.1 | Sektor |
+| 2.3 | Stratigraphische Definition |
+| 2.4 | Interpretierte Definition |
 
 ### Sprache
 
@@ -185,8 +186,8 @@ Für SQLite-Datenbanken können Vokabulare aus CSV-Dateien importiert werden.
 **Erforderliches CSV-Format:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Mauer,Mauerstruktur,1.3,DE
-us_table,BO,Boden,Begehungsfläche,1.3,DE
+us_table,MR,Mauer,Mauerstruktur,2.4,DE
+us_table,BO,Boden,Begehungsfläche,2.4,DE
 ```
 
 **Vorgehensweise:**
@@ -216,7 +217,7 @@ us_table,BO,Boden,Begehungsfläche,1.3,DE
    ```
    Kürzel: BR
    Erweitertes Kürzel: Brunnen
-   Kürzeltypologie: 1.3
+   Kürzeltypologie: 2.4
    Sprache: DE
    ```
 
@@ -250,34 +251,36 @@ us_table,BO,Boden,Begehungsfläche,1.3,DE
 
 ## Organisation der Typologie-Codes
 
-### Empfohlene Struktur
+### Die Codes der Formulare
 
-Für jede Tabelle die Codes systematisch organisieren:
+Die Codes werden nicht frei gewählt: Jede Dropdown-Liste eines Formulars liest ihren eigenen, festen Code. Einige Beispiele — die vollständige Liste, Formular für Formular, öffnet sich im Thesaurus-Fenster über die Schaltfläche **Siehe Liste der Codes**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Code | Feld |
 |------|------|
-| 1.1 | Stratigraphische Definition |
-| 1.2 | Entstehungsweise |
-| 1.3 | SE-Typ |
-| 1.4 | Konsistenz |
-| 1.5 | Farbe |
+| 1.1 | Fundortdefinition |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Code | Feld |
 |------|------|
-| 2.1 | Fundtyp |
-| 2.2 | Materialklasse |
-| 2.3 | Definition |
-| 2.4 | Erhaltungszustand |
+| 2.1 | Sektor |
+| 2.3 | Stratigraphische Definition |
+| 2.4 | Interpretierte Definition |
+| 2.8 | Ausgrabungsmethode |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Code | Feld |
 |------|------|
-| 3.1 | Form |
-| 3.2 | Ware |
-| 3.3 | Ton |
-| 3.4 | Oberflächenbehandlung |
+| 3.1 | Fundtyp |
+| 3.2 | Materialklasse |
+| 3.3 | Definition |
+
+**pottery_table (11.x):**
+| Code | Feld |
+|------|------|
+| 11.1 | Fabric |
+| 11.4 | Form |
+| 11.6 | Ware |
 
 ---
 

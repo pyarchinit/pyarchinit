@@ -106,16 +106,17 @@ Codice numerico che identifica il campo di destinazione.
 **Struttura codici:**
 ```
 X.Y dove:
-X = numero tabella
-Y = numero campo
+X = numero della scheda (1 Sito, 2 US/USM, 3 Inventario materiali, 4 Campioni, 6 Struttura,
+    7 Tomba, 8 Individui, 9 Documentazione, 10 TMA, 11 Pottery, 12 UT, 13 Fauna)
+Y = numero del campo
 ```
 
 **Esempi per us_table:**
 | Codice | Campo |
 |--------|-------|
-| 1.1 | Definizione stratigrafica |
-| 1.2 | Modo di formazione |
-| 1.3 | Tipo US |
+| 2.1 | Settore |
+| 2.3 | Definizione stratigrafica |
+| 2.4 | Definizione interpretata |
 
 ### Lingua
 
@@ -185,8 +186,8 @@ Per database SQLite e possibile importare vocabolari da file CSV.
 **Formato CSV richiesto:**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Muro,Struttura muraria,1.3,IT
-us_table,PV,Pavimento,Superficie di calpestio,1.3,IT
+us_table,MR,Muro,Struttura muraria,2.4,IT
+us_table,PV,Pavimento,Superficie di calpestio,2.4,IT
 ```
 
 **Procedura:**
@@ -216,7 +217,7 @@ us_table,PV,Pavimento,Superficie di calpestio,1.3,IT
    ```
    Sigla: PZ
    Sigla estesa: Pozzo
-   Tipologia sigla: 1.3
+   Tipologia sigla: 2.4
    Lingua: IT
    ```
 
@@ -251,34 +252,36 @@ us_table,PV,Pavimento,Superficie di calpestio,1.3,IT
 
 ## Organizzazione Codici Tipologia
 
-### Struttura Consigliata
+### I codici delle schede
 
-Per ogni tabella, organizzare i codici in modo sistematico:
+I codici non si scelgono: ogni tendina di una scheda legge il suo codice, fisso. Qualche esempio — l'elenco completo, scheda per scheda, si apre dalla finestra del Thesaurus con il pulsante **Vedi lista codici**:
 
-**us_table (1.x):**
+**site_table (1.x):**
 | Codice | Campo |
 |--------|-------|
-| 1.1 | Definizione stratigrafica |
-| 1.2 | Modo formazione |
-| 1.3 | Tipo US |
-| 1.4 | Consistenza |
-| 1.5 | Colore |
+| 1.1 | Definizione sito |
 
-**inventario_materiali_table (2.x):**
+**us_table (2.x):**
 | Codice | Campo |
 |--------|-------|
-| 2.1 | Tipo reperto |
-| 2.2 | Classe materiale |
-| 2.3 | Definizione |
-| 2.4 | Stato conservazione |
+| 2.1 | Settore |
+| 2.3 | Definizione stratigrafica |
+| 2.4 | Definizione interpretata |
+| 2.8 | Metodo di scavo |
 
-**pottery_table (3.x):**
+**inventario_materiali_table (3.x):**
 | Codice | Campo |
 |--------|-------|
-| 3.1 | Form |
-| 3.2 | Ware |
-| 3.3 | Fabric |
-| 3.4 | Surface treatment |
+| 3.1 | Tipo reperto |
+| 3.2 | Classe materiale |
+| 3.3 | Definizione |
+
+**pottery_table (11.x):**
+| Codice | Campo |
+|--------|-------|
+| 11.1 | Fabric |
+| 11.4 | Forma |
+| 11.6 | Ware |
 
 ---
 

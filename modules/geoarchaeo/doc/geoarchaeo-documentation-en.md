@@ -28,7 +28,6 @@ GeoArchaeo is a professional QGIS plugin for advanced geostatistical analysis in
 - **Multi-sensor fusion** of geophysical surveys
 - **Automatic pattern recognition** of buried structures
 - **Optimization** of excavation strategies
-- **Predictive analysis** for site location
 
 ### 1.2 Target Audience
 
@@ -59,23 +58,16 @@ GeoArchaeo is a professional QGIS plugin for advanced geostatistical analysis in
 # Open OSGeo4W Shell as administrator
 python -m pip install --upgrade pip
 pip install numpy scipy pandas scikit-learn plotly
-pip install rasterio  # optional, for advanced GeoTIFF export
 ```
 
 #### Linux/Ubuntu
 ```bash
-# Install SpatiaLite
-sudo apt-get update
-sudo apt-get install libspatialite-dev spatialite-bin
-
 # Install Python dependencies
 pip3 install numpy scipy pandas scikit-learn plotly
 ```
 
 #### macOS
 ```bash
-# With Homebrew
-brew install spatialite-tools
 pip3 install numpy scipy pandas scikit-learn plotly
 ```
 
@@ -117,9 +109,9 @@ git clone https://github.com/enzococca/geoarchaeo
 |-----------|---------|-------|
 | Point vectors | SHP, GPKG, CSV, GeoJSON | Projected coordinates (not lat/lon) |
 | Polygon vectors | SHP, GPKG | For boundaries and excavation areas |
-| Raster | GeoTIFF, ASC, IMG | DEM, gridded geophysics |
+| Raster | GeoTIFF | Output only (prediction and uncertainty): not an input format, convert DEMs and gridded geophysics to points first |
 | Database | SpatiaLite, PostGIS | For large projects |
-| Tabular | CSV, XLSX | With X, Y columns |
+| Tabular | CSV, XLSX | With X, Y columns: load them as a point layer |
 
 ### 3.2 Archaeological Data Structure
 
@@ -231,13 +223,13 @@ Calculate optimal positions for new trenches minimizing prediction uncertainty.
 ### 6.1 Basic Workflow
 
 1. **Load your point layer** (CSV, SHP, or GeoJSON)
-2. **Select the layer** in the Data tab
+2. **Select the layer** at the top of the panel (used by all tabs)
 3. **Choose the numeric field** to analyze
 4. **Calculate statistics** to understand your data distribution
 5. **Calculate variogram** to understand spatial correlation
 6. **Run kriging** to create interpolated surface
 7. **Validate results** using cross-validation metrics
-8. **Export** as GeoTIFF or generate report
+8. **Save** the rasters (GeoTIFF files in a temporary folder: use Export → Save As in QGIS) or generate the report
 
 ### 6.2 Variogram Analysis
 
@@ -250,9 +242,10 @@ The variogram measures how spatial correlation varies with distance:
 ### 6.3 Kriging Interpolation
 
 Available methods:
-- **Ordinary Kriging**: Standard method, assumes stationary mean
-- **Co-Kriging**: Uses secondary variables for improved estimates
-- **Spatio-Temporal**: Includes time dimension for phased excavations
+- **Ordinary Kriging** (Kriging tab and Processing): Standard method, assumes stationary mean
+- **Co-Kriging** (Processing only): Simplified, regression on secondary variables + kriging of the residuals
+- **Spatio-Temporal** (Processing only): Includes time dimension for phased excavations
+- **Batch Kriging** (Processing only): Tiled ordinary kriging for large datasets
 
 ---
 
@@ -265,7 +258,7 @@ Available methods:
 | Spherical | γ(h) = c₀ + c[1.5(h/a) - 0.5(h/a)³] | Most archaeological data |
 | Exponential | γ(h) = c₀ + c[1 - exp(-3h/a)] | Gradual transitions |
 | Gaussian | γ(h) = c₀ + c[1 - exp(-3(h/a)²)] | Smooth surfaces |
-| Matérn | Complex | Flexible, general-purpose |
+| Matérn (ν = 1.5) | γ(h) = c₀ + c[1 - (1 + t)·exp(-t)], t = 4.744·h/a | Between exponential and Gaussian |
 
 ### 7.2 Machine Learning Methods
 
@@ -293,17 +286,16 @@ A: Install missing dependencies using pip in QGIS Python environment.
 **Q: Variogram shows no structure**
 A: Check that your data has actual spatial correlation. Try increasing max distance.
 
-**Q: Kriging produces NaN values**
-A: Ensure enough points near prediction locations. Increase search radius.
+**Q: Kriging leaves empty (NoData) cells**
+A: In Batch Kriging a tile with fewer than 3 points (tile plus margin) is skipped and its cells stay empty: increase the tile size or the overlap.
 
 **Q: Interactive plots don't show in QGIS**
-A: QtWebEngine may not be available. Plots will open in your browser instead.
+A: QtWebEngine may not be available. The panel then shows a static preview and the "Open interactive chart in browser" button opens the Plotly version.
 
 ### 8.2 Performance Tips
 
 - For datasets > 10,000 points, use Batch Kriging with tiling
 - Reduce grid resolution for initial exploration
-- Use SpatiaLite for very large datasets
 
 ---
 
@@ -329,11 +321,11 @@ A: QtWebEngine may not be available. Plots will open in your browser instead.
 ## 10. Examples and Datasets
 
 Test datasets are included in the `test_layers/` directory:
-- `villa_ceramica.csv`: 500 ceramic density points
-- `necropoli.csv`: 150 tombs with attributes
-- `geofisica_grid.csv`: 0.5m GPR+MAG grid
+- `villa_ceramica.csv` / `.gpkg`: 500 ceramic density points
+- `necropoli.csv` / `.gpkg`: 120 tombs with attributes
+- `geofisica_survey.csv` / `.gpkg`: 4800 points of GPR + magnetometry
 
-Load via: **Toolbar → Load Test Layers**
+Load via: **Load example data** (toolbar button or panel header)
 
 ---
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from modules.utility.pyarchinit_home import (
     pyarchinit_home, pyarchinit_home_bin, legacy_pyarchinit_home,
     migrate_db_folder, should_offer_migration, DEFAULT_HOME_NAME,
+    default_workspace_dir, mirror_workspace,
 )
 
 
@@ -27,6 +28,30 @@ def test_empty_env_falls_through_to_default(monkeypatch):
 def test_bin_dir(monkeypatch, tmp_path):
     monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path / "h"))
     assert pyarchinit_home_bin() == str(tmp_path / "h" / "bin")
+
+
+def test_the_workspace_default_follows_the_data_home(monkeypatch, tmp_path):
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path / "h"))
+    assert default_workspace_dir() == str(tmp_path / "h" / "pyarchinit_DB_folder")
+
+
+def test_mirror_workspace_writes_the_override(monkeypatch, tmp_path):
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path / "h"))
+    monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    assert mirror_workspace(str(tmp_path / "w")) == str(tmp_path / "w")
+    assert os.environ["PYARCHINIT_WORKSPACE_DIR"] == str(tmp_path / "w")
+
+
+def test_mirror_workspace_without_override_goes_back_to_the_data_home(
+        monkeypatch, tmp_path):
+    """«Reset» nelle impostazioni toglieva la variabile e la libreria
+    tornava alla cartella di pyArchInit 4 (~/pyarchinit)."""
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path / "h"))
+    monkeypatch.setenv("PYARCHINIT_WORKSPACE_DIR", str(tmp_path / "vecchia"))
+    for vuoto in ("", "   ", None):
+        mirror_workspace(vuoto)
+        assert os.environ["PYARCHINIT_WORKSPACE_DIR"] == str(
+            tmp_path / "h" / "pyarchinit_DB_folder")
 
 
 def test_legacy_home():

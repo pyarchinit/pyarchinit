@@ -88,7 +88,8 @@ result = processing.run("geoarchaeo:variogram", {
     'INPUT': 'path/to/points.shp',
     'FIELD': 'ceramic_count',
     'MAX_DISTANCE': 50,
-    'MODEL': 0  # Spherical
+    'MODEL': 0,  # Spherical
+    'OUTPUT': 'variogram.json'
 })
 
 # Ordinary Kriging

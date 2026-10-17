@@ -106,16 +106,17 @@ Code numérique qui identifie le champ de destination.
 **Structure des codes :**
 ```
 X.Y où :
-X = numéro de table
+X = numéro de fiche (1 Site, 2 US/USM, 3 Inventaire matériaux, 4 Échantillons, 6 Structure,
+    7 Tombe, 8 Individus, 9 Documentation, 10 TMA, 11 Pottery, 12 UT, 13 Faune)
 Y = numéro de champ
 ```
 
 **Exemples pour us_table :**
 | Code | Champ |
 |------|-------|
-| 1.1 | Définition stratigraphique |
-| 1.2 | Mode de formation |
-| 1.3 | Type US |
+| 2.1 | Secteur |
+| 2.3 | Définition stratigraphique |
+| 2.4 | Définition interprétée |
 
 ### Langue
 
@@ -185,8 +186,8 @@ Pour les bases de données SQLite, il est possible d'importer des vocabulaires d
 **Format CSV requis :**
 ```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
-us_table,MR,Mur,Structure murale,1.3,FR
-us_table,PV,Sol,Surface de circulation,1.3,FR
+us_table,MR,Mur,Structure murale,2.4,FR
+us_table,PV,Sol,Surface de circulation,2.4,FR
 ```
 
 **Procédure :**
@@ -216,7 +217,7 @@ us_table,PV,Sol,Surface de circulation,1.3,FR
    ```
    Sigle : PZ
    Sigle étendu : Puits
-   Typologie sigle : 1.3
+   Typologie sigle : 2.4
    Langue : FR
    ```
 
@@ -251,34 +252,36 @@ us_table,PV,Sol,Surface de circulation,1.3,FR
 
 ## Organisation des Codes Typologie
 
-### Structure Conseillée
+### Les Codes des Fiches
 
-Pour chaque table, organiser les codes de manière systématique :
+Les codes ne se choisissent pas : chaque liste déroulante d'une fiche lit son propre code, fixe. Quelques exemples — la liste complète, fiche par fiche, s'ouvre depuis la fenêtre du Thésaurus avec le bouton **Voir liste des codes** :
 
-**us_table (1.x) :**
+**site_table (1.x) :**
 | Code | Champ |
 |------|-------|
-| 1.1 | Définition stratigraphique |
-| 1.2 | Mode de formation |
-| 1.3 | Type US |
-| 1.4 | Consistance |
-| 1.5 | Couleur |
+| 1.1 | Définition du site |
 
-**inventario_materiali_table (2.x) :**
+**us_table (2.x) :**
 | Code | Champ |
 |------|-------|
-| 2.1 | Type objet |
-| 2.2 | Classe matériau |
-| 2.3 | Définition |
-| 2.4 | État de conservation |
+| 2.1 | Secteur |
+| 2.3 | Définition stratigraphique |
+| 2.4 | Définition interprétée |
+| 2.8 | Méthode de fouille |
 
-**pottery_table (3.x) :**
+**inventario_materiali_table (3.x) :**
 | Code | Champ |
 |------|-------|
-| 3.1 | Forme |
-| 3.2 | Ware |
-| 3.3 | Fabric |
-| 3.4 | Traitement de surface |
+| 3.1 | Type objet |
+| 3.2 | Classe matériau |
+| 3.3 | Définition |
+
+**pottery_table (11.x) :**
+| Code | Champ |
+|------|-------|
+| 11.1 | Fabric |
+| 11.4 | Forme |
+| 11.6 | Ware |
 
 ---
 

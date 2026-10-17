@@ -1068,8 +1068,8 @@ O botao **Convert to Word** permite:
 ### Thesaurus
 
 Os campos com thesaurus (definicoes) utilizam a tabela `pyarchinit_thesaurus_sigle`:
-- tipologia_sigla = '1.1' para definicao estratigrafica
-- tipologia_sigla = '1.2' para definicao interpretativa
+- tipologia_sigla = '2.3' para definicao estratigrafica
+- tipologia_sigla = '2.4' para definicao interpretativa
 
 ### Camadas GIS
 
