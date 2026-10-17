@@ -5,6 +5,37 @@
 
 ---
 
+## [fix] - 2026-10-17 — Le rifiniture della scena 3D: chi eredita la geometria nel suo periodo, l'inquadratura sui riquadri stretti, niente selezioni col clic destro o con due dita, i modelli letti solo all'apertura, la tastiera; il visore del singolo modello senza internet; ancore e JSON della pagina — 5.13.133-alpha
+
+> Branch `Stratigraph_00001`. Suite **2439 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +17 test). / Follow-ups of the 3D scene: heirs of a geometry, framing on narrow panels, no selection on right-click or two fingers, GLBs read only when the scene opens, keyboard and ARIA; the single-model viewer now uses the embedded three.js (offline); unique chapter anchors and fully escaped JSON.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«risolvi tutto quello che puoi che hai elencato»** (Enzo, 17 ottobre 2026) — le cose minori rimaste dalla revisione finale della 5.13.132:
+  - **chi eredita la geometria** (la USV che completa una US) porta il proxy del proprietario anche nel suo periodo e nel suo capitolo: lo script sa, per ogni proxy, tutte le unità che lo usano;
+  - **l'inquadratura** guarda il campo più stretto fra verticale e orizzontale: su un riquadro più stretto che alto i proxy uscivano ai lati;
+  - **il clic destro e due dita** non selezionano più (muovono la vista); un clic è il tasto principale con un dito solo;
+  - **un'unità il cui proxy non si è caricato** lo dice in didascalia («proxy non caricato»);
+  - **memoria**: i GLB stanno in un blocco a parte che si legge solo quando la scena si apre (con la mappa davanti, mai se non la si apre), e il testo si libera dopo la lettura; il passaggio del mouse fa un raggio per fotogramma, solo sulle mesh;
+  - **un file di proxy che non si apre** all'esportazione conta fra i mancanti invece di togliere tutta la scena; **lo stesso file citato da due risorse** entra una volta sola;
+  - **la tastiera**: la scena si raggiunge con Tab, le frecce spostano la vista, + e − avvicinano e allontanano, Esc torna a tutto il sito; le schede hanno i ruoli per la sintesi vocale (`tablist`, `tab`, `aria-selected`, `tabpanel`);
+  - **con le schede** la mappa e la scena hanno la stessa altezza;
+  - **il visore del singolo modello** nel pannello delle fonti e dei media usa il three.js della pagina (portato anche dalle pagine con un modello fra le fonti e senza scena: `em_narrative_html.with_three_viewer`), quindi funziona senza rete; prima caricava model-viewer da internet. Un visore alla volta: si chiude, e libera la scheda grafica, quando si cambia fonte o si chiude il pannello;
+  - **le ancore dei capitoli** non si ripetono più quando la pagina ha un titolo senza capitolo prima di quelli coi link (`_voci_dei_titoli`);
+  - **il JSON nella pagina** non contiene nessun «<» (`_json_script`): né «</script» né «<!--»;
+  - i dati della mappa non portano più la prima epoca delle unità (la usa lo script comune).
+  - Provato in Chrome su TempluMare: la scena e la selezione, il proxy guastato («1 non caricati»), il clic su SU004.glb fra i media che apre il visore three.js nel pannello senza nessuna richiesta a internet.
+- 🇬🇧 **EN**: heirs of a geometry in their period/chapter, min(vertical, horizontal) FOV framing, primary-button single-pointer clicks only, "proxy not loaded" caption note, GLBs in a separate lazily parsed block, rAF-throttled mesh-only hover raycasts, unreadable files counted as missing, duplicate files embedded once, keyboard and ARIA, equal tab heights; the single-model viewer uses the embedded three.js (offline) and disposes its WebGL context; unique chapter anchors; `_json_script` escapes every "<".
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +17 test (nove della scena col finto browser in `node` — eredi, inquadratura, clic destro e due dita, nota di caricamento, lettura dei GLB all'apertura, un raggio per fotogramma, tastiera —, file illeggibile e file doppio, ruoli e altezza delle schede, dati della mappa, ancore, JSON, three.js per il visore, le due viste insieme). Visti rossi prima.
+- 🇬🇧 **EN**: 17 new tests, all seen failing first.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §10.7 (il visore senza rete, la tastiera nella scena), dieci lingue. `metadata.txt` 5.13.133-alpha.
+- 🇬🇧 **EN**: tutorial 36 §10.7 in ten languages.
+
+---
+
 ## [feat] - 2026-10-17 — La scena 3D dei proxy nella narrativa: tutti i proxy delle unità messi insieme nel pannello della mappa, il clic su un'unità che evidenzia il suo e rende trasparenti gli altri — 5.13.132-alpha
 
 > Branch `Stratigraph_00001`. Suite **2422 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +28 test). / The narrative's HTML gets a 3D tab next to the map with all the units' proxies; one selection drives both views.

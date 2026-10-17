@@ -115,3 +115,10 @@ def test_la_mappa_si_registra_nella_selezione_comune():
                         {"u1": {"name": "1.US1", "epochs": []}}, {}, lang="en")
     assert vista.key == "map" and vista.label == "Map" and vista.panel.startswith('<svg id="pya-svg">')
     assert 'id="pya-reset" class="pya-reset"' in vista.panel and "var PYA = " in vista.script
+
+
+def test_i_dati_della_mappa_non_portano_la_prima_epoca():
+    """La prima epoca delle unità la usa lo script comune (PYA_SEL), non la mappa."""
+    vista = nm.map_view('<svg id="pya-svg"></svg>', {"all": [0, 0, 1, 1]},
+                        {"u1": {"name": "1.US1", "epochs": ["e1"]}}, {}, lang="it")
+    assert "firstEpoch" not in vista.script and '"units": {"u1": "1.US1"}' in vista.script

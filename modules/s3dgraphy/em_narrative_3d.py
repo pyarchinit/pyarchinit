@@ -117,12 +117,18 @@ def build_scene(graph, connection_url: str, resize_base: str = "", *,
     if not scena.proxies:
         return scena
     indice = media_index(connection_url, resize_base or "")
-    trovati = []
+    trovati, per_file, alias = [], {}, {}
     for p in scena.proxies:
         percorso = media_file_for(p.locator, indice)
         if percorso is None:
             scena.missing.append(p.locator)
             continue
+        # due risorse che portano allo stesso file: nella pagina una volta sola
+        vero = os.path.realpath(percorso)
+        if vero in per_file:
+            alias[p.key] = per_file[vero]
+            continue
+        per_file[vero] = p.key
         p.path, p.size = percorso, os.path.getsize(percorso)
         trovati.append(p)
     dentro, totale = set(), 0
@@ -133,7 +139,11 @@ def build_scene(graph, connection_url: str, resize_base: str = "", *,
         dentro.add(p.key)
         totale += p.size
     scena.proxies = [p for p in trovati if p.key in dentro]
-    tenute = {u: [k for k in ks if k in dentro] for u, ks in scena.unit_proxies.items()}
+    tenute: Dict[str, List[str]] = {}
+    for u, ks in scena.unit_proxies.items():
+        for k in (alias.get(k, k) for k in ks):
+            if k in dentro and k not in tenute.setdefault(u, []):
+                tenute[u].append(k)
     scena.unit_proxies = {u: ks for u, ks in tenute.items() if ks}
     return scena
 
@@ -143,11 +153,15 @@ _WORDS = {
            "proxies": "proxy", "noProxy": "senza proxy 3D", "failed": "non caricati",
            "skipped": "rimasti fuori (troppo grandi)", "missing": "senza file",
            "noWebgl": "Questo browser non mostra il 3D (WebGL).", "loading": "Carico i proxy…",
+           "notLoaded": "proxy non caricato",
+           "keys": "Scena 3D dei proxy: frecce per spostare la vista, + e − per lo zoom, Esc per tutto il sito",
            "hint": "Trascina per girare, rotella per lo zoom; clic su un proxy o su un'unità nel testo."},
     "en": {"site": "Whole site", "chapter": "The chapter's units", "reset": "whole site",
            "proxies": "proxies", "noProxy": "no 3D proxy", "failed": "not loaded",
            "skipped": "left out (too large)", "missing": "without a file",
            "noWebgl": "This browser cannot show 3D (WebGL).", "loading": "Loading the proxies…",
+           "notLoaded": "proxy not loaded",
+           "keys": "3D scene of the proxies: arrows move the view, + and − zoom, Esc for the whole site",
            "hint": "Drag to turn, wheel to zoom; click a proxy or a unit in the text."},
 }
 
@@ -178,25 +192,33 @@ _JS = r"""
   if (!nodo || !tela || !window.PYA_SEL) { return; }
   var D = JSON.parse(nodo.textContent), W = D.words;
   var vista = tela.closest('[data-pya-view]');
-  var stato = {e: null, u: null, g: null}, S = null, senza3d = false;
+  var stato = {e: null, u: null, g: null}, S = null, senza3d = false, nonCaricati = {};
+  // per ogni proxy le unità che lo usano: il proprietario e chi ne eredita la geometria
+  var usatoDa = {};
+  Object.keys(D.unitProxies).forEach(function (u) {
+    D.unitProxies[u].forEach(function (k) { (usatoDa[k] = usatoDa[k] || []).push(u); });
+  });
 
   function epoche(u) { return D.epochs[u] || []; }
   function nel(u, e) { return epoche(u).indexOf(e) >= 0; }
-  function dentro(u) {
+  function scelta(u) {
     if (stato.e) { return nel(u, stato.e); }
     if (stato.g) { return stato.g.indexOf(u) >= 0; }
     return false;
   }
+  function dentro(k) { return (usatoDa[k] || []).some(scelta); }
   function scritta(t) { if (cap && cap.firstChild) { cap.firstChild.textContent = t + ' '; } }
   function didascalia() {
     if (senza3d) { scritta(W.noWebgl); return; }
     var gruppo = !!(stato.e || stato.g), n = 0, parti = [];
-    D.proxies.forEach(function (p) { if (!gruppo || dentro(p.u)) { n += 1; } });
+    D.proxies.forEach(function (p) { if (!gruppo || dentro(p.k)) { n += 1; } });
     parti.push(stato.e ? (D.epochNames[stato.e] || stato.e) : (stato.g ? W.chapter : W.site));
     parti.push(n + ' ' + W.proxies);
     if (stato.u) {
-      var nome = D.names[stato.u] || PYA_SEL.units[stato.u] || stato.u;
-      parti.push((D.unitProxies[stato.u] || []).length ? nome : nome + ': ' + W.noProxy);
+      var nome = D.names[stato.u] || PYA_SEL.units[stato.u] || stato.u, suoi = D.unitProxies[stato.u] || [];
+      if (!suoi.length) { nome += ': ' + W.noProxy; }
+      else if (suoi.every(function (k) { return nonCaricati[k]; })) { nome += ': ' + W.notLoaded; }
+      parti.push(nome);
     }
     if (S && S.failed) { parti.push(S.failed + ' ' + W.failed); }
     if (D.skipped) { parti.push(D.skipped + ' ' + W.skipped); }
@@ -260,6 +282,10 @@ _JS = r"""
     tela.appendChild(tip);
     S = {r: r, scena: scena, cam: cam, ctl: ctl, tip: tip, items: [], failed: 0, volo: null,
          giro: null, fermo: false};
+    // i GLB si leggono adesso, quando la scena si apre, e il testo si libera
+    var blocco = document.getElementById('pya-scena-3d-glb'), G = {};
+    try { G = blocco ? JSON.parse(blocco.textContent) : {}; } catch (err) { G = {}; }
+    if (blocco) { blocco.textContent = ''; }
     var loader = new T.GLTFLoader(), attesi = D.proxies.length;
     function fatto() { attesi -= 1; if (attesi <= 0) { applica(true); } }
     scritta(W.loading);
@@ -267,10 +293,13 @@ _JS = r"""
       // il GLTFLoader, per un file che non è un GLB (troppo corto, non JSON,
       // compresso Draco senza decodificatore), lancia l'errore subito invece
       // di chiamare onError: ogni proxy si chiude una volta sola, letto o no
-      var chiuso = false, dati;
+      var chiuso = false, dati, b64 = G[p.k];
+      G[p.k] = null;
       function finito() { if (!chiuso) { chiuso = true; fatto(); } }
-      function guasto() { if (!chiuso) { S.failed += 1; } finito(); }
-      try { dati = buffer(p.glb); } catch (err) { guasto(); return; }
+      function guasto() { if (!chiuso) { S.failed += 1; nonCaricati[p.k] = true; } finito(); }
+      if (typeof b64 !== 'string') { guasto(); return; }
+      try { dati = buffer(b64); } catch (err) { guasto(); return; }
+      b64 = null;
       try {
         loader.parse(dati, '', function (gltf) {
           var it = {u: p.u, k: p.k, root: gltf.scene, mat: [], mesh: [], bordi: null};
@@ -288,6 +317,7 @@ _JS = r"""
         }, guasto);
       } catch (err) { guasto(); }
     });
+    G = null;
     if (!D.proxies.length) { applica(true); }
     if (window.ResizeObserver) { new ResizeObserver(misura).observe(tela); }
     window.addEventListener('resize', misura);
@@ -305,7 +335,7 @@ _JS = r"""
     pianifica();
   }
   // si disegna quando qualcosa cambia (caricamento, selezione, volo, mouse,
-  // misure), non a ogni fotogramma: la pagina è un documento da leggere
+  // tastiera, misure), non a ogni fotogramma: la pagina è un documento da leggere
   function pianifica() {
     if (!S || S.fermo || S.giro) { return; }
     S.giro = window.requestAnimationFrame(disegna);
@@ -326,12 +356,12 @@ _JS = r"""
   }
   function applica(subito) {
     if (!S) { didascalia(); return; }
-    var bersagli = stato.u ? (D.unitProxies[stato.u] || []) : [];
+    var bersagli = stato.u ? (D.unitProxies[stato.u] || []).filter(function (k) { return !nonCaricati[k]; }) : [];
     var gruppo = !!(stato.e || stato.g), box = new T.Box3(), scelti = 0;
     S.items.forEach(function (it) {
       var hi = bersagli.indexOf(it.k) >= 0, alfa = null;
-      if (bersagli.length) { alfa = hi ? null : (dentro(it.u) ? 0.25 : 0.04); }
-      else if (gruppo) { alfa = dentro(it.u) ? null : 0.04; }
+      if (bersagli.length) { alfa = hi ? null : (dentro(it.k) ? 0.25 : 0.04); }
+      else if (gruppo) { alfa = dentro(it.k) ? null : 0.04; }
       it.mat.forEach(function (m) { trasparenza(m, alfa); });
       contorno(it, hi);
       if (hi) { box.union(it.box); scelti += 1; }
@@ -340,12 +370,18 @@ _JS = r"""
       var c = box.getCenter(new T.Vector3()), s = box.getSize(new T.Vector3()).multiplyScalar(1.5);
       box.set(c.clone().sub(s), c.clone().add(s));
     } else if (gruppo) {
-      S.items.forEach(function (it) { if (dentro(it.u)) { box.union(it.box); } });
+      S.items.forEach(function (it) { if (dentro(it.k)) { box.union(it.box); } });
     }
     if (box.isEmpty()) { S.items.forEach(function (it) { box.union(it.box); }); }
     if (!box.isEmpty()) { inquadra(box, subito); }
     didascalia();
     pianifica();
+  }
+  // la distanza a cui la sfera di quel raggio sta tutta nel campo: quello
+  // verticale o, su un riquadro più stretto che alto, quello orizzontale
+  function distanza(raggio, fov, aspetto) {
+    var v = fov * Math.PI / 180, h = 2 * Math.atan(Math.tan(v / 2) * aspetto);
+    return raggio / Math.sin(Math.min(v, h) / 2) * 1.05;
   }
   function inquadra(box, subito) {
     var centro = box.getCenter(new T.Vector3());
@@ -353,7 +389,7 @@ _JS = r"""
     var dir = S.cam.position.clone().sub(S.ctl.target);
     if (dir.lengthSq() < 1e-9) { dir.set(1, 0.8, 1); }
     dir.normalize();
-    var dist = raggio / Math.sin(S.cam.fov * Math.PI / 360) * 1.05;
+    var dist = distanza(raggio, S.cam.fov, S.cam.aspect);
     S.cam.near = Math.max(dist / 1000, 0.01);
     S.cam.far = dist * 100;
     S.cam.updateProjectionMatrix();
@@ -374,13 +410,20 @@ _JS = r"""
     S.ctl.target.lerpVectors(v.t0, v.t1, k);
     if (x >= 1) { S.volo = null; }
   }
+  function avvicina(f) {
+    S.volo = null;
+    var off = S.cam.position.clone().sub(S.ctl.target).multiplyScalar(f);
+    S.cam.position.copy(S.ctl.target).add(off);
+    pianifica();
+  }
   function sotto(ev) {
     var b = S.r.domElement.getBoundingClientRect();
     var p = new T.Vector2(((ev.clientX - b.left) / b.width) * 2 - 1,
                           -((ev.clientY - b.top) / b.height) * 2 + 1);
-    var rc = new T.Raycaster();
+    var rc = new T.Raycaster(), mesh = [];
     rc.setFromCamera(p, S.cam);
-    var colpi = rc.intersectObjects(S.items.map(function (it) { return it.root; }), true);
+    S.items.forEach(function (it) { mesh.push.apply(mesh, it.mesh); });
+    var colpi = rc.intersectObjects(mesh, false);         // le mesh, non i contorni
     for (var i = 0; i < colpi.length; i += 1) {
       var o = colpi[i].object, m = [].concat(o.material)[0];
       if (o.isMesh && o.userData.pyaUnit && m && (!m.transparent || m.opacity >= 0.2)) {
@@ -390,10 +433,15 @@ _JS = r"""
     return null;
   }
   function eventi() {
-    var el = S.r.domElement, giu = null;
-    el.addEventListener('pointermove', function (ev) {
-      if (ev.buttons) { S.tip.hidden = true; return; }
-      var u = sotto(ev);
+    var el = S.r.domElement, giu = null, attivi = {}, ultimo = null, inAttesa = false;
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'application');
+    el.setAttribute('aria-label', W.keys);
+    if (S.ctl.listenToKeyEvents) { S.ctl.listenToKeyEvents(el); }   // le frecce spostano la vista
+    function mostra() {
+      inAttesa = false;
+      if (!ultimo) { return; }
+      var ev = ultimo, u = sotto(ev);
       S.tip.hidden = !u;
       if (u) {
         var b = tela.getBoundingClientRect();
@@ -401,17 +449,34 @@ _JS = r"""
         S.tip.style.left = (ev.clientX - b.left) + 'px';
         S.tip.style.top = (ev.clientY - b.top) + 'px';
       }
+    }
+    el.addEventListener('pointermove', function (ev) {
+      if (ev.buttons || ev.pointerType === 'touch') { S.tip.hidden = true; return; }
+      ultimo = ev;
+      // un raggio per fotogramma, non uno a ogni movimento
+      if (!inAttesa) { inAttesa = true; window.requestAnimationFrame(mostra); }
     });
-    el.addEventListener('pointerleave', function () { S.tip.hidden = true; });
-    el.addEventListener('pointerdown', function (ev) { giu = [ev.clientX, ev.clientY]; });
+    el.addEventListener('pointerleave', function () { ultimo = null; S.tip.hidden = true; });
+    el.addEventListener('pointerdown', function (ev) {
+      attivi[ev.pointerId] = true;
+      // un clic è il tasto principale e un dito solo: il destro e due dita muovono la vista
+      giu = (ev.button === 0 && Object.keys(attivi).length === 1) ? [ev.clientX, ev.clientY] : null;
+    });
+    el.addEventListener('pointercancel', function (ev) { delete attivi[ev.pointerId]; giu = null; });
     el.addEventListener('pointerup', function (ev) {
-      var mosso = !giu || Math.abs(ev.clientX - giu[0]) + Math.abs(ev.clientY - giu[1]) > 5;
+      delete attivi[ev.pointerId];
+      var ok = giu && ev.button === 0 && Math.abs(ev.clientX - giu[0]) + Math.abs(ev.clientY - giu[1]) <= 5;
       giu = null;
-      if (mosso) { return; }
+      if (!ok) { return; }
       var u = sotto(ev);
       if (!u) { return; }
       var e = (stato.e && nel(u, stato.e)) ? stato.e : (epoche(u)[0] || PYA_SEL.firstEpoch[u] || null);
       PYA_SEL.select(e, u, null);
+    });
+    el.addEventListener('keydown', function (ev) {
+      if (ev.key === '+' || ev.key === '=') { avvicina(0.8); ev.preventDefault(); }
+      else if (ev.key === '-' || ev.key === '_') { avvicina(1.25); ev.preventDefault(); }
+      else if (ev.key === 'Escape') { PYA_SEL.select(null, null, null); }
     });
   }
   function forse() { if (!S && !senza3d && vista && !vista.hidden) { crea(); } }
@@ -445,13 +510,25 @@ def scene_view(scene: Scene, epoch_names_map: Dict[str, str], lang: Optional[str
         _LOG.warning("Scena 3D della narrativa: manca %s", BUNDLE)
         return None
     parole = _WORDS[_lang(lang)]
-    proxy = []
+    proxy, glb, illeggibili = [], {}, set()
     for p in scene.proxies:
-        with open(p.path, "rb") as fh:
-            proxy.append({"k": p.key, "u": p.unit, "glb": base64.b64encode(fh.read()).decode("ascii")})
-    dati = {"proxies": proxy, "unitProxies": scene.unit_proxies, "names": scene.names,
-            "epochs": scene.epochs, "epochNames": dict(epoch_names_map or {}),
-            "missing": len(scene.missing), "skipped": len(scene.skipped),
+        try:
+            with open(p.path, "rb") as fh:
+                glb[p.key] = base64.b64encode(fh.read()).decode("ascii")
+        except OSError as e:
+            # trovato e poi sparito o illeggibile: si conta fra i mancanti
+            _LOG.warning("Scena 3D della narrativa: %s non si apre (%s)", p.path, e)
+            illeggibili.add(p.key)
+            continue
+        proxy.append({"k": p.key, "u": p.unit})
+    if not proxy:
+        return None
+    unita = {u: [k for k in ks if k not in illeggibili] for u, ks in scene.unit_proxies.items()}
+    # i metadati, piccoli, si leggono all'apertura della pagina; i GLB solo
+    # quando la scena si apre (con la mappa davanti la scheda 3D è nascosta)
+    dati = {"proxies": proxy, "unitProxies": {u: ks for u, ks in unita.items() if ks},
+            "names": scene.names, "epochs": scene.epochs, "epochNames": dict(epoch_names_map or {}),
+            "missing": len(scene.missing) + len(illeggibili), "skipped": len(scene.skipped),
             "skippedNames": list(scene.skipped[:50]), "words": parole}
     pannello = ('<div id="pya-scena-3d" class="pya-scena-3d"></div>'
                 '<p class="pya-caption" id="pya-scena-3d-caption"><span>%s </span>'
@@ -459,5 +536,6 @@ def scene_view(scene: Scene, epoch_names_map: Dict[str, str], lang: Optional[str
                 % (_html.escape(parole["site"]), _html.escape(parole["reset"]), _html.escape(parole["hint"])))
     script = ("<script>%s</script>" % pacchetto
               + '<script type="application/json" id="pya-scena-3d-data">%s</script>' % _json_script(dati)
+              + '<script type="application/json" id="pya-scena-3d-glb">%s</script>' % _json_script(glb)
               + "<script>%s</script>" % _JS)
     return View(key="3d", label="3D", panel=pannello, css=_CSS, script=script)

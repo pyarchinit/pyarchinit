@@ -57,6 +57,12 @@ body { max-width: min(96vw, 1500px) !important; }
   color: inherit; text-decoration: none; font: .85rem -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 .pya-tabs a.on { background: rgba(127,127,127,.2); font-weight: 600; }
 .pya-view[hidden] { display: none !important; }
+/* con le schede la mappa e la scena hanno la stessa altezza: passando
+   dall'una all'altra il pannello non salta */
+[data-pya-schede] #pya-svg, [data-pya-schede] #pya-scena-3d { height: min(62vh, 560px); max-height: none; }
+@media (max-width: 899px) {
+  [data-pya-schede] #pya-svg, [data-pya-schede] #pya-scena-3d { height: 34vh; }
+}
 .pya-caption { font-size: .85rem; opacity: .85; margin: .35rem 0 0; }
 .pya-caption a { margin-left: .5rem; }
 a.pya-u { color: inherit; font-style: italic; text-decoration: underline dotted; cursor: pointer; }
@@ -81,7 +87,9 @@ _JS = r"""
       v.hidden = v.getAttribute('data-pya-view') !== k;
     });
     document.querySelectorAll('[data-pya-tab]').forEach(function (t) {
-      t.classList.toggle('on', t.getAttribute('data-pya-tab') === k);
+      var aperta = t.getAttribute('data-pya-tab') === k;
+      t.classList.toggle('on', aperta);
+      t.setAttribute('aria-selected', aperta ? 'true' : 'false');
     });
     document.dispatchEvent(new CustomEvent('pya:tab', {detail: k}));
   }
@@ -182,14 +190,17 @@ def inject_views(html: str, views: Sequence[View], chapters: Sequence[Dict[str, 
            "firstEpoch": {u: (m.get("epochs") or [""])[0] for u, m in meta.items()}}
     schede = ""
     if len(views) > 1:
-        schede = '<nav class="pya-tabs">%s</nav>' % "".join(
-            '<a href="#pya-map" data-pya-tab="%s"%s>%s</a>'
-            % (_html.escape(v.key, quote=True), ' class="on"' if i == 0 else "", _html.escape(v.label))
+        schede = '<nav class="pya-tabs" role="tablist">%s</nav>' % "".join(
+            '<a href="#pya-map" data-pya-tab="%s"%s role="tab" aria-selected="%s" aria-controls="pya-vista-%s">%s</a>'
+            % (_html.escape(v.key, quote=True), ' class="on"' if i == 0 else "",
+               "true" if i == 0 else "false", _html.escape(v.key, quote=True), _html.escape(v.label))
             for i, v in enumerate(views))
-    corpi = "".join('<div class="pya-view" data-pya-view="%s"%s>%s</div>'
-                    % (_html.escape(v.key, quote=True), "" if i == 0 else " hidden", v.panel)
+    corpi = "".join('<div class="pya-view" data-pya-view="%s" id="pya-vista-%s" role="tabpanel"%s>%s</div>'
+                    % (_html.escape(v.key, quote=True), _html.escape(v.key, quote=True),
+                       "" if i == 0 else " hidden", v.panel)
                     for i, v in enumerate(views))
-    pannello = '<aside class="pya-map" id="pya-map">%s%s</aside>' % (schede, corpi)
+    pannello = '<aside class="pya-map" id="pya-map"%s>%s%s</aside>' % (
+        " data-pya-schede" if len(views) > 1 else "", schede, corpi)
     script = ("<script>var PYA_SEL = %s;%s</script>" % (_json_script(sel), _JS)
               + "".join(v.script for v in views))
     pagina = pagina.replace("</style>", _CSS + "".join(v.css for v in views) + "</style>", 1)

@@ -41,8 +41,9 @@ def test_con_la_sola_scena_3d_i_nomi_diventano_link():
     assert '<a class="em-mention pya-u" href="#pya-map" data-u="u1" data-e="ep1">SU002</a>' in fuori
     # un capitolo ancorato a un'attività: niente epoca, ma le sue unità
     assert '<h2 id="pya-cap-0" class="pya-cap" data-e="" data-units="u1 u2">Virtual Activity 1</h2>' in fuori
-    assert '<nav class="pya-tabs">' not in fuori                     # una vista sola: niente schede
-    assert '<div class="pya-view" data-pya-view="3d"><div id="pannello-3d"></div></div>' in fuori
+    assert '<nav class="pya-tabs"' not in fuori                      # una vista sola: niente schede
+    assert ('<div class="pya-view" data-pya-view="3d" id="pya-vista-3d" role="tabpanel">'
+            '<div id="pannello-3d"></div></div>') in fuori
     assert fuori.count("var PYA_SEL = ") == 1 and "/* 3d */" in fuori and ".v-3d {}" in fuori
     assert '<aside class="pya-map" id="pya-map">' in fuori and "<h2>Fonti</h2>" in fuori
 
@@ -50,10 +51,14 @@ def test_con_la_sola_scena_3d_i_nomi_diventano_link():
 def test_con_due_viste_le_schede_e_la_prima_aperta():
     fuori = nv.inject_views(_PAGINA, [_vista("map", "Mappa"), _vista("3d", "3D")], _CAPITOLI, _META,
                             lang="it")
-    assert ('<nav class="pya-tabs"><a href="#pya-map" data-pya-tab="map" class="on">Mappa</a>'
-            '<a href="#pya-map" data-pya-tab="3d">3D</a></nav>') in fuori
-    assert '<div class="pya-view" data-pya-view="map">' in fuori
-    assert '<div class="pya-view" data-pya-view="3d" hidden>' in fuori
+    assert ('<nav class="pya-tabs" role="tablist">'
+            '<a href="#pya-map" data-pya-tab="map" class="on" role="tab" aria-selected="true" '
+            'aria-controls="pya-vista-map">Mappa</a>'
+            '<a href="#pya-map" data-pya-tab="3d" role="tab" aria-selected="false" '
+            'aria-controls="pya-vista-3d">3D</a></nav>') in fuori
+    assert '<div class="pya-view" data-pya-view="map" id="pya-vista-map" role="tabpanel">' in fuori
+    assert '<div class="pya-view" data-pya-view="3d" id="pya-vista-3d" role="tabpanel" hidden>' in fuori
+    assert "aria-selected" in nv._JS                                  # la scheda aperta si dice
     assert fuori.index("var PYA_SEL = ") < fuori.index("/* map */") < fuori.index("/* 3d */")
 
 
@@ -84,3 +89,14 @@ def test_sul_telefono_il_pannello_fermo_ha_lo_sfondo_della_pagina():
     assert re.search(r"\.pya-map\s*\{[^}]*background:\s*#fdfdfc", telefono)
     scuro = re.search(r"@media \(max-width: 899px\) and \(prefers-color-scheme: dark\) \{(.*?)\n\}", css, re.S)
     assert scuro and re.search(r"\.pya-map\s*\{[^}]*background:\s*#16181c", scuro.group(1))
+
+
+def test_con_le_schede_mappa_e_3d_hanno_la_stessa_altezza():
+    """Passando da una scheda all'altra il pannello cambiava altezza."""
+    import re
+    due = nv.inject_views(_PAGINA, [_vista("map", "Mappa"), _vista("3d", "3D")], _CAPITOLI, _META, lang="it")
+    una = nv.inject_views(_PAGINA, [_vista("3d", "3D")], _CAPITOLI, _META, lang="it")
+    assert '<aside class="pya-map" id="pya-map" data-pya-schede>' in due
+    assert '<aside class="pya-map" id="pya-map">' in una
+    assert re.search(r"\[data-pya-schede\] #pya-svg,\s*\[data-pya-schede\] #pya-scena-3d\s*\{[^}]*"
+                     r"height:\s*min\(62vh, 560px\)", nv._CSS)

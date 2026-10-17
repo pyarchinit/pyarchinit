@@ -1408,6 +1408,10 @@ def _html_per_chi_legge(payload: str, graph, narrative, conn, media_base, lang) 
     except Exception as e:                          # noqa: BLE001
         logging.getLogger(__name__).warning("Fonti della narrativa non aggiunte: %s", e)
     try:
+        payload = nh.with_three_viewer(payload, registro)
+    except Exception as e:                          # noqa: BLE001
+        logging.getLogger(__name__).warning("Visore 3D della narrativa non aggiunto: %s", e)
+    try:
         payload = nh.add_index(payload, lang)
     except Exception as e:                          # noqa: BLE001
         logging.getLogger(__name__).warning("Indice della narrativa non aggiunto: %s", e)

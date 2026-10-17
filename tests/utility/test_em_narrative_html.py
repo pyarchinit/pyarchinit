@@ -358,3 +358,54 @@ def test_le_righe_delle_unita_non_toccano_i_link_delle_menzioni():
     assert re.search(r"(?m)^\.pya-u[\s\[{]", nh._CSS_UNITA) is None
     assert ".pya-unita .pya-u { border-bottom" in nh._CSS_UNITA
     assert ".pya-unita .pya-u[open] summary::before" in nh._CSS_UNITA
+
+
+def test_le_ancore_dei_capitoli_non_si_ripetono():
+    """Un titolo senza capitolo prima di quelli che hanno già l'id dei link
+    (pya-cap-0, pya-cap-1) prendeva pya-cap-0: due ancore uguali."""
+    pagina = ('<html><head><style>body{}</style></head><body><h1>T</h1>'
+              '<h2>Premessa</h2><p>a</p>'
+              '<h2 id="pya-cap-0" class="pya-cap" data-e="" data-units="">Uno</h2><p>b</p>'
+              '<h2 id="pya-cap-1" class="pya-cap" data-e="" data-units="">Due</h2><p>c</p></body></html>')
+    fuori = nh.add_index(pagina, "it")
+    ids = re.findall(r'<h2 id="([^"]+)"', fuori)
+    assert len(ids) == 3 and len(set(ids)) == 3
+    for ident in re.findall(r'href="#(pya-cap-[^"]+)"', fuori):
+        assert fuori.count('id="%s"' % ident) == 1
+
+
+def test_il_json_nella_pagina_non_apre_ne_chiude_tag():
+    import json
+    testo = nh._json_script({"a": "<!--<script></script>", "b": "x"})
+    assert "<" not in testo
+    assert json.loads(testo) == {"a": "<!--<script></script>", "b": "x"}
+
+
+def test_le_pagine_coi_modelli_portano_three_per_il_visore():
+    """Il visore del singolo modello si caricava da internet (model-viewer):
+    ora usa il three.js della pagina, che c'è anche senza la scena 3D."""
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    modello = {"m::a": {"title": "SU004.glb", "model": True, "mime": "model/gltf-binary", "file": "Z2xURg=="}}
+    pagina = "<html><head><style>body{}</style></head><body><p>x</p></body></html>"
+    fuori = nh.with_three_viewer(pagina, modello)
+    assert fuori.count(n3d.three_bundle()[:300]) == 1
+    assert nh.with_three_viewer(fuori, modello) == fuori                      # una volta sola
+    assert nh.with_three_viewer(pagina, {"m::b": {"model": False, "mime": "image/png", "file": "x"}}) == pagina
+    js = nh._JS_FONTI
+    assert "window.PYA_THREE" in js and "chiudiVisore()" in js and "forceContextLoss" in js
+
+
+def test_l_export_mette_three_per_il_visore():
+    import inspect
+    from modules.s3dgraphy import em_narrative as en
+    assert "nh.with_three_viewer(" in inspect.getsource(en._html_per_chi_legge)
+
+
+def test_lo_script_delle_fonti_si_legge(tmp_path):
+    import shutil
+    import subprocess
+    if shutil.which("node") is None:
+        return
+    f = tmp_path / "fonti.js"
+    f.write_text(nh._JS_FONTI, encoding="utf-8")
+    subprocess.run(["node", "--check", str(f)], check=True)

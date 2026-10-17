@@ -132,22 +132,63 @@ def _scena(tmp_path):
                      epochs={"u1": ["ep1"], "u3": ["ep1"]}, missing=["proxies/SU003.glb"])
 
 
-def test_la_vista_porta_i_proxy_la_libreria_e_lo_script(tmp_path):
-    import base64
+def _blocco(vista, ident):
     import json
     import re
+    m = re.search(r'<script type="application/json" id="%s">(.*?)</script>' % ident, vista.script, re.S)
+    return json.loads(m.group(1)) if m else None
+
+
+def test_la_vista_porta_i_proxy_la_libreria_e_lo_script(tmp_path):
+    import base64
     from modules.s3dgraphy import em_narrative_3d as n3d
     vista = n3d.scene_view(_scena(tmp_path), {"ep1": "II A.D."}, lang="it")
     assert vista.key == "3d" and vista.label == "3D"
     assert vista.panel.startswith('<div id="pya-scena-3d" class="pya-scena-3d"></div>')
     assert 'id="pya-scena-3d-caption"' in vista.panel and 'class="pya-reset"' in vista.panel
     assert vista.script.count(n3d.three_bundle()[:300]) == 1                 # il pacchetto, una volta
-    dati = json.loads(re.search(r'<script type="application/json" id="pya-scena-3d-data">(.*?)</script>',
-                                vista.script, re.S).group(1))
-    assert dati["proxies"] == [{"k": "rp1", "u": "u1", "glb": base64.b64encode(b"glTF-proxy").decode()}]
+    dati = _blocco(vista, "pya-scena-3d-data")
+    # i metadati, piccoli, si leggono subito; i GLB solo quando si apre il 3D
+    assert dati["proxies"] == [{"k": "rp1", "u": "u1"}]
+    assert _blocco(vista, "pya-scena-3d-glb") == {"rp1": base64.b64encode(b"glTF-proxy").decode()}
     assert dati["unitProxies"] == {"u1": ["rp1"], "u3": ["rp1"]} and dati["missing"] == 1
     assert dati["epochNames"] == {"ep1": "II A.D."} and dati["words"]["noProxy"] == "senza proxy 3D"
-    assert vista.script.index("pya-scena-3d-data") < vista.script.index("PYA_SEL.add(")
+    assert vista.script.index("pya-scena-3d-glb") < vista.script.index("PYA_SEL.add(")
+
+
+def test_un_file_che_non_si_apre_conta_fra_i_mancanti(tmp_path):
+    """Un file trovato e poi illeggibile faceva cadere tutta la scena
+    (revisione finale): ora conta fra i mancanti e gli altri restano."""
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    scena = _scena(tmp_path)
+    scena.proxies.append(n3d.SceneProxy("rp2", "u2", "proxies/SU003.glb", str(tmp_path / "sparito.glb"), 10))
+    scena.unit_proxies["u2"] = ["rp2"]
+    vista = n3d.scene_view(scena, {}, lang="it")
+    dati = _blocco(vista, "pya-scena-3d-data")
+    assert [p["k"] for p in dati["proxies"]] == ["rp1"] and dati["missing"] == 2
+    assert "u2" not in dati["unitProxies"]
+    scena.proxies = [n3d.SceneProxy("rp2", "u2", "proxies/SU003.glb", str(tmp_path / "sparito.glb"), 10)]
+    assert n3d.scene_view(scena, {}, lang="it") is None                     # niente da mostrare
+
+
+def test_lo_stesso_file_da_due_risorse_entra_una_volta(tmp_path):
+    from s3dgraphy.nodes.property_node import PropertyNode
+    from s3dgraphy.nodes.resource_node import ResourceNode
+    from s3dgraphy.nodes.semantic_shape_node import SemanticShapeNode
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    g = _grafo()
+    g.add_node(StratigraphicUnit("u4", "SU005"))
+    g.add_node(PropertyNode("p4", "geometry", property_type="geometry"))
+    g.add_node(SemanticShapeNode("sh4", "Shape"))
+    g.add_node(ResourceNode("rp4", "SU002.glb", url="proxies/SU002.glb", url_type="proxy_model"))
+    g.add_edge("u4_p", "u4", "p4", "has_property")
+    g.add_edge("p4_s", "p4", "sh4", "has_semantic_shape")
+    g.add_edge("sh4_r", "sh4", "rp4", "has_linked_resource")
+    glb = _file(tmp_path / "Tempio" / "EM" / "proxies", "SU002.glb", 64)
+    scena = n3d.build_scene(g, _db(tmp_path, [(1, "3d_model", "SU002", "glb", str(glb))]))
+    assert [p.key for p in scena.proxies] == ["rp1"]                         # un file, una volta
+    assert scena.unit_proxies["u4"] == ["rp1"] and scena.unit_proxies["u1"] == ["rp1"]
 
 
 def test_la_scena_non_chiede_niente_alla_rete(tmp_path):
@@ -186,7 +227,7 @@ def test_il_javascript_della_scena_si_legge(tmp_path):
 _BROWSER_FINTO = r"""
 globalThis.window = globalThis;
 globalThis.addEventListener = function () {};
-var coda = [], disegni = 0, continuo = false;
+var coda = [], disegni = 0, continuo = false, selezioni = [], raggi = [], tastiera = [];
 globalThis.requestAnimationFrame = function (cb) { coda.push(cb); return coda.length; };
 globalThis.cancelAnimationFrame = function () {};
 function finto() {
@@ -203,58 +244,88 @@ function finto() {
   return p;
 }
 function Elemento() {
-  this.hidden = false; this.style = {}; this.firstChild = {textContent: ''};
+  this.hidden = false; this.style = {}; this.firstChild = {textContent: ''}; this.attr = {}; this.ascolti = {};
   this.clientWidth = 400; this.clientHeight = 300;
 }
 Elemento.prototype.appendChild = function () {};
-Elemento.prototype.addEventListener = function () {};
-Elemento.prototype.closest = function () { return new Elemento(); };
+Elemento.prototype.setAttribute = function (k, v) { this.attr[k] = String(v); };
+Elemento.prototype.getAttribute = function (k) { return k in this.attr ? this.attr[k] : null; };
+Elemento.prototype.addEventListener = function (t, f) { (this.ascolti[t] = this.ascolti[t] || []).push(f); };
+Elemento.prototype.emetti = function (t, ev) {
+  ev = ev || {}; ev.preventDefault = function () {};
+  (this.ascolti[t] || []).forEach(function (f) { f(ev); });
+};
 Elemento.prototype.getBoundingClientRect = function () { return {left: 0, top: 0, width: 400, height: 300}; };
-var dati = __DATI__;
-var elementi = {'pya-scena-3d-data': {textContent: JSON.stringify(dati)}, 'pya-scena-3d': new Elemento(),
-                'pya-scena-3d-caption': new Elemento()};
+var vistaFinta = new Elemento();
+Elemento.prototype.closest = function () { return vistaFinta; };
+var dati = __DATI__, testoGlb = JSON.stringify(__GLB__), glbLetto = 0, elementoGlb = {};
+Object.defineProperty(elementoGlb, 'textContent', {
+  get: function () { glbLetto += 1; return testoGlb; }, set: function (v) { testoGlb = v; }});
+var elementi = {'pya-scena-3d-data': {textContent: JSON.stringify(dati)}, 'pya-scena-3d-glb': elementoGlb,
+                'pya-scena-3d': new Elemento(), 'pya-scena-3d-caption': new Elemento()};
+var ascoltiDocumento = {};
 globalThis.document = {
   getElementById: function (id) { return elementi[id] || null; },
-  createElement: function () { var e = new Elemento(); e.getContext = function () { return {}; }; return e; },
-  addEventListener: function () {}
+  createElement: function () { return new Elemento(); },
+  addEventListener: function (t, f) { (ascoltiDocumento[t] = ascoltiDocumento[t] || []).push(f); }
 };
+function documentoEmetti(t, ev) { (ascoltiDocumento[t] || []).forEach(function (f) { f(ev); }); }
 globalThis.PYA_SEL = {units: {}, firstEpoch: {}, fns: [],
-  add: function (fn) { this.fns.push(fn); fn(null, null, null); }};
+  add: function (fn) { this.fns.push(fn); fn(null, null, null); },
+  select: function (e, u, g) {
+    selezioni.push([e, u, g]);
+    this.fns.forEach(function (fn) { fn(e, u, g); });
+  }};
 var T = finto();
 // come il GLTFLoader di three.js: un file che non è un GLB fa lanciare subito
 // un errore (new Uint8Array(data, 0, 4), JSON.parse), senza onError
 T.GLTFLoader = function () {};
 T.GLTFLoader.prototype.parse = function (dati, via, ok, ko) {
   if (dati.byteLength < 12) { throw new RangeError('Invalid typed array length: 4'); }
-  var mesh = {isMesh: true, userData: {}, geometry: {}, add: function () {}, material: {opacity: 1, transparent: false, depthWrite: true,
-    userData: {}, clone: function () { return {opacity: 1, transparent: false, depthWrite: true, userData: {}}; }}};
+  var mesh = {isMesh: true, userData: {}, geometry: {}, add: function () {}, material: {opacity: 1,
+    transparent: false, depthWrite: true, userData: {},
+    clone: function () { return {opacity: 1, transparent: false, depthWrite: true, userData: {}}; }}};
   ok({scene: {traverse: function (fn) { fn(mesh); }}});
 };
+var renderer = null;
 T.WebGLRenderer = function () {
-  return {domElement: new Elemento(), setPixelRatio: function () {}, setSize: function () {},
-          render: function () { disegni += 1; }, setAnimationLoop: function (fn) { continuo = !!fn; }};
+  renderer = {domElement: new Elemento(), setPixelRatio: function () {}, setSize: function () {},
+              render: function () { disegni += 1; }, setAnimationLoop: function (fn) { continuo = !!fn; }};
+  return renderer;
 };
 T.OrbitControls = function () {
   return {target: finto(), enableDamping: false, update: function () { return false; },
-          addEventListener: function () {}};
+          addEventListener: function () {},
+          listenToKeyEvents: function (el) { tastiera.push(!!renderer && el === renderer.domElement); }};
+};
+var colpo = null;                          // l'unità che il raggio trova sotto il puntatore
+T.Raycaster = function () {
+  return {setFromCamera: function () {}, intersectObjects: function (oggetti, ricorsivo) {
+    raggi.push(ricorsivo === true);
+    return colpo ? [{object: {isMesh: true, userData: {pyaUnit: colpo},
+                              material: {transparent: false, opacity: 1}}}] : [];
+  }};
 };
 globalThis.PYA_THREE = T;
 function pompa(n) { for (var i = 0; i < n && coda.length; i += 1) { coda.shift()(i * 16); } }
 function stato() {
   var c = elementi['pya-scena-3d-caption'];
   return {testo: c.firstChild.textContent.trim(), titolo: c.title || '', coda: coda.length,
-          disegni: disegni, continuo: continuo};
+          disegni: disegni, continuo: continuo, selezioni: selezioni, raggi: raggi,
+          glbLetto: glbLetto, glbVuoto: testoGlb === '', tastiera: tastiera,
+          attr: renderer ? renderer.domElement.attr : null};
 }
 """
 
 _PAROLE_FINTE = {"site": "Tutto il sito", "chapter": "Capitolo", "proxies": "proxy", "noProxy": "senza",
-                 "failed": "non caricati", "skipped": "fuori", "missing": "senza file",
-                 "noWebgl": "niente WebGL", "loading": "Carico i proxy"}
+                 "notLoaded": "proxy non caricato", "failed": "non caricati", "skipped": "fuori",
+                 "missing": "senza file", "noWebgl": "niente WebGL", "loading": "Carico i proxy",
+                 "keys": "frecce, + e -, Esc"}
+_GLB_BUONO = "Z2xURi0xMjM0NTY3OA=="
 
 
 def _dati_finti(**altro):
-    dati = {"proxies": [{"k": "a", "u": "u1", "glb": "Z2xURi0xMjM0NTY3OA=="},
-                        {"k": "b", "u": "u2", "glb": "Z2xURi0xMjM0NTY3OA=="}],
+    dati = {"proxies": [{"k": "a", "u": "u1"}, {"k": "b", "u": "u2"}],
             "unitProxies": {"u1": ["a"], "u2": ["b"]}, "names": {"u1": "SU001", "u2": "SU002"},
             "epochs": {"u1": ["ep1"], "u2": ["ep1"]}, "epochNames": {"ep1": "II A.D."},
             "missing": 0, "skipped": 0, "skippedNames": [], "words": _PAROLE_FINTE}
@@ -262,58 +333,154 @@ def _dati_finti(**altro):
     return dati
 
 
-def _esegui_scena(tmp_path, dati, *, prima="", dopo="pompa(50);"):
+def _esegui_scena(tmp_path, dati, *, glb=None, prima="", dopo="pompa(50);"):
     """Lo script della scena in node con un finto browser (three.js finto):
-    torna lo stato della didascalia e dei fotogrammi dopo ``dopo``."""
+    torna lo stato della didascalia, dei fotogrammi e degli eventi dopo ``dopo``."""
     import json
     from modules.s3dgraphy import em_narrative_3d as n3d
+    if glb is None:
+        glb = {p["k"]: _GLB_BUONO for p in dati["proxies"]}
     f = tmp_path / "scena.js"
-    f.write_text(_BROWSER_FINTO.replace("__DATI__", json.dumps(dati)) + prima + n3d._JS
-                 + "\n" + dopo + "\nconsole.log(JSON.stringify(stato()));\n", encoding="utf-8")
+    f.write_text(_BROWSER_FINTO.replace("__DATI__", json.dumps(dati)).replace("__GLB__", json.dumps(glb))
+                 + prima + n3d._JS + "\n" + dopo + "\nconsole.log(JSON.stringify(stato()));\n",
+                 encoding="utf-8")
     esito = subprocess.run(["node", str(f)], capture_output=True, text=True)
     assert esito.returncode == 0, esito.stderr
     return json.loads(esito.stdout.strip().splitlines()[-1])
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+_NODE = pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+
+
+@_NODE
 def test_un_proxy_che_non_si_legge_non_ferma_la_scena(tmp_path):
     """Il GLTFLoader di three.js, per un file che non è un GLB (troppo corto,
     non JSON, compresso Draco senza decodificatore), lancia l'errore subito
     invece di chiamare onError: la scena restava ferma su «Carico i proxy…»
     e non si disegnava niente (prova nel browser su TempluMare, 17 ottobre)."""
-    dati = _dati_finti()
-    dati["proxies"][0]["glb"] = "AAAA"
-    assert _esegui_scena(tmp_path, dati)["testo"] == "Tutto il sito · 2 proxy · 1 non caricati"
+    fuori = _esegui_scena(tmp_path, _dati_finti(), glb={"a": "AAAA", "b": _GLB_BUONO})
+    assert fuori["testo"] == "Tutto il sito · 2 proxy · 1 non caricati"
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+@_NODE
+def test_l_unita_col_proxy_non_caricato_lo_dice(tmp_path):
+    fuori = _esegui_scena(tmp_path, _dati_finti(), glb={"a": "AAAA", "b": _GLB_BUONO},
+                          dopo="pompa(50); PYA_SEL.select('ep1', 'u1', null); pompa(50);")
+    assert "SU001: proxy non caricato" in fuori["testo"]
+
+
+@_NODE
 def test_senza_webgl_la_didascalia_lo_dice(tmp_path):
     """three.js 0.186 vuole WebGL 2 e lancia «Error creating WebGL context»
     se non lo ottiene: la scena restava un riquadro vuoto (revisione finale)."""
     fuori = _esegui_scena(tmp_path, _dati_finti(),
                           prima="T.WebGLRenderer = function () { throw new Error('Error creating WebGL context.'); };\n",
-                          dopo="PYA_SEL.fns.forEach(function (fn) { fn('ep1', 'u1', null); });")
+                          dopo="PYA_SEL.select('ep1', 'u1', null);")
     assert fuori["testo"] == "niente WebGL"
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+@_NODE
 def test_la_scena_ferma_non_si_ridisegna(tmp_path):
     """Si disegna quando qualcosa cambia (caricamento, selezione, volo,
     mouse), non a ogni fotogramma: la pagina è un documento da leggere."""
     fuori = _esegui_scena(tmp_path, _dati_finti())
     assert fuori["continuo"] is False and fuori["coda"] == 0 and fuori["disegni"] >= 1
     fuori = _esegui_scena(tmp_path, _dati_finti(),
-                          dopo="pompa(50); var prima = disegni; "
-                               "PYA_SEL.fns.forEach(function (fn) { fn('ep1', 'u1', null); }); pompa(50); "
+                          dopo="pompa(50); var prima = disegni; PYA_SEL.select('ep1', 'u1', null); pompa(50); "
                                "if (disegni <= prima) { throw new Error('la selezione non ridisegna'); }")
     assert fuori["coda"] == 0
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+@_NODE
 def test_i_proxy_rimasti_fuori_si_elencano_nel_suggerimento(tmp_path):
     fuori = _esegui_scena(tmp_path, _dati_finti(skipped=2, skippedNames=["SU099.glb", "SU100.glb"]))
     assert fuori["testo"] == "Tutto il sito · 2 proxy · 2 fuori"
     assert "SU099.glb, SU100.glb" in fuori["titolo"]
+
+
+@_NODE
+def test_chi_eredita_la_geometria_porta_il_proxy_nel_suo_periodo(tmp_path):
+    """La USV100 eredita la geometria di SU002 (decisione 2): nel periodo
+    o nel capitolo della USV il proxy c'è anche se il proprietario non c'è."""
+    dati = _dati_finti(proxies=[{"k": "a", "u": "u1"}], unitProxies={"u1": ["a"], "u3": ["a"]},
+                       names={"u1": "SU002", "u3": "USV100"}, epochs={"u1": ["ep1"], "u3": ["ep2"]},
+                       epochNames={"ep1": "II A.D.", "ep2": "III A.D."})
+    fuori = _esegui_scena(tmp_path, dati, dopo="pompa(50); PYA_SEL.select('ep2', null, null); pompa(50);")
+    assert fuori["testo"] == "III A.D. · 1 proxy"
+    fuori = _esegui_scena(tmp_path, dati, dopo="pompa(50); PYA_SEL.select(null, null, ['u3']); pompa(50);")
+    assert fuori["testo"] == "Capitolo · 1 proxy"
+
+
+@_NODE
+def test_il_clic_destro_e_due_dita_non_selezionano(tmp_path):
+    fuori = _esegui_scena(tmp_path, _dati_finti(), dopo=r"""
+pompa(50); colpo = 'u2'; var el = renderer.domElement;
+el.emetti('pointerdown', {button: 2, pointerId: 1, clientX: 10, clientY: 10});
+el.emetti('pointerup', {button: 2, pointerId: 1, clientX: 10, clientY: 10});
+el.emetti('pointerdown', {button: 0, pointerId: 2, pointerType: 'touch', clientX: 10, clientY: 10});
+el.emetti('pointerdown', {button: 0, pointerId: 3, pointerType: 'touch', clientX: 30, clientY: 30});
+el.emetti('pointerup', {button: 0, pointerId: 2, pointerType: 'touch', clientX: 10, clientY: 10});
+el.emetti('pointerup', {button: 0, pointerId: 3, pointerType: 'touch', clientX: 30, clientY: 30});
+el.emetti('pointerdown', {button: 0, pointerId: 4, clientX: 50, clientY: 50});
+el.emetti('pointerup', {button: 0, pointerId: 4, clientX: 51, clientY: 50});
+""")
+    assert fuori["selezioni"] == [["ep1", "u2", None]]
+
+
+@_NODE
+def test_i_modelli_si_leggono_solo_quando_si_apre_il_3d(tmp_path):
+    """Con la mappa davanti la scheda 3D è nascosta: i GLB (fino a 40 MB)
+    non si leggono finché non la si apre, e dopo la lettura il testo si
+    libera."""
+    fuori = _esegui_scena(tmp_path, _dati_finti(), prima="vistaFinta.hidden = true;\n", dopo="pompa(50);")
+    assert fuori["glbLetto"] == 0 and fuori["testo"] == "Tutto il sito · 2 proxy"
+    fuori = _esegui_scena(tmp_path, _dati_finti(), prima="vistaFinta.hidden = true;\n",
+                          dopo="vistaFinta.hidden = false; documentoEmetti('pya:tab', {detail: '3d'}); pompa(50);")
+    assert fuori["glbLetto"] >= 1 and fuori["glbVuoto"] is True and fuori["disegni"] >= 1
+
+
+@_NODE
+def test_il_passaggio_del_mouse_fa_un_raggio_per_fotogramma(tmp_path):
+    """Un raggio a ogni movimento del mouse, e anche sui contorni: ora uno
+    per fotogramma, solo sulle mesh."""
+    fuori = _esegui_scena(tmp_path, _dati_finti(), dopo=r"""
+pompa(50); colpo = 'u1'; var el = renderer.domElement;
+for (var i = 0; i < 5; i += 1) { el.emetti('pointermove', {buttons: 0, pointerType: 'mouse', clientX: i, clientY: i}); }
+var prima = raggi.length; pompa(5);
+if (prima !== 0) { throw new Error('raggi prima del fotogramma: ' + prima); }
+""")
+    assert fuori["raggi"] == [False]
+
+
+@_NODE
+def test_la_scena_si_usa_anche_con_la_tastiera(tmp_path):
+    fuori = _esegui_scena(tmp_path, _dati_finti(), dopo=r"""
+pompa(50); var el = renderer.domElement;
+el.emetti('keydown', {key: '+'});
+if (!coda.length) { throw new Error('lo zoom da tastiera non ridisegna'); }
+pompa(50); el.emetti('keydown', {key: 'Escape'});
+""")
+    assert fuori["attr"]["tabindex"] == "0" and fuori["attr"]["role"] == "application"
+    assert fuori["attr"]["aria-label"] == "frecce, + e -, Esc"
+    assert fuori["tastiera"] == [True] and fuori["selezioni"][-1] == [None, None, None]
+
+
+@_NODE
+def test_l_inquadratura_tiene_conto_della_larghezza(tmp_path):
+    """Su un riquadro più stretto che alto l'oggetto stava nel campo
+    verticale ma usciva ai lati: la distanza guarda il campo più stretto."""
+    import json
+    import math
+    import re
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    funzione = re.search(r"function distanza\(raggio, fov, aspetto\) \{.*?\n  \}", n3d._JS, re.S).group(0)
+    f = tmp_path / "distanza.js"
+    f.write_text(funzione + "\nconsole.log(JSON.stringify([distanza(10, 40, 2), distanza(10, 40, 0.5)]));\n",
+                 encoding="utf-8")
+    largo, stretto = json.loads(subprocess.run(["node", str(f)], capture_output=True, text=True,
+                                               check=True).stdout)
+    assert abs(largo - 10 / math.sin(math.radians(20)) * 1.05) < 1e-9
+    assert stretto > largo * 1.5
 
 
 def test_la_vista_passa_i_nomi_dei_proxy_rimasti_fuori(tmp_path):
@@ -323,8 +490,7 @@ def test_la_vista_passa_i_nomi_dei_proxy_rimasti_fuori(tmp_path):
     scena = _scena(tmp_path)
     scena.skipped = ["SU099.glb"]
     vista = n3d.scene_view(scena, {}, lang="it")
-    dati = json.loads(re.search(r'<script type="application/json" id="pya-scena-3d-data">(.*?)</script>',
-                                vista.script, re.S).group(1))
+    dati = _blocco(vista, "pya-scena-3d-data")
     assert dati["skipped"] == 1 and dati["skippedNames"] == ["SU099.glb"]
 
 

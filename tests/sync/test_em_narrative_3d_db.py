@@ -31,7 +31,24 @@ def test_l_html_della_narrativa_porta_la_scena_3d(tmp_path):
     assert 'id="pya-scena-3d-data"' in pagina and pagina.count("var PYA_SEL = ") == 1
     assert '<a class="em-mention pya-u" href="#pya-map" data-u="u1" data-e="ep1">SU002</a>' in pagina
     assert re.search(r'<a class="em-mention pya-u"[^>]*data-u="u2"', pagina)      # senza proxy: è un'unità
-    assert "pya-svg" not in pagina and '<nav class="pya-tabs">' not in pagina   # niente disegni, niente schede
+    assert '<svg id="pya-svg"' not in pagina and '<nav class="pya-tabs"' not in pagina   # niente disegni, niente schede
     senza = tmp_path / "senza.html"
     en.export_file(g, n, "html", senza, lang="it")
     assert "pya-scena-3d" not in senza.read_text(encoding="utf-8")                     # niente database, niente scena
+
+
+def test_con_disegni_e_proxy_le_due_schede(tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative_map as nmap
+    from modules.s3dgraphy import em_narrative_views as nv
+    monkeypatch.setattr(nmap, "units_meta",
+                        lambda graph: {"u1": {"name": "SU002", "number": "2", "epochs": ["ep1"]}})
+    monkeypatch.setattr(nmap, "drawings_from_db", lambda conn, site, meta, lang=None: [
+        nmap.Drawing("u1", [[(0, 0), (4, 0), (4, 3), (0, 3)]], (2, 1.5))])
+    glb = _file(tmp_path / "p", "SU002.glb", 64)
+    conn = _db(tmp_path, [(1, "3d_model", "SU002", "glb", str(glb))])
+    pagina = ('<html><head><style>body{}</style></head><body><h1>T</h1>'
+              '<h2>Uno</h2><p>Il muro <em class="em-mention">SU002</em>.</p></body></html>')
+    fuori = nv.html_with_views(pagina, _grafo(), conn, "T", [{"title": "Uno", "epoch": "ep1", "units": ["u1"]}], "it")
+    assert fuori.count("data-pya-tab=") == 2
+    assert fuori.index('data-pya-tab="map"') < fuori.index('data-pya-tab="3d"')
+    assert '<svg id="pya-svg"' in fuori and 'id="pya-scena-3d"' in fuori and "data-pya-schede" in fuori

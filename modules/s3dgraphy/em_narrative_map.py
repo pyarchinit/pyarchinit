@@ -227,7 +227,6 @@ def map_view(svg: str, boxes: Dict[str, list], meta: Dict[str, Dict[str, Any]],
         "boxes": boxes,
         "epochNames": {k: v for k, v in (epoch_names_map or {}).items()},
         "units": {u: m.get("name", u) for u, m in meta.items()},
-        "firstEpoch": {u: (m.get("epochs") or [""])[0] for u, m in meta.items()},
         "words": parole,
     }
     pannello = ('%s<p class="pya-caption" id="pya-caption"><span>%s </span>'

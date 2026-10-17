@@ -66,6 +66,9 @@ def _voci_dei_titoli(testa: str) -> Tuple[str, List[Tuple[int, str, str]]]:
     pezzi: List[str] = []
     fin = 0
     capitolo, sezione = -1, 0
+    # un titolo senza capitolo prima di quelli che hanno già l'id dei link
+    # prendeva lo stesso pya-cap-N: le ancore si contano su quelle già usate
+    usati = set(re.findall(r'\bid="([^"]*)"', testa))
     for m in _TITOLI.finditer(testa):
         pezzi.append(testa[fin:m.start()])
         if m.group(2) is not None:
@@ -73,7 +76,14 @@ def _voci_dei_titoli(testa: str) -> Tuple[str, List[Tuple[int, str, str]]]:
             sezione = 0
             attributi = m.group(1) or ""
             gia = re.search(r'\bid="([^"]*)"', attributi)
-            ident = gia.group(1) if gia else "pya-cap-%d" % capitolo
+            if gia:
+                ident = gia.group(1)
+            else:
+                n = capitolo
+                while "pya-cap-%d" % n in usati:
+                    n += 1
+                ident = "pya-cap-%d" % n
+                usati.add(ident)
             pezzi.append(m.group(0) if gia else '<h2 id="%s"%s>%s</h2>' % (ident, attributi, m.group(2)))
             voci.append((1, ident, m.group(2)))
         else:
@@ -258,7 +268,8 @@ _PAROLE = {
                            "originale, sul computer che l'ha esportata.",
            "no_file": "Nessun file collegato a questa fonte.",
            "viewer_offline": "Il visore 3D si carica da internet: senza rete resta la vista del "
-                             "modello, e il file si apre con «Apri il file»."},
+                             "modello, e il file si apre con «Apri il file».",
+           "model_error": "Il modello non si apre nel visore: il file si apre con «Apri il file»."},
     "en": {"units": "Units of the chapter", "n_units": "units", "n_paradata": "paradata",
            "property": "property", "value": "value", "provenance": "where it comes from",
            "chapter_sources": "Chapter sources", "sources": "Sources", "open": "Open the file",
@@ -267,7 +278,8 @@ _PAROLE = {
                            "original path, on the computer that exported it.",
            "no_file": "No file linked to this source.",
            "viewer_offline": "The 3D viewer loads from the internet: offline the view of the "
-                             "model stays, and the file opens with “Open the file”."},
+                             "model stays, and the file opens with “Open the file”.",
+           "model_error": "The model does not open in the viewer: the file opens with “Open the file”."},
 }
 
 
@@ -345,6 +357,7 @@ _JS_FONTI = r"""
   }
   function apri(a) {
     var f = fonte(a); if (!f) { return; }
+    chiudiVisore();
     var url = blob(f), vista = '';
     if (f.model) { vista = f.preview ? '<img class="pya-vista" id="pya-3d" src="' + f.preview + '" alt="' + esc(f.title) + '">' : '<div id="pya-3d"></div>'; }
     else if (url && /^video\//.test(f.mime || '')) { vista = '<video class="pya-vista" controls src="' + url + '"></video>'; }
@@ -365,8 +378,80 @@ _JS_FONTI = r"""
     var b = pan.querySelector('.pya-chiudi'); if (b) { b.focus(); }
     if (f.model && url && f.mime === 'model/gltf-binary') { visore(url, f.title); }
   }
+  // il visore del singolo modello: il three.js della pagina (c'è con la
+  // scena 3D o con un modello fra le fonti), senza rete; model-viewer da
+  // internet solo se three.js non c'è. Un visore alla volta: si chiude, e
+  // libera la scheda grafica, quando si apre un'altra fonte o si chiude
+  var chiusura = null;
+  function chiudiVisore() { if (chiusura) { var c = chiusura; chiusura = null; c(); } }
+  function visore3(dove, url, titolo) {
+    var T = window.PYA_THREE, r = null;
+    try { r = new T.WebGLRenderer({antialias: true, alpha: true}); } catch (err) { return false; }
+    var box = document.createElement('div');
+    box.className = 'pya-vista pya-vista-3d';
+    box.setAttribute('role', 'img');
+    box.setAttribute('aria-label', titolo || '');
+    dove.parentNode.replaceChild(box, dove);
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.outputColorSpace = T.SRGBColorSpace;
+    r.domElement.style.display = 'block'; r.domElement.style.width = '100%'; r.domElement.style.height = '100%';
+    box.appendChild(r.domElement);
+    var scena = new T.Scene(), cam = new T.PerspectiveCamera(40, 1, 0.01, 10000);
+    var ctl = new T.OrbitControls(cam, r.domElement), vivo = true, giro = null;
+    ctl.enableDamping = true;
+    scena.add(new T.HemisphereLight(0xffffff, 0x666666, 2.2));
+    var luce = new T.DirectionalLight(0xffffff, 1.5);
+    luce.position.set(1, 2, 1.5);
+    scena.add(luce);
+    function disegna() {
+      giro = null;
+      if (!vivo) { return; }
+      var ancora = ctl.update();
+      r.render(scena, cam);
+      if (ancora) { pianifica(); }
+    }
+    function pianifica() { if (vivo && !giro) { giro = window.requestAnimationFrame(disegna); } }
+    function misura() {
+      var w = box.clientWidth, h = box.clientHeight;
+      if (!w || !h) { return; }
+      r.setSize(w, h, false);
+      cam.aspect = w / h;
+      cam.updateProjectionMatrix();
+      pianifica();
+    }
+    ctl.addEventListener('change', pianifica);
+    var ro = window.ResizeObserver ? new ResizeObserver(misura) : null;
+    if (ro) { ro.observe(box); }
+    misura();
+    new T.GLTFLoader().load(url, function (gltf) {
+      if (!vivo) { return; }
+      scena.add(gltf.scene);
+      var b = new T.Box3().setFromObject(gltf.scene), c = b.getCenter(new T.Vector3());
+      var raggio = Math.max(b.getSize(new T.Vector3()).length() / 2, 0.01);
+      var v = cam.fov * Math.PI / 180, o = 2 * Math.atan(Math.tan(v / 2) * cam.aspect);
+      var dist = raggio / Math.sin(Math.min(v, o) / 2) * 1.05;
+      cam.near = dist / 1000; cam.far = dist * 100; cam.updateProjectionMatrix();
+      cam.position.copy(c).add(new T.Vector3(1, 0.8, 1).normalize().multiplyScalar(dist));
+      ctl.target.copy(c);
+      pianifica();
+    }, undefined, function () {
+      if (!vivo || !box.parentNode) { return; }
+      var n = document.createElement('p'); n.textContent = W.model_error;
+      box.parentNode.insertBefore(n, box.nextSibling);
+    });
+    chiusura = function () {
+      vivo = false;
+      if (giro) { window.cancelAnimationFrame(giro); }
+      if (ro) { ro.disconnect(); }
+      ctl.dispose();
+      r.dispose();
+      try { r.forceContextLoss(); } catch (err) { /* già perso */ }
+    };
+    return true;
+  }
   function visore(url, titolo) {
-    var dove = document.getElementById('pya-3d');
+    var dove = pan.querySelector('#pya-3d');
+    if (window.PYA_THREE && dove && visore3(dove, url, titolo)) { return; }
     function metti() {
       var mv = document.createElement('model-viewer');
       mv.setAttribute('src', url); mv.setAttribute('camera-controls', ''); mv.setAttribute('auto-rotate', '');
@@ -390,16 +475,36 @@ _JS_FONTI = r"""
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a.pya-fonte');
     if (a) { e.preventDefault(); apri(a); return; }
-    if (e.target.closest && e.target.closest('.pya-chiudi')) { pan.hidden = true; }
+    if (e.target.closest && e.target.closest('.pya-chiudi')) { chiudiVisore(); pan.hidden = true; }
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { pan.hidden = true; tip.hidden = true; } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { chiudiVisore(); pan.hidden = true; tip.hidden = true; }
+  });
 })();
 """
 
 
+def with_three_viewer(pagina: str, registro: Dict[str, dict]) -> str:
+    """Il visore del singolo modello nel pannello delle fonti e dei media
+    usa il three.js della pagina, che così funziona anche senza rete: una
+    pagina con un modello GLB nel registro lo porta, una volta sola (la
+    scena 3D dei proxy lo porta già)."""
+    modelli = any(v.get("model") and v.get("mime") == "model/gltf-binary" and v.get("file")
+                  for v in (registro or {}).values())
+    if not modelli or "/*! three.js " in pagina:
+        return pagina
+    from .em_narrative_3d import three_bundle
+    pacchetto = three_bundle()
+    if not pacchetto:
+        return pagina
+    return pagina.replace("</body>", "<script>%s</script></body>" % pacchetto, 1)
+
+
 def _json_script(dati) -> str:
-    """JSON da mettere in uno <script>: niente «</» che chiuderebbe il tag."""
-    return (json.dumps(dati, ensure_ascii=False).replace("</", "<\\/")
+    """JSON da mettere in uno <script>: nessun «<», che chiuderebbe il tag
+    («</script») o aprirebbe un commento («<!--»), né separatori di riga
+    che il JavaScript non accetta nelle stringhe."""
+    return (json.dumps(dati, ensure_ascii=False).replace("<", "\\u003c")
             .replace("\u2028", "\\u2028").replace("\u2029", "\\u2029"))
 
 
