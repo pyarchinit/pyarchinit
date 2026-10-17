@@ -117,3 +117,63 @@ def test_col_disco_staccato_la_copia_delle_ridotte(tmp_path):
                [(1, 1, "1_SU002.glb")])
     scena = n3d.build_scene(_grafo(), conn, str(tmp_path / "ridotte") + "/")
     assert [(p.key, p.path) for p in scena.proxies] == [("rp1", str(copia))]
+
+
+def _scena(tmp_path):
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    f = tmp_path / "SU002.glb"
+    f.write_bytes(b"glTF-proxy")
+    return n3d.Scene(proxies=[n3d.SceneProxy("rp1", "u1", "proxies/SU002.glb", str(f), 10)],
+                     unit_proxies={"u1": ["rp1"], "u3": ["rp1"]}, names={"u1": "SU002", "u3": "USV100"},
+                     epochs={"u1": ["ep1"], "u3": ["ep1"]}, missing=["proxies/SU003.glb"])
+
+
+def test_la_vista_porta_i_proxy_la_libreria_e_lo_script(tmp_path):
+    import base64
+    import json
+    import re
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    vista = n3d.scene_view(_scena(tmp_path), {"ep1": "II A.D."}, lang="it")
+    assert vista.key == "3d" and vista.label == "3D"
+    assert vista.panel.startswith('<div id="pya-3d" class="pya-3d"></div>')
+    assert 'id="pya-3d-caption"' in vista.panel and 'class="pya-reset"' in vista.panel
+    assert vista.script.count(n3d.three_bundle()[:300]) == 1                 # il pacchetto, una volta
+    dati = json.loads(re.search(r'<script type="application/json" id="pya-3d-data">(.*?)</script>',
+                                vista.script, re.S).group(1))
+    assert dati["proxies"] == [{"k": "rp1", "u": "u1", "glb": base64.b64encode(b"glTF-proxy").decode()}]
+    assert dati["unitProxies"] == {"u1": ["rp1"], "u3": ["rp1"]} and dati["missing"] == 1
+    assert dati["epochNames"] == {"ep1": "II A.D."} and dati["words"]["noProxy"] == "senza proxy 3D"
+    assert vista.script.index("pya-3d-data") < vista.script.index("PYA_SEL.add(")
+
+
+def test_la_scena_non_chiede_niente_alla_rete(tmp_path):
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    vista = n3d.scene_view(_scena(tmp_path), {}, lang="en")
+    corpo = vista.script.replace(n3d.three_bundle(), "")
+    for vietato in ("http://", "https://", " src=", "import(", "fetch("):
+        assert vietato not in corpo
+
+
+def test_sul_telefono_girare_la_scena_non_scorre_la_pagina():
+    import re
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    assert re.search(r"#pya-3d\s*\{[^}]*touch-action:\s*none", n3d._CSS)
+
+
+def test_senza_il_pacchetto_niente_scena(tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    monkeypatch.setattr(n3d, "BUNDLE", str(tmp_path / "manca.js"))
+    assert n3d.scene_view(_scena(tmp_path), {}, lang="it") is None
+
+
+def test_il_pacchetto_e_quello_del_plugin():
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    assert Path(n3d.BUNDLE) == _PACCHETTO
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+def test_il_javascript_della_scena_si_legge(tmp_path):
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    f = tmp_path / "scena.js"
+    f.write_text(n3d._JS, encoding="utf-8")
+    subprocess.run(["node", "--check", str(f)], check=True)
