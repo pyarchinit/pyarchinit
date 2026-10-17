@@ -45,7 +45,12 @@ body { max-width: min(96vw, 1500px) !important; }
   .pya-map { order: 2; border-bottom: 0; }
 }
 @media (max-width: 899px) {
-  .pya-map { order: -1; }
+  /* sul telefono il pannello sta fermo in alto mentre scorre il capitolo:
+     lo sfondo pieno della pagina, che il testo non si veda attraverso */
+  .pya-map { order: -1; background: #fdfdfc; box-shadow: 0 8px 8px -8px rgba(0,0,0,.3); }
+}
+@media (max-width: 899px) and (prefers-color-scheme: dark) {
+  .pya-map { background: #16181c; }
 }
 .pya-tabs { display: flex; gap: .35rem; margin: 0 0 .4rem; }
 .pya-tabs a { padding: .15rem .75rem; border: 1px solid rgba(127,127,127,.45); border-radius: 999px;

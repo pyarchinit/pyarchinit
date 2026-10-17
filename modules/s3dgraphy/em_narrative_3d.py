@@ -158,13 +158,13 @@ def _lang(lang: Optional[str]) -> str:
 
 _CSS = """
 /* pyArchInit: la scena 3D dei proxy */
-#pya-3d { position: relative; width: 100%; height: min(62vh, 560px); touch-action: none;
+#pya-scena-3d { position: relative; width: 100%; height: min(62vh, 560px); touch-action: none;
   background: rgba(127,127,127,.07); border-radius: 4px; overflow: hidden; }
 @media (max-width: 899px) {
-  #pya-3d { height: 34vh; }
+  #pya-scena-3d { height: 34vh; }
 }
-#pya-3d canvas { display: block; width: 100%; height: 100%; }
-.pya-3d-tip { position: absolute; pointer-events: none; padding: .1rem .45rem; border-radius: 3px;
+#pya-scena-3d canvas { display: block; width: 100%; height: 100%; }
+.pya-scena-3d-tip { position: absolute; pointer-events: none; padding: .1rem .45rem; border-radius: 3px;
   background: rgba(0,0,0,.75); color: #fff; font: 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   transform: translate(-50%, -150%); white-space: nowrap; }
 """
@@ -172,13 +172,13 @@ _CSS = """
 _JS = r"""
 (function () {
   var T = window.PYA_THREE;
-  var nodo = document.getElementById('pya-3d-data');
-  var tela = document.getElementById('pya-3d');
-  var cap = document.getElementById('pya-3d-caption');
+  var nodo = document.getElementById('pya-scena-3d-data');
+  var tela = document.getElementById('pya-scena-3d');
+  var cap = document.getElementById('pya-scena-3d-caption');
   if (!nodo || !tela || !window.PYA_SEL) { return; }
   var D = JSON.parse(nodo.textContent), W = D.words;
   var vista = tela.closest('[data-pya-view]');
-  var stato = {e: null, u: null, g: null}, S = null;
+  var stato = {e: null, u: null, g: null}, S = null, senza3d = false;
 
   function epoche(u) { return D.epochs[u] || []; }
   function nel(u, e) { return epoche(u).indexOf(e) >= 0; }
@@ -189,6 +189,7 @@ _JS = r"""
   }
   function scritta(t) { if (cap && cap.firstChild) { cap.firstChild.textContent = t + ' '; } }
   function didascalia() {
+    if (senza3d) { scritta(W.noWebgl); return; }
     var gruppo = !!(stato.e || stato.g), n = 0, parti = [];
     D.proxies.forEach(function (p) { if (!gruppo || dentro(p.u)) { n += 1; } });
     parti.push(stato.e ? (D.epochNames[stato.e] || stato.e) : (stato.g ? W.chapter : W.site));
@@ -201,12 +202,7 @@ _JS = r"""
     if (D.skipped) { parti.push(D.skipped + ' ' + W.skipped); }
     if (D.missing) { parti.push(D.missing + ' ' + W.missing); }
     scritta(parti.join(' · '));
-  }
-  function webgl() {
-    try {
-      var c = document.createElement('canvas');
-      return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
-    } catch (err) { return false; }
+    if (cap) { cap.title = D.skipped ? W.skipped + ': ' + (D.skippedNames || []).join(', ') : ''; }
   }
   function buffer(b64) {
     var s = atob(b64), n = s.length, a = new Uint8Array(n);
@@ -240,9 +236,12 @@ _JS = r"""
     (it.bordi || []).forEach(function (l) { l.visible = acceso; });
   }
   function crea() {
-    if (S) { return; }
-    if (!T || !webgl()) { scritta(W.noWebgl); return; }
-    var r = new T.WebGLRenderer({antialias: true, alpha: true});
+    if (S || senza3d) { return; }
+    // three.js 0.186 vuole WebGL 2 e lancia se non lo ottiene: niente
+    // contesto di prova, si prova il vero
+    var r = null;
+    try { r = T ? new T.WebGLRenderer({antialias: true, alpha: true}) : null; } catch (err) { r = null; }
+    if (!r) { senza3d = true; didascalia(); return; }
     r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     r.outputColorSpace = T.SRGBColorSpace;
     tela.appendChild(r.domElement);
@@ -250,15 +249,17 @@ _JS = r"""
     var cam = new T.PerspectiveCamera(40, 1, 0.05, 20000);
     var ctl = new T.OrbitControls(cam, r.domElement);
     ctl.enableDamping = true;
+    ctl.addEventListener('change', pianifica);
     scena.add(new T.HemisphereLight(0xffffff, 0x666666, 2.2));
     var luce = new T.DirectionalLight(0xffffff, 1.5);
     luce.position.set(1, 2, 1.5);
     scena.add(luce);
     var tip = document.createElement('div');
-    tip.className = 'pya-3d-tip';
+    tip.className = 'pya-scena-3d-tip';
     tip.hidden = true;
     tela.appendChild(tip);
-    S = {r: r, scena: scena, cam: cam, ctl: ctl, tip: tip, items: [], failed: 0, volo: null, gira: false};
+    S = {r: r, scena: scena, cam: cam, ctl: ctl, tip: tip, items: [], failed: 0, volo: null,
+         giro: null, fermo: false};
     var loader = new T.GLTFLoader(), attesi = D.proxies.length;
     function fatto() { attesi -= 1; if (attesi <= 0) { applica(true); } }
     scritta(W.loading);
@@ -301,18 +302,27 @@ _JS = r"""
     S.r.setSize(w, h, false);
     S.cam.aspect = w / h;
     S.cam.updateProjectionMatrix();
+    pianifica();
   }
-  function avvia() {
-    if (!S || S.gira) { return; }
-    S.gira = true;
-    S.r.setAnimationLoop(function (t) {
-      if (S.volo) { vola(t); }
-      S.ctl.update();
-      S.r.render(S.scena, S.cam);
-    });
+  // si disegna quando qualcosa cambia (caricamento, selezione, volo, mouse,
+  // misure), non a ogni fotogramma: la pagina è un documento da leggere
+  function pianifica() {
+    if (!S || S.fermo || S.giro) { return; }
+    S.giro = window.requestAnimationFrame(disegna);
   }
+  function disegna(t) {
+    S.giro = null;
+    var ancora = false;
+    if (S.volo) { vola(t); ancora = true; }
+    if (S.ctl.update()) { ancora = true; }       // l'inerzia dei controlli
+    S.r.render(S.scena, S.cam);
+    if (ancora) { pianifica(); }
+  }
+  function avvia() { if (S) { S.fermo = false; pianifica(); } }
   function ferma() {
-    if (S && S.gira) { S.r.setAnimationLoop(null); S.gira = false; }
+    if (!S) { return; }
+    S.fermo = true;
+    if (S.giro) { window.cancelAnimationFrame(S.giro); S.giro = null; }
   }
   function applica(subito) {
     if (!S) { didascalia(); return; }
@@ -335,6 +345,7 @@ _JS = r"""
     if (box.isEmpty()) { S.items.forEach(function (it) { box.union(it.box); }); }
     if (!box.isEmpty()) { inquadra(box, subito); }
     didascalia();
+    pianifica();
   }
   function inquadra(box, subito) {
     var centro = box.getCenter(new T.Vector3());
@@ -403,7 +414,7 @@ _JS = r"""
       PYA_SEL.select(e, u, null);
     });
   }
-  function forse() { if (!S && vista && !vista.hidden) { crea(); } }
+  function forse() { if (!S && !senza3d && vista && !vista.hidden) { crea(); } }
   document.addEventListener('pya:tab', function (ev) {
     if (ev.detail === '3d') { forse(); misura(); avvia(); } else { ferma(); }
   });
@@ -440,12 +451,13 @@ def scene_view(scene: Scene, epoch_names_map: Dict[str, str], lang: Optional[str
             proxy.append({"k": p.key, "u": p.unit, "glb": base64.b64encode(fh.read()).decode("ascii")})
     dati = {"proxies": proxy, "unitProxies": scene.unit_proxies, "names": scene.names,
             "epochs": scene.epochs, "epochNames": dict(epoch_names_map or {}),
-            "missing": len(scene.missing), "skipped": len(scene.skipped), "words": parole}
-    pannello = ('<div id="pya-3d" class="pya-3d"></div>'
-                '<p class="pya-caption" id="pya-3d-caption"><span>%s </span>'
+            "missing": len(scene.missing), "skipped": len(scene.skipped),
+            "skippedNames": list(scene.skipped[:50]), "words": parole}
+    pannello = ('<div id="pya-scena-3d" class="pya-scena-3d"></div>'
+                '<p class="pya-caption" id="pya-scena-3d-caption"><span>%s </span>'
                 '<a href="#pya-map" class="pya-reset">%s</a> <small>%s</small></p>'
                 % (_html.escape(parole["site"]), _html.escape(parole["reset"]), _html.escape(parole["hint"])))
     script = ("<script>%s</script>" % pacchetto
-              + '<script type="application/json" id="pya-3d-data">%s</script>' % _json_script(dati)
+              + '<script type="application/json" id="pya-scena-3d-data">%s</script>' % _json_script(dati)
               + "<script>%s</script>" % _JS)
     return View(key="3d", label="3D", panel=pannello, css=_CSS, script=script)

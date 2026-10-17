@@ -28,10 +28,10 @@ def test_l_html_della_narrativa_porta_la_scena_3d(tmp_path):
     percorso = tmp_path / "n.html"
     en.export_file(g, n, "html", percorso, map_conn=conn, lang="it", media_base=("", ""))
     pagina = percorso.read_text(encoding="utf-8")
-    assert 'id="pya-3d-data"' in pagina and pagina.count("var PYA_SEL = ") == 1
+    assert 'id="pya-scena-3d-data"' in pagina and pagina.count("var PYA_SEL = ") == 1
     assert '<a class="em-mention pya-u" href="#pya-map" data-u="u1" data-e="ep1">SU002</a>' in pagina
     assert re.search(r'<a class="em-mention pya-u"[^>]*data-u="u2"', pagina)      # senza proxy: è un'unità
     assert "pya-svg" not in pagina and '<nav class="pya-tabs">' not in pagina   # niente disegni, niente schede
     senza = tmp_path / "senza.html"
     en.export_file(g, n, "html", senza, lang="it")
-    assert "pya-3d" not in senza.read_text(encoding="utf-8")                     # niente database, niente scena
+    assert "pya-scena-3d" not in senza.read_text(encoding="utf-8")                     # niente database, niente scena

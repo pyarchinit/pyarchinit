@@ -15,8 +15,11 @@ cd "$LAVORO"
 npm init -y >/dev/null
 npm install --no-audit --no-fund --silent "three@$THREE_VERSION" "esbuild@$ESBUILD_VERSION"
 mkdir -p "$RADICE/resources/js"
+# la licenza MIT vuole la nota di copyright in ogni copia, anche nelle pagine
+# esportate che portano il pacchetto: la stessa riga @license dei file di three
+ANNI="$(grep -o '2010-[0-9][0-9][0-9][0-9]' node_modules/three/LICENSE | head -1)"
 npx esbuild entry.js --bundle --minify --format=iife --target=es2020 --legal-comments=none \
-  --banner:js="/*! three.js $THREE_VERSION (MIT, https://threejs.org) con GLTFLoader e OrbitControls — pyArchInit, scripts/build_three_bundle.sh */" \
+  --banner:js="/*! three.js $THREE_VERSION — @license Copyright $ANNI three.js authors, SPDX-License-Identifier: MIT (https://threejs.org; il testo in THREE_LICENSE.txt) — con GLTFLoader e OrbitControls; pyArchInit, scripts/build_three_bundle.sh */" \
   --outfile="$RADICE/resources/js/pya_three_scene.min.js"
 cp node_modules/three/LICENSE "$RADICE/resources/js/THREE_LICENSE.txt"
 echo "fatto: $(wc -c < "$RADICE/resources/js/pya_three_scene.min.js") byte"

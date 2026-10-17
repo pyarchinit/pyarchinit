@@ -3,6 +3,7 @@
 interessato e gli altri sono in trasparenza»)."""
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -20,7 +21,10 @@ _PACCHETTO = _ROOT / "resources" / "js" / "pya_three_scene.min.js"
 
 def test_il_pacchetto_three_e_quello_fissato():
     testo = _PACCHETTO.read_text(encoding="utf-8")
-    assert testo.startswith("/*! three.js 0.186.1 (MIT")
+    assert testo.startswith("/*! three.js 0.186.1 ")
+    # la licenza MIT vuole la nota di copyright in ogni copia: anche nelle pagine esportate
+    assert re.search(r"@license Copyright 2010-20\d\d three\.js authors", testo[:400], re.I)
+    assert "SPDX-License-Identifier: MIT" in testo[:400]
     assert "PYA_THREE" in testo and "GLTFLoader" in testo and "OrbitControls" in testo
     assert 300_000 < len(testo.encode("utf-8")) < 1_500_000
     assert (_PACCHETTO.parent / "THREE_LICENSE.txt").read_text(encoding="utf-8").startswith("The MIT License")
@@ -135,15 +139,15 @@ def test_la_vista_porta_i_proxy_la_libreria_e_lo_script(tmp_path):
     from modules.s3dgraphy import em_narrative_3d as n3d
     vista = n3d.scene_view(_scena(tmp_path), {"ep1": "II A.D."}, lang="it")
     assert vista.key == "3d" and vista.label == "3D"
-    assert vista.panel.startswith('<div id="pya-3d" class="pya-3d"></div>')
-    assert 'id="pya-3d-caption"' in vista.panel and 'class="pya-reset"' in vista.panel
+    assert vista.panel.startswith('<div id="pya-scena-3d" class="pya-scena-3d"></div>')
+    assert 'id="pya-scena-3d-caption"' in vista.panel and 'class="pya-reset"' in vista.panel
     assert vista.script.count(n3d.three_bundle()[:300]) == 1                 # il pacchetto, una volta
-    dati = json.loads(re.search(r'<script type="application/json" id="pya-3d-data">(.*?)</script>',
+    dati = json.loads(re.search(r'<script type="application/json" id="pya-scena-3d-data">(.*?)</script>',
                                 vista.script, re.S).group(1))
     assert dati["proxies"] == [{"k": "rp1", "u": "u1", "glb": base64.b64encode(b"glTF-proxy").decode()}]
     assert dati["unitProxies"] == {"u1": ["rp1"], "u3": ["rp1"]} and dati["missing"] == 1
     assert dati["epochNames"] == {"ep1": "II A.D."} and dati["words"]["noProxy"] == "senza proxy 3D"
-    assert vista.script.index("pya-3d-data") < vista.script.index("PYA_SEL.add(")
+    assert vista.script.index("pya-scena-3d-data") < vista.script.index("PYA_SEL.add(")
 
 
 def test_la_scena_non_chiede_niente_alla_rete(tmp_path):
@@ -157,7 +161,7 @@ def test_la_scena_non_chiede_niente_alla_rete(tmp_path):
 def test_sul_telefono_girare_la_scena_non_scorre_la_pagina():
     import re
     from modules.s3dgraphy import em_narrative_3d as n3d
-    assert re.search(r"#pya-3d\s*\{[^}]*touch-action:\s*none", n3d._CSS)
+    assert re.search(r"#pya-scena-3d\s*\{[^}]*touch-action:\s*none", n3d._CSS)
 
 
 def test_senza_il_pacchetto_niente_scena(tmp_path, monkeypatch):
@@ -182,6 +186,9 @@ def test_il_javascript_della_scena_si_legge(tmp_path):
 _BROWSER_FINTO = r"""
 globalThis.window = globalThis;
 globalThis.addEventListener = function () {};
+var coda = [], disegni = 0, continuo = false;
+globalThis.requestAnimationFrame = function (cb) { coda.push(cb); return coda.length; };
+globalThis.cancelAnimationFrame = function () {};
 function finto() {
   var messi = {}, f = function () {};
   var p = new Proxy(f, {
@@ -203,32 +210,69 @@ Elemento.prototype.appendChild = function () {};
 Elemento.prototype.addEventListener = function () {};
 Elemento.prototype.closest = function () { return new Elemento(); };
 Elemento.prototype.getBoundingClientRect = function () { return {left: 0, top: 0, width: 400, height: 300}; };
-var dati = {proxies: [{k: 'a', u: 'u1', glb: 'AAAA'}, {k: 'b', u: 'u2', glb: 'Z2xURi0xMjM0NTY3OA=='}],
-  unitProxies: {u1: ['a'], u2: ['b']}, names: {u1: 'SU001', u2: 'SU002'}, epochs: {}, epochNames: {},
-  missing: 0, skipped: 0, words: {site: 'Tutto il sito', chapter: 'Capitolo', proxies: 'proxy',
-  noProxy: 'senza', failed: 'non caricati', skipped: 'fuori', missing: 'senza file', noWebgl: 'niente WebGL',
-  loading: 'Carico i proxy'}};
-var elementi = {'pya-3d-data': {textContent: JSON.stringify(dati)}, 'pya-3d': new Elemento(),
-                'pya-3d-caption': new Elemento()};
+var dati = __DATI__;
+var elementi = {'pya-scena-3d-data': {textContent: JSON.stringify(dati)}, 'pya-scena-3d': new Elemento(),
+                'pya-scena-3d-caption': new Elemento()};
 globalThis.document = {
   getElementById: function (id) { return elementi[id] || null; },
   createElement: function () { var e = new Elemento(); e.getContext = function () { return {}; }; return e; },
   addEventListener: function () {}
 };
-globalThis.WebGLRenderingContext = function () {};
-globalThis.PYA_SEL = {units: {}, firstEpoch: {}, add: function (fn) { fn(null, null, null); }};
+globalThis.PYA_SEL = {units: {}, firstEpoch: {}, fns: [],
+  add: function (fn) { this.fns.push(fn); fn(null, null, null); }};
 var T = finto();
 // come il GLTFLoader di three.js: un file che non è un GLB fa lanciare subito
 // un errore (new Uint8Array(data, 0, 4), JSON.parse), senza onError
 T.GLTFLoader = function () {};
 T.GLTFLoader.prototype.parse = function (dati, via, ok, ko) {
   if (dati.byteLength < 12) { throw new RangeError('Invalid typed array length: 4'); }
-  var mesh = {isMesh: true, userData: {}, material: {opacity: 1, transparent: false, depthWrite: true,
+  var mesh = {isMesh: true, userData: {}, geometry: {}, add: function () {}, material: {opacity: 1, transparent: false, depthWrite: true,
     userData: {}, clone: function () { return {opacity: 1, transparent: false, depthWrite: true, userData: {}}; }}};
   ok({scene: {traverse: function (fn) { fn(mesh); }}});
 };
+T.WebGLRenderer = function () {
+  return {domElement: new Elemento(), setPixelRatio: function () {}, setSize: function () {},
+          render: function () { disegni += 1; }, setAnimationLoop: function (fn) { continuo = !!fn; }};
+};
+T.OrbitControls = function () {
+  return {target: finto(), enableDamping: false, update: function () { return false; },
+          addEventListener: function () {}};
+};
 globalThis.PYA_THREE = T;
+function pompa(n) { for (var i = 0; i < n && coda.length; i += 1) { coda.shift()(i * 16); } }
+function stato() {
+  var c = elementi['pya-scena-3d-caption'];
+  return {testo: c.firstChild.textContent.trim(), titolo: c.title || '', coda: coda.length,
+          disegni: disegni, continuo: continuo};
+}
 """
+
+_PAROLE_FINTE = {"site": "Tutto il sito", "chapter": "Capitolo", "proxies": "proxy", "noProxy": "senza",
+                 "failed": "non caricati", "skipped": "fuori", "missing": "senza file",
+                 "noWebgl": "niente WebGL", "loading": "Carico i proxy"}
+
+
+def _dati_finti(**altro):
+    dati = {"proxies": [{"k": "a", "u": "u1", "glb": "Z2xURi0xMjM0NTY3OA=="},
+                        {"k": "b", "u": "u2", "glb": "Z2xURi0xMjM0NTY3OA=="}],
+            "unitProxies": {"u1": ["a"], "u2": ["b"]}, "names": {"u1": "SU001", "u2": "SU002"},
+            "epochs": {"u1": ["ep1"], "u2": ["ep1"]}, "epochNames": {"ep1": "II A.D."},
+            "missing": 0, "skipped": 0, "skippedNames": [], "words": _PAROLE_FINTE}
+    dati.update(altro)
+    return dati
+
+
+def _esegui_scena(tmp_path, dati, *, prima="", dopo="pompa(50);"):
+    """Lo script della scena in node con un finto browser (three.js finto):
+    torna lo stato della didascalia e dei fotogrammi dopo ``dopo``."""
+    import json
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    f = tmp_path / "scena.js"
+    f.write_text(_BROWSER_FINTO.replace("__DATI__", json.dumps(dati)) + prima + n3d._JS
+                 + "\n" + dopo + "\nconsole.log(JSON.stringify(stato()));\n", encoding="utf-8")
+    esito = subprocess.run(["node", str(f)], capture_output=True, text=True)
+    assert esito.returncode == 0, esito.stderr
+    return json.loads(esito.stdout.strip().splitlines()[-1])
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
@@ -237,11 +281,66 @@ def test_un_proxy_che_non_si_legge_non_ferma_la_scena(tmp_path):
     non JSON, compresso Draco senza decodificatore), lancia l'errore subito
     invece di chiamare onError: la scena restava ferma su «Carico i proxy…»
     e non si disegnava niente (prova nel browser su TempluMare, 17 ottobre)."""
+    dati = _dati_finti()
+    dati["proxies"][0]["glb"] = "AAAA"
+    assert _esegui_scena(tmp_path, dati)["testo"] == "Tutto il sito · 2 proxy · 1 non caricati"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+def test_senza_webgl_la_didascalia_lo_dice(tmp_path):
+    """three.js 0.186 vuole WebGL 2 e lancia «Error creating WebGL context»
+    se non lo ottiene: la scena restava un riquadro vuoto (revisione finale)."""
+    fuori = _esegui_scena(tmp_path, _dati_finti(),
+                          prima="T.WebGLRenderer = function () { throw new Error('Error creating WebGL context.'); };\n",
+                          dopo="PYA_SEL.fns.forEach(function (fn) { fn('ep1', 'u1', null); });")
+    assert fuori["testo"] == "niente WebGL"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+def test_la_scena_ferma_non_si_ridisegna(tmp_path):
+    """Si disegna quando qualcosa cambia (caricamento, selezione, volo,
+    mouse), non a ogni fotogramma: la pagina è un documento da leggere."""
+    fuori = _esegui_scena(tmp_path, _dati_finti())
+    assert fuori["continuo"] is False and fuori["coda"] == 0 and fuori["disegni"] >= 1
+    fuori = _esegui_scena(tmp_path, _dati_finti(),
+                          dopo="pompa(50); var prima = disegni; "
+                               "PYA_SEL.fns.forEach(function (fn) { fn('ep1', 'u1', null); }); pompa(50); "
+                               "if (disegni <= prima) { throw new Error('la selezione non ridisegna'); }")
+    assert fuori["coda"] == 0
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node non c'è")
+def test_i_proxy_rimasti_fuori_si_elencano_nel_suggerimento(tmp_path):
+    fuori = _esegui_scena(tmp_path, _dati_finti(skipped=2, skippedNames=["SU099.glb", "SU100.glb"]))
+    assert fuori["testo"] == "Tutto il sito · 2 proxy · 2 fuori"
+    assert "SU099.glb, SU100.glb" in fuori["titolo"]
+
+
+def test_la_vista_passa_i_nomi_dei_proxy_rimasti_fuori(tmp_path):
+    import json
+    import re
     from modules.s3dgraphy import em_narrative_3d as n3d
-    f = tmp_path / "scena.js"
-    f.write_text(_BROWSER_FINTO + n3d._JS
-                 + "\nconsole.log(document.getElementById('pya-3d-caption').firstChild.textContent);\n",
-                 encoding="utf-8")
-    esito = subprocess.run(["node", str(f)], capture_output=True, text=True)
-    assert esito.returncode == 0, esito.stderr
-    assert esito.stdout.strip() == "Tutto il sito · 2 proxy · 1 non caricati"
+    scena = _scena(tmp_path)
+    scena.skipped = ["SU099.glb"]
+    vista = n3d.scene_view(scena, {}, lang="it")
+    dati = json.loads(re.search(r'<script type="application/json" id="pya-scena-3d-data">(.*?)</script>',
+                                vista.script, re.S).group(1))
+    assert dati["skipped"] == 1 and dati["skippedNames"] == ["SU099.glb"]
+
+
+def test_la_scena_non_riusa_gli_id_del_pannello_delle_fonti(tmp_path):
+    """Il pannello delle fonti e dei media (em_narrative_html._JS_FONTI) crea
+    per un modello 3D un elemento con id «pya-3d» e lo cerca con
+    getElementById: con la scena che usava lo stesso id, il clic su un GLB
+    scelto fra i media metteva il visore dentro il pannello della scena e la
+    scena spariva (revisione finale, 17 ottobre)."""
+    import re
+    from modules.s3dgraphy import em_narrative_3d as n3d
+    from modules.s3dgraphy import em_narrative_html as nh
+    vista = n3d.scene_view(_scena(tmp_path), {}, lang="it")
+    della_scena = set(re.findall(r'id="([\w-]+)"', vista.panel + vista.script.replace(n3d.three_bundle(), "")))
+    della_scena |= set(re.findall(r"getElementById\('([\w-]+)'\)", n3d._JS))
+    delle_fonti = set(re.findall(r'id="([\w-]+)"', nh._JS_FONTI))
+    delle_fonti |= set(re.findall(r"getElementById\('([\w-]+)'\)", nh._JS_FONTI))
+    assert "pya-3d" in delle_fonti and della_scena
+    assert not (della_scena & delle_fonti)

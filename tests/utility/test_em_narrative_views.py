@@ -68,3 +68,19 @@ def test_lo_script_comune_si_legge(tmp_path):
     f = tmp_path / "sel.js"
     f.write_text("var PYA_SEL = {units: {}, firstEpoch: {}};" + nv._JS, encoding="utf-8")
     subprocess.run(["node", "--check", str(f)], check=True)
+
+
+def test_sul_telefono_il_pannello_fermo_ha_lo_sfondo_della_pagina():
+    """Sul telefono il pannello della mappa e della scena 3D sta fermo in alto
+    mentre scorre il capitolo: con lo sfondo trasparente le righe del testo
+    si vedevano attraverso (Enzo, 17 ottobre 2026: «dovrebbe avere lo sfondo
+    bianco e non trasparente e restare fisso il box che lo contiene mentre
+    scorre solamente il capitolo»). Lo sfondo è quello della pagina della
+    libreria, chiaro e scuro; sul computer il pannello sta in una colonna sua."""
+    import re
+    css = nv._CSS
+    assert re.search(r"\.pya-map\s*\{[^}]*position:\s*sticky;\s*top:\s*0", css)
+    telefono = re.search(r"@media \(max-width: 899px\) \{(.*?)\n\}", css, re.S).group(1)
+    assert re.search(r"\.pya-map\s*\{[^}]*background:\s*#fdfdfc", telefono)
+    scuro = re.search(r"@media \(max-width: 899px\) and \(prefers-color-scheme: dark\) \{(.*?)\n\}", css, re.S)
+    assert scuro and re.search(r"\.pya-map\s*\{[^}]*background:\s*#16181c", scuro.group(1))
