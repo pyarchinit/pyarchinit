@@ -260,6 +260,10 @@ Os códigos não se escolhem: cada lista suspensa de uma ficha lê o seu código
 | Código | Campo |
 |--------|-------|
 | 1.1 | Definição do sítio |
+| 1.2 | Nação |
+| 1.3 | Região |
+| 1.4 | Província |
+| 1.5 | Município |
 
 **us_table (2.x):**
 | Código | Campo |

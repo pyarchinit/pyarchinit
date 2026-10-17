@@ -72,6 +72,8 @@ La Ficha de Sitio está dividida en diferentes áreas funcionales:
 | **Provincia** | Provincia | Sevilla |
 | **Municipio** | Municipio | Sevilla |
 
+Las entradas de las cuatro listas desplegables vienen del **tesauro** (ficha del sitio, códigos 1.2 País, 1.3 Región, 1.4 Provincia, 1.5 Municipio), como las de la Definición (1.1), y se añaden desde la ficha Tesauro. La base de datos de ejemplo ya tiene Italia, las 20 regiones y las provincias italianas; si el tesauro no tiene entradas para un código, en italiano la ficha muestra las regiones y provincias de siempre. El valor sigue pudiéndose escribir a mano (desde la 5.13.125-alpha).
+
 #### Campos Descriptivos
 
 | Campo | Descripción |

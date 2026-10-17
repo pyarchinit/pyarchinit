@@ -86,6 +86,8 @@ A Ficha de Sitio esta dividida em varias areas funcionais:
 | **Province** | Distrito | Evora |
 | **Municipality** | Municipio | Evora |
 
+As entradas das quatro listas suspensas sao lidas do **thesaurus** (ficha do sitio, codigos 1.2 Nation, 1.3 Region, 1.4 Province, 1.5 Municipality), como as de Definition (1.1), e acrescentam-se a partir da ficha Thesaurus. A base de dados de exemplo ja tem a Italia, as 20 regioes e as provincias italianas; se o thesaurus nao tiver entradas para um codigo, em italiano a ficha mostra as regioes e as provincias de sempre. O valor continua a poder ser escrito a mao (desde a 5.13.125-alpha).
+
 <!-- IMAGE: Captura de ecra dos campos geograficos preenchidos -->
 ![Campos Geograficos](images/02_scheda_sito/05_campi_geografici.png)
 *Figura 5: Exemplo de preenchimento dos campos geograficos*

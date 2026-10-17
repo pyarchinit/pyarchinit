@@ -95,6 +95,8 @@ El **Codi de Període** és un identificador numèric únic que connecta la pare
 
 > **Important**: El codi de període ha de ser únic per a cada combinació lloc/període/fase.
 
+En importar un em.json (tutorial 36), els períodes que no tenen codi el reben en seqüència —1, 2, 3… per ordre de període i fase— i les US el seu codi de període (des de la 5.13.125-alpha).
+
 ### Esquema Conceptual
 
 ```

@@ -109,6 +109,8 @@ Il **Codice Periodo** e un identificatore numerico univoco che collega la coppia
 
 > **Importante**: Il codice periodo deve essere univoco per ogni combinazione sito/periodo/fase.
 
+Importando un em.json (tutorial 36), i periodi che non hanno un codice lo ricevono in sequenza — 1, 2, 3… in ordine di periodo e fase — e le US il loro codice periodo (dalla 5.13.125-alpha).
+
 ### Schema Concettuale
 
 ```
@@ -206,6 +208,7 @@ Sito
 - **Obbligatorio**: No
 - **Descrizione**: Selezione da un vocabolario di epoche storiche predefinite
 - **Funzionalita automatica**: Selezionando un'epoca, i campi Cronologia Iniziale e Finale vengono compilati automaticamente
+- **Valori fuori elenco**: una datazione che non e fra le epoche precaricate (per esempio «II A.D.» di un em.json di EMStudio) si vede e si salva com'e. Prima della 5.13.125-alpha il primo record mostrato all'apertura della scheda prendeva la prima epoca dell'elenco («Eta Contemporanea - XXI secolo»), e salvandolo la si scriveva.
 
 ![Datazione Estesa](images/04_scheda_periodizzazione/10_datazione_estesa.png)
 *Figura 10: ComboBox Datazione Estesa con epoche precaricate*

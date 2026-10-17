@@ -259,6 +259,10 @@ You do not choose the codes: each drop-down list of a form reads its own fixed c
 | Code | Field |
 |------|-------|
 | 1.1 | Site definition |
+| 1.2 | Nation |
+| 1.3 | Region |
+| 1.4 | Province |
+| 1.5 | Municipality |
 
 **us_table (2.x):**
 | Code | Field |

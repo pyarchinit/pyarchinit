@@ -79,6 +79,8 @@ Le **Code Période** est un identifiant numérique unique qui relie le couple p�
 
 > **Important** : Le code période doit être unique pour chaque combinaison site/période/phase.
 
+À l'import d'un em.json (tutoriel 36), les périodes qui n'ont pas de code en reçoivent un en séquence — 1, 2, 3… dans l'ordre de période et de phase — et les US leur code période (depuis la 5.13.125-alpha).
+
 ### Schéma Conceptuel
 
 ```
@@ -153,6 +155,7 @@ Site
 - **Type** : ComboBox éditable avec vocabulaire préchargé
 - **Description** : Sélection depuis un vocabulaire d'époques historiques prédéfinies
 - **Fonctionnalité automatique** : En sélectionnant une époque, les champs Chronologie Initiale et Finale se remplissent automatiquement
+- **Valeurs hors liste** : Une datation qui ne figure pas parmi les époques préchargées (par exemple « II A.D. » d'un em.json d'EMStudio) s'affiche et s'enregistre telle quelle. Avant la 5.13.125-alpha, le premier enregistrement affiché à l'ouverture de la fiche prenait la première époque de la liste (« Età Contemporanea - XXI secolo »), et en l'enregistrant on l'écrivait.
 
 ### Vocabulaire Époques Historiques
 

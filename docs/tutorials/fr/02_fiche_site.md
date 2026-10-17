@@ -51,6 +51,8 @@ La Fiche Site est divisée en plusieurs zones fonctionnelles :
 | **Province** | Département | Hérault |
 | **Commune** | Commune | Montpellier |
 
+Les entrées des quatre listes déroulantes viennent du **thésaurus** (fiche du site, codes 1.2 Nation, 1.3 Région, 1.4 Province, 1.5 Commune), comme celles de la Définition (1.1), et s'ajoutent depuis la fiche Thésaurus. La base d'exemple contient déjà l'Italie, les 20 régions et les provinces italiennes ; si le thésaurus n'a pas d'entrées pour un code, en italien la fiche montre les régions et les provinces de toujours. La valeur peut toujours être saisie à la main (depuis la 5.13.125-alpha).
+
 ### Champs Descriptifs
 
 | Champ | Description |

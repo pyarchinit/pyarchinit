@@ -81,6 +81,8 @@ Das Fundort-Formular ist in verschiedene Funktionsbereiche unterteilt:
 | **Provinz** | Landkreis | München |
 | **Gemeinde** | Gemeinde | München |
 
+Die Einträge der vier Dropdown-Listen stammen aus dem **Thesaurus** (Fundort-Formular, Codes 1.2 Land, 1.3 Region, 1.4 Provinz, 1.5 Gemeinde), wie die der Definition (1.1), und werden im Thesaurus-Formular hinzugefügt. Die Beispieldatenbank enthält bereits Italien, die 20 Regionen und die italienischen Provinzen; hat der Thesaurus für einen Code keine Einträge, zeigt das Formular in italienischer Sprache die gewohnten Regionen und Provinzen. Der Wert kann weiterhin von Hand eingetragen werden (ab 5.13.125-alpha).
+
 ![Geografische Felder](images/02_fundort_formular/05_campi_geografici.png)
 *Abbildung 5: Beispiel ausgefüllter geografischer Felder*
 

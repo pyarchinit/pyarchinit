@@ -97,6 +97,8 @@ El **Código de Periodo** es un identificador numérico único que vincula el pa
 
 > **Importante**: El código de periodo debe ser único para cada combinación sitio/periodo/fase.
 
+Al importar un em.json (tutorial 36), los periodos que no tienen código lo reciben en secuencia —1, 2, 3… por orden de periodo y fase— y las UE su código de periodo (desde la 5.13.125-alpha).
+
 ### Esquema Conceptual
 
 ```
@@ -178,6 +180,7 @@ Sitio
 - **Obligatorio**: No
 - **Descripción**: Selección desde un vocabulario de épocas históricas predefinidas
 - **Funcionalidad automática**: Al seleccionar una época, los campos Cronología Inicial y Final se rellenan automáticamente
+- **Valores fuera de la lista**: Una datación que no está entre las épocas precargadas (por ejemplo «II A.D.» de un em.json de EMStudio) se muestra y se guarda tal cual. Antes de la 5.13.125-alpha el primer registro mostrado al abrir la ficha tomaba la primera época de la lista («Età Contemporanea - XXI secolo»), y al guardarlo se escribía.
 
 ### Vocabulario de Épocas Históricas
 

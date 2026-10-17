@@ -259,6 +259,10 @@ Die Codes werden nicht frei gewählt: Jede Dropdown-Liste eines Formulars liest 
 | Code | Feld |
 |------|------|
 | 1.1 | Fundortdefinition |
+| 1.2 | Staat |
+| 1.3 | Region |
+| 1.4 | Provinz |
+| 1.5 | Gemeinde |
 
 **us_table (2.x):**
 | Code | Feld |

@@ -260,6 +260,10 @@ Los códigos no se eligen: cada lista desplegable de una ficha lee su propio có
 | Código | Campo |
 |--------|-------|
 | 1.1 | Definición del sitio |
+| 1.2 | Nación |
+| 1.3 | Región |
+| 1.4 | Provincia |
+| 1.5 | Municipio |
 
 **us_table (2.x):**
 | Código | Campo |

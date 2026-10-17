@@ -260,6 +260,10 @@ I codici non si scelgono: ogni tendina di una scheda legge il suo codice, fisso.
 | Codice | Campo |
 |--------|-------|
 | 1.1 | Definizione sito |
+| 1.2 | Nazione |
+| 1.3 | Regione |
+| 1.4 | Provincia |
+| 1.5 | Comune |
 
 **us_table (2.x):**
 | Codice | Campo |

@@ -109,6 +109,8 @@ Exemple de faze in Perioada 3 (Epoca romana imperiala):
 
 > **Important**: Codul perioadei trebuie sa fie unic pentru fiecare combinatie santier/perioada/faza.
 
+La importul unui em.json (tutorialul 36), perioadele fara cod primesc un cod in succesiune — 1, 2, 3… in ordinea perioadei si a fazei — iar US-urile codul lor de perioada (din 5.13.125-alpha).
+
 ### Schema Conceptuala
 
 ```
@@ -206,6 +208,7 @@ Santier
 - **Obligatoriu**: Nu
 - **Descriere**: Selectie dintr-un vocabular de epoci istorice predefinite
 - **Functie automata**: La selectarea unei epoci, campurile Cronologie Initiala si Finala se completeaza automat
+- **Valori in afara listei**: O datare care nu se afla printre epocile preincarcate (de exemplu «II A.D.» dintr-un em.json din EMStudio) se vede si se salveaza ca atare. Inainte de 5.13.125-alpha prima inregistrare afisata la deschiderea fisei lua prima epoca din lista («Eta Contemporanea - XXI secolo»), iar la salvare aceasta se scria.
 
 ![Datare Extinsa](images/04_scheda_periodizzazione/10_datazione_estesa.png)
 *Figura 10: ComboBox Datare Extinsa cu epoci preincarcate*

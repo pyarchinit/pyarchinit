@@ -260,6 +260,10 @@ Les codes ne se choisissent pas : chaque liste déroulante d'une fiche lit son p
 | Code | Champ |
 |------|-------|
 | 1.1 | Définition du site |
+| 1.2 | Nation |
+| 1.3 | Région |
+| 1.4 | Province |
+| 1.5 | Commune |
 
 **us_table (2.x) :**
 | Code | Champ |

@@ -86,6 +86,8 @@ La Scheda Sito e divisa in diverse aree funzionali:
 | **Provincia** | Provincia | Roma |
 | **Comune** | Comune | Roma |
 
+Le voci delle quattro tendine vengono dal **thesaurus** (scheda sito, codici 1.2 Nazione, 1.3 Regione, 1.4 Provincia, 1.5 Comune), come quelle della Definizione (1.1), e si aggiungono dalla scheda Thesaurus. Il database di esempio ha gia l'Italia, le 20 regioni e le province italiane; se il thesaurus non ha voci per un codice, in italiano la scheda mostra le regioni e le province di sempre. Il valore resta scrivibile a mano (dalla 5.13.125-alpha).
+
 <!-- IMMAGINE: Screenshot campi geografici compilati -->
 ![Campi Geografici](images/02_scheda_sito/05_campi_geografici.png)
 *Figura 5: Esempio di compilazione campi geografici*

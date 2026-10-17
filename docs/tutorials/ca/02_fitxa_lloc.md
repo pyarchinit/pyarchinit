@@ -67,6 +67,8 @@ La Fitxa de Lloc es divideix en diverses àrees funcionals:
 | **Província** | Província | Barcelona |
 | **Municipi** | Municipi | Barcelona |
 
+Les entrades de les quatre llistes desplegables provenen del **tesaurus** (fitxa del lloc, codis 1.2 Nació, 1.3 Regió, 1.4 Província, 1.5 Municipi), com les de la Definició (1.1), i s'afegeixen des de la fitxa Tesaurus. La base de dades d'exemple ja té Itàlia, les 20 regions i les províncies italianes; si el tesaurus no té entrades per a un codi, en italià la fitxa mostra les regions i les províncies de sempre. El valor continua podent-se escriure a mà (des de la 5.13.125-alpha).
+
 #### Camps Descriptius
 
 | Camp | Descripció |

@@ -109,6 +109,8 @@ Der **Periodencode** ist ein eindeutiger numerischer Bezeichner, der die Periode
 
 > **Wichtig**: Der Periodencode muss für jede Kombination aus Fundort/Periode/Phase eindeutig sein.
 
+Beim Import einer em.json (Tutorial 36) erhalten Perioden ohne Code diesen der Reihe nach — 1, 2, 3… in der Reihenfolge von Periode und Phase — und die SE ihren Periodencode (ab 5.13.125-alpha).
+
 ### Konzeptionelles Schema
 
 ```
@@ -206,6 +208,7 @@ Fundort
 - **Pflichtfeld**: Nein
 - **Beschreibung**: Auswahl aus einem Vokabular vordefinierter historischer Epochen
 - **Automatische Funktion**: Bei Auswahl einer Epoche werden die Felder Anfangs- und Endchronologie automatisch ausgefüllt
+- **Werte außerhalb der Liste**: Eine Datierung, die nicht zu den vorgeladenen Epochen gehört (zum Beispiel «II A.D.» aus einer em.json von EMStudio), wird so angezeigt und gespeichert, wie sie ist. Vor 5.13.125-alpha übernahm der erste beim Öffnen des Formulars angezeigte Datensatz die erste Epoche der Liste («Età Contemporanea - XXI secolo»), und beim Speichern wurde sie geschrieben.
 
 ![Erweiterte Datierung](images/04_periodisierung/10_datazione_estesa.png)
 *Abbildung 10: ComboBox Erweiterte Datierung mit vorgeladenen Epochen*

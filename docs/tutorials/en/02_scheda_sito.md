@@ -86,6 +86,8 @@ The Site Form is divided into several functional areas:
 | **Province** | Province | Rome |
 | **Municipality** | Municipality | Rome |
 
+The entries of the four drop-down lists come from the **thesaurus** (site form, codes 1.2 Nation, 1.3 Region, 1.4 Province, 1.5 Municipality), like those of the Definition (1.1), and are added from the Thesaurus form. The example database already has Italy, the 20 regions and the Italian provinces; if the thesaurus has no entries for a code, in Italian the form shows the usual regions and provinces. The value can still be typed by hand (from 5.13.125-alpha).
+
 <!-- IMAGE: Screenshot of completed geographic fields -->
 ![Geographic Fields](images/02_scheda_sito/05_campi_geografici.png)
 *Figure 5: Example of geographic field completion*

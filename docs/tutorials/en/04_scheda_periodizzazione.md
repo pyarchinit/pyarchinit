@@ -109,6 +109,8 @@ The **Period Code** is a unique numeric identifier that links the period/phase p
 
 > **Important**: The period code must be unique for each site/period/phase combination.
 
+When importing an em.json (tutorial 36), periods that have no code receive one in sequence — 1, 2, 3… in order of period and phase — and the SUs get their period code (from 5.13.125-alpha).
+
 ### Conceptual Schema
 
 ```
@@ -206,6 +208,7 @@ Site
 - **Required**: No
 - **Description**: Selection from a vocabulary of predefined historical epochs
 - **Automatic feature**: When selecting an epoch, the Initial and Final Chronology fields are filled automatically
+- **Values outside the list**: A dating that is not among the preloaded epochs (for example «II A.D.» from an EMStudio em.json) is shown and saved as it is. Before 5.13.125-alpha the first record shown when the form was opened took the first epoch of the list («Età Contemporanea - XXI secolo»), and saving it wrote that epoch.
 
 ![Extended Dating](images/04_scheda_periodizzazione/10_datazione_estesa.png)
 *Figure 10: Extended Dating ComboBox with preloaded epochs*

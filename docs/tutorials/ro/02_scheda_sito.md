@@ -86,6 +86,8 @@ Fisa Santier este impartita in mai multe zone functionale:
 | **Provincie** | Provincia | Roma |
 | **Municipiu** | Municipiul | Roma |
 
+Intrarile celor patru liste derulante provin din **tezaur** (fisa santierului, codurile 1.2 Tara, 1.3 Regiune, 1.4 Provincie, 1.5 Municipiu), ca si cele ale Definitiei (1.1), si se adauga din fisa Tezaur. Baza de date exemplu are deja Italia, cele 20 de regiuni si provinciile italiene; daca tezaurul nu are intrari pentru un cod, in italiana fisa afiseaza regiunile si provinciile de dintotdeauna. Valoarea poate fi in continuare scrisa de mana (din 5.13.125-alpha).
+
 <!-- IMAGINE: Captură de ecran cu campurile geografice completate -->
 ![Campuri Geografice](images/02_scheda_sito/05_campi_geografici.png)
 *Figura 5: Exemplu de completare a campurilor geografice*

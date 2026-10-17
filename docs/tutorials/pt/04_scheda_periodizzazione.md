@@ -109,6 +109,8 @@ O **Codigo de Periodo** e um identificador numerico unico que liga o par periodo
 
 > **Importante**: O codigo de periodo deve ser unico para cada combinacao sitio/periodo/fase.
 
+Ao importar um em.json (tutorial 36), os periodos sem codigo recebem-no em sequencia — 1, 2, 3… por ordem de periodo e fase — e as UE o seu codigo de periodo (desde a 5.13.125-alpha).
+
 ### Esquema Conceptual
 
 ```
@@ -206,6 +208,7 @@ Sitio
 - **Obrigatorio**: Nao
 - **Descricao**: Selecao a partir de um vocabulario de epocas historicas predefinidas
 - **Funcionalidade automatica**: Ao selecionar uma epoca, os campos de Cronologia Inicial e Final sao preenchidos automaticamente
+- **Valores fora da lista**: Uma datacao que nao esta entre as epocas pre-carregadas (por exemplo «II A.D.» de um em.json do EMStudio) e mostrada e guardada tal como esta. Antes da 5.13.125-alpha o primeiro registo mostrado ao abrir a ficha tomava a primeira epoca da lista («Eta Contemporanea - XXI secolo»), e ao guardar o registo escrevia-se essa epoca.
 
 ![Datacao Alargada](images/04_scheda_periodizzazione/10_datazione_estesa.png)
 *Figura 10: ComboBox de Datacao Alargada com epocas pre-carregadas*

@@ -259,6 +259,10 @@ Codurile nu se aleg: fiecare listă derulantă dintr-o fișă citește codul ei,
 | Cod | Câmp |
 |-----|------|
 | 1.1 | Definiția sitului |
+| 1.2 | Națiune |
+| 1.3 | Regiune |
+| 1.4 | Provincie |
+| 1.5 | Comună |
 
 **us_table (2.x):**
 | Cod | Câmp |

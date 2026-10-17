@@ -260,6 +260,10 @@ Els codis no s'escullen: cada llista desplegable d'una fitxa llegeix el seu codi
 | Codi | Camp |
 |------|------|
 | 1.1 | Definició del lloc |
+| 1.2 | Nació |
+| 1.3 | Regió |
+| 1.4 | Província |
+| 1.5 | Municipi |
 
 **us_table (2.x):**
 | Codi | Camp |
