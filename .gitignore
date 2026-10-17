@@ -27,6 +27,8 @@ __pycache__/
 /.claude/
 /CLAUDE.md
 /AGENTS.md
+# graphify: the knowledge graph of the code (graph.json, GRAPH_REPORT.md, graph.html)
+graphify-out/
 /.docugenius/
 /.qodo/
 /docs/*
