@@ -349,3 +349,12 @@ def test_i_paradati_di_un_unita_si_leggono_per_documento():
     assert righe.count('data-src="d"') == 1
     assert "D.01.41, D.01.53, D.01.54" in righe and "C.1101" in righe
     assert "Shape for SU002" in righe and forma not in righe
+
+
+def test_le_righe_delle_unita_non_toccano_i_link_delle_menzioni():
+    """Il CSS del blocco «Unità del capitolo» (5.13.130) dava a `.pya-u` un
+    bordo e un margine: li prendevano anche i nomi delle unità nel testo,
+    che sono link `a.pya-u` della mappa (e dalla 5.13.132 della scena 3D)."""
+    assert re.search(r"(?m)^\.pya-u[\s\[{]", nh._CSS_UNITA) is None
+    assert ".pya-unita .pya-u { border-bottom" in nh._CSS_UNITA
+    assert ".pya-unita .pya-u[open] summary::before" in nh._CSS_UNITA

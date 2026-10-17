@@ -877,11 +877,11 @@ _CSS_UNITA = """
 .pya-unita { margin: 1.2rem 0; padding-top: .6rem; border-top: 1px solid rgba(128,128,128,.25);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: .9rem; }
 .pya-unita-titolo { font-size: .95rem; margin: 0 0 .4rem; color: #444; }
-.pya-u { border-bottom: 1px solid rgba(128,128,128,.15); padding: .25rem 0; }
-.pya-u summary { cursor: pointer; list-style: none; }
-.pya-u summary::-webkit-details-marker { display: none; }
-.pya-u summary::before { content: "\\25B8"; display: inline-block; width: 1.1em; color: #888; }
-.pya-u[open] summary::before { content: "\\25BE"; }
+.pya-unita .pya-u { border-bottom: 1px solid rgba(128,128,128,.15); padding: .25rem 0; }
+.pya-unita .pya-u summary { cursor: pointer; list-style: none; }
+.pya-unita .pya-u summary::-webkit-details-marker { display: none; }
+.pya-unita .pya-u summary::before { content: "\\25B8"; display: inline-block; width: 1.1em; color: #888; }
+.pya-unita .pya-u[open] summary::before { content: "\\25BE"; }
 .pya-u-sola::before { content: ""; display: inline-block; width: 1.1em; }
 .pya-u-nome { font-weight: 600; }
 .pya-u-desc { color: #555; }
