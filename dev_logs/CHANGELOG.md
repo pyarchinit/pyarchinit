@@ -5,6 +5,29 @@
 
 ---
 
+## [fix] - 2026-10-17 — QGIS si chiudeva da solo dopo l'importazione di un em.json con i media: le viste dei modelli 3D ora si disegnano in un processo Python a parte, tutte insieme — 5.13.127-alpha
+
+> Branch `Stratigraph_00001`. Suite **2316 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +8 test). / QGIS closed by itself after importing an em.json with its media: the 3D model views are now drawn in a separate Python process, all together.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«dopo aver importato l'em.json QGIS crasha … quando chiudo la finestra del riepilogo QGIS crasha»** (Enzo, 17 ottobre 2026, sul Mac mini). Riprodotto qui con una finestra vera (Cocoa, non offscreen): l'importazione di TempluMare nel database vuoto, con i media, e la chiusura del riepilogo → segmentation fault, due volte su due; senza media, o con i media ma con la vista 3D sostituita da un'immagine finta, nessun crash. Lo stack preso con lldb: `-[vtkCocoaGLView modifyDPIForBackingScaleFactorOfWindow:]`. Ogni disegno di pyvista con `off_screen=True` lascia viva una vista Cocoa di VTK anche dopo `plotter.close()`; alla prima notifica della finestra (chiudere un messaggio, cambiare schermo) macOS la avvisa e VTK chiama un oggetto C++ già distrutto. Le 65 viste dei proxy di TempluMare ne lasciavano 65.
+- 🇮🇹 **IT**: `modules/utility/media_preview.py`: il disegno non avviene più dentro QGIS. `render_models_png(jobs, size, progress=, timeout=)` disegna i modelli in **un solo processo Python a parte** (lo stesso Python di QGIS, trovato con `python_env.pip_interpreter()`: su macOS `sys.executable` è QGIS stesso), che riceve il lavoro da stdin e risponde una riga per modello; un modello che fa cadere il processo, o che non finisce entro tre minuti, resta senza vista (avrà l'icona «3D») e gli altri continuano in un processo nuovo; un modello oltre i 300 MB non si apre nemmeno. `render_model_png`, usato dalle schede US, Materiali, Struttura e Ceramica quando si aggiunge un modello 3D, passa di lì: nessuna scheda disegna più con VTK nel processo di QGIS. Senza un Python da avviare, su macOS si mette l'icona (meglio dell'arresto), altrove si disegna come prima. `make_previews` accetta il disegno già fatto (`model_png`) o il perché non si è fatto (`model_error`), senza riprovare.
+- 🇮🇹 **IT**: `modules/s3dgraphy/sync/em_media_import.py`: l'importazione disegna tutti i modelli 3D in un colpo prima delle miniature (la finestra di avanzamento dice «modello 3D: SU002.glb»); con TempluMare l'importazione con i media dura come prima (12 s per 851 schede e 106 media, 65 viste 3D vere).
+- 🇮🇹 **IT**: verifica: la stessa sequenza della finestra (Anteprima, Applica con i media, chiusura del riepilogo, due secondi di attesa, chiusura della finestra) esce pulita.
+- 🇮🇹 **IT**: il secondo crash segnalato da Enzo — «Esporta» della narrativa del file, prima di «Prepara i capitoli» — **non si riproduce qui**: con il suo database e il suo em.json, in HTML, DOCX e PDF, e sia con i 13 capitoli originali sia con i 20 dopo «Prepara», l'esportazione esce pulita in un QGIS con finestra vera. Serve il rapporto del crash del Mac mini per sapere se è la stessa causa (una sessione in cui VTK aveva già disegnato) o un'altra.
+- 🇬🇧 **EN**: on macOS every pyvista off-screen render left a VTK Cocoa view (`vtkCocoaGLView`) alive after `plotter.close()`; the next window notification (closing the import summary) made VTK call a destroyed C++ object and QGIS crashed (reproduced in a real Cocoa window, stack taken with lldb). 3D views are now rendered by `render_models_png` in one separate Python process (the QGIS Python found by `pip_interpreter()`), with a per-model timeout and recovery when a model kills the child; `render_model_png` (used by the US, Finds, Structure and Pottery forms) goes through it, and the em.json import renders all its models in one batch. The reported crash when exporting the file's own narrative does not reproduce here with the reporter's database and file; the Mac mini crash report is needed.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/utility/test_media_preview.py` (+7, visti rossi prima): il disegno sul posto è vietato e la vista esce lo stesso; tanti modelli, un processo solo e un modello rotto che non ferma gli altri; un modello che uccide il processo ha il perché e gli altri si disegnano; il tempo scaduto; il modello troppo grande che non avvia niente; la miniatura dal disegno già pronto, che non si cancella; il disegno già fallito che dà l'icona senza riprovare. `tests/sync/test_em_media_import.py` (+1): i proxy dell'em.json in un solo lotto.
+- 🇮🇹 **IT**: la prima esecuzione della suite si è fermata con un segmentation fault in `tests/utility/test_geoarchaeo_dock.py::test_dock_full_workflow` (il dock di GeoArchaeo, che i media non li tocca); non si è ripetuto né nella seconda suite completa (2316 verdi) né in quattro giri del file da solo.
+- 🇬🇧 **EN**: 8 new tests; one transient native crash in an unrelated GeoArchaeo dock test on the first full run, not reproduced in five later runs.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36, «Media» dell'importazione: le viste 3D in un processo a parte; «Tag corrente» aggiornato (era fermo alla 5.13.122). Dieci lingue. `metadata.txt` 5.13.127-alpha.
+- 🇬🇧 **EN**: tutorial 36 media paragraph and current tag, ten languages.
+
+---
+
 ## [feat] - 2026-10-17 — Matrice: i paradati nel gruppo della loro unità, come EMStudio — non più 853 «unità» ammassate per TempluMare, ma 114 unità con i loro gruppi — 5.13.126-alpha
 
 > Branch `Stratigraph_00001`. Suite **2308 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +10 test). / Matrix: paradata in the group of their unit, as in EMStudio.

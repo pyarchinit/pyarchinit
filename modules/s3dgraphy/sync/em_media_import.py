@@ -32,6 +32,8 @@ miniatura, quindi invisibili nella scheda.
 from __future__ import annotations
 
 import os
+import shutil
+import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -260,6 +262,7 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
     from s3dgraphy.resources.locate import resolve
     from sqlalchemy import MetaData, text
 
+    from ...utility import media_preview as anteprime
     from ...utility.media_preview import make_previews
     from ...utility.qfield_importer import next_id, reflected
     from . import em_native_import as emn
@@ -395,20 +398,42 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
     for cartella in (thumb_path, thumb_resize):
         if "://" not in str(cartella):
             os.makedirs(cartella, exist_ok=True)
+    # i modelli 3D tutti insieme, in un processo fuori da QGIS: dentro, su
+    # macOS, VTK lo faceva cadere alla chiusura del riepilogo (17 ottobre 2026)
+    modelli = [voce for voce in da_miniare if voce["mediatype"] == "3d_model"]
+    cartella_3d = tempfile.mkdtemp(prefix="pyarchinit_3d_") if modelli else None
+    disegni = {}
     fatti = []
-    for i, voce in enumerate(da_miniare):
-        if progress is not None:
-            progress(i, len(da_miniare), "%s.%s" % (voce["filename"], voce["filetype"]))
-        try:
-            miniatura, copia = make_previews(voce["id_media"], voce["path"], voce["filename"],
-                                             voce["filetype"], voce["mediatype"],
-                                             thumb_path, thumb_resize, log=esito.warnings.append)
-        except Exception as e:                               # noqa: BLE001
-            esito.warnings.append("%s.%s: miniatura non riuscita (%s)"
-                                  % (voce["filename"], voce["filetype"], e))
-            continue
-        fatti.append((voce, miniatura, copia))
-        scrivi("  + miniatura %s" % miniatura)
+    try:
+        if modelli:
+            lavori = [(voce["path"], os.path.join(cartella_3d, "%d.png" % k))
+                      for k, voce in enumerate(modelli)]
+            avanza = None
+            if progress is not None:
+                def avanza(n, totale, nome):
+                    progress(n, totale, "modello 3D: %s" % nome)
+            esiti = anteprime.render_models_png(lavori, progress=avanza)
+            for voce, (_src, png) in zip(modelli, lavori):
+                disegni[id(voce)] = (png, esiti.get(png))
+        for i, voce in enumerate(da_miniare):
+            if progress is not None:
+                progress(i, len(da_miniare), "%s.%s" % (voce["filename"], voce["filetype"]))
+            png, errore = disegni.get(id(voce), (None, None))
+            try:
+                miniatura, copia = make_previews(voce["id_media"], voce["path"], voce["filename"],
+                                                 voce["filetype"], voce["mediatype"],
+                                                 thumb_path, thumb_resize, log=esito.warnings.append,
+                                                 model_png=None if errore else png,
+                                                 model_error=errore)
+            except Exception as e:                           # noqa: BLE001
+                esito.warnings.append("%s.%s: miniatura non riuscita (%s)"
+                                      % (voce["filename"], voce["filetype"], e))
+                continue
+            fatti.append((voce, miniatura, copia))
+            scrivi("  + miniatura %s" % miniatura)
+    finally:
+        if cartella_3d:
+            shutil.rmtree(cartella_3d, ignore_errors=True)
     if progress is not None:
         progress(len(da_miniare), len(da_miniare), "")
     with engine.begin() as conn:

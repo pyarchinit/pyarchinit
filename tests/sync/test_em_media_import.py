@@ -160,6 +160,20 @@ def test_ogni_media_ha_miniatura_e_copia(progetto):
         "D.07.05": "D.07.05.png", "SU002": "SU002.glb"}
 
 
+def test_i_modelli_3d_si_disegnano_tutti_insieme(progetto, monkeypatch):
+    """I proxy di un em.json si disegnano in un processo solo, fuori da
+    QGIS (dentro, su macOS, VTK lo faceva cadere alla chiusura del
+    riepilogo: Enzo, 17 ottobre 2026)."""
+    import modules.utility.media_preview as mp
+    lotti = []
+    vero = mp.render_models_png
+    monkeypatch.setattr(mp, "render_models_png",
+                        lambda lavori, *a, **k: lotti.append(len(lavori)) or vero(lavori, *a, **k))
+    esito = _importa(progetto)
+    assert lotti == [2]                              # colonna.glb e SU002.glb insieme
+    assert esito.thumbnails == 4
+
+
 def test_reimportare_non_duplica(progetto):
     _importa(progetto)
     esito = _importa(progetto)

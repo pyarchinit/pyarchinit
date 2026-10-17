@@ -9,7 +9,10 @@ em.json non ne avevano e restavano invisibili). Qui le si fa per ogni tipo:
 * **video**: un fotogramma come miniatura, il video copiato;
 * **modelli 3D** (anche ``.glb`` e ``.gltf``): la vista del modello resa da
   pyvista — i glTF con ``import_gltf``, che porta i loro colori — e il file
-  copiato, come faceva la scheda per obj, stl e gli altri;
+  copiato, come faceva la scheda per obj, stl e gli altri. La vista si
+  disegna **in un altro processo Python** (``render_models_png``), mai dentro
+  QGIS: su macOS VTK ci lasciava una vista Cocoa che faceva cadere QGIS alla
+  prima notifica della finestra (17 ottobre 2026);
 * **documenti** (pdf, Word, Excel, csv, txt…): la prima pagina per i PDF,
   un'icona col tipo per gli altri (le prime righe per csv e txt), e il file
   copiato, che poi si apre con il programma del sistema.
@@ -21,13 +24,27 @@ passa alle routine CON l'estensione: tagliano al punto, e senza estensione
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
-from typing import Callable, Optional, Tuple
+from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from .media_kinds import split_media_name, suffixes
 
 #: oltre questa misura un modello 3D non si apre per la miniatura: un'icona
 _MAX_BYTES_3D = 300 * 1024 * 1024
+
+#: quanto può durare il disegno di un modello, avvio del processo compreso
+_TEMPO_PER_MODELLO = 180.0
+
+#: le righe del processo dei modelli che portano un esito (il resto è VTK)
+_SEGNO = "@@pyarchinit-3d@@"
+
+#: il processo dei modelli: fuori la cartella corrente, dentro i percorsi di
+#: QGIS (gli argomenti), poi il lavoro letto da stdin
+_AVVIO = ("import sys\n"
+          "sys.path[:] = sys.argv[1:] + [p for p in sys.path if p]\n"
+          "from modules.utility.media_preview import _servi\n"
+          "_servi()\n")
 
 #: colore della fascia dell'icona, per estensione
 _COLORI = {
@@ -60,12 +77,18 @@ def _cartella(path: str) -> str:
 
 def make_previews(id_media, src: str, filename: str, filetype: str, mediatype: str,
                   thumb_dir: str, resize_dir: str, *,
-                  log: Optional[Callable[[str], None]] = None) -> Tuple[str, str]:
+                  log: Optional[Callable[[str], None]] = None,
+                  model_png: Optional[str] = None,
+                  model_error: Optional[str] = None) -> Tuple[str, str]:
     """Scrive la miniatura in ``thumb_dir`` e la copia in ``resize_dir``;
     restituisce i due nomi come la scheda li registra in
     ``media_thumb_table`` (``filepath`` e ``path_resize``). Un modello o un
     documento che non si riesce a disegnare ha un'icona, e lo si dice a
-    ``log``: il media resta, con la sua copia."""
+    ``log``: il media resta, con la sua copia.
+
+    Per un modello 3D già disegnato insieme agli altri (``render_models_png``)
+    si passa il suo PNG in ``model_png``, che si usa e non si cancella, o il
+    perché non si è disegnato in ``model_error``: niente secondo tentativo."""
     from .pyarchinit_media_utility import (Media_utility, Media_utility_resize,
                                            Video_utility_resize)
     scrivi = log or (lambda _m: None)
@@ -76,7 +99,8 @@ def make_previews(id_media, src: str, filename: str, filetype: str, mediatype: s
         Media_utility().resample_images(id_media, src, con_estensione, thumb_dir, thumb_suffix)
         Media_utility_resize().resample_images(id_media, src, con_estensione, resize_dir, resize_suffix)
     else:
-        anteprima = _anteprima(src, filename, filetype, mediatype, scrivi)
+        anteprima = _anteprima(src, filename, filetype, mediatype, scrivi,
+                               model_png=model_png, model_error=model_error)
         try:
             Media_utility().resample_images(id_media, anteprima, filename + ".png",
                                             thumb_dir, thumb_suffix)
@@ -113,15 +137,20 @@ def _png_temporaneo() -> str:
     return path
 
 
-def _anteprima(src: str, filename: str, filetype: str, mediatype: str, scrivi) -> str:
+def _anteprima(src: str, filename: str, filetype: str, mediatype: str, scrivi, *,
+               model_png: Optional[str] = None, model_error: Optional[str] = None) -> str:
     """Un PNG da cui ricavare la miniatura: il modello, la pagina, il
     fotogramma, o un'icona quando non si può."""
     out = _png_temporaneo()
     estensione = str(filetype or "").lower()
     try:
         if mediatype == "3d_model":
-            if os.path.getsize(src) > _MAX_BYTES_3D:
-                raise ValueError("modello troppo grande per la miniatura")
+            if model_error:
+                raise ValueError(model_error)
+            if model_png:
+                import shutil
+                shutil.copyfile(model_png, out)
+                return out
             render_model_png(src, out)
             return out
         if mediatype == "video":
@@ -144,7 +173,195 @@ def _anteprima(src: str, filename: str, filetype: str, mediatype: str, scrivi) -
 def render_model_png(src: str, out: str, size: Tuple[int, int] = (400, 400)) -> None:
     """La vista di un modello 3D, scritta in ``out``. I glTF si importano
     come scena (con i loro materiali); gli altri si leggono come superficie,
-    con la texture JPG accanto se c'è."""
+    con la texture JPG accanto se c'è. Si disegna in un altro processo
+    (``render_models_png``); se non riesce, l'eccezione dice perché."""
+    errore = render_models_png([(src, out)], size).get(str(out))
+    if errore:
+        raise RuntimeError(errore)
+
+
+def render_models_png(jobs: Iterable[Tuple[str, str]], size: Tuple[int, int] = (400, 400), *,
+                      progress: Optional[Callable[[int, int, str], None]] = None,
+                      timeout: float = _TEMPO_PER_MODELLO) -> Dict[str, Optional[str]]:
+    """Disegna i modelli 3D ``jobs`` — coppie (modello, png) — in UN processo
+    Python a parte, e restituisce ``{png: None}`` per quelli riusciti,
+    ``{png: "il perché"}`` per gli altri; ``progress(fatti, totale, nome)``
+    dopo ciascuno.
+
+    Mai dentro QGIS: su macOS ogni disegno di VTK lascia una vista Cocoa
+    (``vtkCocoaGLView``) che sopravvive al plotter chiuso, e alla prima
+    notifica della finestra (chiudere un messaggio, cambiare schermo) VTK
+    chiamava un oggetto già distrutto: QGIS si chiudeva chiudendo il
+    riepilogo dell'importazione dell'em.json (Enzo, 17 ottobre 2026). Un
+    modello che fa cadere il processo, o che non finisce entro ``timeout``
+    secondi, resta senza disegno; gli altri continuano in un processo nuovo."""
+    lavori = [(str(s), str(o)) for s, o in jobs]
+    esiti: Dict[str, Optional[str]] = {}
+    totale = len(lavori)
+
+    def segna(out, errore, nome):
+        esiti[out] = errore
+        if progress is not None:
+            progress(len(esiti), totale, nome)
+
+    da_fare = []
+    for src, out in lavori:
+        try:
+            if os.path.getsize(src) > _MAX_BYTES_3D:
+                segna(out, "modello troppo grande per la miniatura", os.path.basename(src))
+                continue
+        except OSError as e:
+            segna(out, "il modello non si legge (%s)" % e, os.path.basename(src))
+            continue
+        da_fare.append((src, out))
+    if not da_fare:
+        return esiti
+    interprete = _interprete()
+    if interprete is None:
+        import platform
+        for src, out in da_fare:
+            if platform.system() == "Darwin":
+                # sul Mac il disegno dentro QGIS lo fa cadere: meglio l'icona
+                segna(out, "nessun Python per disegnare i modelli fuori da QGIS",
+                      os.path.basename(src))
+                continue
+            try:
+                _disegna(src, out, size)
+                segna(out, None, os.path.basename(src))
+            except Exception as e:                           # noqa: BLE001
+                segna(out, str(e) or type(e).__name__, os.path.basename(src))
+        return esiti
+    python, env = interprete
+    while da_fare:
+        da_fare = _un_processo(python, env, da_fare, size, timeout, segna)
+    return esiti
+
+
+def _interprete():
+    """(python, ambiente) con cui avviare il processo dei modelli: lo stesso
+    Python di QGIS (sys.executable, su macOS, è QGIS stesso)."""
+    try:
+        from .python_env import pip_interpreter
+        return pip_interpreter()
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
+def _avvia(python, env, errori):
+    """Il processo dei modelli, con i percorsi di QGIS e la radice del
+    plugin come argomenti (``_AVVIO``)."""
+    import subprocess
+    radice = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    percorsi = [radice] + [p for p in sys.path if p and p != radice]
+    ambiente = dict(env)
+    ambiente["PYTHONIOENCODING"] = "utf-8"
+    extra = {"creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)} if os.name == "nt" else {}
+    return subprocess.Popen([python, "-c", _AVVIO] + percorsi, stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, stderr=errori, env=ambiente,
+                            cwd=tempfile.gettempdir(), **extra)
+
+
+def _ultima_riga(errori) -> str:
+    try:
+        errori.seek(0)
+        righe = [r.strip() for r in errori.read()[-4000:].decode("utf-8", "replace").splitlines()]
+    except (OSError, ValueError):
+        return ""
+    righe = [r for r in righe if r]
+    return righe[-1] if righe else ""
+
+
+def _un_processo(python, env, lavori, size, timeout, segna):
+    """Un processo per ``lavori``, in ordine. Restituisce quelli rimasti da
+    fare quando il processo cade o si blocca (quello in corso è segnato come
+    non riuscito), o una lista vuota."""
+    import json
+    import queue
+    import threading
+    import time
+    with tempfile.TemporaryFile() as errori:
+        try:
+            proc = _avvia(python, env, errori)
+        except OSError as e:
+            for src, out in lavori:
+                segna(out, "processo dei modelli non avviato (%s)" % e, os.path.basename(src))
+            return []
+        righe = queue.Queue()
+
+        def leggi():
+            try:
+                for riga in proc.stdout:
+                    righe.put(riga)
+            finally:
+                righe.put(None)
+
+        lettore = threading.Thread(target=leggi, daemon=True)
+        lettore.start()
+        try:
+            proc.stdin.write(json.dumps({"size": list(size), "jobs": lavori}).encode("utf-8"))
+            proc.stdin.close()
+        except OSError:
+            pass                                             # caduto subito: lo dice la lettura
+        try:
+            for k, (src, out) in enumerate(lavori):
+                nome = os.path.basename(src)
+                scadenza = time.monotonic() + timeout
+                esito = None
+                while esito is None:
+                    try:
+                        riga = righe.get(timeout=max(0.0, scadenza - time.monotonic()))
+                    except queue.Empty:
+                        proc.kill()
+                        segna(out, "tempo scaduto (%g s) disegnando il modello" % timeout, nome)
+                        return lavori[k + 1:]
+                    if riga is None:
+                        try:
+                            codice = proc.wait(timeout=10)
+                        except Exception:                    # noqa: BLE001
+                            codice = "?"
+                        perche = _ultima_riga(errori)
+                        segna(out, "il processo dei modelli si è fermato (codice %s)%s"
+                              % (codice, (": " + perche) if perche else ""), nome)
+                        return lavori[k + 1:]
+                    # il segno anche a metà riga: VTK può aver scritto prima
+                    # senza andare a capo
+                    testo = riga.decode("utf-8", "replace")
+                    if _SEGNO in testo:
+                        try:
+                            esito = json.loads(testo.split(_SEGNO, 1)[1].strip())
+                        except ValueError:
+                            esito = None
+                segna(out, esito.get("error"), nome)
+            return []
+        finally:
+            try:
+                proc.wait(timeout=5)
+            except Exception:                                # noqa: BLE001
+                proc.kill()
+                proc.wait()
+            lettore.join(timeout=2)
+            if not lettore.is_alive():
+                proc.stdout.close()
+
+
+def _servi() -> None:
+    """Il processo dei modelli: legge il lavoro da stdin, disegna, e per
+    ciascun modello scrive una riga col segno e l'esito."""
+    import json
+    richiesta = json.loads(sys.stdin.buffer.read().decode("utf-8"))
+    size = tuple(richiesta.get("size") or (400, 400))
+    for i, (src, out) in enumerate(richiesta.get("jobs") or []):
+        try:
+            _disegna(src, out, size)
+            errore = None
+        except Exception as e:                               # noqa: BLE001
+            errore = str(e) or type(e).__name__
+        sys.stdout.write("\n" + _SEGNO + json.dumps({"i": i, "error": errore}) + "\n")
+        sys.stdout.flush()
+
+
+def _disegna(src: str, out: str, size: Tuple[int, int] = (400, 400)) -> None:
+    """Il disegno vero, con pyvista: solo nel processo dei modelli."""
     import pyvista as pv
     plotter = pv.Plotter(off_screen=True, window_size=list(size))
     try:
