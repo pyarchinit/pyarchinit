@@ -2684,7 +2684,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeCustomActionForLayerType(self.actionViewStyles)
             except Exception:
                 pass
-        for _name in ("actionEmExport", "actionEmImport", "actionRoomDelivery",
+        for _name in ("actionEmExport", "actionEmProject", "actionEmImport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
                       "actionEmStudioInstall", "actionEmMatrixView", "actionViewStyles",
                       "actionUuidBackfill", "actionYefOtherLocations",
@@ -2892,6 +2892,17 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmExport)
 
+            # Il progetto EM per EMStudio (17 ottobre 2026): l'em.json dentro
+            # EM/ con i file che cita accanto, nell'albero standard della
+            # libreria, dove EMStudio li cerca.
+            self.actionEmProject = QAction(
+                "Extended Matrix → Esporta progetto EM per EMStudio…",
+                self.iface.mainWindow())
+            self.actionEmProject.triggered.connect(self._run_em_project)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmProject)
+
             # Importare un em.json anche con il database vuoto (16 ottobre
             # 2026): prima la finestra stava solo dietro il bottone di
             # esportazione della scheda US, che senza sito si rifiutava.
@@ -3051,6 +3062,106 @@ class PyArchInitPlugin(object):
                 if answer == QMessageBox.StandardButton.Yes:
                     if self._run_emstudio_install():
                         em_export.open_in_emstudio(path)
+
+    def _run_em_project(self):
+        """Il progetto EM per EMStudio (17 ottobre 2026): l'em.json del sito
+        in EM/ e accanto i file che cita, nell'albero standard della
+        libreria (EM/DosCo, EM/proxies, RB, SB, RM), dove EMStudio li cerca.
+        Si copia quello che il database ha (i media importati); il resto si
+        dice, da copiare a mano."""
+        from pathlib import Path
+        from qgis.PyQt.QtCore import QUrl
+        from qgis.PyQt.QtGui import QDesktopServices
+        from qgis.PyQt.QtWidgets import (QApplication, QFileDialog, QInputDialog,
+                                         QMessageBox, QProgressDialog)
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        from modules.s3dgraphy import em_export, em_matrix_panel, em_project
+
+        titolo = "Progetto EM"
+        try:
+            conn_str = Connection().conn_str()
+            db = Pyarchinit_db_management(conn_str)
+            db.connection()
+            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
+        except Exception as e:
+            QMessageBox.warning(self.iface.mainWindow(), titolo,
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        if not sites:
+            QMessageBox.information(self.iface.mainWindow(), titolo,
+                                    "Nessun sito nel database.")
+            return
+        site, ok = QInputDialog.getItem(
+            self.iface.mainWindow(), "Esporta progetto EM", "Sito:", sites, 0, False)
+        if not ok:
+            return
+        impostazioni = QgsSettings()
+        ultima = str(impostazioni.value("pyArchInit/em_project_dir", "", type=str) or "")
+        scelta = QFileDialog.getExistingDirectory(
+            self.iface.mainWindow(),
+            "Cartella del progetto EM (vi si fanno EM/, RB/, SB/, RM/)",
+            ultima or str(Path.home()))
+        if not scelta:
+            return
+        impostazioni.setValue("pyArchInit/em_project_dir", scelta)
+        radice = em_project.project_root_for(scelta, site)
+
+        attesa = QProgressDialog("Esporto l'em.json di %s…" % site, "", 0, 0,
+                                 self.iface.mainWindow())
+        attesa.setCancelButton(None)
+        attesa.setWindowTitle(titolo)
+        attesa.setMinimumDuration(0)
+        attesa.show()
+        QApplication.processEvents()
+
+        def avanza(fatti, tutti, nome):
+            attesa.setMaximum(max(tutti, 1))
+            attesa.setValue(fatti)
+            attesa.setLabelText("Copio i file del progetto: %d di %d\n%s" % (fatti, tutti, nome))
+            QApplication.processEvents()
+
+        errore = None
+        try:
+            esito = em_project.export_project(
+                conn_str, site, radice,
+                work_dir=str(Path(pyarchinit_home()) / "pyarchinit_EM_folder"),
+                resize_base=em_matrix_panel.resize_base(), progress=avanza)
+        except em_export.EmExportError as e:
+            errore = str(e)
+        except Exception as e:                      # noqa: BLE001
+            errore = "Non riesco a fare il progetto in %s:\n%s" % (radice, e)
+        finally:
+            attesa.close()
+        if errore:
+            QMessageBox.warning(self.iface.mainWindow(), titolo, errore)
+            return
+
+        box = QMessageBox(self.iface.mainWindow())
+        box.setWindowTitle(titolo)
+        box.setText(esito.summary())
+        dettagli = []
+        for intestazione, voci in (("Da copiare a mano", esito.missing),
+                                   ("Diversi da quelli del database, lasciati", esito.kept),
+                                   ("Sha256 diverso dall'em.json", esito.mismatched),
+                                   ("Fuori dalla cartella del progetto", esito.outside),
+                                   ("Avvisi dell'esportazione", esito.warnings)):
+            if voci:
+                dettagli.append("%s (%d):\n%s" % (intestazione, len(voci), "\n".join(voci)))
+        if dettagli:
+            box.setDetailedText("\n\n".join(dettagli))
+        apri = box.addButton("Apri in EMStudio", QMessageBox.ButtonRole.AcceptRole)
+        cartella = box.addButton("Apri la cartella", QMessageBox.ButtonRole.ActionRole)
+        box.addButton("Chiudi", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        premuto = box.clickedButton()
+        if premuto is cartella:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(radice))
+        elif premuto is apri and not em_export.open_in_emstudio(esito.path):
+            QMessageBox.information(
+                self.iface.mainWindow(), "EMStudio",
+                "EMStudio non risulta installato (Extended Matrix → Installa EMStudio…). "
+                "Il progetto è in:\n%s" % radice)
 
     def _run_view_styles(self):
         """«Stili delle viste…»: dal menu, sulla vista del layer attivo se è

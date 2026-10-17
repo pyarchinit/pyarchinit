@@ -5,6 +5,33 @@
 
 ---
 
+## [feat] - 2026-10-17 — «Esporta progetto EM per EMStudio…»: l'em.json in EM/ con i media del database copiati dove EMStudio li cerca, nell'albero standard della libreria — 5.13.131-alpha
+
+> Branch `Stratigraph_00001`. Suite **2394 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +8 test). / New "Export EM project for EMStudio" menu entry: the site's em.json in EM/ with the database's media copied where EMStudio looks for them.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **«avendo importato i media e tutto nel db dovresti poter esportare allo stesso modo i media giusto? Controlla anche che EM studio voglia una struttura definita per i media»** (Enzo, 17 ottobre 2026). La struttura c'è, ed è della libreria: l'albero standard di un progetto EM (`s3dgraphy.project_tree`: `EM/` l'em.json, `EM/DosCo` i documenti, `EM/proxies` un glb per unità, `RB` il rilievo, `SB`, `RM`), e un risolutore solo per tutti gli strumenti (`s3dgraphy.resources.locate`: EMStudio lo usa dal suo ponte). L'em.json di `pyarchinit_EM_folder` portava i percorsi ma non i file, e aperto da lì EMStudio non trovava né i proxy né i documenti. Nuovo modulo `modules/s3dgraphy/em_project.py` e voce di menu **Extended Matrix → Esporta progetto EM per EMStudio…** (`_run_em_project`):
+  - `export_project(connection_url, site, dest_dir, *, work_dir=None, resize_base="", progress=None) -> ProjectResult`: esporta il sito come «Esporta sito in em.json…» (nella cartella di lavoro: la narrativa del pannello resta), fa l'albero, copia l'em.json in `EM/` e accanto ogni file citato che il database conosce (`media_table`: i media importati con l'em.json), al percorso che l'em.json scrive; con il disco del progetto staccato prende la copia della cartella delle ridotte (`media_thumb_table.path_resize`) solo se è lo stesso tipo di file (i modelli 3D e i PDF sì, le immagini no: lì sono PNG ridotti);
+  - `project_locators(doc)`: l'url dei nodi, gli indirizzi alternativi (`addresses`) e il `.blend` dei datablock `blend://`; il web, il cloud (`onedrive://`, `smb://`) e i percorsi assoluti no. `project_path(locator)`: un nome nudo — l'url dei documenti e degli estrattori, che EMStudio inietta da `DosCo` — va in `EM/DosCo/`;
+  - un file del progetto diverso da quello del database **non si sovrascrive** (`kept`: può essere lavoro fatto in EMStudio); l'em.json di prima, se diverso, resta come `.bak`; lo sha256 della risorsa (`data.checksum`) si controlla sulla copia (`mismatched`); le risorse che il risolutore della libreria trova dal progetto si contano (`found`/`resources`); i file che il database non ha si dicono per cartella;
+  - `project_root_for(chosen, site)`: la cartella scelta è il progetto se è vuota o è già un progetto EM, altrimenti una cartella nuova col nome del sito (l'albero non si sparge fra i file della Scrivania). La cartella si ricorda (`pyArchInit/em_project_dir`); una barra di avanzamento conta i file; il riepilogo ha «Apri in EMStudio», «Apri la cartella» e i dettagli file per file.
+  - Su TempluMare (il database dell'importazione, il disco esterno staccato): 96 file copiati, 238,7 MB — i 65 proxy e 31 documenti, tutti con lo sha256 scritto nell'em.json —; il risolutore trova dal progetto 96 delle 536 risorse; restano da copiare a mano 343 file che il database non ha mai avuto: il rilievo di `RB/` (158) e i modelli di `SB/` (175), che non sono media, `.blend` compresi, più le 10 foto JPG di `DosCo` (nella cartella delle ridotte sono PNG). Il gestore del menu provato dal vivo in QGIS senza schermo, con le finestre simulate: cartella `Temple/` creata accanto ai file della cartella scelta, 481 passi di avanzamento, riepilogo e dettagli.
+- 🇬🇧 **EN**: new `em_project` module and "Extended Matrix → Esporta progetto EM per EMStudio…" menu entry: the site's em.json in `EM/`, with every cited file the database knows (the imported media) copied at the path the em.json writes, in the library's standard EM project tree; bare names go to `EM/DosCo`, `blend://` locators count through their `.blend`; a different existing file is never overwritten, the previous em.json is kept as `.bak`, copies are checked against the resource sha256 and the result is counted with the library's own resolver (the one EMStudio uses).
+
+#### Notes / Note
+- 🇮🇹 **IT**: **«vedi se si possono esportare importare le geometrie… se l'Extended Matrix lo contempla (ad esempio sottoforma di geojson) e quindi i paradati come epsg»** (Enzo, 17 ottobre 2026). Nel datamodel della libreria (dev57) la pianta 2D di un'unità non ha casa: la forma semantica è il proxy 3D nel sistema locale della scena, il GeoPositionNode dà EPSG e spostamenti della scena, le regioni di lettura (datamodel 1.6.15) portano `coords` e `crs` ma dicono dove una lettura ha guardato, `geometry/wkt.py` scrive solo POINT, MULTIPOINT e LINESTRING Z, e fra gli `url_type` delle risorse non c'è un tipo GIS. Enzo ha scelto di chiederlo a Emanuel; niente geometrie ricavate dai 3D.
+- 🇬🇧 **EN**: 2D unit footprints have no home in the library's datamodel yet (3D scene-local shapes, reading regions, WKT without POLYGON, no GIS `url_type`): asked upstream.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/sync/test_em_project.py` (8: i percorsi citati dall'em.json, il nome nudo in DosCo, l'albero e i file ai loro percorsi con il conteggio del risolutore, la riesportazione che non ricopia e non sovrascrive con l'em.json di prima in `.bak`, lo sha256 controllato sulla copia, il disco del progetto staccato, la cartella del progetto, la voce di menu). Visti rossi prima.
+- 🇬🇧 **EN**: 8 new tests.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §5.0.1 (il progetto EM per EMStudio, con l'albero) e una riga nella tabella dei problemi, dieci lingue. `metadata.txt` 5.13.131-alpha.
+- 🇬🇧 **EN**: tutorial 36 §5.0.1 and a troubleshooting row in ten languages.
+
+---
+
 ## [feat] - 2026-10-17 — I media della narrativa scelti dall'AI dopo il paragrafo che ne parla, con il visore 3D; le unità del capitolo raggruppate con i loro paradati; il «viene dopo» fra due US che non diventa più «copre» — 5.13.130-alpha
 
 > Branch `Stratigraph_00001`. Suite **2386 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +20 test). / The narrative's media chosen by the AI among those of each chapter's units, after the paragraph that discusses them, with the 3D viewer in the panel; the choice stays in the file.

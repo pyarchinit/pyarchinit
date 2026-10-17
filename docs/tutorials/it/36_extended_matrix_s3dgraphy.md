@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `narrativa-media-5.13.130-alpha` (2026-10-17).
+Tag corrente: `progetto-em-5.13.131-alpha` (2026-10-17).
 
 ---
 
@@ -125,6 +125,29 @@ Che cosa succede, in breve:
 - **Reimportare.** Importare di nuovo lo stesso file non duplica né i periodi né le schede: quelle già presenti risultano «invariate» o «aggiornate», e dove il database e il file differiscono vince il file (il riepilogo li conta come «conflitti»). L'anteprima conta come «aggiornate» anche le schede a cui l'importazione aggiunge rapporti, datazione o codice periodo (prima risultavano «invariate»). Reimportare l'em.json in un database importato prima della 5.13.125-alpha lo ripara: definizione del sito, rapporti su tutte e due le schede, datazione e codici periodo.
 - **L'em.json resta ricordato.** pyArchInit tiene nelle sue tabelle le unità, i paradati, i rapporti e le epoche; tutto il resto del grafo — risorse, file, modelli, forme semantiche, processi del gemello digitale, gruppi di paradati e di attività, autori, licenze, la narrativa — insieme al titolo, al **codice dello studio** (per esempio GT16: è il prefisso con cui Blender riattacca i proxy), alla georeferenziazione (EPSG e spostamenti) e ai nomi di EMStudio, viene ricordato all'importazione (tabella `pyarchinit_em_sources`, una riga per sito; l'ultima importazione vince). All'**esportazione** dell'em.json del sito tutto questo torna: i nomi originali (SU006, D.07.08, height…) per le schede che hanno ancora il numero dato all'importazione — una scheda rinominata in pyArchInit tiene il nome nuovo —, i dati dei nodi (per esempio la proprietà «geometry» con la sua forma, da cui EMStudio conta i proxy), e i nodi che non sono schede con i loro archi, agganciati alle schede che esistono ancora: un ramo rimasto senza scheda (per esempio la forma di una proprietà cancellata) non torna. Rapporti, periodi e descrizioni vengono sempre dal database. Il messaggio di fine esportazione dice quanto è tornato, per esempio «Dall'em.json importato tornano 851 nomi, 1090 nodi e 1969 archi, codice dello studio GT16.». Provato su TempluMare_v3.2 (1946 nodi): nessun nome e nessuna descrizione diversi dall'originale, e in EMStudio 65 unità su 114 con il proxy e 2 epoche su 3 con un modello, come nell'originale. Restano diversi i 9 «viene dopo» fra due US, che pyArchInit scrive «Copre», e i gruppi di luogo del sito e dell'area con lo studio, che pyArchInit aggiunge.
 
+### 5.0.1 Esportare il progetto EM per EMStudio, con i suoi file
+
+Dalla **5.13.131-alpha**. L'em.json che pyArchInit scrive in `pyarchinit_EM_folder` porta i percorsi dei file (`proxies/SU002.glb`, `DosCo/D.05 ….pdf`, `../RB/…`), ma non i file: aperto da lì, EMStudio non trova né i proxy né i documenti. La voce di menu **Extended Matrix → Esporta progetto EM per EMStudio…** fa la cartella di un progetto EM completo, con l'albero standard della libreria s3dgraphy — quello in cui EMStudio cerca i file:
+
+```
+<progetto>/
+  EM/            l'em.json
+    DosCo/       i documenti (D.01, D.02.03 …)
+    proxies/     i proxy 3D delle unità (<unità>.glb)
+  RB/            il rilievo (LOD0, LOD1 …, texture, tile)
+  SB/            i modelli ricavati dalle fonti
+  RM/            i modelli di rappresentazione
+```
+
+1. Scegli il **sito**.
+2. Scegli la **cartella del progetto**. Se è vuota, o è già un progetto EM (ha la cartella `EM/`, o è la sua `EM/`), il progetto è lei; altrimenti — la Scrivania, una cartella con altri file — pyArchInit ci crea dentro una cartella nuova col nome del sito (per esempio `Temple/`). La cartella scelta si ricorda per la volta dopo.
+3. pyArchInit esporta il sito come **Esporta sito in em.json…** — nella cartella di lavoro `pyarchinit_EM_folder`, quindi con la narrativa preparata nel pannello (§10.8) — e copia l'em.json in `EM/`. Poi gli copia accanto, al percorso che l'em.json scrive, **ogni file citato che il database conosce**: i media importati con l'em.json (§5.0). Un file citato col solo nome — l'url dei documenti e degli estrattori, che EMStudio prende da `DosCo` — va in `EM/DosCo/`. Se l'originale non si raggiunge (il disco esterno staccato), il file si prende dalla cartella **Image resize** quando lì c'è lo stesso file (i modelli 3D e i PDF, copiati tali e quali); un'immagine no: lì è ridotta in PNG, non è più il file citato. Una barra di avanzamento conta i file.
+4. Il riepilogo dice quanti file sono stati copiati e quanti c'erano già, **quante risorse dell'em.json EMStudio trova dal progetto** — le conta il risolutore della libreria, lo stesso che usa EMStudio —, i file citati che il database non ha, per cartella, da copiare a mano dal progetto originale, e i file copiati il cui **sha256** non è quello scritto nell'em.json. **Mostra dettagli…** li elenca uno per uno. I pulsanti: **Apri in EMStudio** (apre l'em.json del progetto), **Apri la cartella**, **Chiudi**.
+
+Riesportare nella stessa cartella non ricopia quello che c'è già e **non sovrascrive un file del progetto diverso** da quello del database (può essere lavoro fatto in EMStudio): il riepilogo lo dice («lasciati come sono»); per sostituirlo, cancellalo e riesporta. L'em.json di prima, se è diverso, resta accanto come `<sito>.em.json.bak`.
+
+Su TempluMare (il database dell'importazione del §5.0, con il disco esterno staccato): 96 file copiati (238,7 MB: i 65 proxy e 31 documenti, tutti con lo sha256 scritto nell'em.json); EMStudio trova dal progetto 96 delle 536 risorse; restano da copiare a mano i 343 file che il database non ha mai avuto — il rilievo di `RB/` (158) e i modelli di `SB/` (175), che non sono media, compresi i `.blend` — più le 10 foto JPG di `DosCo`, che con il disco attaccato si copiano dagli originali.
+
 La via yEd/GraphML, per spostare le unità fra i gruppi, è quella che segue.
 
 Per modificare il database SQL spostando US tra gruppi nel GraphML:
@@ -176,6 +199,7 @@ Exit codes: 0 = success, 1 = errore di bridge, 2 = errore argparse.
 | `DeprecationWarning` su file 5.5.x | File legacy `ActivityNodeGroup + group_kind` | Il projector promuove in-memory a `LocationNodeGroup`. Ri-esporta per migrare il file su disco. |
 | Le righe della swimlane mostrano un testo lunghissimo | Nelle versioni precedenti come etichetta veniva usata la Descrizione della periodizzazione | Aggiorna il plugin e ri-esporta, e/o compila **Datazione estesa** con un nome breve |
 | Le epoche della swimlane sono in ordine sbagliato (es. Bronzo sopra il Tardoantico) | Le righe sono ordinate per **Cronologia iniziale**; date a.C. inserite come numeri positivi (1650 invece di -1650) vengono ordinate come d.C. | Nella scheda Periodizzazione inserisci gli anni a.C. come numeri negativi e ri-esporta. Il riepilogo dell'export mostra ora un avviso "⚠️ Periodizzazione: ..." con l'elenco dei periodi da correggere |
+| EMStudio apre l'em.json esportato ma non trova i proxy 3D né i documenti | L'em.json di `pyarchinit_EM_folder` porta i percorsi dei file, non i file | Esporta con **Extended Matrix → Esporta progetto EM per EMStudio…** (§5.0.1) e apri l'em.json del progetto |
 
 ---
 
