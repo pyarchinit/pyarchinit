@@ -273,3 +273,40 @@ def test_un_file_nel_bucket_con_la_copia_sul_disco_si_importa(progetto, tmp_path
     collegati = {(r[0], r[1]) for r in _collegati(progetto["db"])}
     assert ("u2", "SU003") in collegati, collegati
     assert esito.missing == [] and esito.references == 1     # resta solo la scheda online
+
+
+# ------------------------------------------------ le fonti della narrativa (5.13.129)
+
+def test_le_fonti_della_narrativa_trovano_il_file_del_documento(progetto):
+    """Il documento dell'em.json, importato con il suo PDF, è una fonte con
+    il file dentro la pagina, l'anteprima e il percorso dell'originale."""
+    from modules.s3dgraphy import em_export
+    from modules.s3dgraphy import em_narrative as en
+    from modules.s3dgraphy import em_narrative_html as nh
+    _importa(progetto)
+    conn = "sqlite:///" + str(progetto["db"])
+    percorso, *_ = em_export.export_site(conn, SITO, str(progetto["tmp"] / "out"), per_saggio=False)
+    grafo = en.load_project(percorso)[0].active()
+    doc = [n for n in grafo.nodes if getattr(n, "node_type", "") == "document"][0]
+    registro = nh.sources_registry(grafo, {doc.node_id: nh.Source(doc.node_id, doc.name, "Relazione")},
+                                   conn, progetto["thumb"], progetto["resize"])
+    voce = registro[doc.node_id]
+    assert voce["title"] == doc.name and voce["description"] == "Relazione"
+    assert voce["kind"] == "PDF" and voce["mime"] == "application/pdf"
+    assert voce["file"]                                       # piccolo: dentro la pagina
+    assert voce["preview"].startswith("data:image/")          # la miniatura dell'importazione
+    assert voce["path"].endswith("D.05 Relazione.pdf") and voce["link"].startswith("file://")
+
+
+def test_un_file_troppo_grande_resta_fuori_dalla_pagina(progetto):
+    from modules.s3dgraphy import em_export
+    from modules.s3dgraphy import em_narrative as en
+    from modules.s3dgraphy import em_narrative_html as nh
+    _importa(progetto)
+    conn = "sqlite:///" + str(progetto["db"])
+    percorso, *_ = em_export.export_site(conn, SITO, str(progetto["tmp"] / "out"), per_saggio=False)
+    grafo = en.load_project(percorso)[0].active()
+    doc = [n for n in grafo.nodes if getattr(n, "node_type", "") == "document"][0]
+    registro = nh.sources_registry(grafo, {doc.node_id: nh.Source(doc.node_id, doc.name)},
+                                   conn, progetto["thumb"], progetto["resize"], max_file=3)
+    assert registro[doc.node_id]["file"] == "" and registro[doc.node_id]["link"]

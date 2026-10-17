@@ -5,6 +5,36 @@
 
 ---
 
+## [feat] - 2026-10-17 — La narrativa esportata con l'indice, i sottotitoli e le fonti di ogni capitolo, che nell'HTML sono hotspot (scheda al passaggio, pannello col file al clic); e la causa vera degli arresti della suite — 5.13.129-alpha
+
+> Branch `Stratigraph_00001`. Suite **2366 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +26 test), due esecuzioni complete senza arresti. / The exported narrative with contents, subheadings and the sources of every chapter, as hotspots in the HTML; and the real cause of the test-suite crashes.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **«nella narrativa andrebbe messo anche un indice»; «le fonti doc pdf media come fonti devono esserci sempre, e visualizzabili come hotspot sia cliccandoci che passandoci con il mouse sopra»** (Enzo, 17 ottobre 2026). Nuovo modulo `modules/s3dgraphy/em_narrative_html.py`, che completa gli export della libreria senza toccarla:
+  - **l'indice**: nell'HTML (`add_index`) dopo il titolo, con i capitoli raggruppati per parte quando i titoli la dicono («Rilievo e analisi — Introduction»), i sottotitoli sotto il loro capitolo e le fonti per ultime; nel PDF (`TableOfContents` di ReportLab, due passate) con i numeri di pagina, e capitoli e sottotitoli diventano segnalibri del PDF; nel Word (`improve_docx`) un campo TOC con i titoli già scritti, che Word aggiorna con i numeri di pagina all'apertura (`updateFields`);
+  - **i sottotitoli e il corsivo**: TempluMare porta nella prosa dodici sottotitoli «### …» e 52 corsivi «*…*»; la libreria faceva il corsivo nell'HTML ma lasciava i «###» ovunque e gli asterischi nel Word e nel PDF. Ora sono titoli di secondo livello e corsivi veri in tutti e tre (nel Word il blocco di prosa, che la libreria scrive in un paragrafo solo con gli a capo, si divide in paragrafi conservando il corsivo delle menzioni);
+  - **le fonti di ogni capitolo** (`chapter_units`, `unit_sources`, `sources_for_chapters`): i documenti dietro le unità di cui il capitolo parla — le menzioni, o gli embed, o le unità dell'attività o dell'epoca a cui è ancorato —, seguendo unità → proprietà → estrattore (o combinatore → estrattori) → documento, più i documenti che il capitolo cita da sé; una riga «Fonti del capitolo» in fondo a ogni capitolo, in HTML, Word e PDF, e l'elenco finale completato;
+  - **gli hotspot** (`sources_registry`, `add_sources`): nell'HTML ogni fonte — nella riga del capitolo, nelle schede «fonte», nelle menzioni dei documenti, nell'elenco finale — mostra al passaggio una scheda con l'anteprima (prima pagina del PDF resa con PyMuPDF, o l'immagine ridotta, o la miniatura dell'importazione), il tipo e la descrizione, e al clic un pannello con il file (il PDF nel lettore del browser, da un Blob URL), «Apri il file», il percorso dell'originale e le letture (unità — proprietà, estrattore); Esc chiude. I file vengono dai media della riga del documento, come nella scheda; entrano nella pagina fino a 2 MB l'uno e 25 MB in tutto, oltre resta il link `file://` all'originale.
+  - Su TempluMare (l'import completo, con i file sostitutivi del progetto di prova): la narrativa del file esce con l'indice, 12 sottotitoli e 6 righe di fonti (24 documenti, 16 con il file dentro la pagina); con i capitoli di pyArchInit 12 righe e 55 documenti. Provato in Chrome: indice, scheda al passaggio, pannello col PDF, Esc, elenco finale con 24 hotspot, nessun errore in console.
+- 🇬🇧 **EN**: new `em_narrative_html` layer over the library exports: contents in HTML (anchors, parts grouped, subheadings), PDF (ReportLab TOC with page numbers and PDF outline) and DOCX (TOC field pre-filled, updated by Word on open); Markdown subheadings and italics rendered in all three; a per-chapter sources line from the paradata chain; in the HTML every source is a hotspot (hover card with preview, click panel with the embedded file via Blob URL, original path and readings). Files come from the document row's media; embedded up to 2 MB each / 25 MB in total.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **gli arresti della suite** nel dock di GeoArchaeo (`test_dock_full_workflow`, segnalati nelle voci 5.13.127 e 5.13.128): il rapporto del crash di macOS mostrava **dieci thread di OpenBLAS** vivi, mentre la suite li vuole a uno (`tests/_qgis_keepalive.py`, dopo i segfault del kriging di GeoArchaeo del 13 ottobre). `tests/sync/conftest.py` importava pandas — e con lui numpy e OpenBLAS — prima del modulo che mette le librerie numeriche a un thread: nella suite completa, che carica quel conftest per primo, OpenBLAS partiva con tutti i thread (confermato con `-X importtime`); `tests/utility` da solo era a un thread, ed è per questo che il test passava sempre da solo. Ora quel conftest importa la fixture in cima: zero thread di OpenBLAS nel processo, due suite complete senza arresti. La raccolta forzata della spazzatura e lldb avevano solo spostato i tempi.
+- 🇬🇧 **EN**: the intermittent suite crash came from multi-threaded OpenBLAS: `tests/sync/conftest.py` imported pandas (numpy) before the keepalive module set the BLAS thread count to one, so full-suite runs had ten OpenBLAS threads; the import order is fixed.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `tests/utility/test_em_narrative_html.py` (17: indice, parti, sottotitoli, fonti dei capitoli, hotspot, sezione delle fonti creata o completata, colonna della mappa, idempotenza, esportazione completa), `test_em_narrative_pdf_indice.py` (3: segnalibri e indice, sottotitoli e corsivo, fonti dei capitoli), `test_em_narrative_docx_indice.py` (4: Heading 2, corsivo, campo TOC con `updateFields`, fonti dei capitoli), `tests/sync/test_em_media_import.py` (+2: il registro trova il PDF del documento importato, e lo lascia fuori quando è troppo grande). Tutti visti rossi prima.
+- 🇬🇧 **EN**: 26 new tests; two clean full-suite runs.
+
+#### Notes / Note
+- 🇮🇹 **IT**: da segnalare per TempluMare (contenuto del file, non di pyArchInit): un sottotitolo porta ancora il LaTeX «\textit{Forum Novum…»; la riga dei responsabili ripete l'autore («Emanuel Demetrescu, Demetrescu, Emanuel Demetrescu», dagli autori del grafo).
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §10.7 (indice, sottotitoli, fonti dei capitoli e hotspot, limiti dei file nella pagina), dieci lingue. `metadata.txt` 5.13.129-alpha.
+- 🇬🇧 **EN**: tutorial 36 §10.7 in ten languages.
+
+---
+
 ## [fix] - 2026-10-17 — La narrativa che il file porta di suo: i capitoli di pyArchInit solo se li chiedi, la Presentazione giusta, la lingua scelta nel pannello, e la riesportazione che non cancella più i capitoli scritti — 5.13.128-alpha
 
 > Branch `Stratigraph_00001`. Suite **2340 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +24 test). / The narrative a file brings of its own: pyArchInit's chapters only on request, the right Presentation, the language chosen in the panel, and exporting the site again no longer wipes the chapters written.

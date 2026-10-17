@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `narrativa-del-file-5.13.128-alpha` (2026-10-17).
+Tag corrente: `narrativa-indice-fonti-5.13.129-alpha` (2026-10-17).
 
 ---
 
@@ -617,9 +617,12 @@ Clicca **Esporta…**: si apre la finestra di salvataggio con tre formati: «Pag
 Il documento contiene:
 
 - il titolo della narrativa (ad esempio «Scavo archeologico — la storia del sito»), i responsabili («a cura di») e il modello come assistente («con l'assistenza di»);
+- **l'indice** (dalla 5.13.129-alpha), dopo il titolo: i capitoli — raggruppati per parte quando i titoli la dicono, come «Rilievo e analisi — Introduction» —, sotto ciascuno i suoi sottotitoli, e per ultime le Fonti. Nell'HTML ogni voce porta al capitolo; nel PDF l'indice ha i numeri di pagina e i capitoli sono anche segnalibri del PDF; nel Word è un indice vero (un campo), con i titoli già scritti, che Word aggiorna con i numeri di pagina all'apertura del file (rispondi «Sì» quando chiede di aggiornare i campi; in LibreOffice: tasto destro sull'indice → Aggiorna);
 - per ogni capitolo la prosa in testa, con le unità citate col loro nome, poi l'elenco delle unità del capitolo; per le unità citate che hanno foto, al posto della loro riga c'è una striscia di foto (§10.11);
+- i **sottotitoli** scritti nella prosa con «### » (TempluMare ne porta dodici, da «Past researches» in poi) diventano titoli, nell'HTML, nel Word e nel PDF, e il corsivo scritto «\*…\*» è corsivo anche nel Word e nel PDF (dalla 5.13.129-alpha; prima si stampavano i segni);
+- in fondo a ogni capitolo la riga **Fonti del capitolo** (dalla 5.13.129-alpha): i documenti su cui poggiano le unità di cui il capitolo parla — si seguono i paradati: unità → proprietà → estrattore (o combinatore) → documento — e quelli che il capitolo cita da sé. Nell'HTML ogni fonte è un **hotspot**: passandoci sopra col mouse compare una scheda con l'anteprima (la prima pagina del PDF o l'immagine), il tipo e la descrizione; cliccandoci si apre a destra un pannello con il file — il PDF si legge lì, l'immagine si vede intera —, il link «Apri il file», il percorso dell'originale e le **letture** che ne vengono (unità — proprietà, con l'estrattore). Esc o la × chiudono il pannello. Il file entra nella pagina se pesa fino a 2 MB (25 MB in tutto); oltre, scheda e pannello mostrano l'anteprima e il link all'originale, che si apre sul computer che ha esportato la pagina. I file si trovano come quelli della scheda: i media della riga del documento, l'originale o la sua copia nella cartella delle ridotte; senza database collegato le fonti hanno titolo, descrizione e letture ma non i file. Nel Word e nel PDF la riga elenca le fonti con la loro descrizione;
 - **la mappa del sito** (dalla 5.13.115-alpha, solo nell'HTML), in un riquadro fisso: a destra sugli schermi larghi, in cima sul telefono. Con la mappa la pagina si allarga (dalla 5.13.116-alpha) e il testo tiene una colonna leggibile. Da ferma mostra tutte le unità del grafo in grigio chiaro; cliccando il nome di un'unità nel testo mostra **solo le unità del periodo di quel capitolo** come contorni con il numero sopra, la cliccata **colorata**, e inquadra il gruppo; cliccando il titolo di un capitolo lo stesso, senza l'unità colorata. La riga sotto la mappa dice il periodo e quante unità; «tutto il sito» torna alla vista intera. Le geometrie vengono dalle viste US e USM del database del progetto al momento dell'export (sito del grafo, unità legate per area e numero): un'unità citata ma senza disegno ha il link e niente sulla mappa; senza database collegato il documento non ha la mappa;
-- in fondo la sezione **Fonti**: i documenti su cui si appoggia il racconto e la voce «Prompt», che richiama il prompt registrato nel file.
+- in fondo la sezione **Fonti**: i documenti su cui si appoggia il racconto e la voce «Prompt», che richiama il prompt registrato nel file. Dalla 5.13.129-alpha l'elenco ha anche le fonti dei capitoli, ciascuna con la sua descrizione, e nell'HTML sono hotspot come quelle dei capitoli; lo sono anche le schede «fonte» dentro i capitoli e i documenti citati nel testo.
 
 Alcune cose da sapere:
 
@@ -627,7 +630,7 @@ Alcune cose da sapere:
 - entrano **tutti i capitoli**, anche quelli ancora «da scrivere»: il loro segnaposto «[da scrivere: …]» resta nel testo;
 - la prosa sta **in testa** al capitolo, prima dell'elenco delle unità; in una narrativa scritta con una versione precedente può stare ancora in fondo, e si mette a posto riesportando il sito (§10.8) o con **Prepara i capitoli**;
 - le figure che un autore ha previsto in EMStudio (ad esempio la matrice di un'epoca) non vengono disegnate dall'esportazione di pyArchInit: nel documento resta un segnaposto;
-- l'HTML è un file solo e autosufficiente (anche le foto sono incorporate, e la mappa è un SVG dentro il file, senza librerie esterne: si apre anche sul telefono senza rete); il DOCX si apre con Word o LibreOffice e richiede il pacchetto `python-docx`, e il PDF la libreria ReportLab (§10.11): sono entrambi fra i requisiti del plugin.
+- l'HTML è un file solo e autosufficiente (anche le foto sono incorporate, e la mappa è un SVG dentro il file, senza librerie esterne: si apre anche sul telefono senza rete); il DOCX si apre con Word o LibreOffice e richiede il pacchetto `python-docx`, e il PDF la libreria ReportLab (§10.11): sono entrambi fra i requisiti del plugin.; dalla 5.13.129-alpha porta dentro di sé anche i file delle fonti, fino a 2 MB l'uno e 25 MB in tutto: con molti PDF la pagina pesa di più;
 
 <!-- IMMAGINE: Screenshot del documento HTML esportato: un capitolo con una bozza preceduta da «⚠︎ non validato da una persona» -->
 ![Documento HTML esportato](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

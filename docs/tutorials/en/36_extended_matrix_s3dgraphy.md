@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `narrativa-del-file-5.13.128-alpha` (2026-10-17).
+Current tag: `narrativa-indice-fonti-5.13.129-alpha` (2026-10-17).
 
 ---
 
@@ -617,9 +617,12 @@ Click **Export…**: the save window opens with three formats: "HTML page" (`.ht
 The document contains:
 
 - the title of the narrative (for example "Scavo archeologico — the story of the site"), those responsible ("a cura di") and the model as assistant ("con l'assistenza di");
+- **the contents** (since 5.13.129-alpha), after the title: the chapters — grouped by part when the titles say so, as in "Rilievo e analisi — Introduction" —, under each its subheadings, and the Sources last. In the HTML every entry leads to its chapter; in the PDF the contents have page numbers and the chapters are also PDF bookmarks; in Word it is a real table of contents (a field), with the titles already written, which Word updates with page numbers when the file opens (answer "Yes" when it asks to update the fields; in LibreOffice: right-click the contents → Update);
 - for each chapter the prose first, with the units quoted by their name, then the list of the units of the chapter; for quoted units that have photos, a strip of photos stands in place of their line (§10.11);
+- the **subheadings** written in the prose with "### " (TempluMare has twelve, from "Past researches" on) become headings, in the HTML, in Word and in the PDF, and italics written "\*…\*" are italics in Word and in the PDF too (since 5.13.129-alpha; before, the marks were printed);
+- at the end of each chapter the **Chapter sources** line (since 5.13.129-alpha): the documents the units the chapter talks about rest on — following the paradata: unit → property → extractor (or combiner) → document — and those the chapter cites itself. In the HTML every source is a **hotspot**: hovering it shows a card with the preview (the first page of the PDF or the picture), the type and the description; clicking it opens a panel on the right with the file — the PDF can be read there, the picture is shown whole —, the "Open the file" link, the path of the original and the **readings** that come from it (unit — property, with the extractor). Esc or the × close the panel. The file goes into the page if it weighs up to 2 MB (25 MB in all); beyond that, card and panel show the preview and the link to the original, which opens on the computer that exported the page. The files are found the way the record finds them: the media of the document's row, the original or its copy in the resized folder; with no database connected the sources have title, description and readings but not the files. In Word and in the PDF the line lists the sources with their description;
 - **the map of the site** (since 5.13.115-alpha, in the HTML only), in a fixed box: on the right on wide screens, at the top on a phone. With the map the page gets wider (since 5.13.116-alpha) and the text keeps a readable column. At rest it shows all the units of the graph in light grey; clicking the name of a unit in the text shows **only the units of that chapter's period** as outlines with the number on top, the clicked one **coloured**, and frames the group; clicking a chapter title does the same, without the coloured unit. The line under the map gives the period and how many units; "whole site" returns to the full view. The geometries come from the US and USM views of the project database at the moment of the export (the graph's site, units matched by area and number): a quoted unit with no drawing has the link and nothing on the map; with no database connected the document has no map;
-- at the end the **Fonti** (sources) section: the documents the story rests on and the "Prompt" entry, which points to the prompt recorded in the file.
+- at the end the **Fonti** (sources) section: the documents the story rests on and the "Prompt" entry, which points to the prompt recorded in the file. Since 5.13.129-alpha the list also has the chapters' sources, each with its description, and in the HTML they are hotspots like those of the chapters; so are the "fonte" cards inside the chapters and the documents cited in the text.
 
 Things worth knowing:
 
@@ -627,7 +630,7 @@ Things worth knowing:
 - **all chapters go in**, even those still "to be written": their "[to be written: …]" placeholder stays in the text;
 - the prose sits **at the head** of the chapter, before the list of the units; in a narrative written with an earlier version it may still be at the bottom, and it is put right by exporting the site again (§10.8) or with **Prepare the chapters**;
 - figures an author planned in EMStudio (for example the matrix of an epoch) are not drawn by pyArchInit's export: a placeholder stays in the document;
-- the HTML is a single, self-contained file (the photos are embedded too, and the map is an SVG inside the file, with no external libraries: it also opens on a phone with no network); the DOCX opens with Word or LibreOffice and needs the `python-docx` package, and the PDF the ReportLab library (§10.11): both are among the plugin's requirements.
+- the HTML is a single, self-contained file (the photos are embedded too, and the map is an SVG inside the file, with no external libraries: it also opens on a phone with no network); the DOCX opens with Word or LibreOffice and needs the `python-docx` package, and the PDF the ReportLab library (§10.11): both are among the plugin's requirements.; since 5.13.129-alpha it also carries the files of the sources, up to 2 MB each and 25 MB in all: with many PDFs the page weighs more;
 
 <!-- IMMAGINE: Screenshot of the exported HTML document: a chapter with a draft preceded by "⚠︎ non validato da una persona" -->
 ![Exported HTML document](images/36_extended_matrix_s3dgraphy/07_documento_html.png)

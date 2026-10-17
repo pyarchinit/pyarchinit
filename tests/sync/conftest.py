@@ -20,6 +20,14 @@ and would `ImportError` on this dev machine). Same trick used in
 """
 from __future__ import annotations
 
+# PRIMA di pandas (che carica numpy e il suo OpenBLAS): `_qgis_keepalive`
+# mette le librerie numeriche a un thread, e OpenBLAS legge la variabile
+# solo quando si carica. Importato dopo, come fino al 17 ottobre 2026, la
+# suite completa (che carica questo conftest per primo) girava con dieci
+# thread di OpenBLAS, e il dock di GeoArchaeo crollava a tratti
+# (`test_dock_full_workflow`); da solo, `tests/utility` era a un thread.
+from tests._qgis_keepalive import qgis_application_keepalive  # noqa: F401,E402
+
 # Pin system pandas + lxml BEFORE the ext_libs prepend below — see module docstring.
 import pandas  # noqa: F401
 from lxml import etree as _etree  # noqa: F401
@@ -77,5 +85,5 @@ def overrides_dir(tmp_path: Path) -> Path:
     out.mkdir()
     return out
 
-# Una sola applicazione QGIS per tutta la sessione (vedi tests/_qgis_keepalive.py).
-from tests._qgis_keepalive import qgis_application_keepalive  # noqa: F401,E402
+# Una sola applicazione QGIS per tutta la sessione: la fixture è importata in
+# cima (vedi sopra e tests/_qgis_keepalive.py).
