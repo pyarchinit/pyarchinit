@@ -308,7 +308,7 @@ def translated(geom, du: float):
 
 # ------------------------------------------------- i nomi e le coppie della scheda
 
-_DERIVED = re.compile(r"^3D-(PLA|PRO-.+)$")
+_DERIVED = re.compile(r"^3D-(PLA|PRO-.+|SEZ-.+)$")
 _UNSAFE = re.compile(r"[^0-9A-Za-z._-]+")
 
 
@@ -391,3 +391,83 @@ def merge_derived_pairs(new_value, old_value):
     if nuove is None:
         return new_value
     return str([p for p in nuove if not _is_derived_pair(p)] + ricavate)
+
+
+# ------------------------------------------------------------------ le sezioni
+
+def _section_segments(tri_map: np.ndarray, a, b):
+    """I segmenti dove i triangoli attraversano il piano verticale per a→b, in
+    coordinate del disegno (u lungo il tratto da a, v quota); e la lunghezza."""
+    t = np.asarray(tri_map, dtype=np.float64)
+    ax, ay = float(a[0]), float(a[1])
+    lung = math.hypot(float(b[0]) - ax, float(b[1]) - ay)
+    if lung <= 1e-9 or not t.size:
+        return np.zeros((0, 2, 2)), lung
+    rx, ry = (float(b[0]) - ax) / lung, (float(b[1]) - ay) / lung
+    dx, dy = -ry, rx
+    s = (t[..., 0] - ax) * dx + (t[..., 1] - ay) * dy
+    s = np.where(np.abs(s) < 1e-9, 1e-9, s)            # un vertice sul piano conta da una parte
+    sopra = s > 0
+    attraversa = sopra.any(axis=1) & (~sopra).any(axis=1)
+    t, s, sopra = t[attraversa], s[attraversa], sopra[attraversa]
+    if not len(t):
+        return np.zeros((0, 2, 2)), lung
+    seg = np.zeros((len(t), 2, 3))
+    quanti = np.zeros(len(t), dtype=int)
+    for i, j in ((0, 1), (1, 2), (2, 0)):
+        taglia = sopra[:, i] != sopra[:, j]
+        f = s[:, i] / (s[:, i] - s[:, j])
+        punto = t[:, i] + (t[:, j] - t[:, i]) * f[:, None]
+        k = np.nonzero(taglia)[0]
+        seg[k, quanti[k]] = punto[k]
+        quanti[k] += 1
+    u = (seg[..., 0] - ax) * rx + (seg[..., 1] - ay) * ry
+    return np.stack([u, seg[..., 2]], axis=-1), lung
+
+
+def section_geometry(tri_map: np.ndarray, a, b):
+    """Il profilo tagliato dal piano verticale del tratto a→b, fra u = 0 e
+    u = |ab|: MultiPolygon o None. Le facce sono riempite pari/dispari, così il
+    buco di un anello non si riempie."""
+    from qgis.core import QgsGeometry, QgsRectangle
+    seg, lung = _section_segments(tri_map, a, b)
+    if not len(seg):
+        return None
+    seg = seg[np.hypot(seg[:, 1, 0] - seg[:, 0, 0], seg[:, 1, 1] - seg[:, 0, 1]) > 1e-9]
+    if not len(seg):
+        return None
+    wkt = "MULTILINESTRING(" + ",".join(
+        "(%r %r,%r %r)" % (x0, y0, x1, y1) for (x0, y0), (x1, y1) in seg.tolist()) + ")"
+    facce = _polygons(QgsGeometry.polygonize([QgsGeometry.unaryUnion([QgsGeometry.fromWkt(wkt)])]))
+    if not facce:
+        return None
+    esterni = [QgsGeometry.fromPolygonXY([f.asPolygon()[0]]) for f in facce]
+    piene = [f for i, f in enumerate(facce)
+             if sum(1 for j, e in enumerate(esterni) if j != i and e.contains(f.pointOnSurface())) % 2 == 0]
+    if not piene:
+        return None
+    vmin, vmax = float(seg[..., 1].min()) - 1.0, float(seg[..., 1].max()) + 1.0
+    tratto = QgsGeometry.fromRect(QgsRectangle(0.0, vmin, lung, vmax))
+    return _clean(QgsGeometry.collectGeometry(piene).intersection(tratto))
+
+
+def line_length(points) -> float:
+    return float(sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:])))
+
+
+def section_line_geometry(tri_map: np.ndarray, points):
+    """Il profilo lungo una linea spezzata: ogni tratto si taglia da sé, e u
+    continua da un tratto all'altro."""
+    from qgis.core import QgsGeometry
+    parti, u0 = [], 0.0
+    for a, b in zip(points, points[1:]):
+        lung = math.hypot(b[0] - a[0], b[1] - a[1])
+        if lung <= 1e-9:
+            continue
+        g = section_geometry(tri_map, a, b)
+        if g is not None:
+            parti.append(translated(g, u0))
+        u0 += lung
+    if not parti:
+        return None
+    return _clean(QgsGeometry.unaryUnion(parti))
