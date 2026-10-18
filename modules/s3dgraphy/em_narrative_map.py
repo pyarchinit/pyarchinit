@@ -258,6 +258,7 @@ def drawings_from_db(conn_str: str, site: Optional[str], meta: Dict[str, Dict[st
     dell'etichetta sul disegno più grande di ogni unità."""
     from qgis.core import QgsWkbTypes
     from ..utility.view_layers import load_view_layer
+    from .em_drawings import is_derived_name
     from ..utility.view_styles import view_by_name
     out: List[Drawing] = []
     if not meta:
@@ -267,7 +268,10 @@ def drawings_from_db(conn_str: str, site: Optional[str], meta: Dict[str, Dict[st
         indice: Dict[Tuple[str, str], List[str]] = {}
         for uid, m in meta.items():
             tipo = str(m.get("unita_tipo") or "").upper()
-            if tipo.startswith("USM") != e_usm:
+            # Le piante di tutte le unità stanno nel layer delle piante (anche
+            # quelle delle murarie ricavate dal 3D); dalla vista USM, che è dei
+            # disegni verticali, solo le murarie, come prima (18 ottobre 2026).
+            if e_usm and not tipo.startswith("USM"):
                 continue
             indice.setdefault((str(m.get("area") or "").strip(), str(m.get("number") or "").strip()), []).append(uid)
         if not indice:
@@ -281,10 +285,15 @@ def drawings_from_db(conn_str: str, site: Optional[str], meta: Dict[str, Dict[st
         cu = "us_s" if "us_s" in campi else ("us" if "us" in campi else None)
         if cu is None:
             continue
+        cn = "nome_doc" if "nome_doc" in campi else None
         ext = layer.extent()
         tol = max(ext.width(), ext.height()) * simplify_fraction if not ext.isEmpty() else 0.0
         per_unita: Dict[str, List[Tuple[float, Drawing]]] = {}
         for f in layer.getFeatures():
+            # I prospetti ricavati dal 3D sono in coordinate del disegno
+            # (X lungo la vista, Y quota): sulla mappa non vanno mai.
+            if e_usm and cn and is_derived_name(f[cn]):
+                continue
             chiave = ((str(f[ca]).strip() if ca and f[ca] is not None else ""), str(f[cu]).strip() if f[cu] is not None else "")
             ids = indice.get(chiave)
             if not ids and chiave[0]:
