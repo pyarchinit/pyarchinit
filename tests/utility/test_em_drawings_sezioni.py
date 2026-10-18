@@ -60,9 +60,51 @@ def test_un_modello_aperto_o_lontano_non_da_profilo():
     assert drw.section_geometry(SCATOLA, (-1.0, 50.0), (5.0, 50.0)) is None
 
 
+def _scatola_a_griglia(x0, y0, z0, dx, dy, dz, n=8):
+    """La scatola con ogni faccia divisa in n × n quadrati: i vertici della
+    griglia stanno su piani come x = x0 + dx/2."""
+    def faccia(o, a, b):
+        o, a, b = (np.asarray(v, dtype=float) for v in (o, a, b))
+        tri = []
+        for i in range(n):
+            for j in range(n):
+                p00 = o + a * i / n + b * j / n
+                p10 = o + a * (i + 1) / n + b * j / n
+                p01 = o + a * i / n + b * (j + 1) / n
+                p11 = o + a * (i + 1) / n + b * (j + 1) / n
+                tri += [(p00, p10, p11), (p00, p11, p01)]
+        return tri
+    X, Y, Z = (dx, 0, 0), (0, dy, 0), (0, 0, dz)
+    o = (x0, y0, z0)
+    alto = (x0, y0, z0 + dz)
+    fondo = (x0, y0 + dy, z0)
+    destra = (x0 + dx, y0, z0)
+    tri = (faccia(o, Y, X) + faccia(alto, X, Y) + faccia(o, X, Z) + faccia(fondo, Z, X)
+           + faccia(o, Z, Y) + faccia(destra, Y, Z))
+    return np.array(tri)
+
+
 def test_un_vertice_sul_piano_non_rompe_il_taglio():
-    g = drw.section_geometry(SCATOLA, (-1.0, 0.0), (5.0, 2.0))         # passa per gli spigoli
-    assert g is None or g.isGeosValid()
+    """Revisione finale: un piano che passa per i vertici della mesh (linee
+    dritte su modelli in coordinate locali) lasciava buchi di 1e-9 nel contorno
+    e l'unità spariva dalla sezione."""
+    griglia = _scatola_a_griglia(0.0, 0.0, 10.0, 4.0, 2.0, 3.0)
+    g = drw.section_geometry(griglia, (2.0, -1.0), (2.0, 3.0))          # x = 2: vertici sul piano
+    assert g is not None and g.isGeosValid()
+    assert g.area() == pytest.approx(6.0, abs=1e-6)
+    g = drw.section_geometry(griglia, (-1.0, 1.0), (5.0, 1.0))          # y = 1: anche
+    assert g is not None and g.area() == pytest.approx(12.0, abs=1e-6)
+    g = drw.section_geometry(SCATOLA, (-1.0, 0.0), (5.0, 2.0))          # per due spigoli della scatola
+    assert g is not None and g.isGeosValid() and g.area() > 0
+
+
+def test_un_modello_aperto_si_riconosce():
+    """Il piano attraversa il modello ma il profilo non si chiude: si dice
+    perché, invece di contarla come una linea che non incontra niente."""
+    aperto = SCATOLA[2:]                                             # senza la faccia di sotto
+    assert drw.section_line_geometry(aperto, [(-1.0, 1.0), (5.0, 1.0)]) is None
+    assert drw.section_crosses(aperto, [(-1.0, 1.0), (5.0, 1.0)])
+    assert not drw.section_crosses(SCATOLA, [(-1.0, 9.0), (5.0, 9.0)])
 
 
 def test_le_sezioni_sono_nomi_ricavati():

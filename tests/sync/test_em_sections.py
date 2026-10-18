@@ -148,3 +148,62 @@ def test_senza_em_json_o_senza_linee_si_dice(tmp_path):
     remember_source(p["db"], SITO, str(p["em"]))
     with pytest.raises(es.SectionsError, match="nessuna linea"):
         es.run_sections(p["eng"], SITO, gids=[])
+
+
+# ------------------------------------------- revisione finale (18 ottobre 2026)
+
+def test_una_linea_che_cambia_nome_non_lascia_la_vecchia_sezione(sezioni):
+    """Una seconda linea con lo stesso id rinomina la prima (-<gid>): la
+    sezione di prima, col vecchio nome, non deve restare orfana."""
+    g1 = _linea(sezioni)
+    _taglia(sezioni, [g1])
+    g2 = _linea(sezioni, wkt="LINESTRING(327298 448379.8, 327306 448379.8)")
+    esito = _taglia(sezioni, [g1, g2])
+    nomi = {r[0] for r in _righe(sezioni, "SELECT nome_doc FROM pyunitastratigrafiche_usm "
+                                          "WHERE nome_doc LIKE '3D-SEZ-%'")}
+    assert nomi == {"3D-SEZ-A1-%d" % g1, "3D-SEZ-A1-%d" % g2}
+    assert _righe(sezioni, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-SEZ-A1'")[0][0] == 0
+    doc = ast.literal_eval(_righe(sezioni, "SELECT documentazione FROM us_table WHERE sito = ? AND us = '001'",
+                                  SITO)[0][0])
+    assert ["Sezione", "3D-SEZ-A1"] not in doc
+    assert _righe(sezioni, "SELECT nome_doc FROM pyarchinit_sezioni WHERE gid = ?", g1) == [("3D-SEZ-A1-%d" % g1,)]
+    assert esito.other_doc == []
+
+
+def test_una_linea_spostata_fuori_toglie_la_sezione_di_prima(sezioni):
+    gid = _linea(sezioni)
+    _taglia(sezioni, [gid])
+    con = _con(sezioni["db"])
+    con.execute("UPDATE pyarchinit_sezioni SET the_geom = GeomFromText('LINESTRING(327298 448300, 327306 448300)', "
+                "-1) WHERE gid = ?", (gid,))
+    con.commit()
+    con.close()
+    esito = _taglia(sezioni, [gid])
+    assert esito.empty == ["3D-SEZ-A1"]
+    assert _righe(sezioni, "SELECT count(*) FROM pyunitastratigrafiche_usm WHERE nome_doc = '3D-SEZ-A1'")[0][0] == 0
+    assert _righe(sezioni, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-SEZ-A1'")[0][0] == 0
+    assert _righe(sezioni, "SELECT COALESCE(tipo_doc, ''), COALESCE(nome_doc, '') FROM pyarchinit_sezioni "
+                           "WHERE gid = ?", gid) == [("", "")]
+
+
+def test_le_unita_saltate_dicono_perche(sezioni):
+    esito = _taglia(sezioni, [_linea(sezioni)])
+    assert esito.skipped.get("USV103") == "file non trovato"
+    assert "USV103: file non trovato" in esito.summary()
+
+
+def test_un_modello_aperto_si_dice(tmp_path):
+    from modules.s3dgraphy.sync.em_sources import remember_source
+    p = make_project(tmp_path, muro_ns=True)                 # SU001: un muro senza spessore
+    remember_source(p["db"], SITO, str(p["em"]))
+    p["cartella"] = str(p["radice"] / "EM")
+    esito = _taglia(p, [_linea(p)])
+    assert esito.skipped.get("SU001") == "la sezione non si chiude (modello aperto)"
+
+
+def test_senza_nessun_proxy_si_dice(sezioni):
+    from modules.s3dgraphy.sync import em_sections as es
+    for f in (sezioni["radice"] / "EM" / "proxies").iterdir():
+        f.unlink()
+    with pytest.raises(es.SectionsError, match="media"):
+        _taglia(sezioni, [_linea(sezioni)])

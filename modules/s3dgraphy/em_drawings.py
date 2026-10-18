@@ -406,10 +406,14 @@ def _section_segments(tri_map: np.ndarray, a, b):
     rx, ry = (float(b[0]) - ax) / lung, (float(b[1]) - ay) / lung
     dx, dy = -ry, rx
     s = (t[..., 0] - ax) * dx + (t[..., 1] - ay) * dy
-    s = np.where(np.abs(s) < 1e-9, 1e-9, s)            # un vertice sul piano conta da una parte
+    # Un vertice sul piano conta da una parte, e il punto del taglio è il
+    # vertice stesso: uguale al bit in tutti i triangoli che lo toccano, senza
+    # i segmentini di 1e-9 che lasciavano il contorno aperto.
+    sul_piano = np.abs(s) < 1e-9
+    s = np.where(sul_piano, 1e-9, s)
     sopra = s > 0
     attraversa = sopra.any(axis=1) & (~sopra).any(axis=1)
-    t, s, sopra = t[attraversa], s[attraversa], sopra[attraversa]
+    t, s, sopra, sul_piano = t[attraversa], s[attraversa], sopra[attraversa], sul_piano[attraversa]
     if not len(t):
         return np.zeros((0, 2, 2)), lung
     seg = np.zeros((len(t), 2, 3))
@@ -427,9 +431,12 @@ def _section_segments(tri_map: np.ndarray, a, b):
         pb = np.where(scambia[:, None], pi, pj)
         sa = np.where(scambia, sj, si)
         sb = np.where(scambia, si, sj)
+        oa = np.where(scambia, sul_piano[:, j], sul_piano[:, i])
+        ob = np.where(scambia, sul_piano[:, i], sul_piano[:, j])
         with np.errstate(divide="ignore", invalid="ignore"):
             f = sa / (sa - sb)
             punto = pa + (pb - pa) * f[:, None]
+        punto = np.where(oa[:, None], pa, np.where(ob[:, None], pb, punto))
         k = np.nonzero(taglia)[0]
         seg[k, quanti[k]] = punto[k]
         quanti[k] += 1
@@ -447,7 +454,7 @@ def section_geometry(tri_map: np.ndarray, a, b):
     seg, lung = _section_segments(tri_map, a, b)
     if not len(seg):
         return None
-    seg = seg[np.hypot(seg[:, 1, 0] - seg[:, 0, 0], seg[:, 1, 1] - seg[:, 0, 1]) > 1e-9]
+    seg = seg[(seg[:, 0] != seg[:, 1]).any(axis=1)]          # via solo i segmenti di un punto
     if not len(seg):
         return None
     wkt = "MULTILINESTRING(" + ",".join(
@@ -462,6 +469,19 @@ def section_geometry(tri_map: np.ndarray, a, b):
 
 def line_length(points) -> float:
     return float(sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:])))
+
+
+def section_crosses(tri_map: np.ndarray, points) -> bool:
+    """True se il piano di almeno un tratto attraversa il modello: con un
+    profilo che non viene, vuol dire che il modello è aperto."""
+    for a, b in zip(points, points[1:]):
+        seg, lung = _section_segments(tri_map, a, b)
+        if not len(seg):
+            continue
+        u = seg[..., 0]
+        if ((u.max(axis=1) > 0.0) & (u.min(axis=1) < lung)).any():
+            return True
+    return False
 
 
 def section_line_geometry(tri_map: np.ndarray, points):

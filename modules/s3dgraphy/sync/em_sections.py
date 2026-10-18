@@ -22,10 +22,17 @@ import numpy as np
 from .. import em_drawings as drw
 from .. import glb_mesh as gm
 from .em_drawings_import import (VERTICAL_LAYER, CrsDecision, Drawing, DrawingUnit, WriteResult,
-                                 _engine, doc_type, layer_srid, plan_units, schede_of,
+                                 _engine, doc_type, layer_srid, plan_units, schede_of, status_text,
                                  unfilter_usm_view, write_drawings)
 
 LINE_LAYER = "pyarchinit_sezioni"
+OPEN_MODEL = "la sezione non si chiude (modello aperto)"
+NO_PROXY = ("Nessuna unità del sito «%s» ha un modello 3D che si trovi: importa l'em.json con i media "
+            "(«Extended Matrix → Importa em.json…»), o tieni collegato il disco dei proxy.")
+
+
+def _is_section_name(nome) -> bool:
+    return str(nome or "").startswith("3D-SEZ-") and drw.is_derived_name(nome)
 
 
 class SectionsError(Exception):
@@ -266,6 +273,8 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
     nota = _NOTE.get((lang or "it")[:2].lower(), _NOTE["en"])
     unita = section_units(graph, db, sito, search_dirs=search_dirs, resize_base=resize_base)
     usabili = [u for u in unita if u.usable]
+    if not usabili:
+        raise SectionsError(NO_PROXY % sito)
     schede = schede_of(db, sito, [u.key for u in usabili], graph=graph)
     nomi = section_names(linee)
     punti, grezze = _lines_in(scelte, srid_linee, int(georef.epsg))
@@ -273,6 +282,10 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
     tipo = doc_type(db, "SEZ", "Sezione")
     sorgente = _source_name(db, sito)
     esito = SectionsResult(raw_lines=grezze, epsg=georef.epsg)
+    for u in unita:
+        if not u.usable and u.status != "heir":
+            esito.skipped[u.name] = status_text(u)
+    nome_di = {u.key: u.name for u in usabili}
     totale = len(usabili) + len(scelte) * max(len(usabili), 1)
     passi = [0]
 
@@ -306,6 +319,8 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
             g = drw.section_line_geometry(t, pts)
             if g is not None:
                 figure.append((k, g))
+            elif drw.section_crosses(t, pts):
+                esito.skipped[nome_di.get(k, k)] = OPEN_MODEL
         if not figure:
             esito.empty.append(nome)
             continue
@@ -315,10 +330,19 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
         esito.cut[nome] = len(figure)
     if progress:
         progress(totale, totale, "")
-    if not disegni:
+    # Si rifanno tutte le linee scelte, anche quelle che ora non incontrano
+    # niente (la sezione di prima se ne va), e i nomi ricavati che le linee
+    # avevano prima, se nel frattempo il nome è cambiato (un id doppio, un id
+    # corretto): la sezione col vecchio nome resterebbe orfana. Senza nessun
+    # modello che si legga non si tocca niente.
+    ambito: Set[str] = set()
+    if mesh:
+        attuali = set(nomi.values())
+        ambito = {nomi[l.gid] for l in scelte}
+        ambito |= {l.nome_doc for l in scelte if _is_section_name(l.nome_doc) and l.nome_doc not in attuali}
+    if not ambito:
         return esito
     # a sinistra di u = 0 e di tutto quello che resta nel sito
-    ambito = {d.nome for d in disegni}
     minimo = _min_u_kept(db, sito, ambito)
     cursore = min(0.0, minimo if minimo is not None else 0.0) - drw.GAP
     for d in disegni:
@@ -330,17 +354,24 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
     esito.written = write_drawings(db, sito, disegni, schede, CrsDecision("ok", usm_srid=usm_srid),
                                    source_name=sorgente, rilievi=rilievi, scope=ambito)
     esito.sections = esito.written.unit_views
-    # la linea si lega al suo documento, se non ne ha già uno
+    # La linea si lega al suo documento, se non ne ha già uno o se ha quello
+    # di una sezione ricavata di prima; perde quello ricavato se non ne ha più.
     with _engine(db).begin() as conn:
         for linea in scelte:
             nome = nomi[linea.gid]
+            nostra = (not linea.tipo_doc and not linea.nome_doc) or _is_section_name(linea.nome_doc)
             if nome not in esito.cut:
+                if nostra and linea.nome_doc and linea.nome_doc in ambito:
+                    conn.execute(text("UPDATE %s SET tipo_doc = NULL, nome_doc = NULL WHERE gid = :g"
+                                      % LINE_LAYER), {"g": linea.gid})
                 continue
-            if not linea.tipo_doc and not linea.nome_doc:
+            if (linea.tipo_doc, linea.nome_doc) == (tipo, nome):
+                continue
+            if nostra:
                 conn.execute(text("UPDATE %s SET tipo_doc = :t, nome_doc = :n WHERE gid = :g" % LINE_LAYER),
                              {"t": tipo, "n": nome, "g": linea.gid})
                 esito.linked += 1
-            elif (linea.tipo_doc, linea.nome_doc) != (tipo, nome):
+            else:
                 esito.other_doc.append("%s (%s %s)" % (linea.id_sezione or linea.gid,
                                                        linea.tipo_doc, linea.nome_doc))
     esito.written.view_fixed = unfilter_usm_view(db)

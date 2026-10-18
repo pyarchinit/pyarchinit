@@ -54,3 +54,10 @@ def test_la_voce_di_menu_delle_sezioni():
     corpo = PLUGIN[PLUGIN.index("    def _run_em_sections(self):"):]
     corpo = corpo[:corpo.index("\n    def ", 10)]
     assert "SectionsDialog(" in corpo and "run_sections(" in corpo and "SectionsError" in corpo
+
+
+def test_senza_proxy_la_voce_di_menu_lo_dice_prima_della_finestra():
+    corpo = PLUGIN[PLUGIN.index("    def _run_em_sections(self):"):]
+    corpo = corpo[:corpo.index("\n    def ", 10)]
+    controllo = corpo.find("es.NO_PROXY")
+    assert controllo != -1 and controllo < corpo.index("SectionsDialog(")

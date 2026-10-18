@@ -3117,6 +3117,8 @@ class PyArchInitPlugin(object):
                     "Il sito «%s» non ha linee di sezione: tracciale nel layer delle sezioni "
                     "(pyarchinit_sezioni) e poi rilancia il comando." % site)
             unita = es.section_units(grafo, db, site, resize_base=resize)
+            if not any(u.usable for u in unita):
+                raise es.SectionsError(es.NO_PROXY % site)
             posizione = drw.georef_of(grafo)
         except es.SectionsError as e:
             QMessageBox.information(self.iface.mainWindow(), titolo, str(e))
