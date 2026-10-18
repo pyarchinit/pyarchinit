@@ -214,9 +214,9 @@ Desde a **5.13.135-alpha**. Depois da importação (§5.0, com os media ou com a
 - na lista **Documentazione** (Documentação) da ficha UE;
 - e, se a linha ainda não tinha um, também na linha de secção. Assim, a ficha Documentazione carrega em conjunto a linha e as «UE verticais» da secção. Uma linha que já tem outro documento não é tocada: o resumo di-lo.
 
-**Refazer uma secção.** Voltar a executar o comando sobre a mesma linha substitui só essa secção. Reimportar o em.json com plantas e alçados (§5.0.2) não mexe nas secções.
+**Refazer uma secção.** Voltar a executar o comando sobre a mesma linha substitui só essa secção. Uma linha deslocada que já não encontra nenhuma unidade perde a secção anterior. Se o nome mudar (um **id_sezione** corrigido, ou uma segunda linha com o mesmo id, que faz os nomes passarem a `3D-SEZ-A-<gid>`), a secção com o nome antigo desaparece e a linha fica com o novo. Reimportar o em.json com plantas e alçados (§5.0.2) não mexe nas secções.
 
-**Sistemas de referência.** As linhas são levadas para o sistema do em.json, se a camada das secções tiver outro. Se a camada não tiver sistema (`-1`, como no modelo SQLite), as coordenadas são usadas tal como estão e o resumo di-lo. O comando interrompe-se se o sítio não tiver um em.json importado, se o em.json não disser onde está a cena, se não tiver sido escolhida nenhuma linha ou se a camada dos desenhos verticais não for métrica.
+**Sistemas de referência.** As linhas são levadas para o sistema do em.json, se a camada das secções tiver outro. Se a camada não tiver sistema (`-1`, como no modelo SQLite), as coordenadas são usadas tal como estão e o resumo di-lo. O comando interrompe-se se o sítio não tiver um em.json importado, se o em.json não disser onde está a cena, se não tiver sido escolhida nenhuma linha, se nenhuma unidade tiver um modelo 3D que se encontre (importa o em.json com os media, ou liga o disco dos proxies) ou se a camada dos desenhos verticais não for métrica. Uma unidade que a linha atravessa mas cujo modelo não é fechado é ignorada, e o resumo diz «la sezione non si chiude (modello aperto)» (a secção não fecha: modelo aberto).
 
 No TempluMare, uma linha de oeste para este através da cella corta 21 unidades em cerca de 3 segundos: muros, fundações, degraus, o altar e o telhado.
 

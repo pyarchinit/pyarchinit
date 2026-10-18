@@ -214,9 +214,9 @@ Dalla **5.13.135-alpha**. Dopo l'importazione (§5.0, con i media, oppure con la
 - nella lista **Documentazione** della scheda US;
 - e, se la linea non ne aveva già uno, anche nella linea di sezione. Così la scheda Documentazione carica insieme la linea e le «US verticali» della sezione. Una linea che ha già un altro documento non si tocca: il riepilogo lo dice.
 
-**Rifare una sezione.** Rilanciare il comando sulla stessa linea sostituisce solo quella sezione. Reimportare l'em.json con piante e prospetti (§5.0.2) non tocca le sezioni.
+**Rifare una sezione.** Rilanciare il comando sulla stessa linea sostituisce solo quella sezione. Una linea spostata che non incontra più nessuna unità perde la sezione di prima. Se il nome cambia (un **id_sezione** corretto, o una seconda linea con lo stesso id, che fa diventare i nomi `3D-SEZ-A-<gid>`), la sezione col nome vecchio se ne va e la linea prende quello nuovo. Reimportare l'em.json con piante e prospetti (§5.0.2) non tocca le sezioni.
 
-**Sistemi.** Le linee si portano nel sistema dell'em.json, se il layer delle sezioni ne ha un altro. Se il layer non ha un sistema (`-1`, come nel template SQLite), le coordinate si prendono così come sono e il riepilogo lo dice. Il comando si ferma se il sito non ha un em.json importato, se l'em.json non dice dove sta la scena, se non c'è nessuna linea scelta o se il layer dei disegni verticali non è metrico.
+**Sistemi.** Le linee si portano nel sistema dell'em.json, se il layer delle sezioni ne ha un altro. Se il layer non ha un sistema (`-1`, come nel template SQLite), le coordinate si prendono così come sono e il riepilogo lo dice. Il comando si ferma se il sito non ha un em.json importato, se l'em.json non dice dove sta la scena, se non c'è nessuna linea scelta, se nessuna unità ha un modello 3D che si trovi (importa l'em.json con i media, o collega il disco dei proxy) o se il layer dei disegni verticali non è metrico. Un'unità che la linea attraversa ma il cui modello non è chiuso si salta, e il riepilogo dice «la sezione non si chiude (modello aperto)».
 
 Su TempluMare, una linea da ovest a est attraverso la cella taglia 21 unità in circa 3 secondi: muri, fondazioni, gradini, l'altare e il tetto.
 

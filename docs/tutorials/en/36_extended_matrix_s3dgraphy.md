@@ -214,9 +214,9 @@ Since **5.13.135-alpha**. After the import (§5.0, with the media, or with the *
 - in the SU form's **Documentazione** list;
 - and, if the line had none, on the section line too. So the Documentazione form loads the line and the section's "vertical SUs" together. A line that already has another document is left alone, and the summary says so.
 
-**Redoing a section.** Running the command again on the same line replaces only that section. Re-importing the em.json with plans and elevations (§5.0.2) doesn't touch the sections.
+**Redoing a section.** Running the command again on the same line replaces only that section. A line that was moved and no longer meets any unit loses its previous section. If the name changes (a corrected **id_sezione**, or a second line with the same id, which turns the names into `3D-SEZ-A-<gid>`), the section with the old name is removed and the line takes the new one. Re-importing the em.json with plans and elevations (§5.0.2) doesn't touch the sections.
 
-**CRS.** Lines are brought into the em.json's CRS when the sections layer has another one. If the layer has no CRS (`-1`, as in the SQLite template), the coordinates are taken as they are, and the summary says so. The command stops if the site has no imported em.json, if the em.json doesn't say where the scene is, if no line is chosen, or if the vertical drawings layer isn't metric.
+**CRS.** Lines are brought into the em.json's CRS when the sections layer has another one. If the layer has no CRS (`-1`, as in the SQLite template), the coordinates are taken as they are, and the summary says so. The command stops if the site has no imported em.json, if the em.json doesn't say where the scene is, if no line is chosen, if no unit has a 3D model that can be found (import the em.json with the media, or connect the proxies' disk), or if the vertical drawings layer isn't metric. A unit the line crosses whose model isn't closed is skipped, and the summary says «la sezione non si chiude (modello aperto)» (the section doesn't close: open model).
 
 On TempluMare, a west-to-east line across the cella cuts 21 units in about 3 seconds: walls, foundations, steps, the altar and the roof.
 

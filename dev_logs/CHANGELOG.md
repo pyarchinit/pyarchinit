@@ -5,6 +5,37 @@
 
 ---
 
+## [feat] - 2026-10-18 — Sezioni lungo le linee dai modelli 3D: le linee del layer delle sezioni tagliano i proxy delle unità e ognuna diventa una sezione nel layer dei disegni verticali, col suo documento «Sezione» legato anche alla linea — 5.13.135-alpha
+
+> Branch `Stratigraph_00001`. Suite **2537 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +26 test). / Sections along lines from the 3D proxies: the lines of `pyarchinit_sezioni` cut the units' proxies, each line becomes a section in `pyunitastratigrafiche_usm` with its own «Sezione» document, linked to the polygons, to the SU form and to the line itself.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: il secondo pezzo della richiesta di Enzo del 18 ottobre 2026 («Sezioni lungo linee: tracci una linea di sezione in pianta… il 3D viene tagliato lungo quel piano»). Nuova voce **Extended Matrix → Sezioni dai modelli 3D…**: si sceglie il sito; la finestra **Sezioni dai modelli 3D** mostra la posizione dell'em.json ricordato all'import, lo **Spostamento Z** con le quote, quante unità hanno un modello 3D e la tabella delle linee del sito (Taglia, Sezione, Descrizione, Area, Tratti, Lunghezza, Documento); **Taglia** calcola e scrive con la barra.
+  - **Il taglio** (`em_drawings.section_geometry`, `section_line_geometry`): il piano verticale di ogni tratto taglia i triangoli del proxy, i segmenti si chiudono in poligoni (`QgsGeometry.polygonize`) e si ritagliano al tratto; X = metri lungo la linea dal primo punto (che sta a sinistra), Y = quota; una linea spezzata continua da un tratto all'altro. Si riempie tutto quello che sta dentro il contorno esterno: i proxy di TempluMare hanno un guscio interno rientrato di 1 cm, e con la regola pari/dispari restava solo un anello sottile (il muro 118 dava 0,37 m²).
+  - **I proxy** si cercano nella cartella dell'import e poi fra i media del database (`em_project.media_index`); l'em.json è quello ricordato per il sito (`em_sources`).
+  - **Le linee** si portano nel sistema dell'em.json se il layer delle sezioni ne ha un altro; senza sistema (`-1`, template SQLite) si prendono come sono, e il riepilogo lo dice.
+  - **Documenti**: `3D-SEZ-<id_sezione>` (senza id `3D-SEZ-G<gid>`, i doppi con `-<gid>`), tipo «Sezione» dal thesaurus (`SEZ`); lo stesso tipo e nome nei poligoni, nella lista Documentazione della scheda US e nella linea, se non ne aveva già un altro (in quel caso non si tocca e il riepilogo lo dice). Così la scheda Documentazione richiama insieme la linea e le sue «US verticali».
+  - **Impaginazione**: le sezioni stanno a sinistra dei prospetti (X negativa), a 10 m l'una dall'altra.
+- 🇬🇧 **EN**: new menu command; vertical-plane cut of the proxy meshes per line segment, polygonized and clipped to the segment, X along the line from its first point, Y elevation, filled inside the outer outline (TempluMare's double shells); proxies found in the import folder or in the DB media; lines reprojected into the em.json CRS (or read raw when the layer has none); one «Sezione» document per line with identical type/name on polygons, SU form and line; sections laid out left of the elevations.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: il reimport dell'em.json con piante e prospetti (5.13.134) sostituisce solo `3D-PLA` e `3D-PRO-…`, non più tutto il `3D-%`: le sezioni restano. `write_drawings` prende l'insieme dei nomi da sostituire; le coppie della scheda si rifanno sempre da tutti i poligoni ricavati del sito. L'export dell'em.json lascia fuori anche `3D-SEZ-…`.
+- 🇬🇧 **EN**: em.json re-import replaces only `3D-PLA`/`3D-PRO-…`; sections survive; `3D-SEZ-…` pairs stay out of the em.json export.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: dalla revisione finale: un piano che passa per i vertici della mesh (linee dritte su modelli in coordinate locali) lasciava buchi di 1e-9 nel contorno e l'unità spariva dalla sezione: ora il punto del taglio è il vertice stesso; una linea che cambia nome (id corretto, o una seconda linea con lo stesso id) non lascia più la sezione col nome vecchio; una linea spostata che non incontra più niente perde la sezione di prima; le unità saltate dicono perché («file non trovato», «la sezione non si chiude (modello aperto)»); senza nessun proxy che si trovi il comando lo dice prima di aprire la finestra. Lo stesso spigolo visto da due triangoli si calcola sempre dallo stesso estremo, o con coordinate grandi (Stereo 70) le linee oblique non chiudevano il profilo.
+- 🇬🇧 **EN**: final-review fixes: vertex-on-plane cuts no longer drop units, renamed lines and lines moved off the site no longer leave stale sections, skipped units report their reason (missing file, open model), and a missing-proxy message appears before the dialog; shared-edge points computed from the same endpoint so oblique cuts close.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +26 test nuovi (taglio di scatole, scatole a griglia con vertici sul piano, linee spezzate, oblique su un GLB vero, doppio guscio, modello aperto; scrittura, sostituzione, rinomina, linea spostata, linee in un altro sistema e senza sistema, impaginazione, reimport che non tocca le sezioni; PostGIS in uno schema temporaneo; finestra e voce di menu), visti rossi prima. **TempluMare vero** (em.json v3.2 e proxy dall'SSD, in sola lettura, su una copia del DB): una linea da ovest a est attraverso la cella taglia 21 unità in circa 3 secondi; USV105 si salta, «modello aperto»; immagine della sezione resa da QGIS e controllata; linea e documento collegati.
+- 🇬🇧 **EN**: 26 new tests, all seen failing first; on TempluMare a west–east line across the cella cuts 21 units in about 3 s.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §5.0.3 «Sezioni lungo le linee, dai modelli 3D», dieci lingue. Spec e piano in `docs/superpowers/`. `metadata.txt` 5.13.135-alpha.
+- 🇬🇧 **EN**: tutorial 36 §5.0.3 in ten languages.
+
+---
+
 ## [feat] - 2026-10-18 — Piante e prospetti dai modelli 3D all'import dell'em.json: la pianta di ogni unità nel layer delle piante, i prospetti del sito e delle unità nel layer dei disegni verticali, ognuno col suo documento — 5.13.134-alpha
 
 > Branch `Stratigraph_00001`. Suite **2511 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +72 test). / Plans and elevations derived from the 3D proxies when importing an EMStudio em.json: unit plans in `pyunitastratigrafiche`, site and unit elevations in `pyunitastratigrafiche_usm`, one Documentazione record per drawing, linked by the same type and name.
