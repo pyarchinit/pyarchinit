@@ -96,3 +96,67 @@ def test_un_piano_verticale_non_ha_pianta():
 def test_le_briciole_si_tolgono():
     briciola = np.array([[[0, 0, 0], [0.005, 0, 0], [0, 0.005, 0]]], dtype=float)
     assert drw.plan_geometry(briciola) is None
+
+
+def _u(view, x, y):
+    return x * view.r[0] + y * view.r[1]
+
+
+def test_i_quattro_lati_chi_sta_a_sinistra():
+    n, e, s, w = (drw.SITE_VIEWS[k] for k in ("N", "E", "S", "W"))
+    assert _u(n, 10, 0) < _u(n, -10, 0)        # da nord: est a sinistra
+    assert _u(e, 0, -10) < _u(e, 0, 10)        # da est: sud a sinistra
+    assert _u(s, -10, 0) < _u(s, 10, 0)        # da sud: ovest a sinistra
+    assert _u(w, 0, 10) < _u(w, 0, -10)        # da ovest: nord a sinistra
+
+
+def test_la_rosa_a_otto_punti():
+    assert [drw.rose8(*v) for v in ((0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1))] == \
+        ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+
+def test_il_prospetto_di_un_muro_lo_guarda_di_fronte_dal_centro():
+    muro = _cubo(-10.0, 20.0, 0.0, 20.0, 1.0, 3.0)            # muro lungo in X, a nord del centro
+    pianta = drw.plan_geometry(muro)
+    v = drw.unit_view("3D-PRO-US1", pianta, drw.centroid_xy(muro), (0.0, 0.0))
+    assert v.d == pytest.approx((0.0, 1.0), abs=1e-9) and v.side == "S"
+    sagoma = drw.view_geometry(muro, v, (-10.0, 0.0))
+    assert sagoma.area() == pytest.approx(60.0, abs=1e-6)     # 20 m × 3 m
+
+
+def test_un_unita_quasi_quadrata_si_guarda_dal_centro():
+    cubo = _cubo(10.0, 10.0, 0.0, 2.0, 2.0, 2.0)
+    v = drw.unit_view("x", drw.plan_geometry(cubo), drw.centroid_xy(cubo), (0.0, 0.0))
+    assert v.d == pytest.approx((2 ** -0.5, 2 ** -0.5)) and v.side == "SW"
+    centro = drw.unit_view("y", drw.plan_geometry(cubo), (11.0, 11.0), (11.0, 11.0))
+    assert centro.d == (0.0, 1.0)
+
+
+def test_la_sagoma_del_lato_nord():
+    scatola = _cubo(0.0, 0.0, 490.0, 2.0, 1.0, 3.0)
+    g = drw.view_geometry(scatola, drw.SITE_VIEWS["N"], (0.0, 0.0))
+    bb = g.boundingBox()
+    assert g.area() == pytest.approx(6.0, abs=1e-6)
+    assert bb.yMinimum() == pytest.approx(490.0) and bb.yMaximum() == pytest.approx(493.0)
+
+
+def test_dal_piu_lontano_al_piu_vicino():
+    nord, sud = _cubo(0, 50, 0, 1, 1, 1), _cubo(0, -50, 0, 1, 1, 1)
+    vista = drw.SITE_VIEWS["N"]                    # chi guarda sta a nord: il cubo a nord è il più vicino
+    assert drw.depth(sud, vista) > drw.depth(nord, vista)
+
+
+def test_l_ingombro_del_sito():
+    origine, centro = drw.site_frame([_cubo(0, 0, 0, 2, 2, 1), _cubo(10, -4, 0, 2, 2, 1)])
+    assert origine == (0.0, -4.0) and centro == (6.0, -1.0)
+
+
+def test_i_disegni_uno_accanto_all_altro():
+    assert drw.lay_out([(5.0, 15.0), (-3.0, 2.0), (0.0, 1.0)], gap=10.0) == [-5.0, 23.0, 35.0]
+
+
+def test_spostare_un_disegno():
+    from qgis.core import QgsGeometry
+    g = QgsGeometry.fromWkt("MULTIPOLYGON(((0 0,1 0,1 1,0 0)))")
+    assert drw.span_u(drw.translated(g, 5.0)) == (5.0, 6.0)
+    assert drw.span_u(g) == (0.0, 1.0)              # l'originale resta com'era

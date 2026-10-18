@@ -174,3 +174,110 @@ def plan_geometry(tri_map: np.ndarray):
     """La pianta di triangoli già sulla mappa ``(n, 3, 3)``: MultiPolygon o None."""
     tri_map = np.asarray(tri_map, dtype=np.float64)
     return _clean(_union_2d(tri_map[..., :2])) if tri_map.size else None
+
+
+# ---------------------------------------------------------- le viste verticali
+
+@dataclass(frozen=True)
+class View:
+    """Un piano verticale da cui si guarda. ``d`` va da chi guarda verso la
+    scena (orizzontale, unitario); ``r`` è l'asse destro del disegno;
+    ``side`` è da dove si guarda, con gli otto punti della rosa."""
+    code: str
+    d: Tuple[float, float]
+    side: str
+
+    @property
+    def r(self) -> Tuple[float, float]:
+        return (self.d[1], -self.d[0])
+
+
+#: Chi guarda sta dal lato che dà il nome alla vista (spec D5).
+SITE_VIEWS: Dict[str, View] = {
+    "N": View("N", (0.0, -1.0), "N"),
+    "E": View("E", (-1.0, 0.0), "E"),
+    "S": View("S", (0.0, 1.0), "S"),
+    "W": View("W", (1.0, 0.0), "W"),
+}
+
+_ROSA = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+
+
+def rose8(dx: float, dy: float) -> str:
+    """La direzione ``(dx, dy)`` con gli otto punti della rosa (0 = nord, in senso orario)."""
+    angolo = (math.degrees(math.atan2(dx, dy)) + 360.0) % 360.0
+    return _ROSA[int((angolo + 22.5) // 45) % 8]
+
+
+def centroid_xy(tri_map: np.ndarray) -> Tuple[float, float]:
+    c = np.asarray(tri_map, dtype=np.float64).reshape(-1, 3).mean(axis=0)
+    return float(c[0]), float(c[1])
+
+
+def site_frame(tri_maps: Iterable[np.ndarray]) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    """L'angolo minimo e il centro dell'ingombro in pianta di tutte le unità."""
+    pts = np.concatenate([np.asarray(t, dtype=np.float64).reshape(-1, 3) for t in tri_maps])
+    lo, hi = pts[:, :2].min(axis=0), pts[:, :2].max(axis=0)
+    return (float(lo[0]), float(lo[1])), (float((lo[0] + hi[0]) / 2), float((lo[1] + hi[1]) / 2))
+
+
+def unit_view(code: str, plan, unit_c: Tuple[float, float], site_c: Tuple[float, float]) -> View:
+    """Il prospetto di un'unità: perpendicolare al suo lato lungo, guardato dal
+    lato del centro dello scavo; un'unità quasi quadrata si guarda dal centro."""
+    vx, vy = unit_c[0] - site_c[0], unit_c[1] - site_c[1]
+    d = None
+    if plan is not None and not plan.isEmpty():
+        anello = plan.orientedMinimumBoundingBox()[0].asPolygon()[0]
+        e1 = (anello[1].x() - anello[0].x(), anello[1].y() - anello[0].y())
+        e2 = (anello[2].x() - anello[1].x(), anello[2].y() - anello[1].y())
+        l1, l2 = math.hypot(*e1), math.hypot(*e2)
+        (lx, ly), lungo, corto = (e1, l1, l2) if l1 >= l2 else (e2, l2, l1)
+        if lungo > 0 and (corto == 0 or lungo / corto >= LONG_RATIO):
+            nx, ny = -ly / lungo, lx / lungo
+            prodotto = nx * vx + ny * vy
+            if prodotto < -1e-9 or (abs(prodotto) <= 1e-9 and ny < 0):
+                nx, ny = -nx, -ny
+            d = (nx + 0.0, ny + 0.0)
+    if d is None:
+        n = math.hypot(vx, vy)
+        d = (vx / n, vy / n) if n > 1e-9 else (0.0, 1.0)
+    return View(code, d, rose8(-d[0], -d[1]))
+
+
+def view_geometry(tri_map: np.ndarray, view: View, origin: Tuple[float, float]):
+    """La sagoma sul piano della vista, in coordinate del disegno:
+    u = (P − O)·r, v = quota. MultiPolygon o None."""
+    t = np.asarray(tri_map, dtype=np.float64)
+    if not t.size:
+        return None
+    rx, ry = view.r
+    u = (t[..., 0] - origin[0]) * rx + (t[..., 1] - origin[1]) * ry
+    return _clean(_union_2d(np.stack([u, t[..., 2]], axis=-1)))
+
+
+def depth(tri_map: np.ndarray, view: View) -> float:
+    """Quanto è lontano da chi guarda: più grande, più lontano."""
+    x, y = centroid_xy(tri_map)
+    return x * view.d[0] + y * view.d[1]
+
+
+def lay_out(spans: Sequence[Tuple[float, float]], gap: float = GAP) -> List[float]:
+    """Lo spostamento in u di ogni disegno, ``spans`` = ``(u_min, u_max)``
+    nell'ordine: uno accanto all'altro, separati da ``gap``."""
+    spostamenti, cursore = [], 0.0
+    for umin, umax in spans:
+        spostamenti.append(cursore - umin)
+        cursore += (umax - umin) + gap
+    return spostamenti
+
+
+def span_u(geom) -> Tuple[float, float]:
+    bb = geom.boundingBox()
+    return bb.xMinimum(), bb.xMaximum()
+
+
+def translated(geom, du: float):
+    from qgis.core import QgsGeometry
+    out = QgsGeometry(geom)
+    out.translate(float(du), 0.0)
+    return out
