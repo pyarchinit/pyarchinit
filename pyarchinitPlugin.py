@@ -2684,7 +2684,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeCustomActionForLayerType(self.actionViewStyles)
             except Exception:
                 pass
-        for _name in ("actionEmExport", "actionEmProject", "actionEmImport", "actionRoomDelivery",
+        for _name in ("actionEmExport", "actionEmProject", "actionEmSections", "actionEmImport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
                       "actionEmStudioInstall", "actionEmMatrixView", "actionViewStyles",
                       "actionUuidBackfill", "actionYefOtherLocations",
@@ -2903,6 +2903,16 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmProject)
 
+            # Le sezioni dai modelli 3D (18 ottobre 2026): le linee del layer
+            # delle sezioni tagliano i proxy delle unità del sito.
+            self.actionEmSections = QAction(
+                "Extended Matrix → Sezioni dai modelli 3D…",
+                self.iface.mainWindow())
+            self.actionEmSections.triggered.connect(self._run_em_sections)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmSections)
+
             # Importare un em.json anche con il database vuoto (16 ottobre
             # 2026): prima la finestra stava solo dietro il bottone di
             # esportazione della scheda US, che senza sito si rifiutava.
@@ -3062,6 +3072,92 @@ class PyArchInitPlugin(object):
                 if answer == QMessageBox.StandardButton.Yes:
                     if self._run_emstudio_install():
                         em_export.open_in_emstudio(path)
+
+    def _run_em_sections(self):
+        """Le sezioni dai modelli 3D (18 ottobre 2026): le linee del layer delle
+        sezioni del sito tagliano i proxy delle unità, e ogni linea diventa una
+        sezione nel layer dei disegni verticali, col suo documento «Sezione»."""
+        from qgis.PyQt.QtCore import Qt
+        from qgis.PyQt.QtWidgets import QApplication, QInputDialog, QMessageBox, QProgressDialog
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        from modules.s3dgraphy import em_drawings as drw
+        from modules.s3dgraphy.em_sections_dialog import SectionsDialog
+        from modules.s3dgraphy.sync import em_sections as es
+
+        titolo = "Sezioni dai modelli 3D"
+        try:
+            conn = Connection()
+            db = Pyarchinit_db_management(conn.conn_str())
+            db.connection()
+            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
+        except Exception as e:
+            QMessageBox.warning(self.iface.mainWindow(), titolo,
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        if not sites:
+            QMessageBox.information(self.iface.mainWindow(), titolo, "Nessun sito nel database.")
+            return
+        site, ok = QInputDialog.getItem(self.iface.mainWindow(), titolo, "Sito:", sites, 0, False)
+        if not ok:
+            return
+        try:
+            resize = conn.thumb_resize().get("thumb_resize", "") or ""
+        except Exception:                                   # noqa: BLE001
+            resize = ""
+        try:
+            grafo = es.load_graph(db, site)
+            if grafo is None:
+                raise es.SectionsError(
+                    "Il sito «%s» non ha un em.json importato: importalo prima con «Extended Matrix → "
+                    "Importa em.json…», con i media, così pyArchInit ha i modelli 3D delle unità." % site)
+            linee, _srid = es.section_lines(db, site)
+            if not linee:
+                raise es.SectionsError(
+                    "Il sito «%s» non ha linee di sezione: tracciale nel layer delle sezioni "
+                    "(pyarchinit_sezioni) e poi rilancia il comando." % site)
+            unita = es.section_units(grafo, db, site, resize_base=resize)
+            posizione = drw.georef_of(grafo)
+        except es.SectionsError as e:
+            QMessageBox.information(self.iface.mainWindow(), titolo, str(e))
+            return
+        except Exception as e:                              # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), titolo, "%s: %s" % (type(e).__name__, e))
+            return
+        finestra = SectionsDialog(linee, unita, posizione, es.section_names(linee),
+                                  parent=self.iface.mainWindow())
+        if not finestra.exec():
+            return
+        gids, spostamento = finestra.chosen()
+        attesa = QProgressDialog("Sezioni dai modelli 3D…", "", 0, 0, self.iface.mainWindow())
+        attesa.setCancelButton(None)
+        attesa.setWindowTitle(titolo)
+        attesa.setWindowModality(Qt.WindowModality.WindowModal)
+        attesa.setMinimumDuration(400)
+
+        def avanza(fatti, totale, nome):
+            attesa.setMaximum(max(totale, 1))
+            attesa.setValue(fatti)
+            attesa.setLabelText("%d di %d\n%s" % (fatti, totale, nome))
+            QApplication.processEvents()
+
+        try:
+            esito = es.run_sections(db, site, gids=gids, shift_z=spostamento, resize_base=resize,
+                                    progress=avanza)
+        except es.SectionsError as e:
+            QMessageBox.information(self.iface.mainWindow(), titolo, str(e))
+            return
+        except Exception as e:                              # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), titolo, "%s: %s" % (type(e).__name__, e))
+            return
+        finally:
+            attesa.close()
+        if hasattr(db, "clear_cache"):
+            try:
+                db.clear_cache()
+            except Exception:                               # noqa: BLE001
+                pass
+        QMessageBox.information(self.iface.mainWindow(), titolo, esito.summary())
 
     def _run_em_project(self):
         """Il progetto EM per EMStudio (17 ottobre 2026): l'em.json del sito
