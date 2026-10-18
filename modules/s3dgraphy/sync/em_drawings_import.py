@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
@@ -382,3 +383,259 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
     for d, du in zip(verticali, drw.lay_out(campate)):
         d.features = [(k, drw.translated(g, du)) for k, g in d.features]
     return disegni + verticali, saltate
+
+
+# ---------------------------------------------------------------- la scrittura
+
+@dataclass
+class WriteResult:
+    plans: int = 0
+    side_views: int = 0
+    unit_views: int = 0
+    features: int = 0
+    removed: int = 0
+    documents: int = 0
+    documents_removed: int = 0
+    pairs_updated: int = 0
+    warnings: List[str] = field(default_factory=list)
+    skipped: Dict[str, str] = field(default_factory=dict)
+    converted: Optional[Tuple[int, int]] = None
+    view_fixed: bool = False
+
+    def summary(self, units: Sequence[DrawingUnit] = ()) -> str:
+        nomi = {u.key: u.name for u in units}
+        testo = ("Dal 3D: %d piante, %d prospetti del sito, %d prospetti di unità"
+                 % (self.plans, self.side_views, self.unit_views))
+        if self.skipped:
+            voci = ["%s: %s" % (nomi.get(k, k), m) for k, m in sorted(self.skipped.items(),
+                                                                       key=lambda kv: nomi.get(kv[0], kv[0]))]
+            testo += "; %d saltate (%s)" % (len(voci), "; ".join(voci[:8]) +
+                                             (" e altre %d" % (len(voci) - 8) if len(voci) > 8 else ""))
+        if self.converted:
+            testo += "; piante convertite da EPSG:%d a EPSG:%d" % self.converted
+        if self.view_fixed:
+            testo += ("; la vista USM del database mostrava solo le USM: ora mostra i "
+                      "disegni verticali di tutte le unità")
+        testo += "."
+        if self.warnings:
+            testo += "\nAvvisi: " + "; ".join(self.warnings[:5])
+        return testo
+
+
+def doc_types(db, lingua: Optional[str] = None) -> Tuple[str, str]:
+    """I tipi dei documenti dal thesaurus (9.1 PLA e PRO) nella lingua del
+    plugin, poi IT, poi «Planimetria» e «Prospetto»."""
+    from sqlalchemy import text
+    from .em_native_import import thesaurus_lingua
+    lingua = lingua or thesaurus_lingua()
+    trovati: Dict[str, str] = {}
+    try:
+        with _engine(db).connect() as conn:
+            for lng in (lingua, "IT"):
+                for sigla, estesa in conn.execute(text(
+                        "SELECT sigla, sigla_estesa FROM pyarchinit_thesaurus_sigle WHERE "
+                        "nome_tabella = 'documentazione_table' AND tipologia_sigla = '9.1' "
+                        "AND lingua = :l AND sigla IN ('PLA', 'PRO')"), {"l": lng}):
+                    if estesa:
+                        trovati.setdefault(str(sigla), str(estesa))
+    except Exception:                                       # noqa: BLE001
+        pass
+    return trovati.get("PLA", "Planimetria"), trovati.get("PRO", "Prospetto")
+
+
+def _columns(eng, table: str) -> Set[str]:
+    from sqlalchemy import inspect
+    try:
+        return {c["name"] for c in inspect(eng).get_columns(table)}
+    except Exception:                                       # noqa: BLE001
+        return set()
+
+
+def _centroid(g) -> str:
+    c = g.centroid().asPoint()
+    return "POINT(%.6f %.6f)" % (c.x(), c.y())
+
+
+def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str, Scheda],
+                   decision: CrsDecision, *, source_name: str, today: Optional[str] = None,
+                   rilievi: Optional[Dict[str, str]] = None) -> WriteResult:
+    """Sostituisce l'insieme ricavato del sito: poligoni nei due layer,
+    documenti, coppie della scheda US. Una transazione; un SAVEPOINT per riga."""
+    from sqlalchemy import text
+    from ...utility.qfield_importer import build_geom_sql
+    esito = WriteResult()
+    oggi = today or datetime.date.today().isoformat()
+    eng = _engine(db)
+    is_pg = eng.dialect.name.startswith("postgres")
+    colonne = {l: _columns(eng, l) for l in (PLAN_LAYER, VERTICAL_LAYER)}
+    trasforma = None
+    if decision.kind == "convert":
+        from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject
+        trasforma = QgsCoordinateTransform(QgsCoordinateReferenceSystem.fromEpsgId(int(decision.source_epsg)),
+                                           QgsCoordinateReferenceSystem.fromEpsgId(int(decision.plan_srid)),
+                                           QgsProject.instance())
+        esito.converted = (int(decision.source_epsg), int(decision.plan_srid))
+    geom_sql = build_geom_sql(is_pg, True, False, None)
+    with eng.begin() as conn:
+        for layer in (PLAN_LAYER, VERTICAL_LAYER):
+            if not colonne[layer]:
+                continue
+            r = conn.execute(text("DELETE FROM %s WHERE scavo_s = :s AND disegnatore = :d "
+                                  "AND nome_doc LIKE '3D-%%'" % layer), {"s": sito, "d": drw.DRAWER})
+            esito.removed += max(r.rowcount or 0, 0)
+        gid = {l: int(conn.execute(text("SELECT COALESCE(MAX(gid), 0) FROM %s" % l)).scalar() or 0)
+               for l in (PLAN_LAYER, VERTICAL_LAYER) if colonne[l]}
+        coppie: Dict[int, List[List[str]]] = {}
+        for d in drawings:
+            if not d.features or not colonne.get(d.layer):
+                continue
+            srid = decision.plan_srid if d.plan else decision.usm_srid
+            scritti = 0
+            for k, g in d.features:
+                s = schede.get(k)
+                if s is None:
+                    continue
+                if d.plan and trasforma is not None:
+                    from qgis.core import QgsGeometry
+                    g = QgsGeometry(g)
+                    g.transform(trasforma)
+                gid[d.layer] += 1
+                valori = {"gid": gid[d.layer], "area_s": s.area, "scavo_s": sito, "us_s": s.us,
+                          "stratigraph_index_us": 1, "rilievo_originale": (rilievi or {}).get(k, ""),
+                          "disegnatore": drw.DRAWER, "data": oggi, "tipo_doc": d.tipo,
+                          "nome_doc": d.nome, "coord": _centroid(g), "unita_tipo_s": s.unita_tipo}
+                usate = [c for c in valori if c in colonne[d.layer]]
+                sql = 'INSERT INTO %s (%s, "the_geom") VALUES (%s, %s)' % (
+                    d.layer, ", ".join('"%s"' % c for c in usate), ", ".join(":" + c for c in usate), geom_sql)
+                try:
+                    with conn.begin_nested():
+                        conn.execute(text(sql), {**{c: valori[c] for c in usate},
+                                                 "wkt": g.asWkt(6), "srid": int(srid)})
+                except Exception as e:                      # noqa: BLE001
+                    esito.warnings.append("%s %s: %s" % (d.nome, s.us, str(e).splitlines()[0][:120]))
+                    continue
+                scritti += 1
+                lista = coppie.setdefault(s.id_us, [])
+                if [d.tipo, d.nome] not in lista:
+                    lista.append([d.tipo, d.nome])
+            esito.features += scritti
+            if scritti:
+                if d.plan:
+                    esito.plans += scritti
+                elif d.nome in {drw.side_name(x) for x in drw.SIDES}:
+                    esito.side_views += 1
+                else:
+                    esito.unit_views += 1
+        # i documenti, con lo stesso tipo e nome dei poligoni
+        ora = set()
+        for d in drawings:
+            if not any(schede.get(k) for k, _g in d.features):
+                continue
+            ora.add((d.tipo, d.nome))
+            riga = conn.execute(text(
+                "SELECT id_documentazione, disegnatore FROM documentazione_table WHERE sito = :s "
+                "AND nome_doc = :n AND tipo_documentazione = :t"),
+                {"s": sito, "n": d.nome, "t": d.tipo}).fetchone()
+            sorgente = "em.json: %s" % source_name
+            if riga is None:
+                nid = int(conn.execute(text(
+                    "SELECT COALESCE(MAX(id_documentazione), 0) + 1 FROM documentazione_table")).scalar())
+                conn.execute(text(
+                    "INSERT INTO documentazione_table (id_documentazione, sito, nome_doc, data, "
+                    "tipo_documentazione, sorgente, scala, disegnatore, note) VALUES "
+                    "(:i, :s, :n, :dt, :t, :src, '', :d, :note)"),
+                    {"i": nid, "s": sito, "n": d.nome, "dt": oggi, "t": d.tipo, "src": sorgente,
+                     "d": drw.DRAWER, "note": d.note})
+                esito.documents += 1
+            elif riga[1] == drw.DRAWER:
+                conn.execute(text("UPDATE documentazione_table SET data = :dt, sorgente = :src, "
+                                  "note = :note WHERE id_documentazione = :i"),
+                             {"dt": oggi, "src": sorgente, "note": d.note, "i": riga[0]})
+            else:
+                esito.warnings.append("il documento %s «%s» c'era già e non è ricavato: "
+                                      "i disegni lo usano" % (d.tipo, d.nome))
+        for i, tipo, nome in conn.execute(text(
+                "SELECT id_documentazione, tipo_documentazione, nome_doc FROM documentazione_table "
+                "WHERE sito = :s AND disegnatore = :d AND nome_doc LIKE '3D-%'"),
+                {"s": sito, "d": drw.DRAWER}).fetchall():
+            if (tipo, nome) in ora:
+                continue
+            citato = any(conn.execute(text(
+                "SELECT 1 FROM %s WHERE scavo_s = :s AND tipo_doc = :t AND nome_doc = :n LIMIT 1" % l),
+                {"s": sito, "t": tipo, "n": nome}).fetchone() for l in (PLAN_LAYER, VERTICAL_LAYER)
+                if colonne[l])
+            if not citato:
+                conn.execute(text("DELETE FROM documentazione_table WHERE id_documentazione = :i"), {"i": i})
+                esito.documents_removed += 1
+        # le coppie della scheda US
+        for id_us, valore in conn.execute(text(
+                "SELECT id_us, documentazione FROM us_table WHERE sito = :s"), {"s": sito}).fetchall():
+            nuove = coppie.get(int(id_us), [])
+            if not nuove and "3D-" not in str(valore or ""):
+                continue
+            dopo = drw.with_derived_pairs(valore, nuove)
+            if dopo is None:
+                esito.warnings.append("la Documentazione della scheda %s non si legge: "
+                                      "non l'ho toccata" % id_us)
+                continue
+            if dopo != (valore or ""):
+                conn.execute(text("UPDATE us_table SET documentazione = :v WHERE id_us = :i"),
+                             {"v": dopo, "i": int(id_us)})
+                esito.pairs_updated += 1
+    return esito
+
+
+_USM_FILTER = re.compile(r"where\s+(\"?us_table\"?\.)?\"?unita_tipo\"?\s*=\s*'USM'", re.I)
+
+
+def unfilter_usm_view(db) -> bool:
+    """Il template SQLite (``resources/dbfiles/pyarchinit.sqlite``, da cui
+    nasce ogni DB nuovo) ha una ``pyarchinit_usm_view`` che mostra solo le
+    unità di tipo USM: i disegni verticali delle US non comparirebbero fra le
+    «US verticali» della scheda Documentazione. La si riporta alla definizione
+    canonica di pyArchInit (``spatial_view_definitions``), che è anche quella di
+    PostgreSQL. Solo SQLite, solo con quel filtro; se la vista canonica non si
+    legge su questo DB, resta quella di prima. True se l'ha cambiata."""
+    from sqlalchemy import text
+    eng = _engine(db)
+    if eng.dialect.name != "sqlite":
+        return False
+    from ...db.spatial_view_definitions import CANONICAL_VIEWS
+    canonica = CANONICAL_VIEWS.get("pyarchinit_usm_view")
+    if not canonica:
+        return False
+    try:
+        with eng.begin() as conn:
+            sql = conn.execute(text("SELECT sql FROM sqlite_master WHERE type = 'view' "
+                                    "AND name = 'pyarchinit_usm_view'")).scalar()
+            if not sql or not _USM_FILTER.search(str(sql)):
+                return False
+            conn.execute(text('DROP VIEW "pyarchinit_usm_view"'))
+            conn.execute(text(canonica))
+            conn.execute(text('SELECT 1 FROM "pyarchinit_usm_view" LIMIT 1')).fetchall()
+    except Exception:                                       # noqa: BLE001
+        return False
+    return True
+
+
+def run_drawings(db, graph, sito: str, emjson_path: str, *, units: Sequence[DrawingUnit],
+                 choice: Choice, georef, decision: CrsDecision, lang: Optional[str] = None,
+                 progress: Optional[Callable[[int, int, str], None]] = None) -> WriteResult:
+    """Tutto il passo dei disegni, dopo l'import delle schede."""
+    if lang is None:
+        try:
+            from qgis.core import QgsSettings
+            lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+        except Exception:                                   # noqa: BLE001
+            lang = "it"
+    schede = schede_of(db, sito, [u.key for u in units])
+    tipi = doc_types(db)
+    nome = os.path.basename(str(emjson_path or "")) or "em.json"
+    disegni, saltate = compute_drawings(graph, units, choice, georef, schede, source_name=nome,
+                                        lang=lang, tipi=tipi, progress=progress)
+    rilievi = {u.key: "; ".join(u.locators) for u in units}
+    esito = write_drawings(db, sito, disegni, schede, decision, source_name=nome, rilievi=rilievi)
+    esito.skipped.update(saltate)
+    if esito.side_views or esito.unit_views:
+        esito.view_fixed = unfilter_usm_view(db)
+    return esito

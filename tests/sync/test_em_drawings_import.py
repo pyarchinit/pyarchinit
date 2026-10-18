@@ -260,3 +260,121 @@ def test_lo_spostamento_z_scelto_vale_per_le_quote(progetto):
     disegni, _ = _calcola(progetto, scelta)
     nord = next(d for d in disegni if d.nome == "3D-PRO-N")
     assert min(g.boundingBox().yMinimum() for _k, g in nord.features) == pytest.approx(495.0)
+
+
+def _scrivi(p, decisione_attesa="ok", scelta=None):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    geo = drw.georef_of(p["grafo"])
+    scelta = scelta or edi.default_choice(unita, geo)
+    decisione = edi.crs_decision(p["eng"], geo, scelta)
+    assert decisione.kind == decisione_attesa
+    return edi.run_drawings(p["eng"], p["grafo"], SITO, str(p["em"]), units=unita,
+                            choice=scelta, georef=geo, decision=decisione, lang="it")
+
+
+def _righe(p, sql, *args):
+    con = sqlite3.connect(p["db"])
+    try:
+        return con.execute(sql, args).fetchall()
+    finally:
+        con.close()
+
+
+def test_poligoni_documenti_e_schede_si_richiamano_insieme(progetto):
+    esito = _scrivi(progetto)
+    assert (esito.plans, esito.side_views, esito.unit_views) == (2, 4, 2)
+    piante = _righe(progetto, "SELECT scavo_s, area_s, us_s, unita_tipo_s, tipo_doc, nome_doc, "
+                              "disegnatore, coord FROM pyunitastratigrafiche ORDER BY us_s")
+    assert [r[:6] for r in piante] == [(SITO, "1", "001", "US", "Planimetria", "3D-PLA"),
+                                       (SITO, "1", "002", "US", "Planimetria", "3D-PLA")]
+    assert all(r[6] == "pyArchInit 3D" and r[7].startswith("POINT(") for r in piante)
+    documenti = _righe(progetto, "SELECT tipo_documentazione, nome_doc, disegnatore FROM "
+                                 "documentazione_table WHERE sito = ? ORDER BY nome_doc", SITO)
+    assert [(t, n) for t, n, _d in documenti] == [
+        ("Planimetria", "3D-PLA"), ("Prospetto", "3D-PRO-E"), ("Prospetto", "3D-PRO-N"),
+        ("Prospetto", "3D-PRO-S"), ("Prospetto", "3D-PRO-US001"), ("Prospetto", "3D-PRO-US002"),
+        ("Prospetto", "3D-PRO-W")]
+    # il filtro della scheda Documentazione trova le «US verticali» del documento
+    verticali = _righe(progetto, "SELECT us FROM pyarchinit_usm_view WHERE sito = ? AND "
+                                 "nome_doc = ? AND tipo_doc = ?", SITO, "3D-PRO-N", "Prospetto")
+    assert sorted(r[0] for r in verticali) == ["001", "002"]
+    orizzontali = _righe(progetto, "SELECT us FROM pyarchinit_us_view WHERE sito = ? AND "
+                                   "nome_doc = ? AND tipo_doc = ?", SITO, "3D-PLA", "Planimetria")
+    assert sorted(r[0] for r in orizzontali) == ["001", "002"]
+    import ast
+    doc = ast.literal_eval(_righe(progetto, "SELECT documentazione FROM us_table WHERE sito = ? "
+                                            "AND us = '001'", SITO)[0][0])
+    assert doc == [["Planimetria", "3D-PLA"], ["Prospetto", "3D-PRO-N"], ["Prospetto", "3D-PRO-E"],
+                   ["Prospetto", "3D-PRO-S"], ["Prospetto", "3D-PRO-W"], ["Prospetto", "3D-PRO-US001"]]
+
+
+def test_reimportare_sostituisce_solo_il_ricavato(progetto):
+    _scrivi(progetto)
+    con = sqlite3.connect(progetto["db"])
+    con.enable_load_extension(True)
+    for nome in _SPATIALITE:
+        try:
+            con.load_extension(nome)
+            break
+        except sqlite3.Error:
+            continue
+    con.execute("INSERT INTO pyunitastratigrafiche (gid, scavo_s, area_s, us_s, disegnatore, tipo_doc, "
+                "nome_doc, the_geom) VALUES (9999, ?, '1', '001', 'Enzo', 'Planimetria', 'P1', "
+                "CastToMultiPolygon(GeomFromText('POLYGON((0 0,1 0,1 1,0 0))', 31700)))", (SITO,))
+    con.commit()
+    con.close()
+    esito = _scrivi(progetto)
+    assert esito.removed == 2 + 4 * 2 + 2              # le piante, i lati, i prospetti di prima
+    totale = _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche WHERE scavo_s = ?", SITO)[0][0]
+    # SU001 ha ora una pianta a mano: la scelta predefinita non le rifà la sua
+    assert totale == 2                                 # SU002 ricavata + quella a mano di SU001
+    assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE sito = ?", SITO)[0][0] == 7
+
+
+def test_il_poligono_corretto_a_mano_resta_col_suo_documento(progetto):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    _scrivi(progetto)
+    con = sqlite3.connect(progetto["db"])
+    con.execute("UPDATE pyunitastratigrafiche_usm SET disegnatore = 'Enzo' WHERE nome_doc = '3D-PRO-US001'")
+    con.commit()
+    con.close()
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
+    geo = drw.georef_of(progetto["grafo"])
+    scelta = edi.default_choice(unita, geo)
+    su001 = next(u for u in unita if u.name == "SU001")
+    assert su001.hand_vertical and su001.key not in scelta.prospect
+    _scrivi(progetto, scelta=scelta)
+    assert _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche_usm WHERE nome_doc = '3D-PRO-US001'")[0][0] == 1
+    assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-PRO-US001'")[0][0] == 1
+
+
+def test_convertire_le_piante_in_un_altro_sistema(tmp_path):
+    p = make_project(tmp_path, srid=3004)
+    esito = _scrivi(p, decisione_attesa="convert")
+    assert esito.converted == (31700, 3004)
+    x = _righe(p, "SELECT coord FROM pyunitastratigrafiche LIMIT 1")[0][0]
+    assert not x.startswith("POINT(3273")                # le coordinate non sono più quelle di Stereo 70
+    assert "convertite da EPSG:31700 a EPSG:3004" in esito.summary()
+
+
+def test_il_riepilogo(progetto):
+    esito = _scrivi(progetto)
+    assert esito.summary().startswith("Dal 3D: 2 piante, 4 prospetti del sito, 2 prospetti di unità")
+
+
+def test_la_vista_usm_filtrata_del_template_torna_canonica(progetto):
+    """Il template SQLite (resources/dbfiles/pyarchinit.sqlite, da cui nasce
+    ogni DB nuovo) ha una pyarchinit_usm_view che mostra solo le unità di
+    tipo USM; la definizione canonica (spatial_view_definitions, e la vista
+    di PostgreSQL) mostra i disegni verticali di tutte le unità."""
+    prima = _righe(progetto, "SELECT sql FROM sqlite_master WHERE name = 'pyarchinit_usm_view'")[0][0]
+    assert "unita_tipo = 'USM'" in prima
+    esito = _scrivi(progetto)
+    assert esito.view_fixed
+    dopo = _righe(progetto, "SELECT sql FROM sqlite_master WHERE name = 'pyarchinit_usm_view'")[0][0]
+    assert "unita_tipo = 'USM'" not in dopo
+    assert "la vista USM del database mostrava solo le USM" in esito.summary()
+    assert not _scrivi(progetto).view_fixed          # la seconda volta non c'è più niente da fare
