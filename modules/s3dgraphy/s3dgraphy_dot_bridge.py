@@ -530,6 +530,21 @@ if QGIS_AVAILABLE:
             media_row.addWidget(self.btn_media_dir)
             import_layout.addLayout(media_row)
 
+            # Piante e prospetti ricavati dai proxy 3D (18 ottobre 2026,
+            # spec 2026-10-18-geometrie-dai-proxy-3d-design): spenta di partenza.
+            geo_row = QHBoxLayout()
+            self.cb_geom_3d = QCheckBox("Ricava piante e prospetti dai modelli 3D")
+            self.cb_geom_3d.setChecked(False)
+            self.btn_geom_3d = QPushButton("Scegli…")
+            self.btn_geom_3d.setEnabled(False)
+            self.cb_geom_3d.toggled.connect(self.btn_geom_3d.setEnabled)
+            self.btn_geom_3d.clicked.connect(self._on_choose_geom_3d)
+            geo_row.addWidget(self.cb_geom_3d)
+            geo_row.addWidget(self.btn_geom_3d)
+            geo_row.addStretch(1)
+            import_layout.addLayout(geo_row)
+            self._geom_choice = None          # (percorso dell'em.json, sito, Choice)
+
             # AI06: opt-in SQL UPDATE for SQL-derived group kinds
             # (struttura/area/attivita/settore/ambient/saggio/quad_par).
             # Default OFF — D5-C safe default; ad-hoc groups never go
@@ -923,6 +938,21 @@ if QGIS_AVAILABLE:
                 f"{result.epochs_created} periodi nuovi, "
                 f"{len(result.conflicts)} conflitti.\n"
                 + _import_breakdown(graph))
+            piano = None
+            try:
+                piano = self._geom_plan(graph, source_path, target_sito)
+            except Exception as e:                  # noqa: BLE001
+                self.import_summary.setText(self.import_summary.text()
+                                            + "\nPiante e prospetti dal 3D: %s" % e)
+            if piano is not None:
+                from modules.s3dgraphy.sync.em_drawings_import import preview_line
+                unita, scelta, geo, decisione = piano
+                self.import_summary.setText(self.import_summary.text() + "\n"
+                                            + preview_line(unita, scelta, geo))
+                if decisione.kind == "refuse":
+                    self.import_summary.setText(self.import_summary.text() + "\n" + decisione.message)
+                    QMessageBox.warning(self, "Sistema di riferimento", decisione.message)
+                    return                          # Applica resta spento
             self.btn_apply.setEnabled(True)
 
         def _on_import_apply(self):
@@ -934,6 +964,29 @@ if QGIS_AVAILABLE:
             # lasciano lavorare la finestra) la ripeterebbe: Applica si
             # spegne subito e si riaccende solo con una nuova anteprima.
             self.btn_apply.setEnabled(False)
+            # Piante e prospetti dal 3D: il sistema del DB si controlla prima
+            # di scrivere qualsiasi cosa (spec 2026-10-18, D8).
+            piano = None
+            target_sito_3d = self.cb_sito.currentText().strip() or self.site
+            if self.cb_geom_3d.isChecked() and str(self._last_source_path or "").lower().endswith(".json"):
+                try:
+                    grafo_3d, _w = read_graph_for_import(self._last_source_path)
+                    piano = self._geom_plan(grafo_3d, self._last_source_path, target_sito_3d)
+                except Exception as e:              # noqa: BLE001
+                    QMessageBox.critical(self, "Geometrie dai modelli 3D", "%s: %s" % (type(e).__name__, e))
+                    return
+                decisione = piano[3]
+                if decisione.kind == "refuse":
+                    QMessageBox.warning(self, "Sistema di riferimento", decisione.message)
+                    return                          # nel DB non è entrato niente
+                if decisione.kind == "convert":
+                    box = QMessageBox(QMessageBox.Icon.Question, "Sistema di riferimento",
+                                      decisione.message, parent=self)
+                    converti = box.addButton("Converti", QMessageBox.ButtonRole.AcceptRole)
+                    box.addButton("Annulla", QMessageBox.ButtonRole.RejectRole)
+                    box.exec()
+                    if box.clickedButton() is not converti:
+                        return                      # nel DB non è entrato niente
             try:
                 graph, _read_warnings = read_graph_for_import(
                     self._last_source_path)
@@ -1015,6 +1068,9 @@ if QGIS_AVAILABLE:
             esito_media = ""
             if self.cb_import_media.isChecked():
                 esito_media = self._import_media(graph, target_sito)
+            if piano is not None:
+                testo_3d = self._import_drawings(graph, target_sito, piano)
+                esito_media = (esito_media + "\n" if esito_media else "") + testo_3d
             if memoria:
                 esito_media = (esito_media + "\n" if esito_media else "") + memoria
             QMessageBox.information(
@@ -1036,6 +1092,79 @@ if QGIS_AVAILABLE:
                     self.tabs.setCurrentWidget(self.rapporti_panel)
                 except Exception:
                     pass
+
+        def _geom_plan(self, graph, source_path, target_sito):
+            """(unità, scelta, posizione, decisione) per i disegni dal 3D, o
+            None se la casella è spenta o il file non è un em.json."""
+            if not self.cb_geom_3d.isChecked() or not str(source_path or "").lower().endswith(".json"):
+                return None
+            from modules.s3dgraphy import em_drawings as drw
+            from modules.s3dgraphy.sync import em_drawings_import as edi
+            altrove = self.le_media_dir.text().strip()
+            unita = edi.plan_units(graph, source_path, search_dirs=[altrove] if altrove else [],
+                                   db=self.db_manager, sito=target_sito)
+            geo = drw.georef_of(graph)
+            if self._geom_choice and self._geom_choice[:2] == (source_path, target_sito):
+                scelta = self._geom_choice[2]
+            else:
+                scelta = edi.default_choice(unita, geo)
+            return unita, scelta, geo, edi.crs_decision(self.db_manager, geo, scelta)
+
+        def _on_choose_geom_3d(self):
+            from modules.s3dgraphy.em_drawings_dialog import DrawingsDialog
+            source_path = self.le_import_file.text().strip()
+            target_sito = self.cb_sito.currentText().strip() or self.site
+            if not source_path.lower().endswith(".json") or not os.path.exists(source_path):
+                QMessageBox.warning(self, "Nessun em.json",
+                                    "Scegli prima l'em.json: piante e prospetti si ricavano "
+                                    "dai suoi proxy 3D.")
+                return
+            try:
+                graph, _w = read_graph_for_import(source_path)
+                piano = self._geom_plan(graph, source_path, target_sito)
+            except Exception as e:                  # noqa: BLE001
+                QMessageBox.critical(self, "Geometrie dai modelli 3D", "%s: %s" % (type(e).__name__, e))
+                return
+            unita, scelta, geo, _decisione = piano
+            dlg = DrawingsDialog(unita, scelta, geo, self)
+            if dlg.exec():
+                self._geom_choice = (source_path, target_sito, dlg.choice())
+
+        def _import_drawings(self, graph, target_sito, piano):
+            """Piante e prospetti dai proxy 3D, dopo le schede e i media.
+            Torna il riepilogo (o il perché non si è fatto)."""
+            from qgis.PyQt.QtCore import Qt
+            from qgis.PyQt.QtWidgets import QApplication, QProgressDialog
+            unita, scelta, geo, decisione = piano
+            try:
+                from modules.s3dgraphy.sync.em_drawings_import import run_drawings
+                attesa = QProgressDialog("Piante e prospetti dai modelli 3D…", "", 0, 0, self)
+                attesa.setCancelButton(None)
+                attesa.setWindowTitle("Importa em.json")
+                attesa.setWindowModality(Qt.WindowModality.WindowModal)
+                attesa.setMinimumDuration(400)
+
+                def avanza(fatti, totale, nome):
+                    attesa.setMaximum(max(totale, 1))
+                    attesa.setValue(fatti)
+                    attesa.setLabelText("Modelli 3D: %d di %d\n%s" % (fatti, totale, nome))
+                    QApplication.processEvents()
+
+                try:
+                    esito = run_drawings(self.db_manager, graph, target_sito, self._last_source_path,
+                                         units=unita, choice=scelta, georef=geo, decision=decisione,
+                                         progress=avanza)
+                finally:
+                    attesa.close()
+                # query_bool tiene i risultati in cache cinque minuti.
+                if hasattr(self.db_manager, "clear_cache"):
+                    try:
+                        self.db_manager.clear_cache()
+                    except Exception:               # noqa: BLE001
+                        pass
+                return esito.summary(unita)
+            except Exception as e:                  # noqa: BLE001
+                return "Piante e prospetti dal 3D non fatti: %s" % e
 
         def _import_media(self, graph, target_sito):
             """I media citati dall'em.json, dopo le schede: registrati come
