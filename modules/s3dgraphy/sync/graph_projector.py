@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 
+from ..em_drawings import without_derived_pairs as _without_derived_pairs
 from s3dgraphy.sync.graph_projector import *  # noqa: F401,F403
 from s3dgraphy.sync.graph_projector import (  # noqa: F401  (private, used by tests)
     GraphProjector as _LibGraphProjector,
@@ -996,6 +997,9 @@ class GraphProjector(_LibGraphProjector):
              fase_ini, periodo_fin, fase_fin, rapporti_raw, d_strat,
              d_interp, attivita, struttura, settore, ambient, saggio,
              quad_par, documentazione, descrizione) in rows:
+            # I disegni ricavati dal 3D (3D-PLA, 3D-PRO-…) restano in
+            # pyArchInit: nell'em.json non vanno (spec 2026-10-18, D11).
+            documentazione = _without_derived_pairs(documentazione)
             us_name = str(us_val) if us_val is not None else None
             if not us_name:
                 continue

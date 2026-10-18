@@ -160,3 +160,41 @@ def test_spostare_un_disegno():
     g = QgsGeometry.fromWkt("MULTIPOLYGON(((0 0,1 0,1 1,0 0)))")
     assert drw.span_u(drw.translated(g, 5.0)) == (5.0, 6.0)
     assert drw.span_u(g) == (0.0, 1.0)              # l'originale resta com'era
+
+
+def test_i_nomi_dei_documenti():
+    assert drw.side_name("N") == "3D-PRO-N" and drw.PLAN_NAME == "3D-PLA"
+    nomi = drw.unit_drawing_names([("a", "US", "002", "1"), ("b", "USVn", "106", "1"),
+                                   ("c", "US", "002", "2")])
+    assert nomi == {"a": "3D-PRO-US002-A1", "b": "3D-PRO-USVn106", "c": "3D-PRO-US002-A2"}
+    assert drw.is_derived_name("3D-PRO-N") and drw.is_derived_name(" 3D-PLA ")
+    assert not drw.is_derived_name("3D-PIANTA") and not drw.is_derived_name("PR001")
+
+
+def test_i_nomi_dei_documenti_non_hanno_spazi_ne_barre():
+    nome = drw.unit_drawing_names([("a", "US", "2/a b", "1")])["a"]
+    assert nome == "3D-PRO-US2-a_b" and drw.is_derived_name(nome)
+
+
+def test_le_coppie_ricavate_fuori_dall_em_json():
+    v = "[['Fotografie', 'Si'], ['Prospetto', '3D-PRO-N'], ['Sezione', 'AA1']]"
+    assert drw.without_derived_pairs(v) == "[['Fotografie', 'Si'], ['Sezione', 'AA1']]"
+    for intatto in (None, "", "[['Fotografie', 'Si']]", "non si legge [", "Fotografie: Si"):
+        assert drw.without_derived_pairs(intatto) == intatto
+
+
+def test_le_coppie_ricavate_di_adesso_al_posto_di_quelle_di_prima():
+    prima = "[['Fotografie', 'Si'], ['Planimetria', '3D-PLA'], ['Prospetto', '3D-PRO-US002']]"
+    dopo = drw.with_derived_pairs(prima, [["Planimetria", "3D-PLA"], ["Prospetto", "3D-PRO-N"]])
+    assert dopo == "[['Fotografie', 'Si'], ['Planimetria', '3D-PLA'], ['Prospetto', '3D-PRO-N']]"
+    assert drw.with_derived_pairs(None, [["Prospetto", "3D-PRO-N"]]) == "[['Prospetto', '3D-PRO-N']]"
+    assert drw.with_derived_pairs("rotto [", [["Prospetto", "3D-PRO-N"]]) is None
+    assert drw.with_derived_pairs(prima, []) == "[['Fotografie', 'Si']]"
+
+
+def test_al_reimport_le_coppie_ricavate_restano():
+    vecchio = "[['Fotografie', 'Si'], ['Prospetto', '3D-PRO-N']]"
+    assert drw.merge_derived_pairs("[['Fotografie', 'Si'], ['Sezione', 'B']]", vecchio) == \
+        "[['Fotografie', 'Si'], ['Sezione', 'B'], ['Prospetto', '3D-PRO-N']]"
+    assert drw.merge_derived_pairs("[['Fotografie', 'Si']]", None) == "[['Fotografie', 'Si']]"
+    assert drw.merge_derived_pairs("rotto [", vecchio) == "rotto ["

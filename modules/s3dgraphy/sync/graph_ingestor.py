@@ -101,6 +101,7 @@ from s3dgraphy.sync.ingest_result import (
 from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 from . import em_native_import as _emn
+from ..em_drawings import merge_derived_pairs as _merge_derived_pairs
 
 #: Le classi che la libreria salta (``_NON_STRAT_TYPES``) ma che per
 #: pyArchInit sono schede: la catena dei paradati (proprietà, estrattori,
@@ -853,6 +854,11 @@ class GraphIngestor:
                             attrs.get("fase_finale"))
                         if codice:
                             attrs["cont_per"] = codice
+                    # Le coppie dei disegni ricavati dal 3D non viaggiano
+                    # nell'em.json: reimportandolo, la scheda le tiene.
+                    if existing is not None and "documentazione" in attrs:
+                        attrs["documentazione"] = _merge_derived_pairs(
+                            attrs.get("documentazione"), existing.get("documentazione"))
                     return existing, eff_uuid
 
                 # Rilevazione: nuove, aggiornate, invariate — sui valori che

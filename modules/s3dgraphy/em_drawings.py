@@ -281,3 +281,90 @@ def translated(geom, du: float):
     out = QgsGeometry(geom)
     out.translate(float(du), 0.0)
     return out
+
+
+# ------------------------------------------------- i nomi e le coppie della scheda
+
+_DERIVED = re.compile(r"^3D-(PLA|PRO-.+)$")
+_UNSAFE = re.compile(r"[^0-9A-Za-z._-]+")
+
+
+def side_name(code: str) -> str:
+    return "3D-PRO-" + str(code)
+
+
+def is_derived_name(nome) -> bool:
+    return bool(_DERIVED.match(str(nome or "").strip()))
+
+
+def _safe(testo) -> str:
+    return _UNSAFE.sub("_", str(testo or "").strip().replace("/", "-")).strip("_")
+
+
+def unit_drawing_names(items: Sequence[Tuple[str, str, str, str]]) -> Dict[str, str]:
+    """``(chiave, unita_tipo, us, area)`` → «3D-PRO-<tipo><us>»; ai nomi che
+    verrebbero doppi si aggiunge «-A<area>»."""
+    base = {k: "3D-PRO-%s%s" % (_safe(t), _safe(u)) for k, t, u, _a in items}
+    quanti = Counter(base.values())
+    return {k: base[k] + ("-A%s" % _safe(a) if quanti[base[k]] > 1 else "")
+            for k, _t, _u, a in items}
+
+
+def _pairs(value):
+    """La lista della scheda US (la ``repr`` di una lista di coppie) → lista;
+    ``None`` se non si legge."""
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple)):
+        return [list(p) if isinstance(p, (list, tuple)) else p for p in value]
+    testo = str(value).strip()
+    if not testo:
+        return []
+    try:
+        dati = ast.literal_eval(testo)
+    except (ValueError, SyntaxError, MemoryError, RecursionError):
+        return None
+    if not isinstance(dati, (list, tuple)):
+        return None
+    return [list(p) if isinstance(p, (list, tuple)) else p for p in dati]
+
+
+def _is_derived_pair(p) -> bool:
+    return isinstance(p, list) and len(p) >= 2 and is_derived_name(p[1])
+
+
+def without_derived_pairs(value):
+    """Per l'export dell'em.json: la lista senza le coppie ricavate dal 3D.
+    Un valore che non si legge, o senza coppie ricavate, torna com'era."""
+    coppie = _pairs(value)
+    if not coppie or not any(_is_derived_pair(p) for p in coppie):
+        return value
+    return str([p for p in coppie if not _is_derived_pair(p)])
+
+
+def with_derived_pairs(value, pairs) -> Optional[str]:
+    """La lista della scheda con le coppie ricavate di adesso al posto di
+    quelle di prima; le altre restano. ``None`` se la lista non si legge."""
+    coppie = _pairs(value)
+    if coppie is None:
+        return None
+    resto = [p for p in coppie if not _is_derived_pair(p)]
+    nuove = []
+    for p in pairs:
+        p = [str(x) for x in p]
+        if p not in resto and p not in nuove:
+            nuove.append(p)
+    return str(resto + nuove)
+
+
+def merge_derived_pairs(new_value, old_value):
+    """Reimport di un em.json: la lista che arriva, più le coppie ricavate che
+    la scheda aveva (nell'em.json non ci sono mai)."""
+    vecchie = _pairs(old_value)
+    ricavate = [p for p in (vecchie or []) if _is_derived_pair(p)]
+    if not ricavate:
+        return new_value
+    nuove = _pairs(new_value)
+    if nuove is None:
+        return new_value
+    return str([p for p in nuove if not _is_derived_pair(p)] + ricavate)
