@@ -193,3 +193,70 @@ def test_senza_posizione_niente_piante(tmp_path):
     scelta = edi.default_choice(unita, geo)
     assert scelta.plan == set() and len(scelta.prospect) == 2
     assert edi.crs_decision(p["eng"], geo, scelta).kind == "ok"
+
+
+def _calcola(p, scelta=None):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    geo = drw.georef_of(p["grafo"])
+    scelta = scelta or edi.default_choice(unita, geo)
+    schede = edi.schede_of(p["eng"], SITO, [u.key for u in unita])
+    return edi.compute_drawings(p["grafo"], unita, scelta, geo, schede, source_name="tempio.em.json")
+
+
+def test_i_disegni_di_due_unita(progetto):
+    disegni, saltate = _calcola(progetto)
+    nomi = [d.nome for d in disegni]
+    assert nomi == ["3D-PLA", "3D-PRO-N", "3D-PRO-E", "3D-PRO-S", "3D-PRO-W",
+                    "3D-PRO-US001", "3D-PRO-US002"]
+    assert saltate == {}
+    pianta = disegni[0]
+    assert pianta.layer == "pyunitastratigrafiche" and pianta.tipo == "Planimetria"
+    aree = sorted(round(g.area(), 6) for _k, g in pianta.features)
+    assert aree == [4.0, 4.0]                     # SU001: 4 × 1; SU002: 2 × 2
+    x0 = min(g.boundingBox().xMinimum() for _k, g in pianta.features)
+    assert x0 == pytest.approx(327300.0)          # spostamento X dell'em.json
+
+
+def test_le_viste_verticali_non_si_sovrappongono(progetto):
+    from modules.s3dgraphy import em_drawings as drw
+    disegni, _ = _calcola(progetto)
+    verticali = [d for d in disegni if d.layer == "pyunitastratigrafiche_usm"]
+    assert all(d.tipo == "Prospetto" for d in verticali)
+    campate = []
+    for d in verticali:
+        lo = min(drw.span_u(g)[0] for _k, g in d.features)
+        hi = max(drw.span_u(g)[1] for _k, g in d.features)
+        campate.append((lo, hi))
+    for (a0, a1), (b0, b1) in zip(campate, campate[1:]):
+        assert b0 == pytest.approx(a1 + 10.0)
+    assert campate[0][0] == pytest.approx(0.0)
+
+
+def test_nel_prospetto_nord_il_piu_vicino_e_scritto_per_ultimo(progetto):
+    disegni, _ = _calcola(progetto)
+    nord = next(d for d in disegni if d.nome == "3D-PRO-N")
+    # SU001 sta a nord (z glTF −10 → Y +10): è il più vicino a chi guarda da nord
+    assert [k for k, _g in nord.features] == ["u2", "u1"]
+
+
+def test_un_muro_senza_spessore_ha_il_prospetto_ma_non_la_pianta(tmp_path):
+    p = make_project(tmp_path, muro_sottile=True)
+    disegni, saltate = _calcola(p)
+    pianta = next(d for d in disegni if d.nome == "3D-PLA")
+    assert [k for k, _g in pianta.features] == ["u2"]
+    assert saltate == {"u1": "vuoto in pianta"}
+    assert "3D-PRO-US001" in [d.nome for d in disegni]
+
+
+def test_lo_spostamento_z_scelto_vale_per_le_quote(progetto):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
+    geo = drw.georef_of(progetto["grafo"])
+    scelta = edi.default_choice(unita, geo)
+    scelta.shift_z = 495.0
+    disegni, _ = _calcola(progetto, scelta)
+    nord = next(d for d in disegni if d.nome == "3D-PRO-N")
+    assert min(g.boundingBox().yMinimum() for _k, g in nord.features) == pytest.approx(495.0)

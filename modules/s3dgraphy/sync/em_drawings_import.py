@@ -271,3 +271,114 @@ def preview_line(units: Sequence[DrawingUnit], choice: Choice, georef) -> str:
     if senza:
         testo += "; %d unità senza modello utilizzabile" % senza
     return testo + "."
+
+
+# ----------------------------------------------------------------- il calcolo
+
+@dataclass
+class Drawing:
+    layer: str
+    tipo: str
+    nome: str
+    note: str
+    features: List[Tuple[str, object]] = field(default_factory=list)   # (chiave, QgsGeometry)
+    plan: bool = False
+
+
+_LATI = {"it": {"N": "nord", "E": "est", "S": "sud", "W": "ovest"},
+         "en": {"N": "north", "E": "east", "S": "south", "W": "west"}}
+_SINISTRA = {"N": "E", "E": "S", "S": "W", "W": "N"}
+_NOTE = {
+    "it": {"plan": "Pianta ricavata dai proxy 3D di {src}, EPSG:{epsg}.",
+           "side": ("Prospetto {lato} del sito ricavato dai proxy 3D di {src}: X = metri lungo "
+                    "la vista ({sinistra} a sinistra), Y = quota (spostamento Z {z} m)."),
+           "unit": ("Prospetto di {unita} visto da {da}, ricavato dal proxy 3D di {src}: "
+                    "X = metri lungo la vista, Y = quota (spostamento Z {z} m).")},
+    "en": {"plan": "Plan derived from the 3D proxies of {src}, EPSG:{epsg}.",
+           "side": ("{lato} elevation of the site derived from the 3D proxies of {src}: X = metres "
+                    "along the view ({sinistra} on the left), Y = elevation (Z shift {z} m)."),
+           "unit": ("Elevation of {unita} seen from {da}, derived from the 3D proxy of {src}: "
+                    "X = metres along the view, Y = elevation (Z shift {z} m).")},
+}
+
+
+def _parole(lang: str):
+    lang = (lang or "it")[:2].lower()
+    return _NOTE.get(lang, _NOTE["en"]), _LATI.get(lang, _LATI["en"])
+
+
+def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef,
+                     schede: Dict[str, Scheda], *, source_name: str = "em.json", lang: str = "it",
+                     tipi: Tuple[str, str] = ("Planimetria", "Prospetto"),
+                     progress: Optional[Callable[[int, int, str], None]] = None
+                     ) -> Tuple[List[Drawing], Dict[str, str]]:
+    """I disegni della scelta: la pianta, i lati del sito, i prospetti delle
+    unità, impaginati. Torna anche le unità saltate, con il motivo."""
+    note, lati = _parole(lang)
+    z = georef.shift_z if choice.shift_z is None else float(choice.shift_z)
+    per_chiave = {u.key: u for u in units}
+    voluti = sorted(choice.units, key=lambda k: per_chiave[k].name if k in per_chiave else k)
+    saltate: Dict[str, str] = {}
+    mesh: Dict[str, np.ndarray] = {}
+    for i, k in enumerate(voluti):
+        u = per_chiave.get(k)
+        if progress:
+            progress(i, len(voluti), u.name if u else k)
+        if u is None or not u.usable:
+            saltate[k] = status_text(u) if u else "unità sconosciuta"
+            continue
+        if k not in schede:
+            saltate[k] = "scheda non trovata"
+            continue
+        try:
+            parti = [drw.scene_from_gltf(gm.read_triangles(p)) for p in u.paths]
+        except gm.GlbError as e:
+            saltate[k] = str(e)
+            continue
+        tri = np.concatenate(parti)
+        mesh[k] = drw.place(graph, georef, tri.reshape(-1, 3), z).reshape(-1, 3, 3)
+    if progress:
+        progress(len(voluti), len(voluti), "")
+    disegni: List[Drawing] = []
+    if not mesh:
+        return disegni, saltate
+    piante = {k: drw.plan_geometry(t) for k, t in mesh.items()}
+    if georef.usable and choice.plan:
+        pianta = Drawing(PLAN_LAYER, tipi[0], drw.PLAN_NAME,
+                         note["plan"].format(src=source_name, epsg=georef.epsg), plan=True)
+        for k in sorted(choice.plan & set(mesh), key=lambda k: per_chiave[k].name):
+            if piante.get(k) is None:
+                saltate[k] = "vuoto in pianta"
+            else:
+                pianta.features.append((k, piante[k]))
+        disegni.append(pianta)
+    origine, centro = drw.site_frame(mesh.values())
+    verticali: List[Drawing] = []
+    for lato in choice.sides:
+        vista = drw.SITE_VIEWS[lato]
+        sagome = []
+        for k, t in mesh.items():
+            g = drw.view_geometry(t, vista, origine)
+            if g is not None:
+                sagome.append((drw.depth(t, vista), per_chiave[k].name, k, g))
+        sagome.sort(key=lambda s: (-s[0], s[1]))
+        verticali.append(Drawing(VERTICAL_LAYER, tipi[1], drw.side_name(lato), note["side"].format(
+            lato=lati[lato], src=source_name, sinistra=lati[_SINISTRA[lato]], z=z),
+            [(k, g) for _d, _n, k, g in sagome]))
+    prospetti = [k for k in voluti if k in mesh and k in choice.prospect]
+    nomi = drw.unit_drawing_names([(k, schede[k].unita_tipo, schede[k].us, schede[k].area)
+                                   for k in prospetti])
+    for k in prospetti:
+        vista = drw.unit_view(nomi[k], piante.get(k), drw.centroid_xy(mesh[k]), centro)
+        g = drw.view_geometry(mesh[k], vista, origine)
+        if g is None:
+            saltate.setdefault(k, "vuoto nel prospetto")
+            continue
+        verticali.append(Drawing(VERTICAL_LAYER, tipi[1], nomi[k], note["unit"].format(
+            unita=per_chiave[k].name, da=vista.side, src=source_name, z=z), [(k, g)]))
+    verticali = [d for d in verticali if d.features]
+    campate = [(min(drw.span_u(g)[0] for _k, g in d.features),
+                max(drw.span_u(g)[1] for _k, g in d.features)) for d in verticali]
+    for d, du in zip(verticali, drw.lay_out(campate)):
+        d.features = [(k, drw.translated(g, du)) for k, g in d.features]
+    return disegni + verticali, saltate
