@@ -68,3 +68,20 @@ def test_un_vertice_sul_piano_non_rompe_il_taglio():
 def test_le_sezioni_sono_nomi_ricavati():
     assert drw.is_derived_name("3D-SEZ-1") and drw.is_derived_name("3D-SEZ-G12")
     assert not drw.is_derived_name("3D-SEZIONE")
+
+
+def test_una_linea_obliqua_chiude_il_profilo():
+    """Il punto su uno spigolo condiviso da due triangoli si calcola due volte,
+    con i vertici in ordine opposto: deve venire uguale, o con coordinate
+    grandi (Stereo 70) i segmenti non si toccano e il profilo non si chiude."""
+    from modules.s3dgraphy import glb_mesh as gm
+    from tests.sync.glb_fixtures import box_glb
+    tri = drw.scene_from_gltf(gm.read_triangles(box_glb(4.0, 3.0, 1.0, center=(2.0, 1.5, -10.0))))
+    tri[..., 0] += 327300.0
+    tri[..., 1] += 448370.0
+    for a, b in (((327298.0, 448380.0), (327306.0, 448380.0)),
+                 ((327297.9999998525, 448379.99999969243), (327305.9999997554, 448380.0000001692)),
+                 ((327298.0, 448379.7), (327306.0, 448380.3))):
+        g = drw.section_geometry(tri, a, b)
+        assert g is not None, (a, b)
+        assert g.area() > 11.9

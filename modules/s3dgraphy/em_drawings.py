@@ -416,8 +416,20 @@ def _section_segments(tri_map: np.ndarray, a, b):
     quanti = np.zeros(len(t), dtype=int)
     for i, j in ((0, 1), (1, 2), (2, 0)):
         taglia = sopra[:, i] != sopra[:, j]
-        f = s[:, i] / (s[:, i] - s[:, j])
-        punto = t[:, i] + (t[:, j] - t[:, i]) * f[:, None]
+        pi, pj, si, sj = t[:, i], t[:, j], s[:, i], s[:, j]
+        # Lo stesso spigolo, visto da due triangoli, si calcola sempre dallo
+        # stesso estremo (il minore in ordine lessicografico): con i vertici in
+        # ordine opposto i due punti differirebbero di 1e-10, i segmenti non si
+        # toccherebbero e la poligonazione non chiuderebbe il profilo.
+        scambia = (pi[:, 0] > pj[:, 0]) | ((pi[:, 0] == pj[:, 0]) & (
+            (pi[:, 1] > pj[:, 1]) | ((pi[:, 1] == pj[:, 1]) & (pi[:, 2] > pj[:, 2]))))
+        pa = np.where(scambia[:, None], pj, pi)
+        pb = np.where(scambia[:, None], pi, pj)
+        sa = np.where(scambia, sj, si)
+        sb = np.where(scambia, si, sj)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            f = sa / (sa - sb)
+        punto = pa + (pb - pa) * f[:, None]
         k = np.nonzero(taglia)[0]
         seg[k, quanti[k]] = punto[k]
         quanti[k] += 1
