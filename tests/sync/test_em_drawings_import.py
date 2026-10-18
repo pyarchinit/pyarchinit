@@ -378,3 +378,33 @@ def test_la_vista_usm_filtrata_del_template_torna_canonica(progetto):
     assert "unita_tipo = 'USM'" not in dopo
     assert "la vista USM del database mostrava solo le USM" in esito.summary()
     assert not _scrivi(progetto).view_fixed          # la seconda volta non c'è più niente da fare
+
+
+def test_senza_nessun_proxy_trovato_i_disegni_di_prima_restano(progetto):
+    """L'SSD staccato: nessun proxy si trova, e il passo dei disegni non deve
+    cancellare quelli ricavati la volta prima."""
+    _scrivi(progetto)
+    (progetto["radice"] / "EM" / "proxies").rename(progetto["radice"] / "EM" / "proxies_via")
+    esito = _scrivi(progetto, decisione_attesa="none")
+    assert esito.removed == 0 and esito.features == 0
+    assert "i disegni ricavati di prima restano" in esito.summary()
+    assert _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche WHERE scavo_s = ?", SITO)[0][0] == 2
+    assert _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche_usm WHERE scavo_s = ?", SITO)[0][0] == 10
+
+
+def test_la_barra_avanza_anche_durante_il_calcolo(progetto):
+    """Su TempluMare il calcolo dura quasi un minuto dopo la lettura dei
+    modelli: la barra deve contare anche piante e prospetti, o la finestra
+    sembra ferma."""
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
+    geo = drw.georef_of(progetto["grafo"])
+    schede = edi.schede_of(progetto["eng"], SITO, [u.key for u in unita])
+    chiamate = []
+    edi.compute_drawings(progetto["grafo"], unita, edi.default_choice(unita, geo), geo, schede,
+                         progress=lambda fatti, totale, nome: chiamate.append((fatti, totale)))
+    # 2 modelli letti, 2 piante, 4 lati × 2 unità, 2 prospetti di unità
+    assert chiamate[-1] == (14, 14)
+    fatti = [f for f, _t in chiamate]
+    assert fatti == sorted(fatti) and max(f for f, _t in chiamate[:-1]) > 2

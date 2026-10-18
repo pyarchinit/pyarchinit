@@ -26,7 +26,7 @@ _DDL = [
     "nome_doc TEXT, data TEXT, tipo_documentazione TEXT, sorgente TEXT, scala TEXT, "
     "disegnatore TEXT, note TEXT)",
 ]
-_LAYER = ("CREATE TABLE {t} (gid INTEGER PRIMARY KEY, area_s TEXT, scavo_s TEXT, us_s TEXT, "
+_LAYER = ("CREATE TABLE {t} (gid SERIAL PRIMARY KEY, area_s TEXT, scavo_s TEXT, us_s TEXT, "
           "stratigraph_index_us INTEGER, tipo_us_s TEXT, rilievo_originale TEXT, disegnatore TEXT, "
           "data TEXT, tipo_doc TEXT, nome_doc TEXT, coord TEXT, unita_tipo_s TEXT, "
           "the_geom geometry(MultiPolygon, {srid}))")
@@ -90,3 +90,8 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
     esito2 = edi.run_drawings(pg_schema, p["grafo"], SITO, str(p["em"]), units=unita, choice=scelta,
                               georef=geo, decision=decisione, lang="it")
     assert esito2.removed == 2 + 8 + 2
+    # le sequenze sono in pari: QGIS, che disegna con il gid di default, non trova un doppione
+    with pg_schema.begin() as conn:
+        for tabella in ("pyunitastratigrafiche", "pyunitastratigrafiche_usm"):
+            conn.execute(text("INSERT INTO %s (scavo_s) VALUES ('a mano')" % tabella))
+        conn.execute(text("INSERT INTO documentazione_table (sito, nome_doc) VALUES ('a mano', 'P1')"))

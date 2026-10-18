@@ -321,10 +321,18 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
     voluti = sorted(choice.units, key=lambda k: per_chiave[k].name if k in per_chiave else k)
     saltate: Dict[str, str] = {}
     mesh: Dict[str, np.ndarray] = {}
-    for i, k in enumerate(voluti):
-        u = per_chiave.get(k)
+    lati_scelti = [x for x in choice.sides if x in drw.SITE_VIEWS]
+    totale = len(voluti) * (2 + len(lati_scelti)) + len([k for k in voluti if k in choice.prospect])
+    passi = [0]
+
+    def avanti(nome: str) -> None:
+        passi[0] += 1
         if progress:
-            progress(i, len(voluti), u.name if u else k)
+            progress(min(passi[0], totale), totale, nome)
+
+    for k in voluti:
+        u = per_chiave.get(k)
+        avanti(u.name if u else k)
         if u is None or not u.usable:
             saltate[k] = status_text(u) if u else "unità sconosciuta"
             continue
@@ -338,12 +346,16 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
             continue
         tri = np.concatenate(parti)
         mesh[k] = drw.place(graph, georef, tri.reshape(-1, 3), z).reshape(-1, 3, 3)
-    if progress:
-        progress(len(voluti), len(voluti), "")
     disegni: List[Drawing] = []
     if not mesh:
+        if progress:
+            progress(totale, totale, "")
         return disegni, saltate
-    piante = {k: drw.plan_geometry(t) for k, t in mesh.items()}
+    piante = {}
+    for k in voluti:
+        if k in mesh:
+            avanti(per_chiave[k].name)
+            piante[k] = drw.plan_geometry(mesh[k])
     if georef.usable and choice.plan:
         pianta = Drawing(PLAN_LAYER, tipi[0], drw.PLAN_NAME,
                          note["plan"].format(src=source_name, epsg=georef.epsg), plan=True)
@@ -358,7 +370,11 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
     for lato in choice.sides:
         vista = drw.SITE_VIEWS[lato]
         sagome = []
-        for k, t in mesh.items():
+        for k in voluti:
+            if k not in mesh:
+                continue
+            t = mesh[k]
+            avanti("%s · %s" % (lati[lato], per_chiave[k].name))
             g = drw.view_geometry(t, vista, origine)
             if g is not None:
                 sagome.append((drw.depth(t, vista), per_chiave[k].name, k, g))
@@ -370,6 +386,7 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
     nomi = drw.unit_drawing_names([(k, schede[k].unita_tipo, schede[k].us, schede[k].area)
                                    for k in prospetti])
     for k in prospetti:
+        avanti(nomi[k])
         vista = drw.unit_view(nomi[k], piante.get(k), drw.centroid_xy(mesh[k]), centro)
         g = drw.view_geometry(mesh[k], vista, origine)
         if g is None:
@@ -377,6 +394,8 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
             continue
         verticali.append(Drawing(VERTICAL_LAYER, tipi[1], nomi[k], note["unit"].format(
             unita=per_chiave[k].name, da=vista.side, src=source_name, z=z), [(k, g)]))
+    if progress:
+        progress(totale, totale, "")
     verticali = [d for d in verticali if d.features]
     campate = [(min(drw.span_u(g)[0] for _k, g in d.features),
                 max(drw.span_u(g)[1] for _k, g in d.features)) for d in verticali]
@@ -582,6 +601,20 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                 conn.execute(text("UPDATE us_table SET documentazione = :v WHERE id_us = :i"),
                              {"v": dopo, "i": int(id_us)})
                 esito.pairs_updated += 1
+        if is_pg:
+            # Gli id sono scritti espliciti (MAX + 1): la sequenza va rimessa
+            # in pari, o il primo poligono disegnato in QGIS prenderebbe un
+            # gid già usato.
+            for tabella, chiave in ((PLAN_LAYER, "gid"), (VERTICAL_LAYER, "gid"),
+                                    ("documentazione_table", "id_documentazione")):
+                try:
+                    with conn.begin_nested():
+                        conn.execute(text(
+                            "SELECT setval(pg_get_serial_sequence(:t, :c), "
+                            "(SELECT COALESCE(MAX(%s), 0) + 1 FROM %s), false)" % (chiave, tabella)),
+                            {"t": tabella, "c": chiave})
+                except Exception:                           # noqa: BLE001
+                    pass
     return esito
 
 
@@ -634,6 +667,13 @@ def run_drawings(db, graph, sito: str, emjson_path: str, *, units: Sequence[Draw
     disegni, saltate = compute_drawings(graph, units, choice, georef, schede, source_name=nome,
                                         lang=lang, tipi=tipi, progress=progress)
     rilievi = {u.key: "; ".join(u.locators) for u in units}
+    if not any(d.features for d in disegni):
+        # Per esempio il disco dei proxy staccato: niente da scrivere, e i
+        # disegni ricavati la volta prima non si cancellano.
+        esito = WriteResult()
+        esito.skipped.update(saltate)
+        esito.warnings.append("nessun disegno da scrivere: i disegni ricavati di prima restano")
+        return esito
     esito = write_drawings(db, sito, disegni, schede, decision, source_name=nome, rilievi=rilievi)
     esito.skipped.update(saltate)
     if esito.side_views or esito.unit_views:
