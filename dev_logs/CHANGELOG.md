@@ -7,7 +7,7 @@
 
 ## [feat] - 2026-10-18 — Piante e prospetti dai modelli 3D all'import dell'em.json: la pianta di ogni unità nel layer delle piante, i prospetti del sito e delle unità nel layer dei disegni verticali, ognuno col suo documento — 5.13.134-alpha
 
-> Branch `Stratigraph_00001`. Suite **2507 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +68 test)**. / Plans and elevations derived from the 3D proxies when importing an EMStudio em.json: unit plans in `pyunitastratigrafiche`, site and unit elevations in `pyunitastratigrafiche_usm`, one Documentazione record per drawing, linked by the same type and name.
+> Branch `Stratigraph_00001`. Suite **2507 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +68 test). / Plans and elevations derived from the 3D proxies when importing an EMStudio em.json: unit plans in `pyunitastratigrafiche`, site and unit elevations in `pyunitastratigrafiche_usm`, one Documentazione record per drawing, linked by the same type and name.
 
 #### Added / Aggiunto
 - 🇮🇹 **IT**: Enzo, 18 ottobre 2026: «è vero che non ci sono geometrie gis (quindi 2d) dello scavo ma è anche vero che c'è il 3D… lo si potrebbe fare come opzione quando importiamo l'em.json e scegliamo cosa convertire». Nella tab Import della finestra Extended Matrix, la casella **Ricava piante e prospetti dai modelli 3D** (spenta di partenza) e il pulsante **Scegli…** (finestra **Geometrie dai modelli 3D**: posizione dell'em.json, spostamento Z con le quote che ne vengono fuori, i quattro lati, unità con Pianta/Prospetto/Stato).
