@@ -137,7 +137,7 @@ Senza geometrie da scrivere, nessun controllo. Annulla, o il fermo, annullano tu
   - `disegnatore` = «pyArchInit 3D»
   - `rilievo_originale` = il locatore del proxy
   - `data`
-  - `coord` = «EPSG:<srid>» per la pianta, «disegno: X lungo la vista, Y quota» per i prospetti
+  - `coord` = il centroide, `POINT(x y)`, come lo scrive il trigger `update_coord_on_geom` di pyArchInit. Il sistema della pianta e il riferimento del disegno verticale (X lungo la vista, Y quota) stanno nella nota del documento
 - `us_table.documentazione` di ogni unità con almeno un disegno: si legge con `literal_eval`, si tolgono le coppie ricavate di prima (D10) e si aggiungono quelle di adesso. Si riscrive con `str(lista)`, come `table2dict`. Le altre coppie restano come sono. Un valore che non si legge non si tocca, e finisce nel riepilogo.
 
 **D10 — Provenienza e reimport.** Un poligono o un documento è ricavato se ha `disegnatore = 'pyArchInit 3D'` e `nome_doc` comincia con `3D-`. Una coppia della scheda è ricavata se il nome rispetta `^3D-(PLA|PRO-.+)$`.
