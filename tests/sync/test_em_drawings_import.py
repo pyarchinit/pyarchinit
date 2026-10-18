@@ -1,0 +1,195 @@
+"""Piante e prospetti dai proxy 3D all'import dell'em.json (spec 2026-10-18,
+D8–D13): un progetto EM finto con tre unità, i GLB scritti dai test, un DB
+copiato dal template con l'SRID dei layer scelto dal test."""
+from __future__ import annotations
+
+import json
+import shutil
+import sqlite3
+import sys
+from pathlib import Path
+
+import pytest
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[2]
+_EXT_LIBS = str(PLUGIN_ROOT / "ext_libs")
+if _EXT_LIBS in sys.path:
+    sys.path.remove(_EXT_LIBS)
+sys.path.insert(0, _EXT_LIBS)
+if str(PLUGIN_ROOT) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_ROOT))
+
+pytest.importorskip("s3dgraphy")
+
+from tests.sync.glb_fixtures import box_glb, quad_glb  # noqa: E402
+
+TEMPLATE_DB = PLUGIN_ROOT / "resources" / "dbfiles" / "pyarchinit.sqlite"
+SITO = "Tempio 3D"
+_SPATIALITE = ["/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so",
+               "/opt/homebrew/lib/mod_spatialite", "mod_spatialite"]
+
+
+def _nodo(nid, tipo, nome, **data):
+    return {"id": nid, "node_type": tipo, "name": nome, "data": dict(data)}
+
+
+def _arco(src, tipo, dst):
+    return {"id": "%s_%s_%s" % (src, tipo, dst), "edge_type": tipo, "source": src, "target": dst}
+
+
+def _unita(nid, nome, tipo="US"):
+    # Come negli em.json di EMStudio: la proprietà è di tipo «geometry» e la
+    # risorsa è un «proxy_model» (la regola dei proxy di s3dgraphy li vuole).
+    return [_nodo(nid, tipo, nome),
+            _nodo("p" + nid, "property", "geometry", property_type="geometry"),
+            _nodo("sh" + nid, "semantic_shape", "Shape for " + nome),
+            _nodo("r" + nid, "resource", nome + ".glb", url="proxies/%s.glb" % nome,
+                  url_type="proxy_model")]
+
+
+def _archi(nid):
+    return [_arco(nid, "has_property", "p" + nid), _arco("p" + nid, "has_semantic_shape", "sh" + nid),
+            _arco("sh" + nid, "has_linked_resource", "r" + nid)]
+
+
+def _spatialite_engine(path):
+    from sqlalchemy import create_engine, event
+    eng = create_engine("sqlite:///%s" % path)
+
+    @event.listens_for(eng, "connect")
+    def _carica(dbapi_conn, _record):
+        dbapi_conn.enable_load_extension(True)
+        for nome in _SPATIALITE:
+            try:
+                dbapi_conn.load_extension(nome)
+                return
+            except Exception:                     # noqa: BLE001
+                continue
+        raise RuntimeError("mod_spatialite non si carica")
+    return eng
+
+
+def make_project(tmp_path, *, srid=31700, georef=True, muro_sottile=False):
+    """Tre unità: SU001 una scatola 4×1×3 a nord, SU002 una scatola 2×2×1 a
+    sud, USV103 senza file. Coordinate glTF (Y in alto)."""
+    radice = tmp_path / "Tempio"
+    (radice / "EM" / "proxies").mkdir(parents=True)
+    (radice / "EM" / "proxies" / "SU001.glb").write_bytes(
+        quad_glb([(0, 0, -10), (4, 0, -10), (4, 3, -10), (0, 3, -10)]) if muro_sottile
+        else box_glb(4.0, 3.0, 1.0, center=(2.0, 1.5, -10.0)))
+    (radice / "EM" / "proxies" / "SU002.glb").write_bytes(box_glb(2.0, 1.0, 2.0, center=(1.0, 0.5, 5.0)))
+    nodi = _unita("u1", "SU001") + _unita("u2", "SU002") + _unita("u3", "USV103", "USVs")
+    if georef:
+        nodi.append(_nodo("geo_g", "geo_position", "geo_position", epsg=31700,
+                          shift_x=327300.0, shift_y=448370.0, shift_z=0.0))
+    archi = _archi("u1") + _archi("u2") + _archi("u3")
+    em = radice / "EM" / "tempio.em.json"
+    em.write_text(json.dumps({"version": "1.0", "active_graph_id": "g",
+                              "header": {"format": "em.json", "version": "1.0", "schema_version": "2"},
+                              "graphs": {"g": {"graph_id": "g", "name": "Tempio",
+                                               "nodes": nodi, "edges": archi}}}), encoding="utf-8")
+    db = tmp_path / "db.sqlite"
+    shutil.copy2(TEMPLATE_DB, db)
+    con = sqlite3.connect(db)
+    con.execute("UPDATE geometry_columns SET srid = ? WHERE f_table_name IN "
+                "('pyunitastratigrafiche', 'pyunitastratigrafiche_usm')", (srid,))
+    con.commit()
+    con.close()
+    from modules.s3dgraphy.s3dgraphy_dot_bridge import read_graph_for_import
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    grafo, _ = read_graph_for_import(str(em))
+    eng = _spatialite_engine(db)
+    GraphIngestor().populate_list(grafo, db, sito=SITO, create_missing_epochs=True)
+    return {"db": db, "eng": eng, "em": em, "grafo": grafo, "radice": radice}
+
+
+@pytest.fixture
+def progetto(tmp_path):
+    return make_project(tmp_path)
+
+
+def _per_nome(unita):
+    return {u.name: u for u in unita}
+
+
+def test_le_unita_con_il_loro_proxy(progetto):
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = _per_nome(edi.plan_units(progetto["grafo"], str(progetto["em"]),
+                                     db=progetto["eng"], sito=SITO))
+    assert unita["SU001"].usable and unita["SU001"].triangles == 12
+    assert unita["SU001"].paths[0].endswith("SU001.glb")
+    assert unita["USV103"].status == "missing" and not unita["USV103"].usable
+    assert edi.status_text(unita["USV103"]) == "file non trovato"
+
+
+def test_la_scelta_predefinita(progetto):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
+    geo = drw.georef_of(progetto["grafo"])
+    scelta = edi.default_choice(unita, geo)
+    nomi = {u.key: u.name for u in unita}
+    assert {nomi[k] for k in scelta.plan} == {"SU001", "SU002"}
+    assert {nomi[k] for k in scelta.prospect} == {"SU001", "SU002"}
+    assert scelta.sides == ("N", "E", "S", "W") and scelta.shift_z is None
+    assert edi.preview_line(unita, scelta, geo) == (
+        "Dal 3D: 2 piante, 4 prospetti del sito, 2 prospetti di unità "
+        "(si calcolano all'Applica); 1 unità senza modello utilizzabile.")
+
+
+def test_le_schede_si_trovano_per_node_uuid(progetto):
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    schede = edi.schede_of(progetto["eng"], SITO, ["u1", "u2", "nessuno"])
+    assert set(schede) == {"u1", "u2"}
+    assert schede["u1"].us == "001" and schede["u1"].area == "1" and schede["u1"].unita_tipo == "US"
+
+
+@pytest.mark.parametrize("srid, tipo", [(31700, "ok"), (3004, "convert"), (4326, "refuse"), (-1, "refuse")])
+def test_la_regola_dell_srid(tmp_path, srid, tipo):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path, srid=srid)
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    geo = drw.georef_of(p["grafo"])
+    decisione = edi.crs_decision(p["eng"], geo, edi.default_choice(unita, geo))
+    assert decisione.kind == tipo
+    if tipo == "convert":
+        assert decisione.message == "Converto le piante in EPSG:3004 del database?"
+    if tipo == "refuse":
+        assert "ricrea il database in epsg:31700" in decisione.message.lower()
+
+
+def test_senza_geometrie_nessun_controllo(tmp_path):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path, srid=4326)
+    geo = drw.georef_of(p["grafo"])
+    vuota = edi.Choice(plan=set(), prospect=set(), sides=(), shift_z=None)
+    assert edi.crs_decision(p["eng"], geo, vuota).kind == "none"
+
+
+def test_senza_layer_usm_le_sole_piante_passano(tmp_path):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path)
+    con = sqlite3.connect(p["db"])
+    con.execute("DELETE FROM geometry_columns WHERE f_table_name = 'pyunitastratigrafiche_usm'")
+    con.commit()
+    con.close()
+    geo = drw.georef_of(p["grafo"])
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    piante = edi.Choice(plan={u.key for u in unita if u.usable}, prospect=set(), sides=(), shift_z=None)
+    assert edi.crs_decision(p["eng"], geo, piante).kind == "ok"
+    tutto = edi.default_choice(unita, geo)
+    assert edi.crs_decision(p["eng"], geo, tutto).kind == "refuse"
+
+
+def test_senza_posizione_niente_piante(tmp_path):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path, georef=False)
+    geo = drw.georef_of(p["grafo"])
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    scelta = edi.default_choice(unita, geo)
+    assert scelta.plan == set() and len(scelta.prospect) == 2
+    assert edi.crs_decision(p["eng"], geo, scelta).kind == "ok"
