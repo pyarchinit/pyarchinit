@@ -69,14 +69,18 @@ def _spatialite_engine(path):
     return eng
 
 
-def make_project(tmp_path, *, srid=31700, georef=True, muro_sottile=False):
+def make_project(tmp_path, *, srid=31700, georef=True, muro_sottile=False, muro_ns=False):
     """Tre unità: SU001 una scatola 4×1×3 a nord, SU002 una scatola 2×2×1 a
     sud, USV103 senza file. Coordinate glTF (Y in alto)."""
     radice = tmp_path / "Tempio"
     (radice / "EM" / "proxies").mkdir(parents=True)
-    (radice / "EM" / "proxies" / "SU001.glb").write_bytes(
-        quad_glb([(0, 0, -10), (4, 0, -10), (4, 3, -10), (0, 3, -10)]) if muro_sottile
-        else box_glb(4.0, 3.0, 1.0, center=(2.0, 1.5, -10.0)))
+    if muro_ns:      # un muro N–S senza spessore, proprio a nord del centro del sito
+        su001 = quad_glb([(1, 0, -12), (1, 0, -8), (1, 3, -8), (1, 3, -12)])
+    elif muro_sottile:
+        su001 = quad_glb([(0, 0, -10), (4, 0, -10), (4, 3, -10), (0, 3, -10)])
+    else:
+        su001 = box_glb(4.0, 3.0, 1.0, center=(2.0, 1.5, -10.0))
+    (radice / "EM" / "proxies" / "SU001.glb").write_bytes(su001)
     (radice / "EM" / "proxies" / "SU002.glb").write_bytes(box_glb(2.0, 1.0, 2.0, center=(1.0, 0.5, 5.0)))
     nodi = _unita("u1", "SU001") + _unita("u2", "SU002") + _unita("u3", "USV103", "USVs")
     if georef:
@@ -349,6 +353,9 @@ def test_il_poligono_corretto_a_mano_resta_col_suo_documento(progetto):
     _scrivi(progetto, scelta=scelta)
     assert _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche_usm WHERE nome_doc = '3D-PRO-US001'")[0][0] == 1
     assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-PRO-US001'")[0][0] == 1
+    # e la scheda US lo richiama ancora
+    doc = _righe(progetto, "SELECT documentazione FROM us_table WHERE sito = ? AND us = '001'", SITO)[0][0]
+    assert "['Prospetto', '3D-PRO-US001']" in doc
 
 
 def test_convertire_le_piante_in_un_altro_sistema(tmp_path):
@@ -408,3 +415,43 @@ def test_la_barra_avanza_anche_durante_il_calcolo(progetto):
     assert chiamate[-1] == (14, 14)
     fatti = [f for f, _t in chiamate]
     assert fatti == sorted(fatti) and max(f for f, _t in chiamate[:-1]) > 2
+
+
+
+def test_un_muro_senza_spessore_visto_di_taglio_ha_il_prospetto_di_fronte(tmp_path):
+    """Senza pianta la direzione dal centro dello scavo può essere parallela al
+    muro: il lato lungo si prende dai vertici."""
+    p = make_project(tmp_path, muro_ns=True)
+    disegni, saltate = _calcola(p)
+    prospetto = next((d for d in disegni if d.nome == "3D-PRO-US001"), None)
+    assert prospetto is not None
+    assert prospetto.features[0][1].area() == pytest.approx(12.0, abs=1e-6)     # 4 m × 3 m, di fronte
+    assert saltate == {"u1": "vuoto in pianta"}
+
+
+def test_la_vista_canonica_che_non_si_legge_lascia_quella_di_prima(progetto, monkeypatch):
+    """Un DB vecchio a cui manca una colonna che la vista canonica legge: SQLite
+    crea la vista lo stesso, ma poi non si legge. Deve restare quella di prima."""
+    from modules.db import spatial_view_definitions as svd
+    rotta = svd.CANONICAL_VIEWS["pyarchinit_usm_view"].replace(
+        '"b"."d_stratigrafica" AS', '"b"."colonna_che_non_c_e" AS', 1)
+    assert rotta != svd.CANONICAL_VIEWS["pyarchinit_usm_view"]
+    monkeypatch.setitem(svd.CANONICAL_VIEWS, "pyarchinit_usm_view", rotta)
+    esito = _scrivi(progetto)
+    assert not esito.view_fixed
+    sql = _righe(progetto, "SELECT sql FROM sqlite_master WHERE name = 'pyarchinit_usm_view'")[0][0]
+    assert "unita_tipo = 'USM'" in sql
+    _righe(progetto, "SELECT * FROM pyarchinit_usm_view LIMIT 1")       # si legge ancora
+
+
+def test_importare_in_un_secondo_sito_ha_i_suoi_disegni(progetto):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    GraphIngestor().populate_list(progetto["grafo"], progetto["db"], sito="Copia", create_missing_epochs=True)
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito="Copia")
+    geo = drw.georef_of(progetto["grafo"])
+    scelta = edi.default_choice(unita, geo)
+    esito = edi.run_drawings(progetto["eng"], progetto["grafo"], "Copia", str(progetto["em"]), units=unita,
+                             choice=scelta, georef=geo, decision=edi.crs_decision(progetto["eng"], geo, scelta))
+    assert esito.plans == 2 and not esito.skipped

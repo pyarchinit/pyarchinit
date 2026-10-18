@@ -136,22 +136,39 @@ def plan_units(graph, emjson_path: str, *, search_dirs: Sequence[str] = (),
             u.paths = []
         unita.append(u)
     if db is not None and sito:
-        _mark_hand_drawn(db, sito, unita)
+        _mark_hand_drawn(db, sito, unita, graph=graph)
     return unita
 
 
-def schede_of(db, sito: str, keys: Iterable[str]) -> Dict[str, Scheda]:
-    """Le schede del sito delle unità date, per ``node_uuid``."""
+def schede_of(db, sito: str, keys: Iterable[str], graph=None) -> Dict[str, Scheda]:
+    """Le schede del sito delle unità date, per ``node_uuid``. Con il grafo,
+    quelle che non si trovano così (l'em.json importato in un secondo sito: le
+    schede copiate hanno un uuid nuovo) si cercano per numero e tipo, come fa
+    l'import dei media."""
     from sqlalchemy import text
     voluti = {str(k) for k in keys}
     out: Dict[str, Scheda] = {}
+    per_nome: Dict[Tuple[str, str], List[Scheda]] = {}
     with _engine(db).connect() as conn:
         for id_us, area, us, ut, doc, uuid in conn.execute(text(
                 "SELECT id_us, area, us, unita_tipo, documentazione, node_uuid "
                 "FROM us_table WHERE sito = :s"), {"s": sito}):
+            s = Scheda(int(id_us), str(area if area is not None else "1"), str(us), str(ut or ""), doc)
+            per_nome.setdefault((s.us, s.unita_tipo), []).append(s)
             if uuid is not None and str(uuid) in voluti:
-                out[str(uuid)] = Scheda(int(id_us), str(area if area is not None else "1"),
-                                        str(us), str(ut or ""), doc)
+                out[str(uuid)] = s
+    mancanti = voluti - set(out)
+    if mancanti and graph is not None:
+        from . import em_native_import as emn
+        from .graph_ingestor import _NON_STRAT_TYPES, _PARADATA_ROW_TYPES, _is_synthetic_node
+        righe = emn.row_nodes(graph, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES, _is_synthetic_node)
+        nomi = emn.row_names(righe, getattr(graph, "edges", None) or [])
+        for k in mancanti:
+            if k not in righe or not nomi.get(k):
+                continue
+            candidate = per_nome.get((str(nomi[k]), str(righe[k][1] or "")), [])
+            if len(candidate) == 1:
+                out[k] = candidate[0]
     return out
 
 
@@ -167,8 +184,8 @@ def _hand_drawn(conn, layer: str, sito: str) -> Set[Tuple[str, str]]:
             if not (dis == drw.DRAWER and drw.is_derived_name(nome))}
 
 
-def _mark_hand_drawn(db, sito: str, unita: List[DrawingUnit]) -> None:
-    schede = schede_of(db, sito, [u.key for u in unita])
+def _mark_hand_drawn(db, sito: str, unita: List[DrawingUnit], graph=None) -> None:
+    schede = schede_of(db, sito, [u.key for u in unita], graph=graph)
     with _engine(db).connect() as conn:
         piante, verticali = _hand_drawn(conn, PLAN_LAYER, sito), _hand_drawn(conn, VERTICAL_LAYER, sito)
     for u in unita:
@@ -387,10 +404,11 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
                                    for k in prospetti])
     for k in prospetti:
         avanti(nomi[k])
-        vista = drw.unit_view(nomi[k], piante.get(k), drw.centroid_xy(mesh[k]), centro)
+        vista = drw.unit_view(nomi[k], piante.get(k), drw.centroid_xy(mesh[k]), centro,
+                              xy=mesh[k][..., :2])
         g = drw.view_geometry(mesh[k], vista, origine)
         if g is None:
-            saltate.setdefault(k, "vuoto nel prospetto")
+            saltate[k] = (saltate[k] + "; " if k in saltate else "") + "vuoto nel prospetto"
             continue
         verticali.append(Drawing(VERTICAL_LAYER, tipi[1], nomi[k], note["unit"].format(
             unita=per_chiave[k].name, da=vista.side, src=source_name, z=z), [(k, g)]))
@@ -470,6 +488,28 @@ def _columns(eng, table: str) -> Set[str]:
         return set()
 
 
+def _auto_id(conn, table: str, column: str) -> bool:
+    """La colonna si riempie da sé: un DEFAULT su PostgreSQL (nello schema del
+    plugin ``nextval`` di una sequenza che NON è OWNED BY la colonna, quindi
+    ``pg_get_serial_sequence`` non la vede), INTEGER PRIMARY KEY su SQLite."""
+    from sqlalchemy import text
+    try:
+        if conn.dialect.name.startswith("postgres"):
+            # la tabella che il nome trova davvero (search_path), col suo
+            # DEFAULT o la sua identity
+            return bool(conn.execute(text(
+                "SELECT (d.adbin IS NOT NULL) OR (a.attidentity <> '') FROM pg_attribute a "
+                "LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
+                "WHERE a.attrelid = to_regclass(:t) AND a.attname = :c AND NOT a.attisdropped"),
+                {"t": table, "c": column}).scalar())
+        for riga in conn.execute(text('PRAGMA table_info("%s")' % table)):
+            if str(riga[1]) == column:
+                return bool(riga[5]) and str(riga[2] or "").upper() == "INTEGER"
+    except Exception:                                       # noqa: BLE001
+        return False
+    return False
+
+
 def _centroid(g) -> str:
     c = g.centroid().asPoint()
     return "POINT(%.6f %.6f)" % (c.x(), c.y())
@@ -504,7 +544,11 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
             esito.removed += max(r.rowcount or 0, 0)
         gid = {l: int(conn.execute(text("SELECT COALESCE(MAX(gid), 0) FROM %s" % l)).scalar() or 0)
                for l in (PLAN_LAYER, VERTICAL_LAYER) if colonne[l]}
-        coppie: Dict[int, List[List[str]]] = {}
+        # Gli id che il database assegna da sé (la sequenza dello schema del
+        # plugin su PostgreSQL) non si scrivono: il primo poligono disegnato poi
+        # in QGIS prenderebbe un gid già usato.
+        gid_da_se = {l: _auto_id(conn, l, "gid") for l in gid}
+        doc_da_se = _auto_id(conn, "documentazione_table", "id_documentazione")
         for d in drawings:
             if not d.features or not colonne.get(d.layer):
                 continue
@@ -519,11 +563,11 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                     g = QgsGeometry(g)
                     g.transform(trasforma)
                 gid[d.layer] += 1
-                valori = {"gid": gid[d.layer], "area_s": s.area, "scavo_s": sito, "us_s": s.us,
+                valori = {"gid": None if gid_da_se[d.layer] else gid[d.layer], "area_s": s.area, "scavo_s": sito, "us_s": s.us,
                           "stratigraph_index_us": 1, "rilievo_originale": (rilievi or {}).get(k, ""),
                           "disegnatore": drw.DRAWER, "data": oggi, "tipo_doc": d.tipo,
                           "nome_doc": d.nome, "coord": _centroid(g), "unita_tipo_s": s.unita_tipo}
-                usate = [c for c in valori if c in colonne[d.layer]]
+                usate = [c for c in valori if c in colonne[d.layer] and valori[c] is not None]
                 sql = 'INSERT INTO %s (%s, "the_geom") VALUES (%s, %s)' % (
                     d.layer, ", ".join('"%s"' % c for c in usate), ", ".join(":" + c for c in usate), geom_sql)
                 try:
@@ -534,9 +578,6 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                     esito.warnings.append("%s %s: %s" % (d.nome, s.us, str(e).splitlines()[0][:120]))
                     continue
                 scritti += 1
-                lista = coppie.setdefault(s.id_us, [])
-                if [d.tipo, d.nome] not in lista:
-                    lista.append([d.tipo, d.nome])
             esito.features += scritti
             if scritti:
                 if d.plan:
@@ -557,14 +598,20 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                 {"s": sito, "n": d.nome, "t": d.tipo}).fetchone()
             sorgente = "em.json: %s" % source_name
             if riga is None:
-                nid = int(conn.execute(text(
-                    "SELECT COALESCE(MAX(id_documentazione), 0) + 1 FROM documentazione_table")).scalar())
-                conn.execute(text(
-                    "INSERT INTO documentazione_table (id_documentazione, sito, nome_doc, data, "
-                    "tipo_documentazione, sorgente, scala, disegnatore, note) VALUES "
-                    "(:i, :s, :n, :dt, :t, :src, '', :d, :note)"),
-                    {"i": nid, "s": sito, "n": d.nome, "dt": oggi, "t": d.tipo, "src": sorgente,
-                     "d": drw.DRAWER, "note": d.note})
+                valori_doc = {"s": sito, "n": d.nome, "dt": oggi, "t": d.tipo, "src": sorgente,
+                              "d": drw.DRAWER, "note": d.note}
+                if doc_da_se:
+                    conn.execute(text(
+                        "INSERT INTO documentazione_table (sito, nome_doc, data, tipo_documentazione, "
+                        "sorgente, scala, disegnatore, note) VALUES (:s, :n, :dt, :t, :src, '', :d, :note)"),
+                        valori_doc)
+                else:
+                    valori_doc["i"] = int(conn.execute(text(
+                        "SELECT COALESCE(MAX(id_documentazione), 0) + 1 FROM documentazione_table")).scalar())
+                    conn.execute(text(
+                        "INSERT INTO documentazione_table (id_documentazione, sito, nome_doc, data, "
+                        "tipo_documentazione, sorgente, scala, disegnatore, note) VALUES "
+                        "(:i, :s, :n, :dt, :t, :src, '', :d, :note)"), valori_doc)
                 esito.documents += 1
             elif riga[1] == drw.DRAWER:
                 conn.execute(text("UPDATE documentazione_table SET data = :dt, sorgente = :src, "
@@ -586,7 +633,31 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
             if not citato:
                 conn.execute(text("DELETE FROM documentazione_table WHERE id_documentazione = :i"), {"i": i})
                 esito.documents_removed += 1
-        # le coppie della scheda US
+        # Le coppie della scheda US: da tutti i poligoni con un nome ricavato che
+        # ci sono adesso, anche quelli corretti a mano (disegnatore cambiato),
+        # così la scheda continua a richiamarli.
+        chiavi: Dict[Tuple[str, str, str], int] = {}
+        per_area_us: Dict[Tuple[str, str], int] = {}
+        for id_us, area, us, ut in conn.execute(text(
+                "SELECT id_us, area, us, unita_tipo FROM us_table WHERE sito = :s"), {"s": sito}):
+            chiavi.setdefault((str(area), str(us), str(ut or "")), int(id_us))
+            per_area_us.setdefault((str(area), str(us)), int(id_us))
+        coppie: Dict[int, List[List[str]]] = {}
+        for layer in (PLAN_LAYER, VERTICAL_LAYER):
+            if not colonne[layer]:
+                continue
+            tipo_col = "unita_tipo_s" if "unita_tipo_s" in colonne[layer] else "''"
+            for area, us, ut, tipo, nome in conn.execute(text(
+                    "SELECT area_s, us_s, %s, tipo_doc, nome_doc FROM %s WHERE scavo_s = :s "
+                    "AND nome_doc LIKE '3D-%%' ORDER BY gid" % (tipo_col, layer)), {"s": sito}):
+                if not tipo or not drw.is_derived_name(nome):
+                    continue
+                i = chiavi.get((str(area), str(us), str(ut or ""))) or per_area_us.get((str(area), str(us)))
+                if i is None:
+                    continue
+                lista = coppie.setdefault(i, [])
+                if [str(tipo), str(nome)] not in lista:
+                    lista.append([str(tipo), str(nome)])
         for id_us, valore in conn.execute(text(
                 "SELECT id_us, documentazione FROM us_table WHERE sito = :s"), {"s": sito}).fetchall():
             nuove = coppie.get(int(id_us), [])
@@ -638,15 +709,41 @@ def unfilter_usm_view(db) -> bool:
     if not canonica:
         return False
     try:
+        with eng.connect() as conn:
+            vecchia = conn.execute(text("SELECT sql FROM sqlite_master WHERE type = 'view' "
+                                        "AND name = 'pyarchinit_usm_view'")).scalar()
+    except Exception:                                       # noqa: BLE001
+        return False
+    if not vecchia or not _USM_FILTER.search(str(vecchia)):
+        return False
+    # Prima la prova, in una vista temporanea: SQLite crea una vista anche con
+    # colonne che non ci sono, e se ne accorge solo quando la si legge.
+    prova = re.sub(r'(?is)^\s*CREATE\s+VIEW\s+"?pyarchinit_usm_view"?\s+AS\b',
+                   'CREATE TEMP VIEW "pya_prova_usm_view" AS', canonica, count=1)
+    if prova == canonica:
+        return False
+    try:
         with eng.begin() as conn:
-            sql = conn.execute(text("SELECT sql FROM sqlite_master WHERE type = 'view' "
-                                    "AND name = 'pyarchinit_usm_view'")).scalar()
-            if not sql or not _USM_FILTER.search(str(sql)):
-                return False
+            try:
+                conn.execute(text(prova))
+                conn.execute(text('SELECT 1 FROM temp."pya_prova_usm_view" LIMIT 1')).fetchall()
+            finally:
+                conn.execute(text('DROP VIEW IF EXISTS temp."pya_prova_usm_view"'))
+    except Exception:                                       # noqa: BLE001
+        return False
+    try:
+        with eng.begin() as conn:
             conn.execute(text('DROP VIEW "pyarchinit_usm_view"'))
             conn.execute(text(canonica))
             conn.execute(text('SELECT 1 FROM "pyarchinit_usm_view" LIMIT 1')).fetchall()
     except Exception:                                       # noqa: BLE001
+        # Il DDL di SQLite qui non torna indietro da solo: si rimette la vista di prima.
+        try:
+            with eng.begin() as conn:
+                conn.execute(text('DROP VIEW IF EXISTS "pyarchinit_usm_view"'))
+                conn.execute(text(vecchia))
+        except Exception:                                   # noqa: BLE001
+            pass
         return False
     return True
 
@@ -661,7 +758,7 @@ def run_drawings(db, graph, sito: str, emjson_path: str, *, units: Sequence[Draw
             lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         except Exception:                                   # noqa: BLE001
             lang = "it"
-    schede = schede_of(db, sito, [u.key for u in units])
+    schede = schede_of(db, sito, [u.key for u in units], graph=graph)
     tipi = doc_types(db)
     nome = os.path.basename(str(emjson_path or "")) or "em.json"
     disegni, saltate = compute_drawings(graph, units, choice, georef, schede, source_name=nome,

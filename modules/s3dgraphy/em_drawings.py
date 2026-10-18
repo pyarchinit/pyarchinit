@@ -221,19 +221,42 @@ def site_frame(tri_maps: Iterable[np.ndarray]) -> Tuple[Tuple[float, float], Tup
     return (float(lo[0]), float(lo[1])), (float((lo[0] + hi[0]) / 2), float((lo[1] + hi[1]) / 2))
 
 
-def unit_view(code: str, plan, unit_c: Tuple[float, float], site_c: Tuple[float, float]) -> View:
+def _long_axis_xy(xy) -> Optional[Tuple[float, float, float, float]]:
+    """Asse lungo (versore) e scarti lungo/corto di una nuvola di punti in
+    pianta, dalle componenti principali: serve quando la pianta è vuota (un
+    muro senza spessore)."""
+    pts = np.asarray(xy, dtype=np.float64).reshape(-1, 2)
+    if len(pts) < 2:
+        return None
+    c = pts - pts.mean(axis=0)
+    autovalori, autovettori = np.linalg.eigh(c.T @ c / len(pts))
+    lungo, corto = math.sqrt(max(autovalori[1], 0.0)), math.sqrt(max(autovalori[0], 0.0))
+    return float(autovettori[0, 1]), float(autovettori[1, 1]), lungo, corto
+
+
+def unit_view(code: str, plan, unit_c: Tuple[float, float], site_c: Tuple[float, float],
+              xy=None) -> View:
     """Il prospetto di un'unità: perpendicolare al suo lato lungo, guardato dal
-    lato del centro dello scavo; un'unità quasi quadrata si guarda dal centro."""
+    lato del centro dello scavo; un'unità quasi quadrata si guarda dal centro.
+    Senza pianta il lato lungo viene dai vertici ``xy`` (un muro senza
+    spessore, che dal centro si vedrebbe di taglio)."""
     vx, vy = unit_c[0] - site_c[0], unit_c[1] - site_c[1]
     d = None
+    asse = None
     if plan is not None and not plan.isEmpty():
         anello = plan.orientedMinimumBoundingBox()[0].asPolygon()[0]
         e1 = (anello[1].x() - anello[0].x(), anello[1].y() - anello[0].y())
         e2 = (anello[2].x() - anello[1].x(), anello[2].y() - anello[1].y())
         l1, l2 = math.hypot(*e1), math.hypot(*e2)
         (lx, ly), lungo, corto = (e1, l1, l2) if l1 >= l2 else (e2, l2, l1)
-        if lungo > 0 and (corto == 0 or lungo / corto >= LONG_RATIO):
-            nx, ny = -ly / lungo, lx / lungo
+        if lungo > 0:
+            asse = (lx / lungo, ly / lungo, lungo, corto)
+    elif xy is not None:
+        asse = _long_axis_xy(xy)
+    if asse is not None:
+        lx, ly, lungo, corto = asse
+        if lungo > 0 and (corto <= 1e-9 or lungo / corto >= LONG_RATIO):
+            nx, ny = -ly, lx
             prodotto = nx * vx + ny * vy
             if prodotto < -1e-9 or (abs(prodotto) <= 1e-9 and ny < 0):
                 nx, ny = -nx, -ny

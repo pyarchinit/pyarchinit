@@ -286,9 +286,8 @@ def drawings_from_db(conn_str: str, site: Optional[str], meta: Dict[str, Dict[st
         if cu is None:
             continue
         cn = "nome_doc" if "nome_doc" in campi else None
-        ext = layer.extent()
-        tol = max(ext.width(), ext.height()) * simplify_fraction if not ext.isEmpty() else 0.0
         per_unita: Dict[str, List[Tuple[float, Drawing]]] = {}
+        scelti = []
         for f in layer.getFeatures():
             # I prospetti ricavati dal 3D sono in coordinate del disegno
             # (X lungo la vista, Y quota): sulla mappa non vanno mai.
@@ -303,6 +302,19 @@ def drawings_from_db(conn_str: str, site: Optional[str], meta: Dict[str, Dict[st
             g = f.geometry()
             if g is None or g.isEmpty() or QgsWkbTypes.geometryType(g.wkbType()) != QgsWkbTypes.PolygonGeometry:
                 continue
+            scelti.append((ids, g))
+        # La tolleranza si misura sui disegni che vanno sulla mappa, non su tutto
+        # il layer: i prospetti ricavati, in coordinate del disegno, lo
+        # allargherebbero fino all'origine del sistema (18 ottobre 2026).
+        ext = None
+        for _ids, g in scelti:
+            bb = g.boundingBox()
+            if ext is None:
+                ext = bb
+            else:
+                ext.combineExtentWith(bb)
+        tol = max(ext.width(), ext.height()) * simplify_fraction if ext is not None and not ext.isEmpty() else 0.0
+        for ids, g in scelti:
             if tol > 0:
                 semplice = g.simplify(tol)
                 if semplice is not None and not semplice.isEmpty():

@@ -22,14 +22,22 @@ from tests.sync.conftest_pg import PG_CONN_STR  # noqa: E402
 _DDL = [
     "CREATE TABLE us_table (id_us SERIAL PRIMARY KEY, sito TEXT, area TEXT, us TEXT, "
     "unita_tipo TEXT, node_uuid TEXT, documentazione TEXT)",
-    "CREATE TABLE documentazione_table (id_documentazione SERIAL PRIMARY KEY, sito TEXT, "
-    "nome_doc TEXT, data TEXT, tipo_documentazione TEXT, sorgente TEXT, scala TEXT, "
-    "disegnatore TEXT, note TEXT)",
+    # come resources/dbfiles/pyarchinit_schema_updated.sql
+    "CREATE SEQUENCE documentazione_table_id_documentazione_seq",
+    "CREATE TABLE documentazione_table (id_documentazione BIGINT NOT NULL PRIMARY KEY, sito text, "
+    "nome_doc text, data text, tipo_documentazione text, sorgente text, scala text, "
+    "disegnatore text, note text, entity_uuid text)",
+    "ALTER SEQUENCE documentazione_table_id_documentazione_seq OWNED BY documentazione_table.id_documentazione",
 ]
-_LAYER = ("CREATE TABLE {t} (gid SERIAL PRIMARY KEY, area_s TEXT, scavo_s TEXT, us_s TEXT, "
-          "stratigraph_index_us INTEGER, tipo_us_s TEXT, rilievo_originale TEXT, disegnatore TEXT, "
-          "data TEXT, tipo_doc TEXT, nome_doc TEXT, coord TEXT, unita_tipo_s TEXT, "
-          "the_geom geometry(MultiPolygon, {srid}))")
+# Le sequenze dei gid NON sono OWNED BY la colonna (pg_get_serial_sequence dà NULL)
+# e partono da 61400, come nello schema che crea il plugin.
+_LAYER = ("CREATE SEQUENCE {t}_gid_seq START 61400; "
+          "CREATE TABLE {t} (gid BIGINT DEFAULT nextval('{t}_gid_seq'::regclass) NOT NULL PRIMARY KEY, "
+          "area_s text, scavo_s text, us_s TEXT, stratigraph_index_us BIGINT, "
+          "tipo_us_s character varying(250), rilievo_originale character varying(250), "
+          "disegnatore character varying(250), data date, tipo_doc character varying(250), "
+          "nome_doc character varying(250), coord text, the_geom geometry(MultiPolygon, {srid}), "
+          "unita_tipo_s character varying)")
 _VISTA = ("CREATE VIEW pyarchinit_usm_view AS SELECT a.gid, a.tipo_doc, a.nome_doc, a.the_geom, "
           "b.sito, b.area, b.us FROM pyunitastratigrafiche_usm a JOIN us_table b "
           "ON (a.area_s = b.area AND a.scavo_s = b.sito AND a.us_s = b.us)")
@@ -74,6 +82,9 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
         for nid, us in (("u1", "001"), ("u2", "002")):
             conn.execute(text("INSERT INTO us_table (sito, area, us, unita_tipo, node_uuid, documentazione) "
                               "VALUES (:s, '1', :u, 'US', :n, '[]')"), {"s": SITO, "u": us, "n": nid})
+        # un poligono già disegnato in QGIS: prende il gid dalla sequenza (61400)
+        conn.execute(text("INSERT INTO pyunitastratigrafiche (scavo_s, area_s, us_s, disegnatore) "
+                          "VALUES (:s, '9', '999', 'Enzo')"), {"s": SITO})
     unita = edi.plan_units(p["grafo"], str(p["em"]), db=pg_schema, sito=SITO)
     geo = drw.georef_of(p["grafo"])
     scelta = edi.default_choice(unita, geo)
@@ -86,7 +97,7 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
         righe = conn.execute(text("SELECT us FROM pyarchinit_usm_view WHERE sito = :s AND "
                                   "nome_doc = '3D-PRO-N' AND tipo_doc = 'Prospetto'"), {"s": SITO}).fetchall()
         assert sorted(r[0] for r in righe) == ["001", "002"]
-        assert conn.execute(text("SELECT ST_SRID(the_geom) FROM pyunitastratigrafiche LIMIT 1")).scalar() == 31700
+        assert conn.execute(text("SELECT ST_SRID(the_geom) FROM pyunitastratigrafiche WHERE the_geom IS NOT NULL LIMIT 1")).scalar() == 31700
     esito2 = edi.run_drawings(pg_schema, p["grafo"], SITO, str(p["em"]), units=unita, choice=scelta,
                               georef=geo, decision=decisione, lang="it")
     assert esito2.removed == 2 + 8 + 2
@@ -94,4 +105,3 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
     with pg_schema.begin() as conn:
         for tabella in ("pyunitastratigrafiche", "pyunitastratigrafiche_usm"):
             conn.execute(text("INSERT INTO %s (scavo_s) VALUES ('a mano')" % tabella))
-        conn.execute(text("INSERT INTO documentazione_table (sito, nome_doc) VALUES ('a mano', 'P1')"))
