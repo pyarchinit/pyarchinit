@@ -148,6 +148,53 @@ Tornar a exportar a la mateixa carpeta no torna a copiar el que ja hi ha i **no 
 
 A TempluMare (la base de dades de la importació del §5.0, amb el disc extern desconnectat): 96 fitxers copiats (238,7 MB: els 65 proxies i 31 documents, tots amb el sha256 escrit a l'em.json); EMStudio troba des del projecte 96 dels 536 recursos; queden per copiar a mà els 343 fitxers que la base de dades no ha tingut mai —l'aixecament de `RB/` (158) i els models de `SB/` (175), que no són mèdia, inclosos els `.blend`— més les 10 fotos JPG de `DosCo`, que amb el disc connectat es copien dels originals.
 
+### 5.0.2 Plantes i alçats a partir dels models 3D
+
+Des de la **5.13.134-alpha**. Un em.json d'EMStudio no té les geometries GIS de l'excavació, però té els **proxies 3D** de les unitats (`EM/proxies/<unitat>.glb`) i la **posició** de l'escena: EPSG i desplaçaments. Si a la pestanya **Import** es marca la casella **Ricava piante e prospetti dai modelli 3D** (Obtén plantes i alçats dels models 3D), que és sota **Cartella dei file** i està desmarcada per defecte, la importació obté dues coses a partir dels proxies.
+
+- **La planta de cada unitat**, a la capa `pyunitastratigrafiche` (les «UE horitzontals»), en el sistema de referència de l'em.json. És l'ombra del model vista des de dalt, amb els forats, simplificada a 1 cm.
+- **Els dibuixos verticals**, a la capa `pyunitastratigrafiche_usm` (les «UE verticals»). Són els **alçats del lloc** des del nord, l'est, el sud i l'oest, amb totes les unitats que es veuen des d'aquell costat, i l'**alçat de cada unitat**. La unitat es mira de cara al seu costat llarg, des del costat on hi ha el centre de l'excavació; una unitat gairebé quadrada es mira des del centre.
+
+Els dibuixos verticals són en coordenades del dibuix: **X = metres al llarg de la vista, Y = cota**. Estan l'un al costat de l'altre, a 10 m de distància. A l'alçat nord, qui mira és al nord, de manera que l'est queda a l'esquerra.
+
+1. Marcar la casella. El botó **Scegli…** (Tria…) obre la finestra **Geometrie dai modelli 3D** (Geometries dels models 3D), amb:
+    - la posició llegida de l'em.json;
+    - el **Spostamento Z** (desplaçament Z), amb les cotes que en resulten, actualitzades a mesura que es canvia;
+    - les caselles **Nord**, **Est**, **Sud**, **Ovest** dels alçats del lloc;
+    - la taula de les unitats amb un proxy, amb les columnes **Pianta** (planta), **Prospetto** (alçat) i **Stato** (estat). L'estat pot ser: ok, fitxer no trobat, format no admès, massa gran, fa servir el 3D d'una altra unitat, ja té una planta o un dibuix vertical fet a mà.
+
+    **Tutte** i **Nessuna** (totes/cap) marquen i desmarquen les caselles; **Conferma** (Confirma) conserva la tria. Si no s'obre la finestra, val la tria predeterminada: totes les unitats amb un proxy que es pot llegir, amb planta i alçat, llevat de les que ja tenen un dibuix fet a mà; els quatre costats; el desplaçament Z de l'em.json.
+2. **Anteprima** (Previsualització) afegeix la línia «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Del 3D: … plantes, … alçats del lloc, … alçats d'unitats; es calculen en aplicar).
+3. **Applica** (Aplica) escriu les fitxes, després els mèdia, després els dibuixos, amb una barra de progrés. El resum afegeix la línia «Dal 3D: …», amb les unitats omeses i el motiu.
+
+**El sistema de referència de la base de dades.** Si hi ha geometries per escriure, pyArchInit compara el sistema de les dues capes amb el de l'em.json abans d'escriure res:
+
+| Capa de la base de dades | Què passa |
+|---|---|
+| el mateix EPSG que l'em.json | importa |
+| un altre sistema mètric (per exemple 3004) | pregunta «Converto le piante in EPSG:3004 del database?» (Converteixo les plantes a l'EPSG:3004 de la base de dades?), amb **Converti** (Converteix) o **Annulla** (Cancel·la). Els alçats no es converteixen mai: són en coordenades del dibuix |
+| en graus (4326) o sense sistema (-1) | s'atura: cal tornar a crear la base de dades en el sistema de l'em.json, o bé desmarcar la casella i importar només les fitxes |
+
+Annulla, o l'aturada, deixen la base de dades tal com era. Si no es marca la casella, o si no hi ha proxies que es puguin fer servir, no es fa cap control i només s'importen les fitxes, com abans.
+
+**Documents i vincles.** Cada dibuix és un document de la fitxa **Documentazione** (Documentació), de tipus **Planimetria** o **Prospetto** (alçat) —les entrades del tesaurus en la llengua del plugin—, amb un nom codificat:
+- `3D-PLA` per a la planta;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` per als costats del lloc;
+- `3D-PRO-<tipus><US>` per a una unitat, per exemple `3D-PRO-US002`.
+
+El mateix tipus i el mateix nom són als polígons (`tipo_doc`, `nome_doc`) i a la llista **Documentazione** de la fitxa US. Així, des de la fitxa Documentazione el document carrega les seves «UE horitzontals» o «UE verticals», i des de la fitxa US la fila del document fa el mateix. Cada polígon porta el dibuixant «pyArchInit 3D», el fitxer del proxy al camp **rilievo originale** (aixecament original) i el centroide al camp **coord**.
+
+**Reimportar.** Una nova importació amb la casella marcada substitueix només els dibuixos derivats que ja té el lloc, és a dir, els que tenen el dibuixant «pyArchInit 3D» i un nom que comença per `3D-`; els dibuixats a mà no es toquen. Si s'ha corregit un polígon derivat i es vol conservar, cal canviar-ne el dibuixant. Per afegir els dibuixos a un lloc ja importat, n'hi ha prou de tornar a importar el mateix em.json amb la casella marcada: les fitxes no canvien. L'em.json tampoc no canvia: els dibuixos derivats i les seves files de la llista Documentazione es queden a pyArchInit i no s'exporten.
+
+**La vista USM.** Les bases de dades SQLite creades amb la plantilla tenien una vista `pyarchinit_usm_view` que només mostrava les unitats de tipus USM. La primera importació que escriu dibuixos verticals la torna a la definició de pyArchInit, la mateixa que a PostgreSQL, que mostra els dibuixos verticals de totes les unitats, i el resum ho diu. El mapa de la narrativa (§10.10) pren les plantes de totes les unitats de la capa de les plantes, i no fa servir mai els alçats derivats.
+
+A TempluMare, en una base de dades nova en EPSG:31700 amb 851 fitxes, la importació ha produït en aproximadament un minut:
+- 65 plantes: el temple, 42 × 49 m, al voltant de X 327 285, Y 448 355;
+- 4 alçats del lloc i 64 alçats d'unitats (USV105, que és plana, no té alçat);
+- 69 documents.
+
+L'em.json diu que cal sumar **500 m** a les cotes del 3D, i així les cotes queden entre 991 i 1004 m, mentre que el temple és a uns 495 m. Per tant, cal verificar el desplaçament Z de l'em.json; a la finestra es pot posar a 0.
+
 La via yEd/GraphML, per moure unitats entre grups, és la que segueix.
 
 Per modificar la base SQL movent UE entre grups en GraphML:

@@ -5,6 +5,34 @@
 
 ---
 
+## [feat] - 2026-10-18 — Piante e prospetti dai modelli 3D all'import dell'em.json: la pianta di ogni unità nel layer delle piante, i prospetti del sito e delle unità nel layer dei disegni verticali, ognuno col suo documento — 5.13.134-alpha
+
+> Branch `Stratigraph_00001`. Suite **2507 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +68 test)**. / Plans and elevations derived from the 3D proxies when importing an EMStudio em.json: unit plans in `pyunitastratigrafiche`, site and unit elevations in `pyunitastratigrafiche_usm`, one Documentazione record per drawing, linked by the same type and name.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: Enzo, 18 ottobre 2026: «è vero che non ci sono geometrie gis (quindi 2d) dello scavo ma è anche vero che c'è il 3D… lo si potrebbe fare come opzione quando importiamo l'em.json e scegliamo cosa convertire». Nella tab Import della finestra Extended Matrix, la casella **Ricava piante e prospetti dai modelli 3D** (spenta di partenza) e il pulsante **Scegli…** (finestra **Geometrie dai modelli 3D**: posizione dell'em.json, spostamento Z con le quote che ne vengono fuori, i quattro lati, unità con Pianta/Prospetto/Stato).
+  - **Lettore dei GLB** (`modules/s3dgraphy/glb_mesh.py`, solo numpy): nodi con matrici o TRS, TRIANGLES/STRIP/FAN, rifiuta con un motivo Draco/meshopt/quantizzazione, accessori sparsi, buffer esterni, oltre 200 000 triangoli o 100 MB; `glb_info` legge solo il JSON (triangoli e quote per la finestra).
+  - **Geometria** (`modules/s3dgraphy/em_drawings.py`, `QgsGeometry`, niente shapely): dalla scena glTF (Y in alto) a quella EM (Z in alto), sulla mappa con la regola di s3dgraphy (`api.georeference_scene`: rotazione, poi spostamento); pianta = unione dei triangoli proiettati, con i buchi, semplificata a 1 cm; prospetti dai quattro lati (nel prospetto nord l'est è a sinistra) e di ogni unità (perpendicolare al lato lungo, dal lato del centro dello scavo), in coordinate del disegno (X lungo la vista, Y quota), affiancati a 10 m; dal più lontano al più vicino.
+  - **Scrittura** (`modules/s3dgraphy/sync/em_drawings_import.py`): un documento per disegno in `documentazione_table` (tipi PLA/PRO del thesaurus nella lingua del plugin; nomi `3D-PLA`, `3D-PRO-N/E/S/W`, `3D-PRO-<tipo><US>`), con lo stesso `tipo_doc`/`nome_doc` nei poligoni e nella lista Documentazione della scheda US, così si richiamano insieme (Enzo: «devono corrispondere per essere richiamati insieme»); disegnatore «pyArchInit 3D», rilievo originale = il proxy, coord = centroide; il reimport sostituisce solo il ricavato; SAVEPOINT per riga; SQLite e PostGIS.
+  - **Sistema di riferimento** (regola di Enzo): prima di scrivere qualsiasi cosa, stesso EPSG → importa; altro sistema metrico → «Converto le piante…?» (Converti/Annulla, i prospetti mai); gradi o `-1` → si ferma (ricrea il DB o togli la casella). Senza geometrie, nessun controllo.
+  - **L'em.json non cambia**: l'export (`graph_projector`) lascia fuori le coppie ricavate, il reimport (`graph_ingestor`) le conserva.
+  - **Senza proxy trovati** (disco staccato) i disegni ricavati di prima restano; su PostgreSQL le sequenze tornano in pari dopo gli id espliciti; la barra conta anche piante e prospetti.
+- 🇬🇧 **EN**: new opt-in import option; pure-numpy GLB reader; QGIS-geometry plans (union of projected triangles, holes kept, 1 cm simplification) placed with s3dgraphy's georeferencing rule; N/E/S/W site elevations and per-unit elevations in drawing coordinates (X along view, Y elevation), laid out 10 m apart, far-to-near; one Documentazione record per drawing with identical `tipo_doc`/`nome_doc` on polygons and in the SU form's Documentazione list; derived set replaced on re-import, hand drawings untouched; CRS rule checked before any write (same EPSG → import; other metric → convert plans on request; degrees/undefined → stop); em.json export unchanged; no deletion when no proxy is found; PostgreSQL sequences resynced.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: il template SQLite (`resources/dbfiles/pyarchinit.sqlite`, da cui nasce ogni DB nuovo) ha una `pyarchinit_usm_view` filtrata sulle sole USM: la prima importazione che scrive disegni verticali la riporta alla definizione canonica (quella di PostgreSQL), e il riepilogo lo dice. La **mappa della narrativa** prende le piante di tutte le unità dal layer delle piante (anche le murarie) e non usa mai i prospetti ricavati.
+- 🇬🇧 **EN**: the filtered USM view of the SQLite template is restored to the canonical definition on the first import writing vertical drawings; the narrative map reads every unit's plan from the plan layer and never derived elevations.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +68 test nuovi (GLB sintetici scritti nei test: scatole, muri, anelli, nodi ruotati; regola dell'SRID con il DB in 31700, 3004, 4326 e -1; scrittura e reimport su SQLite e su PostGIS in uno schema temporaneo di `pyarchinit_test_pg`; export senza coppie ricavate e reimport che le tiene; finestra e collegamenti della tab Import; mappa della narrativa con una USM), visti rossi prima. **TempluMare vero** (em.json v3.2 e 65 proxy dall'SSD, in sola lettura; DB nuovo in EPSG:31700): 851 schede, 65 piante (il tempio, 42 × 49 m), 4 prospetti del sito e 64 di unità, 69 documenti, in circa un minuto; pianta e prospetto nord resi da QGIS fuori schermo e controllati. Lo `shift_z` di 500 m dell'em.json porta le quote a 991–1004 m, mentre il tempio sta intorno ai 495 m: da verificare con Emanuel.
+- 🇬🇧 **EN**: 68 new tests, all seen failing first; verified on the real TempluMare data (65 plans, 68 elevations, 69 documents in about a minute).
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §5.0.2 «Piante e prospetti dai modelli 3D», dieci lingue. Spec e piano in `docs/superpowers/`. `metadata.txt` 5.13.134-alpha.
+- 🇬🇧 **EN**: tutorial 36 §5.0.2 in ten languages.
+
+---
+
 ## [fix] - 2026-10-17 — Le rifiniture della scena 3D: chi eredita la geometria nel suo periodo, l'inquadratura sui riquadri stretti, niente selezioni col clic destro o con due dita, i modelli letti solo all'apertura, la tastiera; il visore del singolo modello senza internet; ancore e JSON della pagina — 5.13.133-alpha
 
 > Branch `Stratigraph_00001`. Suite **2439 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +17 test). / Follow-ups of the 3D scene: heirs of a geometry, framing on narrow panels, no selection on right-click or two fingers, GLBs read only when the scene opens, keyboard and ARIA; the single-model viewer now uses the embedded three.js (offline); unique chapter anchors and fully escaped JSON.

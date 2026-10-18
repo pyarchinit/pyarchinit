@@ -148,6 +148,53 @@ Voltar a exportar para a mesma pasta não copia de novo o que já lá está e **
 
 No TempluMare (a base de dados da importação do §5.0, com o disco externo desligado): 96 ficheiros copiados (238,7 MB: os 65 proxies e 31 documentos, todos com o sha256 escrito no em.json); o EMStudio encontra a partir do projeto 96 dos 536 recursos; ficam por copiar à mão os 343 ficheiros que a base de dados nunca teve — o levantamento de `RB/` (158) e os modelos de `SB/` (175), que não são media, incluindo os `.blend` — mais as 10 fotos JPG de `DosCo`, que se copiam dos originais com o disco ligado.
 
+### 5.0.2 Plantas e alçados a partir dos modelos 3D
+
+Desde a **5.13.134-alpha**. Um em.json do EMStudio não tem as geometrias GIS da escavação, mas tem os **proxies 3D** das unidades (`EM/proxies/<unidade>.glb`) e a **posição** da cena: EPSG e deslocamentos. Se, na aba **Import**, assinalares a caixa **Ricava piante e prospetti dai modelli 3D** (Obter plantas e alçados a partir dos modelos 3D; por baixo de **Cartella dei file**, não assinalada por predefinição), a importação obtém duas coisas a partir dos proxies.
+
+- **A planta de cada unidade**, na camada `pyunitastratigrafiche` (as «UE horizontais»), no sistema do em.json. É a sombra do modelo vista de cima, com os seus buracos, simplificada a 1 cm.
+- **Os desenhos verticais**, na camada `pyunitastratigrafiche_usm` (as «UE verticais»). São os **alçados do sítio** a partir de norte, este, sul e oeste, com todas as unidades que se veem desse lado, e o **alçado de cada unidade**. A unidade é vista de frente para o seu lado comprido, do lado virado para o centro da escavação; uma unidade quase quadrada é vista a partir do centro.
+
+Os desenhos verticais estão em coordenadas do desenho: **X = metros ao longo da vista, Y = cota**. Ficam lado a lado, a 10 m de distância. No alçado norte quem observa está a norte, por isso o este fica à esquerda.
+
+1. Assinala a caixa. O botão **Scegli…** (Escolher…) abre a janela **Geometrie dai modelli 3D** (Geometrias dos modelos 3D), com:
+    - a posição lida do em.json;
+    - o **Spostamento Z** (deslocamento Z), com as cotas que daí resultam, atualizadas à medida que o alteras;
+    - as caixas **Nord**, **Est**, **Sud**, **Ovest** (norte, este, sul, oeste) dos alçados do sítio;
+    - a tabela das unidades com um proxy, com as colunas **Pianta** (planta), **Prospetto** (alçado) e **Stato** (estado). O estado pode ser: ok, ficheiro não encontrado, formato não suportado, demasiado grande, usa o 3D de outra unidade, já tem uma planta ou um desenho vertical feito à mão.
+
+    **Tutte** e **Nessuna** (todas/nenhuma) assinalam e desmarcam as caixas; **Conferma** (Confirmar) guarda a escolha. Se não abrires a janela, vale a escolha predefinida: todas as unidades com um proxy legível, com planta e alçado, exceto as que já têm um desenho feito à mão; os quatro lados; o deslocamento Z do em.json.
+2. **Anteprima** (Pré-visualização) acrescenta a linha «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Do 3D: … plantas, … alçados do sítio, … alçados de unidades; calculam-se ao aplicar).
+3. **Applica** (Aplicar) escreve as fichas, depois os media e por fim os desenhos, com uma barra de progresso. O resumo acrescenta a linha «Dal 3D: …», com as unidades ignoradas e o motivo.
+
+**O sistema de referência da base de dados.** Se houver geometrias para escrever, o pyArchInit compara o sistema das duas camadas com o do em.json antes de escrever seja o que for:
+
+| Camada da base de dados | O que acontece |
+|---|---|
+| o mesmo EPSG do em.json | importa |
+| outro sistema métrico (por exemplo 3004) | pergunta «Converto le piante in EPSG:3004 del database?» (Converto as plantas para o EPSG:3004 da base de dados?), com **Converti** (Converter) ou **Annulla** (Cancelar). Os alçados nunca são convertidos: estão em coordenadas do desenho |
+| em graus (4326) ou sem sistema (-1) | interrompe-se: recria a base de dados no sistema do em.json, ou retira a marca da caixa e importa só as fichas |
+
+Se escolheres Annulla, ou se a importação se interromper, a base de dados fica como estava. Sem a caixa, ou sem proxies utilizáveis, não há nenhuma verificação e importam-se só as fichas, como antes.
+
+**Documentos e ligações.** Cada desenho é um documento da ficha **Documentazione** (Documentação), do tipo **Planimetria** (planta) ou **Prospetto** (alçado) — os termos do tesauro na língua do plugin —, com um nome de código:
+- `3D-PLA` para a planta;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` para os lados do sítio;
+- `3D-PRO-<tipo><US>` para uma unidade, por exemplo `3D-PRO-US002`.
+
+O mesmo tipo e o mesmo nome estão nos polígonos (`tipo_doc`, `nome_doc`) e na lista **Documentazione** da ficha UE. Assim, a partir da ficha Documentazione o documento carrega as suas «UE horizontais» ou «UE verticais», e a partir da ficha UE a linha do documento faz o mesmo. Cada polígono tem como desenhador «pyArchInit 3D», o ficheiro do proxy em **rilievo originale** (levantamento original) e o centroide em **coord**.
+
+**Reimportar.** Uma nova importação com a caixa assinalada substitui só os desenhos derivados do sítio, ou seja, os que têm como desenhador «pyArchInit 3D» e um nome que começa por `3D-`; os desenhados à mão não são tocados. Se corrigiste um polígono derivado e queres mantê-lo, muda-lhe o desenhador. Para acrescentar os desenhos a um sítio já importado basta reimportar o mesmo em.json com a caixa assinalada: as fichas não mudam. O em.json não muda: os desenhos derivados e as respetivas linhas da lista Documentazione ficam no pyArchInit e não são exportados.
+
+**A vista USM.** As bases de dados SQLite criadas a partir do modelo tinham uma vista `pyarchinit_usm_view` que mostrava apenas as unidades do tipo USM. A primeira importação que escreve desenhos verticais devolve-lhe a definição do pyArchInit, a mesma do PostgreSQL, que mostra os desenhos verticais de todas as unidades, e o resumo di-lo. O mapa da narrativa (§10.10) vai buscar as plantas de todas as unidades à camada das plantas, e nunca usa os alçados derivados.
+
+No TempluMare, numa base de dados nova em EPSG:31700 com 851 fichas, a importação produziu em cerca de um minuto:
+- 65 plantas: o templo, 42 × 49 m, em torno de X 327 285, Y 448 355;
+- 4 alçados do sítio e 64 alçados de unidades (USV105, que é plana, não tem alçado);
+- 69 documentos.
+
+O em.json diz para somar **500 m** às cotas do 3D, e assim as cotas ficam entre 991 e 1004 m, enquanto o templo está à volta dos 495 m. O deslocamento Z do em.json deve, portanto, ser verificado; na janela podes pô-lo a 0.
+
 A via yEd/GraphML, para mover unidades entre grupos, é a que se segue.
 
 Para modificar a base SQL movendo UE entre grupos em GraphML:

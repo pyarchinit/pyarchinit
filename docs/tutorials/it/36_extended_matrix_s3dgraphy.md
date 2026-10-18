@@ -148,6 +148,53 @@ Riesportare nella stessa cartella non ricopia quello che c'è già e **non sovra
 
 Su TempluMare (il database dell'importazione del §5.0, con il disco esterno staccato): 96 file copiati (238,7 MB: i 65 proxy e 31 documenti, tutti con lo sha256 scritto nell'em.json); EMStudio trova dal progetto 96 delle 536 risorse; restano da copiare a mano i 343 file che il database non ha mai avuto — il rilievo di `RB/` (158) e i modelli di `SB/` (175), che non sono media, compresi i `.blend` — più le 10 foto JPG di `DosCo`, che con il disco attaccato si copiano dagli originali.
 
+### 5.0.2 Piante e prospetti dai modelli 3D
+
+Dalla **5.13.134-alpha**. Un em.json di EMStudio non ha le geometrie GIS dello scavo, ma ha i **proxy 3D** delle unità (`EM/proxies/<unità>.glb`) e la **posizione** della scena: EPSG e spostamenti. Se nella tab **Import** accendi la casella **Ricava piante e prospetti dai modelli 3D** (sotto **Cartella dei file**, spenta di partenza), l'importazione ricava dai proxy due cose.
+
+- **La pianta di ogni unità**, nel layer `pyunitastratigrafiche` (le «US orizzontali»), nel sistema dell'em.json. È l'ombra del modello vista dall'alto, con i buchi, semplificata a 1 cm.
+- **I disegni verticali**, nel layer `pyunitastratigrafiche_usm` (le «US verticali»). Sono i **prospetti del sito** da nord, est, sud e ovest, con tutte le unità che si vedono da quel lato, e il **prospetto di ogni unità**. L'unità si guarda di fronte al suo lato lungo, dal lato del centro dello scavo; un'unità quasi quadrata si guarda dal centro.
+
+I disegni verticali sono in coordinate del disegno: **X = metri lungo la vista, Y = quota**. Stanno uno accanto all'altro, a 10 m di distanza. Nel prospetto nord chi guarda sta a nord, quindi l'est è a sinistra.
+
+1. Accendi la casella. Il pulsante **Scegli…** apre la finestra **Geometrie dai modelli 3D**, con:
+    - la posizione letta dall'em.json;
+    - lo **Spostamento Z**, con le quote che ne vengono fuori, aggiornate mentre lo cambi;
+    - le caselle **Nord**, **Est**, **Sud**, **Ovest** dei prospetti del sito;
+    - la tabella delle unità con un proxy, con le colonne **Pianta**, **Prospetto** e **Stato**. Lo stato può essere: ok, file non trovato, formato non supportato, troppo grande, usa il 3D di un'altra unità, ha già una pianta o un disegno verticale fatto a mano.
+
+    **Tutte** e **Nessuna** accendono e spengono le caselle; **Conferma** tiene la scelta. Se non apri la finestra vale la scelta predefinita: tutte le unità con un proxy che si legge, con pianta e prospetto, tranne quelle che hanno già un disegno a mano; i quattro lati; lo spostamento Z dell'em.json.
+2. **Anteprima** aggiunge la riga «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)».
+3. **Applica** scrive le schede, poi i media, poi i disegni, con una barra di avanzamento. Il riepilogo aggiunge la riga «Dal 3D: …», con le unità saltate e il motivo.
+
+**Il sistema di riferimento del database.** Se ci sono geometrie da scrivere, pyArchInit confronta il sistema dei due layer con quello dell'em.json prima di scrivere qualsiasi cosa:
+
+| Layer del database | Che cosa succede |
+|---|---|
+| stesso EPSG dell'em.json | importa |
+| un altro sistema metrico (per esempio 3004) | chiede «Converto le piante in EPSG:3004 del database?», con **Converti** o **Annulla**. I prospetti non si convertono mai: sono in coordinate del disegno |
+| in gradi (4326) o senza sistema (-1) | si ferma: ricrea il database nel sistema dell'em.json, oppure togli la casella e importa solo le schede |
+
+Annulla, o il fermo, lasciano il database com'era. Senza la casella, o senza proxy da usare, non c'è nessun controllo e si importano solo le schede, come prima.
+
+**Documenti e collegamenti.** Ogni disegno è un documento della scheda **Documentazione**, di tipo **Planimetria** o **Prospetto** (le voci del thesaurus nella lingua del plugin), con un nome in codice:
+- `3D-PLA` per la pianta;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` per i lati del sito;
+- `3D-PRO-<tipo><US>` per un'unità, per esempio `3D-PRO-US002`.
+
+Lo stesso tipo e lo stesso nome stanno nei poligoni (`tipo_doc`, `nome_doc`) e nella lista **Documentazione** della scheda US. Così dalla scheda Documentazione il documento carica le sue «US orizzontali» o «US verticali», e dalla scheda US la riga del documento fa lo stesso. Ogni poligono porta il disegnatore «pyArchInit 3D», il file del proxy in **rilievo originale** e il centroide in **coord**.
+
+**Reimportare.** Una nuova importazione con la casella accesa sostituisce solo i disegni ricavati del sito, cioè quelli con disegnatore «pyArchInit 3D» e nome che comincia con `3D-`; quelli disegnati a mano non si toccano. Se hai corretto un poligono ricavato e vuoi tenerlo, cambiagli il disegnatore. Per aggiungere i disegni a un sito già importato basta reimportare lo stesso em.json con la casella accesa: le schede non cambiano. L'em.json non cambia: i disegni ricavati e le loro righe della lista Documentazione restano in pyArchInit e non vanno nell'esportazione.
+
+**La vista USM.** I database SQLite nati dal template avevano una vista `pyarchinit_usm_view` che mostrava solo le unità di tipo USM. La prima importazione che scrive disegni verticali la riporta alla definizione di pyArchInit, la stessa di PostgreSQL, che mostra i disegni verticali di tutte le unità, e il riepilogo lo dice. La mappa della narrativa (§10.10) prende le piante di tutte le unità dal layer delle piante, e non usa mai i prospetti ricavati.
+
+Su TempluMare, in un database nuovo in EPSG:31700 con 851 schede, l'importazione ha prodotto in circa un minuto:
+- 65 piante: il tempio, 42 × 49 m, attorno a X 327 285, Y 448 355;
+- 4 prospetti del sito e 64 prospetti di unità (USV105, che è piatta, non ha un prospetto);
+- 69 documenti.
+
+L'em.json dice di aggiungere **500 m** alle quote del 3D, e così le quote vengono fra 991 e 1004 m, mentre il tempio sta intorno ai 495 m. Lo spostamento Z dell'em.json va quindi verificato; nella finestra lo puoi mettere a 0.
+
 La via yEd/GraphML, per spostare le unità fra i gruppi, è quella che segue.
 
 Per modificare il database SQL spostando US tra gruppi nel GraphML:

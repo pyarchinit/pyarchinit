@@ -148,6 +148,53 @@ Reexportarea în același folder nu copiază din nou ce există deja și **nu su
 
 Pe TempluMare (baza de date a importului din §5.0, cu discul extern deconectat): 96 de fișiere copiate (238,7 MB: cele 65 de proxy-uri și 31 de documente, toate cu sha256-ul scris în em.json); EMStudio găsește pornind de la proiect 96 din cele 536 de resurse; rămân de copiat manual cele 343 de fișiere pe care baza de date nu le-a avut niciodată — releveul din `RB/` (158) și modelele din `SB/` (175), care nu sunt fișiere media, inclusiv fișierele `.blend` — plus cele 10 fotografii JPG din `DosCo`, care se copiază din originale atunci când discul este conectat.
 
+### 5.0.2 Planuri și elevații din modelele 3D
+
+Din **5.13.134-alpha**. Un em.json din EMStudio nu are geometriile GIS ale săpăturii, dar are **proxy-urile 3D** ale unităților (`EM/proxies/<unitate>.glb`) și **poziția** scenei: EPSG și deplasări. Dacă în tab-ul **Import** bifezi căsuța **Ricava piante e prospetti dai modelli 3D** (Obține planuri și elevații din modelele 3D), aflată sub **Cartella dei file** și debifată implicit, importul obține din proxy-uri două lucruri.
+
+- **Planul fiecărei unități**, în stratul `pyunitastratigrafiche` («US orizontale»), în sistemul de referință din em.json. Este umbra modelului văzută de sus, cu tot cu găuri, simplificată la 1 cm.
+- **Desenele verticale**, în stratul `pyunitastratigrafiche_usm` («US verticale»). Sunt **elevațiile sitului** dinspre nord, est, sud și vest, cu toate unitățile care se văd din acea parte, și **elevația fiecărei unități**. Unitatea este privită din fața laturii sale lungi, din partea în care se află centrul săpăturii; o unitate aproape pătrată este privită dinspre centru.
+
+Desenele verticale sunt în coordonatele desenului: **X = metri de-a lungul vederii, Y = cotă**. Stau unul lângă altul, la 10 m distanță. În elevația nord, cel care privește stă la nord, deci estul este în stânga.
+
+1. Bifează căsuța. Butonul **Scegli…** (Alege…) deschide fereastra **Geometrie dai modelli 3D** (Geometrii din modelele 3D), cu:
+    - poziția citită din em.json;
+    - **Spostamento Z** (deplasarea Z), cu cotele care rezultă, actualizate pe măsură ce o schimbi;
+    - căsuțele **Nord**, **Est**, **Sud**, **Ovest** pentru elevațiile sitului;
+    - tabelul unităților care au un proxy, cu coloanele **Pianta** (plan), **Prospetto** (elevație) și **Stato** (stare). Starea poate fi: ok, fișier negăsit, format neacceptat, prea mare, folosește modelul 3D al altei unități, are deja un plan sau un desen vertical făcut de mână.
+
+    **Tutte** și **Nessuna** (toate/niciuna) bifează și debifează căsuțele; **Conferma** (Confirmă) păstrează alegerea. Dacă nu deschizi fereastra, se aplică alegerea implicită: toate unitățile cu un proxy care poate fi citit, cu plan și elevație, în afară de cele care au deja un desen făcut de mână; cele patru laturi; deplasarea Z din em.json.
+2. **Anteprima** (Previzualizare) adaugă rândul «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Din 3D: … planuri, … elevații ale sitului, … elevații de unități; se calculează la aplicare).
+3. **Applica** (Aplică) scrie fișele, apoi fișierele media, apoi desenele, cu o bară de progres. Rezumatul adaugă rândul «Dal 3D: …», cu unitățile omise și motivul.
+
+**Sistemul de referință al bazei de date.** Dacă există geometrii de scris, pyArchInit compară sistemul celor două straturi cu cel din em.json înainte de a scrie ceva:
+
+| Stratul din baza de date | Ce se întâmplă |
+|---|---|
+| același EPSG ca în em.json | importă |
+| alt sistem metric (de exemplu 3004) | întreabă «Converto le piante in EPSG:3004 del database?» (Convertesc planurile în EPSG:3004 al bazei de date?), cu **Converti** (Convertește) sau **Annulla** (Anulează). Elevațiile nu se convertesc niciodată: sunt în coordonatele desenului |
+| în grade (4326) sau fără sistem (-1) | se oprește: recreează baza de date în sistemul din em.json sau debifează căsuța și importă doar fișele |
+
+Annulla, sau oprirea, lasă baza de date așa cum era. Fără căsuța bifată sau fără proxy-uri utilizabile, nu se face nicio verificare și se importă doar fișele, ca înainte.
+
+**Documente și legături.** Fiecare desen este un document al fișei **Documentazione** (Documentație), de tip **Planimetria** sau **Prospetto** (elevație) — termenii din tezaur în limba pluginului —, cu un nume de cod:
+- `3D-PLA` pentru plan;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` pentru laturile sitului;
+- `3D-PRO-<tip><US>` pentru o unitate, de exemplu `3D-PRO-US002`.
+
+Același tip și același nume se află în poligoane (`tipo_doc`, `nome_doc`) și în lista **Documentazione** a fișei US. Astfel, din fișa Documentazione documentul își încarcă «US orizontale» sau «US verticale», iar din fișa US rândul documentului face același lucru. Fiecare poligon are desenatorul «pyArchInit 3D», fișierul proxy-ului în câmpul **rilievo originale** (releveu original) și centroidul în câmpul **coord**.
+
+**Reimportarea.** Un nou import cu căsuța bifată înlocuiește doar desenele derivate pe care situl le are deja, adică pe cele cu desenatorul «pyArchInit 3D» și cu un nume care începe cu `3D-`; cele desenate de mână nu sunt atinse. Dacă ai corectat un poligon derivat și vrei să-l păstrezi, schimbă-i desenatorul. Pentru a adăuga desenele la un sit deja importat, este suficient să reimporți același em.json cu căsuța bifată: fișele nu se schimbă. Nici em.json nu se schimbă: desenele derivate și rândurile lor din lista Documentazione rămân în pyArchInit și nu intră în export.
+
+**Vederea USM.** Bazele de date SQLite create din șablon aveau o vedere `pyarchinit_usm_view` care arăta doar unitățile de tip USM. Primul import care scrie desene verticale o readuce la definiția pyArchInit, aceeași ca în PostgreSQL, care arată desenele verticale ale tuturor unităților, iar rezumatul o spune. Harta narațiunii (§10.10) ia planurile tuturor unităților din stratul planurilor și nu folosește niciodată elevațiile derivate.
+
+Pe TempluMare, într-o bază de date nouă în EPSG:31700 cu 851 de fișe, importul a produs în aproximativ un minut:
+- 65 de planuri: templul, 42 × 49 m, în jurul coordonatelor X 327 285, Y 448 355;
+- 4 elevații ale sitului și 64 de elevații de unități (USV105, care este plată, nu are elevație);
+- 69 de documente.
+
+Fișierul em.json spune să se adauge **500 m** la cotele din 3D, așa că cotele ies între 991 și 1004 m, în timp ce templul se află la aproximativ 495 m. Deplasarea Z din em.json trebuie deci verificată; în fereastră o poți pune la 0.
+
 Calea yEd/GraphML, pentru mutarea unităților între grupuri, este cea care urmează.
 
 Pentru a modifica baza SQL mutând UE între grupuri în GraphML:

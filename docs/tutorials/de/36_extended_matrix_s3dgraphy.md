@@ -148,6 +148,53 @@ Ein erneuter Export in denselben Ordner kopiert nicht noch einmal, was schon da 
 
 Bei TempluMare (der Datenbank des Imports aus §5.0, mit nicht angeschlossener externer Festplatte): 96 Dateien kopiert (238,7 MB: die 65 Proxys und 31 Dokumente, alle mit der in der em.json geschriebenen sha256); EMStudio findet vom Projekt aus 96 der 536 Ressourcen; von Hand zu kopieren bleiben die 343 Dateien, die die Datenbank nie hatte — die Vermessung in `RB/` (158) und die Modelle in `SB/` (175), die keine Medien sind, die `.blend`-Dateien eingeschlossen —, dazu die 10 JPG-Fotos von `DosCo`, die bei angeschlossener Festplatte aus den Originalen kopiert werden.
 
+### 5.0.2 Grundrisse und Ansichten aus den 3D-Modellen
+
+Ab **5.13.134-alpha**. Eine em.json aus EMStudio enthält keine GIS-Geometrien der Grabung, wohl aber die **3D-Proxys** der Einheiten (`EM/proxies/<Einheit>.glb`) und die **Position** der Szene: EPSG und Verschiebungen. Wird die Checkbox **Ricava piante e prospetti dai modelli 3D** (Grundrisse und Ansichten aus den 3D-Modellen ableiten) im Tab **Import** aktiviert (sie steht unter **Cartella dei file** und ist standardmäßig deaktiviert), leitet der Import aus den Proxys zwei Dinge ab.
+
+- **Der Grundriss jeder Einheit**, im Layer `pyunitastratigrafiche` («Horizontale SE»), im Bezugssystem der em.json. Er ist der von oben gesehene Schatten des Modells, mit seinen Löchern, auf 1 cm vereinfacht.
+- **Die vertikalen Zeichnungen**, im Layer `pyunitastratigrafiche_usm` («Vertikale SE»). Das sind die **Ansichten der Stätte** von Norden, Osten, Süden und Westen, mit allen Einheiten, die von dieser Seite aus zu sehen sind, und die **Ansicht jeder Einheit**. Man blickt frontal auf die Längsseite der Einheit, und zwar von der Seite, auf der die Mitte der Grabung liegt; auf eine nahezu quadratische Einheit blickt man von der Mitte aus.
+
+Die vertikalen Zeichnungen sind in Zeichnungskoordinaten angelegt: **X = Meter entlang der Ansicht, Y = Höhe**. Sie stehen nebeneinander, in 10 m Abstand. In der Nordansicht steht der Betrachter im Norden, daher liegt Osten links.
+
+1. Die Checkbox aktivieren. Die Schaltfläche **Scegli…** (Auswählen…) öffnet das Fenster **Geometrie dai modelli 3D** (Geometrien aus den 3D-Modellen) mit:
+    - der aus der em.json gelesenen Position;
+    - dem Feld **Spostamento Z** (Z-Verschiebung) und den Höhen, die sich daraus ergeben und beim Ändern laufend aktualisiert werden;
+    - den Checkboxen **Nord**, **Est**, **Sud**, **Ovest** (Nord, Ost, Süd, West) für die Ansichten der Stätte;
+    - der Tabelle der Einheiten mit Proxy, mit den Spalten **Pianta** (Grundriss), **Prospetto** (Ansicht) und **Stato** (Status). Der Status kann lauten: ok, Datei nicht gefunden, Format nicht unterstützt, zu groß, verwendet das 3D-Modell einer anderen Einheit, hat bereits einen handgezeichneten Grundriss oder eine handgezeichnete vertikale Zeichnung.
+
+    **Tutte** und **Nessuna** (alle/keine) aktivieren bzw. deaktivieren die Checkboxen; **Conferma** (Bestätigen) übernimmt die Auswahl. Wird das Fenster nicht geöffnet, gilt die Standardauswahl: alle Einheiten mit einem lesbaren Proxy, mit Grundriss und Ansicht, außer denen, die bereits eine Zeichnung von Hand haben; die vier Seiten; die Z-Verschiebung der em.json.
+2. **Anteprima** (Vorschau) zeigt zusätzlich die Zeile «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Aus dem 3D: … Grundrisse, … Ansichten der Stätte, … Ansichten von Einheiten, berechnet beim Klick auf Applica).
+3. **Applica** (Anwenden) schreibt die Datensätze, dann die Medien, dann die Zeichnungen, mit einem Fortschrittsbalken. Die Zusammenfassung zeigt zusätzlich die Zeile «Dal 3D: …», mit den übersprungenen Einheiten und dem jeweiligen Grund.
+
+**Das Bezugssystem der Datenbank.** Gibt es Geometrien zu schreiben, vergleicht pyArchInit das Bezugssystem der beiden Layer mit dem der em.json, bevor überhaupt etwas geschrieben wird:
+
+| Layer der Datenbank | Was geschieht |
+|---|---|
+| dasselbe EPSG wie die em.json | importiert |
+| ein anderes metrisches Bezugssystem (zum Beispiel 3004) | fragt «Converto le piante in EPSG:3004 del database?» (Die Grundrisse in das EPSG:3004 der Datenbank umrechnen?), mit **Converti** (Umrechnen) oder **Annulla** (Abbrechen). Die Ansichten werden nie umgerechnet: Sie sind in Zeichnungskoordinaten |
+| in Grad (4326) oder ohne Bezugssystem (-1) | bricht ab: die Datenbank im Bezugssystem der em.json neu anlegen oder die Checkbox deaktivieren und nur die Datensätze importieren |
+
+Annulla oder der Abbruch lassen die Datenbank so, wie sie war. Ist die Checkbox nicht aktiviert oder gibt es keine verwendbaren Proxys, findet keine Prüfung statt, und es werden wie bisher nur die Datensätze importiert.
+
+**Dokumente und Verknüpfungen.** Jede Zeichnung ist ein Dokument des Formulars **Documentazione** (Dokumentation), vom Typ **Planimetria** (Plan) oder **Prospetto** (Ansicht), wie der Thesaurus sie in der Sprache des Plugins nennt, mit einem Codenamen:
+- `3D-PLA` für den Grundriss;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` für die Seiten der Stätte;
+- `3D-PRO-<Typ><SE>` für eine Einheit, zum Beispiel `3D-PRO-US002`.
+
+Derselbe Typ und derselbe Name stehen in den Polygonen (`tipo_doc`, `nome_doc`) und in der Liste **Documentazione** des SE-Formulars. So lädt das Dokument vom Formular Documentazione aus seine Layer «Horizontale SE» oder «Vertikale SE», und im SE-Formular tut die Zeile des Dokuments dasselbe. Jedes Polygon trägt als Zeichner «pyArchInit 3D», im Feld **rilievo originale** (Ursprungsvermessung) die Proxy-Datei und im Feld **coord** den Zentroid.
+
+**Erneut importieren.** Ein neuer Import mit aktivierter Checkbox ersetzt nur die abgeleiteten Zeichnungen der Stätte, also die mit dem Zeichner «pyArchInit 3D» und einem Namen, der mit `3D-` beginnt; von Hand gezeichnete bleiben unangetastet. Wer ein abgeleitetes Polygon korrigiert hat und es behalten will, trägt dort einen anderen Zeichner ein. Um einer bereits importierten Stätte die Zeichnungen hinzuzufügen, genügt es, dieselbe em.json mit aktivierter Checkbox erneut zu importieren: Die Datensätze ändern sich nicht. Auch die em.json ändert sich nicht: Die abgeleiteten Zeichnungen und ihre Zeilen in der Liste Documentazione bleiben in pyArchInit und gehen nicht in den Export ein.
+
+**Die USM-View.** Die aus der Vorlage entstandenen SQLite-Datenbanken hatten eine View `pyarchinit_usm_view`, die nur die Einheiten vom Typ USM zeigte. Der erste Import, der vertikale Zeichnungen schreibt, stellt für sie die Definition von pyArchInit wieder her — dieselbe wie unter PostgreSQL —, die die vertikalen Zeichnungen aller Einheiten zeigt; die Zusammenfassung meldet es. Die Karte der Erzählung (§10.10) nimmt die Grundrisse aller Einheiten aus dem Grundriss-Layer und verwendet nie die abgeleiteten Ansichten.
+
+Bei TempluMare, in einer neuen Datenbank in EPSG:31700 mit 851 Datensätzen, erzeugte der Import in etwa einer Minute:
+- 65 Grundrisse: der Tempel, 42 × 49 m, um X 327 285, Y 448 355;
+- 4 Ansichten der Stätte und 64 Ansichten von Einheiten (USV105 ist flach und hat keine Ansicht);
+- 69 Dokumente.
+
+Die em.json gibt an, zu den Höhen der 3D-Modelle **500 m** zu addieren; damit ergeben sich Höhen zwischen 991 und 1004 m, während der Tempel auf etwa 495 m liegt. Die Z-Verschiebung der em.json sollte daher geprüft werden; im Fenster lässt sie sich auf 0 setzen.
+
 Es folgt der Weg über yEd/GraphML, um Einheiten zwischen Gruppen zu verschieben.
 
 Um die SQL-Datenbank durch das Verschieben von SE zwischen Gruppen im GraphML zu aktualisieren:

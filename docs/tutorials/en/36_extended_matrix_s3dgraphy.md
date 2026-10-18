@@ -148,6 +148,53 @@ Exporting again into the same folder does not copy again what is already there a
 
 On TempluMare (the database of the §5.0 import, with the external disk unplugged): 96 files copied (238.7 MB: the 65 proxies and 31 documents, all with the sha256 written in the em.json); EMStudio finds 96 of the 536 resources from the project; left to copy by hand are the 343 files the database never had — the survey in `RB/` (158) and the models in `SB/` (175), which are not media, `.blend` files included — plus the 10 JPG photos of `DosCo`, which are copied from the originals when the disk is plugged in.
 
+### 5.0.2 Plans and elevations from the 3D models
+
+Since **5.13.134-alpha**. An EMStudio em.json has no GIS geometries of the excavation, but it has the units' **3D proxies** (`EM/proxies/<unit>.glb`) and the scene's **position**: EPSG and shifts. If you tick **Ricava piante e prospetti dai modelli 3D** ("derive plans and elevations from the 3D models") in the **Import** tab (below **Cartella dei file**, off by default), the import derives two things from the proxies.
+
+- **The plan of each unit**, in the `pyunitastratigrafiche` layer (the "horizontal SUs"), in the em.json's CRS. It is the model's shadow seen from above, with its holes, simplified to 1 cm.
+- **The vertical drawings**, in the `pyunitastratigrafiche_usm` layer (the "vertical SUs"). These are the **site elevations** from north, east, south and west, with every unit seen from that side, and the **elevation of each unit**. A unit is seen square-on to its long side, from the side of the site's centre; a nearly square unit is seen from the centre.
+
+Vertical drawings are in drawing coordinates: **X = metres along the view, Y = elevation**. They sit side by side, 10 m apart. In the north elevation the viewer stands to the north, so east is on the left.
+
+1. Tick the box. The **Scegli…** button opens the **Geometrie dai modelli 3D** window, with:
+    - the position read from the em.json;
+    - the **Spostamento Z** (Z shift), with the resulting elevations, updated as you change it;
+    - the **Nord**, **Est**, **Sud**, **Ovest** boxes for the site elevations;
+    - the table of the units with a proxy, with the columns **Pianta** (plan), **Prospetto** (elevation) and **Stato** (status). The status can be: ok, file not found, unsupported format, too large, uses another unit's 3D, already has a hand-drawn plan or vertical drawing.
+
+    **Tutte** and **Nessuna** (all/none) tick and untick the boxes; **Conferma** keeps the choice. If you don't open the window, the default choice applies: every unit with a readable proxy, with plan and elevation, except those that already have a hand drawing; the four sides; the em.json's Z shift.
+2. **Anteprima** (preview) adds the line "Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)".
+3. **Applica** (apply) writes the records, then the media, then the drawings, with a progress bar. The summary adds a "Dal 3D: …" line, listing the skipped units and the reason.
+
+**The database's CRS.** When there are geometries to write, pyArchInit compares the CRS of the two layers with the em.json's before writing anything:
+
+| Database layer | What happens |
+|---|---|
+| same EPSG as the em.json | imports |
+| another metric CRS (e.g. 3004) | asks "Converto le piante in EPSG:3004 del database?" (convert the plans?), with **Converti** or **Annulla**. Elevations are never converted: they are in drawing coordinates |
+| in degrees (4326) or without a CRS (-1) | stops: recreate the database in the em.json's CRS, or untick the box and import only the records |
+
+Cancelling, or the stop, leave the database as it was. Without the box, or without usable proxies, nothing is checked and only the records are imported, as before.
+
+**Documents and links.** Each drawing is a document of the **Documentazione** form, of type **Planimetria** (plan) or **Prospetto** (elevation), the thesaurus terms in the plugin's language, with a code name:
+- `3D-PLA` for the plan;
+- `3D-PRO-N`, `3D-PRO-E`, `3D-PRO-S`, `3D-PRO-W` for the site's sides;
+- `3D-PRO-<type><SU>` for a unit, e.g. `3D-PRO-US002`.
+
+The same type and name are on the polygons (`tipo_doc`, `nome_doc`) and in the **Documentazione** list of the SU form. So from the Documentazione form the document loads its "horizontal SUs" or "vertical SUs", and from the SU form the document's row does the same. Each polygon has the drawer "pyArchInit 3D", the proxy file in **rilievo originale** and the centroid in **coord**.
+
+**Re-importing.** A new import with the box ticked replaces only the site's derived drawings, i.e. those with drawer "pyArchInit 3D" and a name starting with `3D-`; hand-drawn ones are never touched. If you corrected a derived polygon and want to keep it, change its drawer. To add drawings to a site imported earlier, re-import the same em.json with the box ticked: the records don't change. The em.json doesn't change either: derived drawings and their Documentazione rows stay in pyArchInit and are not exported.
+
+**The USM view.** SQLite databases created from the template had a `pyarchinit_usm_view` that showed only USM-type units. The first import that writes vertical drawings restores pyArchInit's definition, the same as PostgreSQL's, which shows the vertical drawings of every unit, and the summary says so. The narrative map (§10.10) takes every unit's plan from the plan layer, and never uses derived elevations.
+
+On TempluMare, in a new database in EPSG:31700 with 851 records, the import produced in about a minute:
+- 65 plans: the temple, 42 × 49 m, around X 327 285, Y 448 355;
+- 4 site elevations and 64 unit elevations (USV105, which is flat, has none);
+- 69 documents.
+
+The em.json says to add **500 m** to the 3D elevations, which puts them between 991 and 1004 m, while the temple lies at about 495 m. The em.json's Z shift should therefore be checked; you can set it to 0 in the window.
+
 The yEd/GraphML route, for moving units between groups, is the one that follows.
 
 To update the SQL database by moving SUs between groups in GraphML:
