@@ -455,3 +455,27 @@ def test_importare_in_un_secondo_sito_ha_i_suoi_disegni(progetto):
     esito = edi.run_drawings(progetto["eng"], progetto["grafo"], "Copia", str(progetto["em"]), units=unita,
                              choice=scelta, georef=geo, decision=edi.crs_decision(progetto["eng"], geo, scelta))
     assert esito.plans == 2 and not esito.skipped
+
+
+def test_il_reimport_non_tocca_le_sezioni(progetto):
+    _scrivi(progetto)
+    con = sqlite3.connect(progetto["db"])
+    con.enable_load_extension(True)
+    for nome in _SPATIALITE:
+        try:
+            con.load_extension(nome)
+            break
+        except sqlite3.Error:
+            continue
+    con.execute("INSERT INTO pyunitastratigrafiche_usm (gid, scavo_s, area_s, us_s, unita_tipo_s, disegnatore, "
+                "tipo_doc, nome_doc, the_geom) VALUES (900, ?, '1', '001', 'US', 'pyArchInit 3D', 'Sezione', "
+                "'3D-SEZ-1', CastToMultiPolygon(GeomFromText('POLYGON((-20 0,-18 0,-18 2,-20 0))', 31700)))", (SITO,))
+    con.execute("INSERT INTO documentazione_table (id_documentazione, sito, nome_doc, tipo_documentazione, "
+                "disegnatore) VALUES (900, ?, '3D-SEZ-1', 'Sezione', 'pyArchInit 3D')", (SITO,))
+    con.commit()
+    con.close()
+    _scrivi(progetto)
+    assert _righe(progetto, "SELECT count(*) FROM pyunitastratigrafiche_usm WHERE nome_doc = '3D-SEZ-1'")[0][0] == 1
+    assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-SEZ-1'")[0][0] == 1
+    doc = _righe(progetto, "SELECT documentazione FROM us_table WHERE sito = ? AND us = '001'", SITO)[0][0]
+    assert "['Sezione', '3D-SEZ-1']" in doc

@@ -459,25 +459,29 @@ class WriteResult:
         return testo
 
 
-def doc_types(db, lingua: Optional[str] = None) -> Tuple[str, str]:
-    """I tipi dei documenti dal thesaurus (9.1 PLA e PRO) nella lingua del
-    plugin, poi IT, poi «Planimetria» e «Prospetto»."""
+def doc_type(db, sigla: str, ripiego: str, lingua: Optional[str] = None) -> str:
+    """Il tipo di documento della sigla dal thesaurus (9.1) nella lingua del
+    plugin, poi IT, poi ``ripiego``."""
     from sqlalchemy import text
     from .em_native_import import thesaurus_lingua
     lingua = lingua or thesaurus_lingua()
-    trovati: Dict[str, str] = {}
     try:
         with _engine(db).connect() as conn:
             for lng in (lingua, "IT"):
-                for sigla, estesa in conn.execute(text(
-                        "SELECT sigla, sigla_estesa FROM pyarchinit_thesaurus_sigle WHERE "
-                        "nome_tabella = 'documentazione_table' AND tipologia_sigla = '9.1' "
-                        "AND lingua = :l AND sigla IN ('PLA', 'PRO')"), {"l": lng}):
-                    if estesa:
-                        trovati.setdefault(str(sigla), str(estesa))
+                estesa = conn.execute(text(
+                    "SELECT sigla_estesa FROM pyarchinit_thesaurus_sigle WHERE "
+                    "nome_tabella = 'documentazione_table' AND tipologia_sigla = '9.1' "
+                    "AND lingua = :l AND sigla = :g"), {"l": lng, "g": sigla}).scalar()
+                if estesa:
+                    return str(estesa)
     except Exception:                                       # noqa: BLE001
         pass
-    return trovati.get("PLA", "Planimetria"), trovati.get("PRO", "Prospetto")
+    return ripiego
+
+
+def doc_types(db, lingua: Optional[str] = None) -> Tuple[str, str]:
+    """I tipi della pianta e dei prospetti (9.1 PLA e PRO)."""
+    return doc_type(db, "PLA", "Planimetria", lingua), doc_type(db, "PRO", "Prospetto", lingua)
 
 
 def _columns(eng, table: str) -> Set[str]:
@@ -517,9 +521,12 @@ def _centroid(g) -> str:
 
 def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str, Scheda],
                    decision: CrsDecision, *, source_name: str, today: Optional[str] = None,
-                   rilievi: Optional[Dict[str, str]] = None) -> WriteResult:
+                   rilievi: Optional[Dict[str, str]] = None,
+                   scope: Optional[Set[str]] = None) -> WriteResult:
     """Sostituisce l'insieme ricavato del sito: poligoni nei due layer,
-    documenti, coppie della scheda US. Una transazione; un SAVEPOINT per riga."""
+    documenti, coppie della scheda US. Una transazione; un SAVEPOINT per riga.
+    ``scope`` None = piante e prospetti (``3D-PLA``, ``3D-PRO-…``), che l'import
+    rifà tutti; un insieme = solo quei nomi (le sezioni che si ricalcolano)."""
     from sqlalchemy import text
     from ...utility.qfield_importer import build_geom_sql
     esito = WriteResult()
@@ -535,12 +542,24 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                                            QgsProject.instance())
         esito.converted = (int(decision.source_epsg), int(decision.plan_srid))
     geom_sql = build_geom_sql(is_pg, True, False, None)
+    if scope is None:
+        filtro, parametri = "(nome_doc = :pla OR nome_doc LIKE :pro)", {"pla": drw.PLAN_NAME, "pro": "3D-PRO-%"}
+
+        def nell_ambito(nome) -> bool:
+            return nome == drw.PLAN_NAME or str(nome or "").startswith("3D-PRO-")
+    else:
+        nomi = sorted(scope)
+        filtro = ("nome_doc IN (%s)" % ", ".join(":n%d" % i for i in range(len(nomi)))) if nomi else "1 = 0"
+        parametri = {"n%d" % i: n for i, n in enumerate(nomi)}
+
+        def nell_ambito(nome) -> bool:
+            return nome in scope
     with eng.begin() as conn:
         for layer in (PLAN_LAYER, VERTICAL_LAYER):
             if not colonne[layer]:
                 continue
-            r = conn.execute(text("DELETE FROM %s WHERE scavo_s = :s AND disegnatore = :d "
-                                  "AND nome_doc LIKE '3D-%%'" % layer), {"s": sito, "d": drw.DRAWER})
+            r = conn.execute(text("DELETE FROM %s WHERE scavo_s = :s AND disegnatore = :d AND %s"
+                                  % (layer, filtro)), {"s": sito, "d": drw.DRAWER, **parametri})
             esito.removed += max(r.rowcount or 0, 0)
         gid = {l: int(conn.execute(text("SELECT COALESCE(MAX(gid), 0) FROM %s" % l)).scalar() or 0)
                for l in (PLAN_LAYER, VERTICAL_LAYER) if colonne[l]}
@@ -624,7 +643,7 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                 "SELECT id_documentazione, tipo_documentazione, nome_doc FROM documentazione_table "
                 "WHERE sito = :s AND disegnatore = :d AND nome_doc LIKE '3D-%'"),
                 {"s": sito, "d": drw.DRAWER}).fetchall():
-            if (tipo, nome) in ora:
+            if (tipo, nome) in ora or not nell_ambito(nome):
                 continue
             citato = any(conn.execute(text(
                 "SELECT 1 FROM %s WHERE scavo_s = :s AND tipo_doc = :t AND nome_doc = :n LIMIT 1" % l),
