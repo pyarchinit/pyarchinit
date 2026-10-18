@@ -195,6 +195,31 @@ Sur TempluMare, dans une nouvelle base de données en EPSG:31700 avec 851 fiches
 
 L'em.json indique d'ajouter **500 m** aux cotes du 3D, ce qui place les cotes entre 991 et 1004 m, alors que le temple se situe vers 495 m. Le décalage Z de l'em.json est donc à vérifier ; dans la fenêtre, on peut le mettre à 0.
 
+### 5.0.3 Coupes le long des lignes, tirées des modèles 3D
+
+Depuis la **5.13.135-alpha**. Après l'importation (§5.0, avec les médias, ou avec le champ **Cartella dei file** (dossier des fichiers)), les lignes de coupe que l'on trace dans la couche des coupes (`pyarchinit_sezioni`) du site coupent les proxys 3D des unités. Chaque ligne devient une **coupe** dans la couche des dessins verticaux `pyunitastratigrafiche_usm`, avec le profil coupé de chaque unité que la ligne traverse.
+
+1. Tracer une ou plusieurs lignes dans la couche `pyarchinit_sezioni`, en renseignant les champs **sito** (site) et **id_sezione** (identifiant de la coupe, par exemple « A »). Une ligne peut avoir plusieurs tronçons.
+2. Choisir **Extended Matrix → Sezioni dai modelli 3D…** (Coupes tirées des modèles 3D) et le site. La fenêtre **Sezioni dai modelli 3D** affiche :
+    - la position de l'em.json mémorisé lors de l'importation ;
+    - le champ **Spostamento Z** (décalage Z), avec les cotes qui en résultent ;
+    - le nombre d'unités qui ont un modèle 3D ;
+    - le tableau des lignes du site : **Taglia** (couper), **Sezione** (coupe), **Descrizione** (description), **Area**, **Tratti** (tronçons), **Lunghezza (m)** (longueur) et le **Documento** (document) que deviendra chaque ligne.
+3. **Taglia** calcule et écrit, avec une barre de progression ; le résumé indique combien d'unités chaque coupe a coupées, les unités ignorées et pourquoi, ainsi que les lignes qui avaient déjà un autre document.
+
+**Lire une coupe.** En coordonnées du dessin : **X = mètres le long de la ligne depuis son premier point, Y = cote**. Le premier point est à gauche : pour une ligne tracée d'ouest en est, l'observateur se tient donc au sud. Le profil d'une unité est tout ce qui se trouve à l'intérieur de son contour coupé. Les coupes sont placées à gauche des élévations (X négatif), à 10 m l'une de l'autre.
+
+**Documents et liens.** Chaque coupe est un document de type **Sezione** (coupe), tel que le nomme le thésaurus dans la langue du plugin, avec le nom `3D-SEZ-<id_sezione>`, par exemple `3D-SEZ-A`. Le même type et le même nom figurent :
+- sur les polygones ;
+- dans la liste **Documentazione** de la fiche US ;
+- et, si la ligne n'en avait pas déjà un, sur la ligne de coupe aussi. Ainsi, la fiche Documentazione charge ensemble la ligne et les « US verticales » de la coupe. Une ligne qui a déjà un autre document n'est pas touchée : le résumé le signale.
+
+**Refaire une coupe.** Relancer la commande sur la même ligne ne remplace que cette coupe. Réimporter l'em.json avec plans et élévations (§5.0.2) ne touche pas aux coupes.
+
+**Systèmes de référence.** Les lignes sont converties dans le système de l'em.json si la couche des coupes en a un autre. Si la couche n'a pas de système (`-1`, comme dans le template SQLite), les coordonnées sont prises telles quelles, et le résumé le signale. La commande s'arrête si le site n'a pas d'em.json importé, si l'em.json n'indique pas où se trouve la scène, si aucune ligne n'est choisie ou si la couche des dessins verticaux n'est pas métrique.
+
+Sur TempluMare, une ligne d'ouest en est à travers la cella coupe 21 unités en 3 secondes environ : murs, fondations, marches, l'autel et le toit.
+
 La voie yEd/GraphML, pour déplacer des unités entre groupes, est celle qui suit.
 
 Pour modifier la base SQL en déplaçant les US entre groupes en GraphML :

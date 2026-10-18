@@ -195,6 +195,31 @@ On TempluMare, in a new database in EPSG:31700 with 851 records, the import prod
 
 The em.json says to add **500 m** to the 3D elevations, which puts them between 991 and 1004 m, while the temple lies at about 495 m. The em.json's Z shift should therefore be checked; you can set it to 0 in the window.
 
+### 5.0.3 Sections along lines, from the 3D models
+
+Since **5.13.135-alpha**. After the import (§5.0, with the media, or with the **Cartella dei file**), the section lines you draw in the site's sections layer (`pyarchinit_sezioni`) cut the units' 3D proxies. Each line becomes a **section** in the vertical drawings layer `pyunitastratigrafiche_usm`, with the cut profile of every unit the line crosses.
+
+1. Draw one or more lines in the `pyarchinit_sezioni` layer, with the **sito** and an **id_sezione** (e.g. "A"). A line may have several segments.
+2. Choose **Extended Matrix → Sezioni dai modelli 3D…** and the site. The **Sezioni dai modelli 3D** window shows:
+    - the position of the em.json remembered at import;
+    - the **Spostamento Z** (Z shift), with the resulting elevations;
+    - how many units have a 3D model;
+    - the table of the site's lines: **Taglia** (cut), **Sezione**, **Descrizione**, **Area**, **Tratti** (segments), **Lunghezza (m)** and the **Documento** it will become.
+3. **Taglia** computes and writes, with a progress bar; the summary says how many units each section cut, the skipped units and why, and the lines that already had another document.
+
+**Reading a section.** In drawing coordinates: **X = metres along the line from its first point, Y = elevation**. The first point is on the left, so for a line drawn west to east the viewer stands to the south. A unit's profile is everything inside its cut outline. Sections sit to the left of the elevations (negative X), 10 m apart.
+
+**Documents and links.** Each section is a **Sezione** document (the thesaurus term in the plugin's language) named `3D-SEZ-<id_sezione>`, e.g. `3D-SEZ-A`. The same type and name are:
+- on the polygons;
+- in the SU form's **Documentazione** list;
+- and, if the line had none, on the section line too. So the Documentazione form loads the line and the section's "vertical SUs" together. A line that already has another document is left alone, and the summary says so.
+
+**Redoing a section.** Running the command again on the same line replaces only that section. Re-importing the em.json with plans and elevations (§5.0.2) doesn't touch the sections.
+
+**CRS.** Lines are brought into the em.json's CRS when the sections layer has another one. If the layer has no CRS (`-1`, as in the SQLite template), the coordinates are taken as they are, and the summary says so. The command stops if the site has no imported em.json, if the em.json doesn't say where the scene is, if no line is chosen, or if the vertical drawings layer isn't metric.
+
+On TempluMare, a west-to-east line across the cella cuts 21 units in about 3 seconds: walls, foundations, steps, the altar and the roof.
+
 The yEd/GraphML route, for moving units between groups, is the one that follows.
 
 To update the SQL database by moving SUs between groups in GraphML:

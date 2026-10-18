@@ -195,6 +195,31 @@ Bei TempluMare, in einer neuen Datenbank in EPSG:31700 mit 851 Datensätzen, erz
 
 Die em.json gibt an, zu den Höhen der 3D-Modelle **500 m** zu addieren; damit ergeben sich Höhen zwischen 991 und 1004 m, während der Tempel auf etwa 495 m liegt. Die Z-Verschiebung der em.json sollte daher geprüft werden; im Fenster lässt sie sich auf 0 setzen.
 
+### 5.0.3 Schnitte entlang von Linien, aus den 3D-Modellen
+
+Ab **5.13.135-alpha**. Nach dem Import (§5.0, mit den Medien oder mit dem Feld **Cartella dei file** (Dateiordner)) schneiden die Schnittlinien, die man im Layer der Schnitte (`pyarchinit_sezioni`) der Stätte zeichnet, die 3D-Proxys der Einheiten. Jede Linie wird zu einem **Schnitt** im Layer der vertikalen Zeichnungen `pyunitastratigrafiche_usm`, mit dem Schnittprofil jeder Einheit, die die Linie durchquert.
+
+1. Eine oder mehrere Linien im Layer `pyarchinit_sezioni` zeichnen, mit den Feldern **sito** (Stätte) und **id_sezione** (Kennung des Schnitts, zum Beispiel «A»). Eine Linie kann aus mehreren Abschnitten bestehen.
+2. **Extended Matrix → Sezioni dai modelli 3D…** (Schnitte aus den 3D-Modellen) und die Stätte wählen. Das Fenster **Sezioni dai modelli 3D** zeigt:
+    - die Position der beim Import gemerkten em.json;
+    - das Feld **Spostamento Z** (Z-Verschiebung) mit den Höhen, die sich daraus ergeben;
+    - wie viele Einheiten ein 3D-Modell haben;
+    - die Tabelle der Linien der Stätte: **Taglia** (Schneiden), **Sezione** (Schnitt), **Descrizione** (Beschreibung), **Area**, **Tratti** (Abschnitte), **Lunghezza (m)** (Länge) und das **Documento** (Dokument), das aus jeder Linie wird.
+3. **Taglia** berechnet und schreibt, mit einem Fortschrittsbalken; die Zusammenfassung sagt, wie viele Einheiten jeder Schnitt geschnitten hat, welche Einheiten übersprungen wurden und warum, und welche Linien bereits ein anderes Dokument hatten.
+
+**Wie man einen Schnitt liest.** In Zeichnungskoordinaten: **X = Meter entlang der Linie ab ihrem ersten Punkt, Y = Höhe**. Der erste Punkt liegt links; bei einer von Westen nach Osten gezeichneten Linie steht der Betrachter daher im Süden. Das Profil einer Einheit ist alles, was innerhalb ihres geschnittenen Umrisses liegt. Die Schnitte stehen links von den Ansichten (negatives X), in 10 m Abstand voneinander.
+
+**Dokumente und Verknüpfungen.** Jeder Schnitt ist ein Dokument vom Typ **Sezione** (Schnitt), wie der Thesaurus ihn in der Sprache des Plugins nennt, mit dem Namen `3D-SEZ-<id_sezione>`, zum Beispiel `3D-SEZ-A`. Derselbe Typ und derselbe Name stehen:
+- in den Polygonen;
+- in der Liste **Documentazione** des SE-Formulars;
+- und, wenn die Linie noch keines hatte, auch in der Schnittlinie. So lädt das Formular Documentazione die Linie und den Layer «Vertikale SE» des Schnitts gemeinsam. Eine Linie, die bereits ein anderes Dokument hat, bleibt unangetastet: Die Zusammenfassung meldet es.
+
+**Einen Schnitt neu erstellen.** Wird der Befehl auf derselben Linie erneut ausgeführt, ersetzt er nur diesen Schnitt. Ein erneuter Import der em.json mit Grundrissen und Ansichten (§5.0.2) lässt die Schnitte unangetastet.
+
+**Bezugssysteme.** Die Linien werden in das Bezugssystem der em.json umgerechnet, wenn der Layer der Schnitte ein anderes hat. Hat der Layer kein Bezugssystem (`-1`, wie in der SQLite-Vorlage), werden die Koordinaten so übernommen, wie sie sind, und die Zusammenfassung meldet es. Der Befehl bricht ab, wenn die Stätte keine importierte em.json hat, wenn die em.json nicht angibt, wo die Szene liegt, wenn keine Linie ausgewählt ist oder wenn der Layer der vertikalen Zeichnungen nicht metrisch ist.
+
+Bei TempluMare schneidet eine Linie von Westen nach Osten quer durch die Cella in etwa 3 Sekunden 21 Einheiten: Mauern, Fundamente, Stufen, den Altar und das Dach.
+
 Es folgt der Weg über yEd/GraphML, um Einheiten zwischen Gruppen zu verschieben.
 
 Um die SQL-Datenbank durch das Verschieben von SE zwischen Gruppen im GraphML zu aktualisieren:

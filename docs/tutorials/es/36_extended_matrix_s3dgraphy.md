@@ -195,6 +195,31 @@ En TempluMare, en una base de datos nueva en EPSG:31700 con 851 fichas, la impor
 
 El em.json indica que hay que sumar **500 m** a las cotas del 3D, con lo que las cotas quedan entre 991 y 1004 m, mientras que el templo está en torno a los 495 m. Por tanto, hay que comprobar el desplazamiento Z del em.json; en la ventana se puede poner a 0.
 
+### 5.0.3 Secciones a lo largo de las líneas, a partir de los modelos 3D
+
+Desde la **5.13.135-alpha**. Después de la importación (§5.0, con los medios o con la **Cartella dei file**), las líneas de sección que se trazan en la capa de las secciones (`pyarchinit_sezioni`) del sitio cortan los proxies 3D de las unidades. Cada línea se convierte en una **sección** en la capa de los dibujos verticales `pyunitastratigrafiche_usm`, con el perfil cortado de cada unidad que la línea atraviesa.
+
+1. Trazar una o varias líneas en la capa `pyarchinit_sezioni`, con el **sito** (sitio) y un **id_sezione** (por ejemplo «A»). Una línea puede tener varios tramos.
+2. Elegir **Extended Matrix → Sezioni dai modelli 3D…** (Secciones a partir de los modelos 3D) y el sitio. La ventana **Sezioni dai modelli 3D** muestra:
+    - la posición del em.json recordado en la importación;
+    - el **Spostamento Z** (desplazamiento Z), con las cotas que resultan;
+    - cuántas unidades tienen un modelo 3D;
+    - la tabla de las líneas del sitio: **Taglia** (cortar), **Sezione** (sección), **Descrizione** (descripción), **Area** (área), **Tratti** (tramos), **Lunghezza (m)** (longitud) y el **Documento** en que se convertirá.
+3. **Taglia** calcula y escribe, con una barra de progreso; el resumen indica cuántas unidades ha cortado cada sección, las unidades omitidas y el motivo, y las líneas que ya tenían otro documento.
+
+**Cómo se lee una sección.** En coordenadas del dibujo: **X = metros a lo largo de la línea desde su primer punto, Y = cota**. El primer punto queda a la izquierda, así que en una línea trazada de oeste a este quien mira está al sur. El perfil de una unidad es todo lo que queda dentro de su contorno cortado. Las secciones están a la izquierda de los alzados (X negativa), a 10 m unas de otras.
+
+**Documentos y vínculos.** Cada sección es un documento **Sezione** (sección; el término del tesauro en el idioma del plugin) con el nombre `3D-SEZ-<id_sezione>`, por ejemplo `3D-SEZ-A`. El mismo tipo y el mismo nombre están:
+- en los polígonos;
+- en la lista **Documentazione** (Documentación) de la ficha UE;
+- y, si la línea no tenía ya uno, también en la línea de sección. Así, la ficha Documentazione carga juntas la línea y las «UE verticales» de la sección. Una línea que ya tiene otro documento no se toca: el resumen lo indica.
+
+**Rehacer una sección.** Volver a lanzar el comando sobre la misma línea sustituye solo esa sección. Reimportar el em.json con plantas y alzados (§5.0.2) no toca las secciones.
+
+**Sistemas de referencia.** Las líneas se llevan al sistema del em.json si la capa de las secciones tiene otro. Si la capa no tiene sistema (`-1`, como en la plantilla SQLite), las coordenadas se toman tal como están y el resumen lo indica. El comando se detiene si el sitio no tiene un em.json importado, si el em.json no dice dónde está la escena, si no se ha elegido ninguna línea o si la capa de los dibujos verticales no es métrica.
+
+En TempluMare, una línea de oeste a este a través de la cella corta 21 unidades en unos 3 segundos: muros, cimentaciones, escalones, el altar y el tejado.
+
 La vía yEd/GraphML, para mover unidades entre grupos, es la que sigue.
 
 Para modificar la base SQL moviendo UE entre grupos en GraphML:

@@ -195,6 +195,31 @@ Su TempluMare, in un database nuovo in EPSG:31700 con 851 schede, l'importazione
 
 L'em.json dice di aggiungere **500 m** alle quote del 3D, e così le quote vengono fra 991 e 1004 m, mentre il tempio sta intorno ai 495 m. Lo spostamento Z dell'em.json va quindi verificato; nella finestra lo puoi mettere a 0.
 
+### 5.0.3 Sezioni lungo le linee, dai modelli 3D
+
+Dalla **5.13.135-alpha**. Dopo l'importazione (§5.0, con i media, oppure con la **Cartella dei file**), le linee di sezione che tracci nel layer delle sezioni (`pyarchinit_sezioni`) del sito tagliano i proxy 3D delle unità. Ogni linea diventa una **sezione** nel layer dei disegni verticali `pyunitastratigrafiche_usm`, con il profilo tagliato di ogni unità che la linea attraversa.
+
+1. Traccia una o più linee nel layer `pyarchinit_sezioni`, con il **sito** e un **id_sezione** (per esempio «A»). Una linea può avere più tratti.
+2. Scegli **Extended Matrix → Sezioni dai modelli 3D…** e il sito. La finestra **Sezioni dai modelli 3D** mostra:
+    - la posizione dell'em.json ricordato all'importazione;
+    - lo **Spostamento Z**, con le quote che ne vengono fuori;
+    - quante unità hanno un modello 3D;
+    - la tabella delle linee del sito: **Taglia**, **Sezione**, **Descrizione**, **Area**, **Tratti**, **Lunghezza (m)** e il **Documento** che diventerà.
+3. **Taglia** calcola e scrive, con una barra di avanzamento; il riepilogo dice quante unità ha tagliato ogni sezione, le unità saltate e perché, e le linee che avevano già un altro documento.
+
+**Come si legge una sezione.** In coordinate del disegno: **X = metri lungo la linea dal suo primo punto, Y = quota**. Il primo punto sta a sinistra, quindi per una linea tracciata da ovest a est chi guarda sta a sud. Il profilo di un'unità è tutto quello che sta dentro il suo contorno tagliato. Le sezioni stanno a sinistra dei prospetti (X negativa), a 10 m l'una dall'altra.
+
+**Documenti e collegamenti.** Ogni sezione è un documento **Sezione** (la voce del thesaurus nella lingua del plugin) di nome `3D-SEZ-<id_sezione>`, per esempio `3D-SEZ-A`. Lo stesso tipo e lo stesso nome stanno:
+- nei poligoni;
+- nella lista **Documentazione** della scheda US;
+- e, se la linea non ne aveva già uno, anche nella linea di sezione. Così la scheda Documentazione carica insieme la linea e le «US verticali» della sezione. Una linea che ha già un altro documento non si tocca: il riepilogo lo dice.
+
+**Rifare una sezione.** Rilanciare il comando sulla stessa linea sostituisce solo quella sezione. Reimportare l'em.json con piante e prospetti (§5.0.2) non tocca le sezioni.
+
+**Sistemi.** Le linee si portano nel sistema dell'em.json, se il layer delle sezioni ne ha un altro. Se il layer non ha un sistema (`-1`, come nel template SQLite), le coordinate si prendono così come sono e il riepilogo lo dice. Il comando si ferma se il sito non ha un em.json importato, se l'em.json non dice dove sta la scena, se non c'è nessuna linea scelta o se il layer dei disegni verticali non è metrico.
+
+Su TempluMare, una linea da ovest a est attraverso la cella taglia 21 unità in circa 3 secondi: muri, fondazioni, gradini, l'altare e il tetto.
+
 La via yEd/GraphML, per spostare le unità fra i gruppi, è quella che segue.
 
 Per modificare il database SQL spostando US tra gruppi nel GraphML:

@@ -195,6 +195,31 @@ Pe TempluMare, într-o bază de date nouă în EPSG:31700 cu 851 de fișe, impor
 
 Fișierul em.json spune să se adauge **500 m** la cotele din 3D, așa că cotele ies între 991 și 1004 m, în timp ce templul se află la aproximativ 495 m. Deplasarea Z din em.json trebuie deci verificată; în fereastră o poți pune la 0.
 
+### 5.0.3 Secțiuni de-a lungul liniilor, din modelele 3D
+
+Din **5.13.135-alpha**. După import (§5.0, cu fișierele media sau cu **Cartella dei file**), liniile de secțiune pe care le trasezi în stratul secțiunilor (`pyarchinit_sezioni`) al sitului taie proxy-urile 3D ale unităților. Fiecare linie devine o **secțiune** în stratul desenelor verticale `pyunitastratigrafiche_usm`, cu profilul tăiat al fiecărei unități pe care linia o traversează.
+
+1. Trasează una sau mai multe linii în stratul `pyarchinit_sezioni`, cu câmpul **sito** (sit) și un **id_sezione** (de exemplu «A»). O linie poate avea mai multe tronsoane.
+2. Alege **Extended Matrix → Sezioni dai modelli 3D…** (Secțiuni din modelele 3D…) și situl. Fereastra **Sezioni dai modelli 3D** arată:
+    - poziția din fișierul em.json memorat la import;
+    - **Spostamento Z** (deplasarea Z), cu cotele care rezultă;
+    - câte unități au un model 3D;
+    - tabelul liniilor sitului: **Taglia** (taie), **Sezione** (secțiune), **Descrizione** (descriere), **Area** (zonă), **Tratti** (tronsoane), **Lunghezza (m)** (lungime) și **Documento** (documentul care va rezulta).
+3. **Taglia** calculează și scrie, cu o bară de progres; rezumatul spune câte unități a tăiat fiecare secțiune, unitățile omise și de ce, precum și liniile care aveau deja un alt document.
+
+**Cum se citește o secțiune.** În coordonatele desenului: **X = metri de-a lungul liniei de la primul ei punct, Y = cotă**. Primul punct este în stânga, deci, pentru o linie trasată de la vest la est, cel care privește stă la sud. Profilul unei unități este tot ce se află în interiorul conturului său tăiat. Secțiunile stau în stânga elevațiilor (X negativ), la 10 m una de alta.
+
+**Documente și legături.** Fiecare secțiune este un document **Sezione** (secțiune) — termenul din tezaur în limba pluginului — cu numele `3D-SEZ-<id_sezione>`, de exemplu `3D-SEZ-A`. Același tip și același nume se află:
+- în poligoane;
+- în lista **Documentazione** a fișei US;
+- și, dacă linia nu avea deja unul, și pe linia de secțiune. Astfel, fișa Documentazione încarcă împreună linia și «US verticale» ale secțiunii. O linie care are deja un alt document nu este atinsă: rezumatul o spune.
+
+**Refacerea unei secțiuni.** Relansarea comenzii pe aceeași linie înlocuiește doar acea secțiune. Reimportarea fișierului em.json cu planuri și elevații (§5.0.2) nu atinge secțiunile.
+
+**Sisteme de referință.** Liniile sunt aduse în sistemul din em.json, dacă stratul secțiunilor are un alt sistem. Dacă stratul nu are un sistem (`-1`, ca în șablonul SQLite), coordonatele sunt luate așa cum sunt, iar rezumatul o spune. Comanda se oprește dacă situl nu are un em.json importat, dacă em.json nu spune unde se află scena, dacă nu este aleasă nicio linie sau dacă stratul desenelor verticale nu este metric.
+
+Pe TempluMare, o linie de la vest la est prin cella templului taie 21 de unități în aproximativ 3 secunde: ziduri, fundații, trepte, altarul și acoperișul.
+
 Calea yEd/GraphML, pentru mutarea unităților între grupuri, este cea care urmează.
 
 Pentru a modifica baza SQL mutând UE între grupuri în GraphML:

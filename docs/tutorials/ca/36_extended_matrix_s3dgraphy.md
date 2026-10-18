@@ -195,6 +195,31 @@ A TempluMare, en una base de dades nova en EPSG:31700 amb 851 fitxes, la importa
 
 L'em.json diu que cal sumar **500 m** a les cotes del 3D, i així les cotes queden entre 991 i 1004 m, mentre que el temple és a uns 495 m. Per tant, cal verificar el desplaçament Z de l'em.json; a la finestra es pot posar a 0.
 
+### 5.0.3 Seccions al llarg de les línies, a partir dels models 3D
+
+Des de la **5.13.135-alpha**. Després de la importació (§5.0, amb els mèdia o bé amb la **Cartella dei file**), les línies de secció que es tracen a la capa de les seccions (`pyarchinit_sezioni`) del lloc tallen els proxies 3D de les unitats. Cada línia esdevé una **secció** a la capa dels dibuixos verticals `pyunitastratigrafiche_usm`, amb el perfil tallat de cada unitat que la línia travessa.
+
+1. Traçar una o més línies a la capa `pyarchinit_sezioni`, amb el camp **sito** (lloc) i un **id_sezione** (per exemple «A»). Una línia pot tenir diversos trams.
+2. Triar l'entrada **Extended Matrix → Sezioni dai modelli 3D…** (Seccions a partir dels models 3D…) i el lloc. La finestra **Sezioni dai modelli 3D** mostra:
+    - la posició de l'em.json recordat a la importació;
+    - el **Spostamento Z** (desplaçament Z), amb les cotes que en resulten;
+    - quantes unitats tenen un model 3D;
+    - la taula de les línies del lloc: **Taglia** (talla), **Sezione** (secció), **Descrizione** (descripció), **Area** (àrea), **Tratti** (trams), **Lunghezza (m)** (longitud) i el **Documento** (document) en què es convertirà.
+3. **Taglia** calcula i escriu, amb una barra de progrés; el resum diu quantes unitats ha tallat cada secció, les unitats omeses i per què, i les línies que ja tenien un altre document.
+
+**Com es llegeix una secció.** En coordenades del dibuix: **X = metres al llarg de la línia des del seu primer punt, Y = cota**. El primer punt queda a l'esquerra, de manera que, en una línia traçada d'oest a est, qui mira és al sud. El perfil d'una unitat és tot el que hi ha dins del seu contorn tallat. Les seccions queden a l'esquerra dels alçats (X negativa), a 10 m l'una de l'altra.
+
+**Documents i vincles.** Cada secció és un document **Sezione** (secció) —l'entrada del tesaurus en la llengua del plugin— amb el nom `3D-SEZ-<id_sezione>`, per exemple `3D-SEZ-A`. El mateix tipus i el mateix nom són:
+- als polígons;
+- a la llista **Documentazione** de la fitxa US;
+- i, si la línia encara no en tenia cap, també a la línia de secció. Així, la fitxa Documentazione carrega alhora la línia i les «UE verticals» de la secció. Una línia que ja té un altre document no es toca: el resum ho diu.
+
+**Refer una secció.** Tornar a executar l'ordre sobre la mateixa línia substitueix només aquella secció. Tornar a importar l'em.json amb plantes i alçats (§5.0.2) no toca les seccions.
+
+**Sistemes de referència.** Les línies es porten al sistema de l'em.json si la capa de les seccions en té un altre. Si la capa no té sistema (`-1`, com a la plantilla SQLite), les coordenades es prenen tal com són i el resum ho diu. L'ordre s'atura si el lloc no té cap em.json importat, si l'em.json no diu on és l'escena, si no s'ha triat cap línia o si la capa dels dibuixos verticals no és mètrica.
+
+A TempluMare, una línia d'oest a est que travessa la cel·la talla 21 unitats en uns 3 segons: murs, fonaments, graons, l'altar i la teulada.
+
 La via yEd/GraphML, per moure unitats entre grups, és la que segueix.
 
 Per modificar la base SQL movent UE entre grups en GraphML:
