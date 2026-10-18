@@ -43,7 +43,7 @@ Un comando del menu, **Extended Matrix → Sezioni dai modelli 3D…**, taglia i
 **S2 — Il taglio.** Un tratto A→B definisce un piano verticale. `r = (B−A)/|B−A|` è l'asse del disegno e `d = (−r_y, r_x)` la direzione di chi guarda: per una linea tracciata da ovest a est, chi guarda sta a sud e A è a sinistra. Il calcolo:
 1. Per ogni triangolo che attraversa il piano, il segmento d'intersezione. La distanza con segno da `d` di un vertice che sta proprio sul piano vale +ε.
 2. In coordinate del disegno, `u = (P − A)·r` e `v = quota`.
-3. I segmenti si uniscono (noding) e si chiudono in poligoni (`QgsGeometry.polygonize`).
+3. I segmenti si uniscono (noding) e si chiudono in poligoni (`QgsGeometry.polygonize`). Si riempie tutto quello che sta dentro il contorno esterno: i proxy di TempluMare hanno un guscio interno rientrato di circa 1 cm, e con la regola pari/dispari resterebbe solo un anello sottile. Lo stesso spigolo, visto da due triangoli, si calcola sempre dallo stesso estremo, così i punti coincidono al bit.
 4. I poligoni si ritagliano fra `u = 0` e `u = |AB|`.
 5. `_clean`.
 

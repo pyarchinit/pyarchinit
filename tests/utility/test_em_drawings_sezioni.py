@@ -85,3 +85,12 @@ def test_una_linea_obliqua_chiude_il_profilo():
         g = drw.section_geometry(tri, a, b)
         assert g is not None, (a, b)
         assert g.area() > 11.9
+
+
+def test_un_proxy_a_doppio_guscio_e_pieno():
+    """I proxy di TempluMare hanno un guscio interno rientrato di un centimetro:
+    il taglio dà un anello sottile attorno a un'area grande. L'unità è piena,
+    non un tubo: si riempie tutto quello che sta dentro il contorno esterno."""
+    doppio = np.concatenate([SCATOLA, _cubo(0.01, 0.01, 10.01, 3.98, 1.98, 2.98)])
+    g = drw.section_geometry(doppio, (-1.0, 1.0), (5.0, 1.0))
+    assert g.area() == pytest.approx(12.0, abs=1e-6)

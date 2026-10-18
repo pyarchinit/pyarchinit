@@ -429,7 +429,7 @@ def _section_segments(tri_map: np.ndarray, a, b):
         sb = np.where(scambia, si, sj)
         with np.errstate(divide="ignore", invalid="ignore"):
             f = sa / (sa - sb)
-        punto = pa + (pb - pa) * f[:, None]
+            punto = pa + (pb - pa) * f[:, None]
         k = np.nonzero(taglia)[0]
         seg[k, quanti[k]] = punto[k]
         quanti[k] += 1
@@ -439,8 +439,10 @@ def _section_segments(tri_map: np.ndarray, a, b):
 
 def section_geometry(tri_map: np.ndarray, a, b):
     """Il profilo tagliato dal piano verticale del tratto a→b, fra u = 0 e
-    u = |ab|: MultiPolygon o None. Le facce sono riempite pari/dispari, così il
-    buco di un anello non si riempie."""
+    u = |ab|: MultiPolygon o None. Si riempie tutto quello che sta dentro il
+    contorno esterno: un'unità è un volume pieno, e i proxy di TempluMare hanno
+    un guscio interno rientrato di un centimetro che, pari/dispari, lascerebbe
+    solo un anello sottile (18 ottobre 2026)."""
     from qgis.core import QgsGeometry, QgsRectangle
     seg, lung = _section_segments(tri_map, a, b)
     if not len(seg):
@@ -453,14 +455,9 @@ def section_geometry(tri_map: np.ndarray, a, b):
     facce = _polygons(QgsGeometry.polygonize([QgsGeometry.unaryUnion([QgsGeometry.fromWkt(wkt)])]))
     if not facce:
         return None
-    esterni = [QgsGeometry.fromPolygonXY([f.asPolygon()[0]]) for f in facce]
-    piene = [f for i, f in enumerate(facce)
-             if sum(1 for j, e in enumerate(esterni) if j != i and e.contains(f.pointOnSurface())) % 2 == 0]
-    if not piene:
-        return None
     vmin, vmax = float(seg[..., 1].min()) - 1.0, float(seg[..., 1].max()) + 1.0
     tratto = QgsGeometry.fromRect(QgsRectangle(0.0, vmin, lung, vmax))
-    return _clean(QgsGeometry.collectGeometry(piene).intersection(tratto))
+    return _clean(QgsGeometry.unaryUnion(facce).intersection(tratto))
 
 
 def line_length(points) -> float:
