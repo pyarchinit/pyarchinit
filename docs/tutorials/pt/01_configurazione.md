@@ -76,6 +76,8 @@ Este e o separador principal para configurar a ligacao a base de dados.
 - Suporta gestao de utilizadores e permissoes
 - Ideal para grandes projetos com varios operadores
 
+**Se o servidor nao responder** (desligado, rede ou VPN em baixo), o pyArchInit espera no maximo **10 segundos** e depois indica que a ligacao falhou, em vez de deixar o QGIS bloqueado. Numa rede lenta o limite pode ser aumentado: no QGIS, **Configurações → Opções → Sistema → Ambiente**, acrescente a variavel `PGCONNECT_TIMEOUT` com o numero de segundos (por exemplo `30`) e reinicie o QGIS.
+
 ![Configuracao PostgreSQL](images/01_configurazione/06_config_postgres.png)
 *Figura 6: Exemplo de configuracao PostgreSQL*
 

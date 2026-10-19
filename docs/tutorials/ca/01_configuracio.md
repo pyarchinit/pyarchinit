@@ -61,6 +61,8 @@ Aquesta és la pestanya principal per configurar la connexió a la base de dades
 - Suporta gestió d'usuaris i permisos
 - Ideal per a projectes grans amb múltiples operadors
 
+**Si el servidor no respon** (apagat, xarxa o VPN caigudes), pyArchInit espera com a màxim **10 segons** i després indica que la connexió ha fallat, en lloc de deixar QGIS bloquejat. En una xarxa lenta es pot augmentar el límit: a QGIS, **Preferències → Opcions → Sistema → Entorn**, afegeix la variable `PGCONNECT_TIMEOUT` amb el nombre de segons (per exemple `30`) i reinicia QGIS.
+
 ### Secció Path Settings
 
 | Camp | Descripció | Botó |

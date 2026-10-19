@@ -437,7 +437,7 @@ Predecessor: ver secção 5.8 (`yed-fastfix-5.8.5-alpha`) para o comportamento s
 
 No painel **«Verifica rapporti»** — disponível como separador dentro do diálogo de importação/exportação do s3dgraphy — encontra-se o botão **«Genera continuità»** (rótulo mantido em italiano como no plugin). Para o sítio atualmente selecionado, esta funcionalidade cria automaticamente as **fichas de continuidade** das US/USM cuja vida se estende por mais de um período.
 
-Se a janela foi aberta sem uma base de dados, o painel di-lo em cima e mantém os botões desativados, sem abrir nenhum aviso: abre uma base de dados do pyArchInit e volta a abrir a janela.
+Se a janela foi aberta sem uma base de dados, o painel di-lo em cima e mantém os botões desativados, sem abrir nenhum aviso: abre uma base de dados do pyArchInit e volta a abrir a janela. O painel lê os sítios quando abres o seu separador; se a base de dados não responder (um servidor PostgreSQL desligado), indica o motivo e não volta a tentar sozinho: quando o servidor voltar a estar ligado, clica em **Riprova** (tentar novamente).
 
 ### 6.1 O que faz
 
@@ -446,7 +446,7 @@ Se a janela foi aberta sem uma base de dados, o painel di-lo em cima e mantém o
 3. A ficha CON **herda** da unidade-mãe: sítio, área (mais as áreas secundárias), estrutura e todo o intervalo de períodos (inicial → final). A sua descrição é gerada automaticamente.
 4. Escreve uma **relação de continuidade recíproca** em ambos os lados: na CON e na sua unidade-mãe.
 
-> **A fase, por si so, nao conta.** A regra olha o **periodo**: uma USM que vai de **2/3 a 2/4** — mesmo periodo, muda so a fase — nao gera nada. Se as tuas unidades sobrevivem de fase em fase dentro do mesmo periodo, marca **«anche i salti di fase»** («tambem os saltos de fase») ao lado do botao: entao esses saltos tambem contam, desde que **ambas** as fases estejam preenchidas. Uma unidade que nao se move — mesmo periodo e mesma fase — nunca e uma continuidade. A caixa comeca **sem marca**, e vale para a pre-visualizacao e para a escrita ao mesmo tempo.
+> **A fase, por si só, não conta.** A regra olha o **período**: uma USM que vai de **2/3 a 2/4** — mesmo período, muda só a fase — não gera nada. Se as tuas unidades sobrevivem de fase em fase dentro do mesmo período, marca **«anche i salti di fase»** («também os saltos de fase») ao lado do botão: então esses saltos também contam, desde que **ambas** as fases estejam preenchidas. Uma unidade que não se move — mesmo período e mesma fase — nunca é uma continuidade. A caixa começa **sem marca**, e vale para a pré-visualização e para a escrita ao mesmo tempo.
 
 ### 6.2 Idempotência
 
@@ -458,7 +458,7 @@ Antes de escrever é mostrada uma **pré-visualização dry-run** com as contage
 
 Uma ficha CON é **órfã** quando a sua unidade-mãe já não se estende por vários períodos (p. ex. o seu período inicial e final foram tornados iguais). Por predefinição as órfãs são apenas **assinaladas**; uma **caixa de seleção** («Rimuovi anche le CON orfane») permite optar por removê-las.
 
-**Uma continuidade escrita a mao e reconhecida.** Uma ficha CON cujas relacoes nomeiam uma unica unidade — `> 12`, ou «Continuidade posterior a 12» — e a continuidade dessa unidade, chame-se como se chamar: o gerador **atualiza-a** (arco de periodos, rotulo canonico) e o nome continua a ser o seu. Nao nasce uma segunda: a continuidade e **uma por unidade**. Se tambem existir uma `CON_<us>` canonica, ganha essa e a outra fica orfa, a decidir a mao.
+**Uma continuidade escrita à mão é reconhecida.** Uma ficha CON cujas relações nomeiam uma única unidade — `> 12`, ou «Continuidade posterior a 12» — é a continuidade dessa unidade, chame-se como se chamar: o gerador **atualiza-a** (arco de períodos, rótulo canónico) e o nome continua a ser o seu. Não nasce uma segunda: a continuidade é **uma por unidade**. Se também existir uma `CON_<us>` canónica, ganha essa e a outra fica órfã, a decidir à mão.
 
 ### 6.4 Na exportação Extended Matrix
 

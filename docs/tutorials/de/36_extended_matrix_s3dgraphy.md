@@ -437,7 +437,7 @@ Vorgänger: siehe Abschnitt 5.8 (`yed-fastfix-5.8.5-alpha`) für das abgelöste 
 
 Im Panel **„Verifica rapporti"** — verfügbar als Tab innerhalb des s3dgraphy-Import-/Export-Dialogs — befindet sich die Schaltfläche **„Genera continuità"** (Label wie im Plugin auf Italienisch belassen). Für die aktuell ausgewählte Fundstelle erzeugt diese Funktion automatisch die **Kontinuitäts-Datensätze** der US/USM, deren Lebensdauer sich über mehr als eine Periode erstreckt.
 
-Wurde das Fenster ohne Datenbank geöffnet, weist das Panel oben darauf hin und lässt seine Schaltflächen deaktiviert, ohne ein Meldungsfenster zu öffnen: Öffnen Sie eine pyArchInit-Datenbank und dann das Fenster erneut.
+Wurde das Fenster ohne Datenbank geöffnet, weist das Panel oben darauf hin und lässt seine Schaltflächen deaktiviert, ohne ein Meldungsfenster zu öffnen: Öffnen Sie eine pyArchInit-Datenbank und dann das Fenster erneut. Das Panel liest die Fundstellen ein, wenn Sie seinen Tab öffnen; antwortet die Datenbank nicht (ein ausgeschalteter PostgreSQL-Server), nennt es den Grund und versucht es nicht von selbst erneut: Sobald der Server wieder läuft, drücken Sie **Riprova** (erneut versuchen).
 
 ### 6.1 Was sie tut
 

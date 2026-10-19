@@ -76,6 +76,8 @@ Dies ist die Hauptregisterkarte zur Konfiguration der Datenbankverbindung.
 - Unterstützt Benutzer- und Rechteverwaltung
 - Ideal für große Projekte mit mehreren Bearbeitern
 
+**Wenn der Server nicht antwortet** (ausgeschaltet, Netzwerk oder VPN ausgefallen), wartet pyArchInit höchstens **10 Sekunden** und meldet dann, dass die Verbindung fehlgeschlagen ist, anstatt QGIS einfrieren zu lassen. In einem langsamen Netzwerk lässt sich die Wartezeit verlängern: Fügen Sie in QGIS unter **Einstellungen → Optionen → System → Umgebung** die Variable `PGCONNECT_TIMEOUT` mit der Anzahl der Sekunden (zum Beispiel `30`) hinzu und starten Sie QGIS neu.
+
 ![PostgreSQL-Konfiguration](images/01_konfiguration/06_config_postgres.png)
 *Abbildung 6: Beispiel PostgreSQL-Konfiguration*
 

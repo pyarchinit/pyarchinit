@@ -76,6 +76,8 @@ Aceasta este fila principala pentru configurarea conexiunii la baza de date.
 - Suporta gestionarea utilizatorilor si permisiuni
 - Ideala pentru proiecte mari cu mai multi operatori
 
+**Daca serverul nu raspunde** (oprit, retea sau VPN cazute), pyArchInit asteapta cel mult **10 secunde**, apoi anunta ca conexiunea a esuat, in loc sa lase QGIS blocat. Pe o retea lenta limita poate fi marita: in QGIS, **Setări → Opţiuni → Sistem → Mediu**, adaugati variabila `PGCONNECT_TIMEOUT` cu numarul de secunde (de exemplu `30`) si reporniti QGIS.
+
 ![Configurare PostgreSQL](images/01_configurazione/06_config_postgres.png)
 *Figura 6: Exemplu de configurare PostgreSQL*
 

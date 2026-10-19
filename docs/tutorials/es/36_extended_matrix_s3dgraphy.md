@@ -437,7 +437,7 @@ Predecesor: véase la sección 5.8 (`yed-fastfix-5.8.5-alpha`) para el comportam
 
 En el panel **«Verifica rapporti»** — disponible como pestaña dentro del diálogo de importación/exportación de s3dgraphy — se encuentra el botón **«Genera continuità»** (etiqueta mantenida en italiano como en el plugin). Para el sitio actualmente seleccionado, esta función crea automáticamente las **fichas de continuidad** de las US/USM cuya vida abarca más de un periodo.
 
-Si la ventana se abrió sin una base de datos, el panel lo dice arriba y mantiene los botones deshabilitados, sin abrir ningún aviso: abre una base de datos de pyArchInit y vuelve a abrir la ventana.
+Si la ventana se abrió sin una base de datos, el panel lo dice arriba y mantiene los botones deshabilitados, sin abrir ningún aviso: abre una base de datos de pyArchInit y vuelve a abrir la ventana. El panel lee los sitios cuando abres su pestaña; si la base de datos no responde (un servidor PostgreSQL apagado), dice por qué y no vuelve a intentarlo por sí solo: cuando el servidor vuelva a estar encendido, pulsa **Riprova** (reintentar).
 
 ### 6.1 Qué hace
 

@@ -76,6 +76,8 @@ This is the main tab for configuring the database connection.
 - Supports user management and permissions
 - Ideal for large projects with multiple operators
 
+**If the server doesn't answer** (switched off, network or VPN down), pyArchInit waits at most **10 seconds**, then says the connection failed, instead of keeping QGIS frozen. On a slow network the limit can be raised: in QGIS, **Settings → Options → System → Environment**, add the variable `PGCONNECT_TIMEOUT` with the seconds (for example `30`) and restart QGIS.
+
 ![PostgreSQL Configuration](images/01_configurazione/06_config_postgres.png)
 *Figure 6: PostgreSQL configuration example*
 

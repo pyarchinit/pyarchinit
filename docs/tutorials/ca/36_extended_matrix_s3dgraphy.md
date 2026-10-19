@@ -437,7 +437,7 @@ Predecessor: vegeu la secció 5.8 (`yed-fastfix-5.8.5-alpha`) per al comportamen
 
 Al panell **«Verifica rapporti»** — disponible com a pestanya dins del diàleg d'importació/exportació de s3dgraphy — hi ha el botó **«Genera continuità»** (etiqueta mantinguda en italià com al connector). Per al jaciment actualment seleccionat, aquesta funció crea automàticament les **fitxes de continuïtat** de les US/USM la vida de les quals abasta més d'un període.
 
-Si la finestra s'ha obert sense cap base de dades, el panell ho diu a dalt i manté els botons desactivats, sense obrir cap avís: obre una base de dades de pyArchInit i torna a obrir la finestra.
+Si la finestra s'ha obert sense cap base de dades, el panell ho diu a dalt i manté els botons desactivats, sense obrir cap avís: obre una base de dades de pyArchInit i torna a obrir la finestra. El panell llegeix els jaciments quan n'obres la pestanya; si la base de dades no respon (un servidor PostgreSQL apagat), diu per què i no ho torna a provar tot sol: quan el servidor torni a estar engegat, prem **Riprova** (tornar-ho a provar).
 
 ### 6.1 Què fa
 

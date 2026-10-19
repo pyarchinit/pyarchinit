@@ -5,6 +5,28 @@
 
 ---
 
+## [fix] - 2026-10-19 — Un PostgreSQL che non risponde non tiene più QGIS fermo: la connessione si prova prima dell'aggiornamento dello schema, con 10 secondi al massimo; il pannello «Verifica rapporti» legge i siti quando apri la sua scheda e poi riprova solo con «Riprova» — 5.13.137-alpha
+
+> Branch `Stratigraph_00001`. Suite **2591 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +11 test). / An unreachable PostgreSQL server no longer freezes QGIS: the connection is probed before the schema updater, with a 10-second connect timeout; the «Verifica rapporti» panel reads the sites when its tab is opened and retries only on «Riprova».
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: Enzo, 19 ottobre 2026: «prova il pannello con un PostgreSQL remoto spento». Provato con una macchina che non risponde (192.0.2.1: su macOS una connessione TCP aspetta 75 s, `net.inet.tcp.keepinit`) e con PostgreSQL fermo (porta chiusa, rifiuto immediato).
+  - **`Pyarchinit_db_management.connection()`** per PostgreSQL lanciava l'aggiornamento dello schema (`run_essential_migrations`: una ventina di funzioni, ognuna con più controlli) **prima** di provare la connessione, e ogni controllo tentava una connessione nuova, senza tempo massimo: con la macchina spenta, dopo 14 minuti QGIS era ancora fermo. Ora la connessione si prova per prima (`SELECT 1`) e, se non risponde, `connection()` dice perché e torna False subito; l'engine dei PostgreSQL non cloud ha `connect_timeout` 10 s, come già quelli cloud. Misurato: **10,0 s**, poi l'avviso.
+  - **Le voci Extended Matrix** (export, sezioni, progetto EM, import, matrice, consegna alla stanza) aprivano la finestra anche con la connessione fallita: ora si fermano.
+  - **Il pannello «Verifica rapporti»** leggeva i siti mentre si costruiva la finestra (75 s fermi per una scheda che magari non si apre) e, dopo la 5.13.136, a ogni riapertura della scheda: ora li legge la prima volta che apri la sua scheda, dopo che si è disegnata, con «Leggo i siti…» (sei lingue) e il cursore che aspetta; dopo un errore non riprova da solo: c'è **Riprova** (non quando la finestra è senza database, dove non servirebbe). Misurato: finestra in 0,1 s, scheda 10 s la prima volta, poi 0 s. Dopo un import i siti si rileggono, con un tentativo solo.
+  - **Dalla revisione finale:** con la prova della connessione prima di tutto, una connessione fallita lasciava il gestore condiviso (`get_db_manager`, che resta in memoria) senza sessione: quando il server tornava le schede caricavano i record ma non salvavano («Database not connected», e la scheda US parlava di un problema di codifica) fino al riavvio di QGIS. Ora la sessione nasce prima della prova; provato dall'inizio alla fine (server spento simulato, poi di nuovo acceso, e il salvataggio arriva davvero). Il tempo massimo si alza con `PGCONNECT_TIMEOUT` (in QGIS: Impostazioni → Opzioni → Sistema → Ambiente) o con `connect_timeout` nella stringa di connessione; la prova è una connessione e basta, senza query.
+- 🇬🇧 **EN**: `connection()` probes the PostgreSQL connection before running the schema updater (whose dozens of checks each opened a new connection with no timeout: over 14 minutes of frozen QGIS with an unreachable host), and PostgreSQL engines get a 10 s connect timeout, raisable with `PGCONNECT_TIMEOUT` or `connect_timeout` in the URL; the session factory is created before the probe, so a shared manager whose first connection failed can still save once the server is back; the Extended Matrix menu actions stop when the connection fails; the «Verifica rapporti» panel loads the sites lazily when its tab is first shown (after painting, with a wait cursor and a localized "reading the sites" message) and retries only on «Riprova».
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +11 test, visti rossi prima (l'aggiornamento non parte col server spento, tempo massimo nell'engine e come alzarlo, le sei voci di menu, il gestore condiviso che dopo una connessione fallita salva quando il server torna — provato su PostgreSQL in uno schema temporaneo —, il pannello che non legge prima dell'apertura della scheda, che lo dice col cursore che aspetta, che non riprova da solo, un tentativo solo dopo un import, «Riprova» solo dove serve); misure vere con 192.0.2.1 e con la porta chiusa (script fuori dal repository, solo indirizzi che non sono database).
+- 🇬🇧 **EN**: new tests, all seen failing first; real measurements with an unreachable host and a closed port.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §6 (il pannello che non risponde e «Riprova») e tutorial 01 (se il server non risponde, e come alzare il tempo massimo), dieci lingue; in pt e ro due righe del §6 del tutorial 36, scritte senza accenti, ora li hanno. `metadata.txt` 5.13.137-alpha.
+- 🇬🇧 **EN**: tutorial 36 §6 and tutorial 01 in ten languages; missing diacritics restored in two pt/ro lines.
+
+---
+
 ## [fix] - 2026-10-19 — I contatori di PostgreSQL in pari con gli id scritti a mano (import da QField e disegni dal 3D: niente più «duplicate key»), il pannello «Verifica rapporti» senza avvisi modali, e le cose minori di piante, prospetti e sezioni dai modelli 3D — 5.13.136-alpha
 
 > Branch `Stratigraph_00001`. Suite **2580 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +43 test). / PostgreSQL sequences brought back in step after hand-written ids (QField import, 3D drawings), the «Verifica rapporti» panel without modal message boxes, and the deferred minors from the final reviews of 5.13.134 and 5.13.135.

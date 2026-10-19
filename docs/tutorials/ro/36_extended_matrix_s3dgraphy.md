@@ -437,7 +437,7 @@ Predecesor: vezi secțiunea 5.8 (`yed-fastfix-5.8.5-alpha`) pentru comportamentu
 
 În panoul **„Verifica rapporti"** — disponibil ca tab în interiorul dialogului de import/export s3dgraphy — există butonul **„Genera continuità"** (etichetă păstrată în italiană ca în plugin). Pentru situl selectat curent, această funcție creează automat **fișele de continuitate** ale US/USM a căror viață se întinde pe mai mult de o perioadă.
 
-Dacă fereastra a fost deschisă fără o bază de date, panoul spune asta în partea de sus și ține butoanele dezactivate, fără să deschidă vreo fereastră de avertizare: deschide o bază de date pyArchInit și redeschide fereastra.
+Dacă fereastra a fost deschisă fără o bază de date, panoul spune asta în partea de sus și ține butoanele dezactivate, fără să deschidă vreo fereastră de avertizare: deschide o bază de date pyArchInit și redeschide fereastra. Panoul citește siturile când îi deschizi tab-ul; dacă baza de date nu răspunde (un server PostgreSQL oprit), spune de ce și nu reîncearcă singur: când serverul este din nou pornit, apasă **Riprova** (reîncearcă).
 
 ### 6.1 Ce face
 
@@ -446,7 +446,7 @@ Dacă fereastra a fost deschisă fără o bază de date, panoul spune asta în p
 3. Fișa CON **moștenește** de la unitatea-mamă: situl, aria (plus ariile secundare), structura și întregul interval de perioade (inițială → finală). Descrierea ei este generată automat.
 4. Scrie o **relație de continuitate reciprocă** pe ambele părți: pe CON și pe unitatea-mamă.
 
-> **Faza, de la sine, nu conteaza.** Regula se uita la **perioada**: o USM care merge de la **2/3 la 2/4** — aceeasi perioada, se schimba doar faza — nu genereaza nimic. Daca unitatile tale supravietuiesc din faza in faza in interiorul aceleiasi perioade, bifeaza **„anche i salti di fase"** („si salturile de faza") langa buton: atunci conteaza si acele salturi, cu conditia ca **ambele** faze sa fie completate. O unitate care nu se misca — aceeasi perioada si aceeasi faza — nu este niciodata o continuitate. Caseta porneste **nebifata** si este valabila pentru previzualizare si pentru scriere deopotriva.
+> **Faza, de la sine, nu contează.** Regula se uită la **perioadă**: o USM care merge de la **2/3 la 2/4** — aceeași perioadă, se schimbă doar faza — nu generează nimic. Dacă unitățile tale supraviețuiesc din fază în fază în interiorul aceleiași perioade, bifează **„anche i salti di fase”** („și salturile de fază”) lângă buton: atunci contează și acele salturi, cu condiția ca **ambele** faze să fie completate. O unitate care nu se mișcă — aceeași perioadă și aceeași fază — nu este niciodată o continuitate. Caseta pornește **nebifată** și este valabilă pentru previzualizare și pentru scriere deopotrivă.
 
 ### 6.2 Idempotență
 
@@ -458,7 +458,7 @@ Operația este **idempotentă**: rularea repetată nu duplică fișele existente
 
 O fișă CON este **orfană** atunci când unitatea ei mamă nu se mai întinde pe mai multe perioade (de ex. perioada inițială și cea finală au fost făcute egale). În mod implicit orfanele sunt doar **semnalate**; o **casetă de bifare** („Rimuovi anche le CON orfane") permite optarea pentru eliminarea lor.
 
-**O continuitate scrisa de mana este recunoscuta.** O fisa CON ale carei relatii numesc o singura unitate — `> 12`, sau „Continuitate dupa 12” — este continuitatea acelei unitati, oricum s-ar numi: generatorul o **actualizeaza** (intervalul de perioade, eticheta canonica) iar numele ramane al ei. Nu se naste o a doua: continuitatea este **una pe unitate**. Daca exista si o `CON_<us>` canonica, castiga aceea, iar cealalta ramane orfana, de decis de mana.
+**O continuitate scrisă de mână este recunoscută.** O fișă CON ale cărei relații numesc o singură unitate — `> 12`, sau „Continuitate după 12” — este continuitatea acelei unități, oricum s-ar numi: generatorul o **actualizează** (intervalul de perioade, eticheta canonică) iar numele rămâne al ei. Nu se naște o a doua: continuitatea este **una pe unitate**. Dacă există și o `CON_<us>` canonică, câștigă aceea, iar cealaltă rămâne orfană, de decis de mână.
 
 ### 6.4 În exportul Extended Matrix
 
