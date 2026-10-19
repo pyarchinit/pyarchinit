@@ -115,7 +115,10 @@ Clique em **Importar** (é pedida uma **confirmação**). A operação:
 - **copia as fotos** para o backend de media e **gera as suas miniaturas**
   automaticamente;
 - atribui aos registos importados um **`node_uuid`** e marca-os com
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- com PostgreSQL, no final acerta os **contadores de id** (as sequências):
+  os polígonos que desenhar depois no QGIS e os registos novos não recebem
+  um id já usado.
 
 ---
 

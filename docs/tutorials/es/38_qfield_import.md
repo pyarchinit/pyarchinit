@@ -116,7 +116,10 @@ Pulsa **Importar** (se solicita una **confirmación**). La operación:
 - **copia las fotos** al backend de medios y **genera sus miniaturas**
   automáticamente;
 - asigna a los registros importados un **`node_uuid`** y los marca con
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- con PostgreSQL, al final pone al día los **contadores de id** (las
+  secuencias): los polígonos que dibujes después en QGIS y los registros nuevos
+  no reciben un id ya utilizado.
 
 ---
 

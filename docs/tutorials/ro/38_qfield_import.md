@@ -113,7 +113,10 @@ Apasă **Importă** (se solicită o **confirmare**). Operația:
 - **copiază fotografiile** în backendul media și **le generează miniaturile**
   automat;
 - atribuie înregistrărilor importate un **`node_uuid`** și le marchează cu
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- cu PostgreSQL, la final aduce la zi **contoarele de id-uri** (secvențele):
+  poligoanele pe care le desenezi după aceea în QGIS și înregistrările noi nu
+  primesc un id deja folosit.
 
 ---
 

@@ -437,6 +437,8 @@ Predecessor: ver secção 5.8 (`yed-fastfix-5.8.5-alpha`) para o comportamento s
 
 No painel **«Verifica rapporti»** — disponível como separador dentro do diálogo de importação/exportação do s3dgraphy — encontra-se o botão **«Genera continuità»** (rótulo mantido em italiano como no plugin). Para o sítio atualmente selecionado, esta funcionalidade cria automaticamente as **fichas de continuidade** das US/USM cuja vida se estende por mais de um período.
 
+Se a janela foi aberta sem uma base de dados, o painel di-lo em cima e mantém os botões desativados, sem abrir nenhum aviso: abre uma base de dados do pyArchInit e volta a abrir a janela.
+
 ### 6.1 O que faz
 
 1. Percorre todas as US/USM do sítio em que **período inicial ≠ período final** (ou seja, cuja vida se estende por mais do que um período).

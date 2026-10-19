@@ -120,7 +120,10 @@ Vorgang:
 - **kopiert die Fotos** in das Medien-Backend und **erzeugt automatisch deren
   Thumbnails**;
 - weist den importierten Datensätzen eine **`node_uuid`** zu und markiert sie mit
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- bringt bei PostgreSQL am Ende die **ID-Zähler** (die Sequenzen) wieder auf den
+  aktuellen Stand: Polygone, die Sie danach in QGIS zeichnen, und neue
+  Datensätze erhalten keine bereits vergebene ID.
 
 ---
 

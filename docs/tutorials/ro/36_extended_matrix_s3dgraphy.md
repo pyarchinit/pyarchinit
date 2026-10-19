@@ -437,6 +437,8 @@ Predecesor: vezi secțiunea 5.8 (`yed-fastfix-5.8.5-alpha`) pentru comportamentu
 
 În panoul **„Verifica rapporti"** — disponibil ca tab în interiorul dialogului de import/export s3dgraphy — există butonul **„Genera continuità"** (etichetă păstrată în italiană ca în plugin). Pentru situl selectat curent, această funcție creează automat **fișele de continuitate** ale US/USM a căror viață se întinde pe mai mult de o perioadă.
 
+Dacă fereastra a fost deschisă fără o bază de date, panoul spune asta în partea de sus și ține butoanele dezactivate, fără să deschidă vreo fereastră de avertizare: deschide o bază de date pyArchInit și redeschide fereastra.
+
 ### 6.1 Ce face
 
 1. Scanează toate US/USM din sit la care **perioada inițială ≠ perioada finală** (adică a căror viață se întinde pe mai multe perioade).

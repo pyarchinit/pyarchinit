@@ -111,7 +111,10 @@ Click **Import** (a **confirmation** is requested). The operation:
 - **copies the photos** to the media backend and **generates their thumbnails**
   automatically;
 - assigns imported records a **`node_uuid`** and marks them with
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- on PostgreSQL, at the end it brings the **id counters** (the sequences)
+  back in step: polygons you draw afterwards in QGIS and new records don't
+  get an id that is already taken.
 
 ---
 

@@ -110,7 +110,10 @@ Premi **Importa** (viene chiesta una **conferma**). L'operazione:
 - **copia le foto** nel backend media e ne **genera le miniature**
   automaticamente;
 - assegna ai record importati un **`node_uuid`** e li marca con
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- su PostgreSQL, alla fine rimette in pari i **contatori degli id** (le
+  sequenze): i poligoni che disegni dopo in QGIS e i record nuovi non
+  prendono un id già usato.
 
 ---
 

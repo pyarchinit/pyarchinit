@@ -437,6 +437,8 @@ Predecessor: vegeu la secció 5.8 (`yed-fastfix-5.8.5-alpha`) per al comportamen
 
 Al panell **«Verifica rapporti»** — disponible com a pestanya dins del diàleg d'importació/exportació de s3dgraphy — hi ha el botó **«Genera continuità»** (etiqueta mantinguda en italià com al connector). Per al jaciment actualment seleccionat, aquesta funció crea automàticament les **fitxes de continuïtat** de les US/USM la vida de les quals abasta més d'un període.
 
+Si la finestra s'ha obert sense cap base de dades, el panell ho diu a dalt i manté els botons desactivats, sense obrir cap avís: obre una base de dades de pyArchInit i torna a obrir la finestra.
+
 ### 6.1 Què fa
 
 1. Escaneja totes les US/USM del jaciment on **període inicial ≠ període final** (és a dir, la vida de les quals abasta més d'un període).

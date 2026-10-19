@@ -118,7 +118,10 @@ Cliquez sur **Importer** (une **confirmation** est demandée). L'opération :
 - **copie les photos** vers le backend média et **génère automatiquement leurs
   vignettes** ;
 - attribue aux enregistrements importés un **`node_uuid`** et les marque avec
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`** ;
+- avec PostgreSQL, à la fin elle remet à jour les **compteurs d'id** (les
+  séquences) : les polygones que vous dessinerez ensuite dans QGIS et les
+  nouveaux enregistrements ne reçoivent pas d'id déjà utilisé.
 
 ---
 

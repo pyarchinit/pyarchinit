@@ -437,6 +437,8 @@ Predecessore: vedi sezione 5.8 (`yed-fastfix-5.8.5-alpha`) per il comportamento 
 
 Nel pannello **"Verifica rapporti"** — disponibile come tab all'interno del dialog di import/export s3dgraphy — è presente il pulsante **"Genera continuità"**. La funzione crea automaticamente, per il sito attualmente selezionato, le **schede di continuità** delle US/USM che attraversano più di un periodo.
 
+Se la finestra è aperta senza un database, il pannello lo dice in alto e tiene spenti i pulsanti, senza aprire avvisi: apri un database pyArchInit e riapri la finestra.
+
 ### 6.1 Cosa fa
 
 1. Scansiona tutte le US/USM del sito in cui **periodo iniziale ≠ periodo finale** (cioè la cui vita si estende su più periodi).

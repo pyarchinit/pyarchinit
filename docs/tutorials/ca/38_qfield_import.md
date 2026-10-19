@@ -113,7 +113,10 @@ Prem **Importa** (es demana una **confirmació**). L'operació:
 - **copia les fotos** al backend de mitjans i **en genera les miniatures**
   automàticament;
 - assigna als registres importats un **`node_uuid`** i els marca amb
-  **`created_by = 'qfield_import'`**.
+  **`created_by = 'qfield_import'`**;
+- amb PostgreSQL, en acabar posa al dia els **comptadors d'id** (les
+  seqüències): els polígons que dibuixis després a QGIS i els registres nous no
+  reben un id ja utilitzat.
 
 ---
 
