@@ -165,7 +165,7 @@ Desenele verticale sunt în coordonatele desenului: **X = metri de-a lungul vede
 
     **Tutte** și **Nessuna** (toate/niciuna) bifează și debifează căsuțele; **Conferma** (Confirmă) păstrează alegerea. Dacă nu deschizi fereastra, se aplică alegerea implicită: toate unitățile cu un proxy care poate fi citit, cu plan și elevație, în afară de cele care au deja un desen făcut de mână; cele patru laturi; deplasarea Z din em.json.
 2. **Anteprima** (Previzualizare) adaugă rândul «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Din 3D: … planuri, … elevații ale sitului, … elevații de unități; se calculează la aplicare).
-3. **Applica** (Aplică) scrie fișele, apoi fișierele media, apoi desenele, cu o bară de progres. Rezumatul adaugă rândul «Dal 3D: …», cu unitățile omise și motivul.
+3. **Applica** (Aplică) scrie fișele, apoi fișierele media, apoi desenele, cu o bară de progres. Rezumatul adaugă rândul «Dal 3D: …», cu unitățile omise și motivul, inclusiv cele al căror model nu poate fi găsit sau citit.
 
 **Sistemul de referință al bazei de date.** Dacă există geometrii de scris, pyArchInit compară sistemul celor două straturi cu cel din em.json înainte de a scrie ceva:
 
@@ -173,7 +173,7 @@ Desenele verticale sunt în coordonatele desenului: **X = metri de-a lungul vede
 |---|---|
 | același EPSG ca în em.json | importă |
 | alt sistem metric (de exemplu 3004) | întreabă «Converto le piante in EPSG:3004 del database?» (Convertesc planurile în EPSG:3004 al bazei de date?), cu **Converti** (Convertește) sau **Annulla** (Anulează). Elevațiile nu se convertesc niciodată: sunt în coordonatele desenului |
-| în grade (4326) sau fără sistem (-1) | se oprește: recreează baza de date în sistemul din em.json sau debifează căsuța și importă doar fișele |
+| în grade (4326) sau fără sistem (-1) | se oprește: recreează baza de date în sistemul din em.json sau debifează căsuța și importă doar fișele. Mesajul spune care strat nu este în regulă: dacă este doar cel al desenelor verticale, poți, de asemenea, să debifezi elevațiile și laturile în **Scegli…** și să imporți doar planurile (și invers) |
 
 Annulla, sau oprirea, lasă baza de date așa cum era. Fără căsuța bifată sau fără proxy-uri utilizabile, nu se face nicio verificare și se importă doar fișele, ca înainte.
 
@@ -207,14 +207,14 @@ Din **5.13.135-alpha**. După import (§5.0, cu fișierele media sau cu **Cartel
     - tabelul liniilor sitului: **Taglia** (taie), **Sezione** (secțiune), **Descrizione** (descriere), **Area** (zonă), **Tratti** (tronsoane), **Lunghezza (m)** (lungime) și **Documento** (documentul care va rezulta).
 3. **Taglia** calculează și scrie, cu o bară de progres; rezumatul spune câte unități a tăiat fiecare secțiune, unitățile omise și de ce, precum și liniile care aveau deja un alt document.
 
-**Cum se citește o secțiune.** În coordonatele desenului: **X = metri de-a lungul liniei de la primul ei punct, Y = cotă**. Primul punct este în stânga, deci, pentru o linie trasată de la vest la est, cel care privește stă la sud. Profilul unei unități este tot ce se află în interiorul conturului său tăiat. Secțiunile stau în stânga elevațiilor (X negativ), la 10 m una de alta.
+**Cum se citește o secțiune.** În coordonatele desenului: **X = metri de-a lungul liniei de la primul ei punct, Y = cotă**. Primul punct (A) este în stânga, deci, pentru o linie trasată de la vest la est, cel care privește stă la sud; nota documentului spune la ce X se află punctul A. Coloana **Lunghezza (m)** este mereu în metri, chiar dacă stratul secțiunilor este în grade. Profilul unei unități este tot ce se află în interiorul conturului său tăiat. Secțiunile stau în stânga elevațiilor (X negativ), la 10 m una de alta.
 
 **Documente și legături.** Fiecare secțiune este un document **Sezione** (secțiune) — termenul din tezaur în limba pluginului — cu numele `3D-SEZ-<id_sezione>`, de exemplu `3D-SEZ-A`. Același tip și același nume se află:
 - în poligoane;
 - în lista **Documentazione** a fișei US;
 - și, dacă linia nu avea deja unul, și pe linia de secțiune. Astfel, fișa Documentazione încarcă împreună linia și «US verticale» ale secțiunii. O linie care are deja un alt document nu este atinsă: rezumatul o spune.
 
-**Refacerea unei secțiuni.** Relansarea comenzii pe aceeași linie înlocuiește doar acea secțiune. O linie mutată care nu mai întâlnește nicio unitate își pierde secțiunea de dinainte. Dacă numele se schimbă (un **id_sezione** corectat sau o a doua linie cu același id, care face ca numele să devină `3D-SEZ-A-<gid>`), secțiunea cu numele vechi dispare, iar linia îl ia pe cel nou. Reimportarea fișierului em.json cu planuri și elevații (§5.0.2) nu atinge secțiunile.
+**Refacerea unei secțiuni.** Relansarea comenzii pe aceeași linie înlocuiește doar acea secțiune și o lasă la locul ei în strat. O linie mutată care nu mai întâlnește nicio unitate își pierde secțiunea de dinainte. Dacă numele se schimbă (un **id_sezione** corectat sau o a doua linie cu același id, care face ca numele să devină `3D-SEZ-A-<gid>`), secțiunea cu numele vechi dispare, iar linia îl ia pe cel nou. Reimportarea fișierului em.json cu planuri și elevații (§5.0.2) nu atinge secțiunile.
 
 **Sisteme de referință.** Liniile sunt aduse în sistemul din em.json, dacă stratul secțiunilor are un alt sistem. Dacă stratul nu are un sistem (`-1`, ca în șablonul SQLite), coordonatele sunt luate așa cum sunt, iar rezumatul o spune. Comanda se oprește dacă situl nu are un em.json importat, dacă em.json nu spune unde se află scena, dacă nu este aleasă nicio linie, dacă nicio unitate nu are un model 3D care să poată fi găsit (importă fișierul em.json cu fișierele media sau conectează discul proxy-urilor) sau dacă stratul desenelor verticale nu este metric. O unitate pe care linia o traversează, dar al cărei model nu este închis, este omisă, iar rezumatul spune «la sezione non si chiude (modello aperto)» (secțiunea nu se închide: model deschis).
 

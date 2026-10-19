@@ -165,7 +165,7 @@ Los dibujos verticales están en coordenadas del dibujo: **X = metros a lo largo
 
     **Tutte** y **Nessuna** (todas/ninguna) marcan y desmarcan las casillas; **Conferma** (Confirmar) conserva la elección. Si no se abre la ventana, vale la elección predeterminada: todas las unidades con un proxy legible, con planta y alzado, salvo las que ya tienen un dibujo hecho a mano; los cuatro lados; el desplazamiento Z del em.json.
 2. **Anteprima** (Vista previa) añade la línea «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Del 3D: … plantas, … alzados del sitio, … alzados de unidades; se calculan al aplicar).
-3. **Applica** (Aplicar) escribe las fichas, luego los medios y después los dibujos, con una barra de progreso. El resumen añade la línea «Dal 3D: …», con las unidades omitidas y el motivo.
+3. **Applica** (Aplicar) escribe las fichas, luego los medios y después los dibujos, con una barra de progreso. El resumen añade la línea «Dal 3D: …», con las unidades omitidas y el motivo, incluidas aquellas cuyo modelo no se encuentra o no se puede leer.
 
 **El sistema de referencia de la base de datos.** Si hay geometrías que escribir, pyArchInit compara el sistema de las dos capas con el del em.json antes de escribir nada:
 
@@ -173,7 +173,7 @@ Los dibujos verticales están en coordenadas del dibujo: **X = metros a lo largo
 |---|---|
 | el mismo EPSG que el em.json | importa |
 | otro sistema métrico (por ejemplo 3004) | pregunta «Converto le piante in EPSG:3004 del database?» (¿Convierto las plantas al EPSG:3004 de la base de datos?), con **Converti** (Convertir) o **Annulla** (Cancelar). Los alzados no se convierten nunca: están en coordenadas del dibujo |
-| en grados (4326) o sin sistema (-1) | se detiene: recrear la base de datos en el sistema del em.json, o bien desmarcar la casilla e importar solo las fichas |
+| en grados (4326) o sin sistema (-1) | se detiene: recrear la base de datos en el sistema del em.json, o bien desmarcar la casilla e importar solo las fichas. El mensaje indica qué capa falla: si es solo la de los dibujos verticales, también se pueden desmarcar los alzados y los lados en **Scegli…** e importar solo las plantas (y viceversa) |
 
 Si se elige Annulla, o si la importación se detiene, la base de datos queda como estaba. Sin la casilla, o sin proxies que usar, no se hace ninguna comprobación y se importan solo las fichas, como antes.
 
@@ -207,14 +207,14 @@ Desde la **5.13.135-alpha**. Después de la importación (§5.0, con los medios 
     - la tabla de las líneas del sitio: **Taglia** (cortar), **Sezione** (sección), **Descrizione** (descripción), **Area** (área), **Tratti** (tramos), **Lunghezza (m)** (longitud) y el **Documento** en que se convertirá.
 3. **Taglia** calcula y escribe, con una barra de progreso; el resumen indica cuántas unidades ha cortado cada sección, las unidades omitidas y el motivo, y las líneas que ya tenían otro documento.
 
-**Cómo se lee una sección.** En coordenadas del dibujo: **X = metros a lo largo de la línea desde su primer punto, Y = cota**. El primer punto queda a la izquierda, así que en una línea trazada de oeste a este quien mira está al sur. El perfil de una unidad es todo lo que queda dentro de su contorno cortado. Las secciones están a la izquierda de los alzados (X negativa), a 10 m unas de otras.
+**Cómo se lee una sección.** En coordenadas del dibujo: **X = metros a lo largo de la línea desde su primer punto, Y = cota**. El primer punto (A) queda a la izquierda, así que en una línea trazada de oeste a este quien mira está al sur; la nota del documento indica en qué X está el punto A. La columna **Lunghezza (m)** está siempre en metros, aunque la capa de las secciones esté en grados. El perfil de una unidad es todo lo que queda dentro de su contorno cortado. Las secciones están a la izquierda de los alzados (X negativa), a 10 m unas de otras.
 
 **Documentos y vínculos.** Cada sección es un documento **Sezione** (sección; el término del tesauro en el idioma del plugin) con el nombre `3D-SEZ-<id_sezione>`, por ejemplo `3D-SEZ-A`. El mismo tipo y el mismo nombre están:
 - en los polígonos;
 - en la lista **Documentazione** (Documentación) de la ficha UE;
 - y, si la línea no tenía ya uno, también en la línea de sección. Así, la ficha Documentazione carga juntas la línea y las «UE verticales» de la sección. Una línea que ya tiene otro documento no se toca: el resumen lo indica.
 
-**Rehacer una sección.** Volver a lanzar el comando sobre la misma línea sustituye solo esa sección. Una línea desplazada que ya no encuentra ninguna unidad pierde la sección anterior. Si el nombre cambia (un **id_sezione** corregido, o una segunda línea con el mismo id, que hace que los nombres pasen a ser `3D-SEZ-A-<gid>`), la sección con el nombre antiguo desaparece y la línea toma el nuevo. Reimportar el em.json con plantas y alzados (§5.0.2) no toca las secciones.
+**Rehacer una sección.** Volver a lanzar el comando sobre la misma línea sustituye solo esa sección y la deja en el mismo lugar de la capa. Una línea desplazada que ya no encuentra ninguna unidad pierde la sección anterior. Si el nombre cambia (un **id_sezione** corregido, o una segunda línea con el mismo id, que hace que los nombres pasen a ser `3D-SEZ-A-<gid>`), la sección con el nombre antiguo desaparece y la línea toma el nuevo. Reimportar el em.json con plantas y alzados (§5.0.2) no toca las secciones.
 
 **Sistemas de referencia.** Las líneas se llevan al sistema del em.json si la capa de las secciones tiene otro. Si la capa no tiene sistema (`-1`, como en la plantilla SQLite), las coordenadas se toman tal como están y el resumen lo indica. El comando se detiene si el sitio no tiene un em.json importado, si el em.json no dice dónde está la escena, si no se ha elegido ninguna línea, si ninguna unidad tiene un modelo 3D que se pueda encontrar (importar el em.json con los medios, o conectar el disco de los proxies) o si la capa de los dibujos verticales no es métrica. Una unidad que la línea atraviesa pero cuyo modelo no está cerrado se omite, y el resumen dice «la sezione non si chiude (modello aperto)» (la sección no se cierra: modelo abierto).
 

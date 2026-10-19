@@ -165,7 +165,7 @@ Vertical drawings are in drawing coordinates: **X = metres along the view, Y = e
 
     **Tutte** and **Nessuna** (all/none) tick and untick the boxes; **Conferma** keeps the choice. If you don't open the window, the default choice applies: every unit with a readable proxy, with plan and elevation, except those that already have a hand drawing; the four sides; the em.json's Z shift.
 2. **Anteprima** (preview) adds the line "Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)".
-3. **Applica** (apply) writes the records, then the media, then the drawings, with a progress bar. The summary adds a "Dal 3D: …" line, listing the skipped units and the reason.
+3. **Applica** (apply) writes the records, then the media, then the drawings, with a progress bar. The summary adds a "Dal 3D: …" line, listing the skipped units and the reason, including those whose model can't be found or read.
 
 **The database's CRS.** When there are geometries to write, pyArchInit compares the CRS of the two layers with the em.json's before writing anything:
 
@@ -173,7 +173,7 @@ Vertical drawings are in drawing coordinates: **X = metres along the view, Y = e
 |---|---|
 | same EPSG as the em.json | imports |
 | another metric CRS (e.g. 3004) | asks "Converto le piante in EPSG:3004 del database?" (convert the plans?), with **Converti** or **Annulla**. Elevations are never converted: they are in drawing coordinates |
-| in degrees (4326) or without a CRS (-1) | stops: recreate the database in the em.json's CRS, or untick the box and import only the records |
+| in degrees (4326) or without a CRS (-1) | stops: recreate the database in the em.json's CRS, or untick the box and import only the records. The message names the layer at fault: if it is only the vertical drawings layer, you can also untick elevations and sides in **Scegli…** and import only the plans (and vice versa) |
 
 Cancelling, or the stop, leave the database as it was. Without the box, or without usable proxies, nothing is checked and only the records are imported, as before.
 
@@ -207,14 +207,14 @@ Since **5.13.135-alpha**. After the import (§5.0, with the media, or with the *
     - the table of the site's lines: **Taglia** (cut), **Sezione**, **Descrizione**, **Area**, **Tratti** (segments), **Lunghezza (m)** and the **Documento** it will become.
 3. **Taglia** computes and writes, with a progress bar; the summary says how many units each section cut, the skipped units and why, and the lines that already had another document.
 
-**Reading a section.** In drawing coordinates: **X = metres along the line from its first point, Y = elevation**. The first point is on the left, so for a line drawn west to east the viewer stands to the south. A unit's profile is everything inside its cut outline. Sections sit to the left of the elevations (negative X), 10 m apart.
+**Reading a section.** In drawing coordinates: **X = metres along the line from its first point, Y = elevation**. The first point (A) is on the left, so for a line drawn west to east the viewer stands to the south; the document's note says at which X point A sits. The **Lunghezza (m)** column is always in metres, even when the sections layer is in degrees. A unit's profile is everything inside its cut outline. Sections sit to the left of the elevations (negative X), 10 m apart.
 
 **Documents and links.** Each section is a **Sezione** document (the thesaurus term in the plugin's language) named `3D-SEZ-<id_sezione>`, e.g. `3D-SEZ-A`. The same type and name are:
 - on the polygons;
 - in the SU form's **Documentazione** list;
 - and, if the line had none, on the section line too. So the Documentazione form loads the line and the section's "vertical SUs" together. A line that already has another document is left alone, and the summary says so.
 
-**Redoing a section.** Running the command again on the same line replaces only that section. A line that was moved and no longer meets any unit loses its previous section. If the name changes (a corrected **id_sezione**, or a second line with the same id, which turns the names into `3D-SEZ-A-<gid>`), the section with the old name is removed and the line takes the new one. Re-importing the em.json with plans and elevations (§5.0.2) doesn't touch the sections.
+**Redoing a section.** Running the command again on the same line replaces only that section, and leaves it in its place in the layer. A line that was moved and no longer meets any unit loses its previous section. If the name changes (a corrected **id_sezione**, or a second line with the same id, which turns the names into `3D-SEZ-A-<gid>`), the section with the old name is removed and the line takes the new one. Re-importing the em.json with plans and elevations (§5.0.2) doesn't touch the sections.
 
 **CRS.** Lines are brought into the em.json's CRS when the sections layer has another one. If the layer has no CRS (`-1`, as in the SQLite template), the coordinates are taken as they are, and the summary says so. The command stops if the site has no imported em.json, if the em.json doesn't say where the scene is, if no line is chosen, if no unit has a 3D model that can be found (import the em.json with the media, or connect the proxies' disk), or if the vertical drawings layer isn't metric. A unit the line crosses whose model isn't closed is skipped, and the summary says «la sezione non si chiude (modello aperto)» (the section doesn't close: open model).
 

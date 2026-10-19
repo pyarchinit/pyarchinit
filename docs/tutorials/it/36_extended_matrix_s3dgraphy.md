@@ -165,7 +165,7 @@ I disegni verticali sono in coordinate del disegno: **X = metri lungo la vista, 
 
     **Tutte** e **Nessuna** accendono e spengono le caselle; **Conferma** tiene la scelta. Se non apri la finestra vale la scelta predefinita: tutte le unità con un proxy che si legge, con pianta e prospetto, tranne quelle che hanno già un disegno a mano; i quattro lati; lo spostamento Z dell'em.json.
 2. **Anteprima** aggiunge la riga «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)».
-3. **Applica** scrive le schede, poi i media, poi i disegni, con una barra di avanzamento. Il riepilogo aggiunge la riga «Dal 3D: …», con le unità saltate e il motivo.
+3. **Applica** scrive le schede, poi i media, poi i disegni, con una barra di avanzamento. Il riepilogo aggiunge la riga «Dal 3D: …», con le unità saltate e il motivo, comprese quelle il cui modello non si trova o non si legge.
 
 **Il sistema di riferimento del database.** Se ci sono geometrie da scrivere, pyArchInit confronta il sistema dei due layer con quello dell'em.json prima di scrivere qualsiasi cosa:
 
@@ -173,7 +173,7 @@ I disegni verticali sono in coordinate del disegno: **X = metri lungo la vista, 
 |---|---|
 | stesso EPSG dell'em.json | importa |
 | un altro sistema metrico (per esempio 3004) | chiede «Converto le piante in EPSG:3004 del database?», con **Converti** o **Annulla**. I prospetti non si convertono mai: sono in coordinate del disegno |
-| in gradi (4326) o senza sistema (-1) | si ferma: ricrea il database nel sistema dell'em.json, oppure togli la casella e importa solo le schede |
+| in gradi (4326) o senza sistema (-1) | si ferma: ricrea il database nel sistema dell'em.json, oppure togli la casella e importa solo le schede. Il messaggio dice quale layer non va: se è solo quello dei disegni verticali, puoi anche togliere prospetti e lati in **Scegli…** e importare solo le piante (e viceversa) |
 
 Annulla, o il fermo, lasciano il database com'era. Senza la casella, o senza proxy da usare, non c'è nessun controllo e si importano solo le schede, come prima.
 
@@ -207,14 +207,14 @@ Dalla **5.13.135-alpha**. Dopo l'importazione (§5.0, con i media, oppure con la
     - la tabella delle linee del sito: **Taglia**, **Sezione**, **Descrizione**, **Area**, **Tratti**, **Lunghezza (m)** e il **Documento** che diventerà.
 3. **Taglia** calcola e scrive, con una barra di avanzamento; il riepilogo dice quante unità ha tagliato ogni sezione, le unità saltate e perché, e le linee che avevano già un altro documento.
 
-**Come si legge una sezione.** In coordinate del disegno: **X = metri lungo la linea dal suo primo punto, Y = quota**. Il primo punto sta a sinistra, quindi per una linea tracciata da ovest a est chi guarda sta a sud. Il profilo di un'unità è tutto quello che sta dentro il suo contorno tagliato. Le sezioni stanno a sinistra dei prospetti (X negativa), a 10 m l'una dall'altra.
+**Come si legge una sezione.** In coordinate del disegno: **X = metri lungo la linea dal suo primo punto, Y = quota**. Il primo punto (A) sta a sinistra, quindi per una linea tracciata da ovest a est chi guarda sta a sud; la nota del documento dice a quale X sta A. La colonna **Lunghezza (m)** è sempre in metri, anche se il layer delle sezioni è in gradi. Il profilo di un'unità è tutto quello che sta dentro il suo contorno tagliato. Le sezioni stanno a sinistra dei prospetti (X negativa), a 10 m l'una dall'altra.
 
 **Documenti e collegamenti.** Ogni sezione è un documento **Sezione** (la voce del thesaurus nella lingua del plugin) di nome `3D-SEZ-<id_sezione>`, per esempio `3D-SEZ-A`. Lo stesso tipo e lo stesso nome stanno:
 - nei poligoni;
 - nella lista **Documentazione** della scheda US;
 - e, se la linea non ne aveva già uno, anche nella linea di sezione. Così la scheda Documentazione carica insieme la linea e le «US verticali» della sezione. Una linea che ha già un altro documento non si tocca: il riepilogo lo dice.
 
-**Rifare una sezione.** Rilanciare il comando sulla stessa linea sostituisce solo quella sezione. Una linea spostata che non incontra più nessuna unità perde la sezione di prima. Se il nome cambia (un **id_sezione** corretto, o una seconda linea con lo stesso id, che fa diventare i nomi `3D-SEZ-A-<gid>`), la sezione col nome vecchio se ne va e la linea prende quello nuovo. Reimportare l'em.json con piante e prospetti (§5.0.2) non tocca le sezioni.
+**Rifare una sezione.** Rilanciare il comando sulla stessa linea sostituisce solo quella sezione, e la lascia al suo posto nel layer. Una linea spostata che non incontra più nessuna unità perde la sezione di prima. Se il nome cambia (un **id_sezione** corretto, o una seconda linea con lo stesso id, che fa diventare i nomi `3D-SEZ-A-<gid>`), la sezione col nome vecchio se ne va e la linea prende quello nuovo. Reimportare l'em.json con piante e prospetti (§5.0.2) non tocca le sezioni.
 
 **Sistemi.** Le linee si portano nel sistema dell'em.json, se il layer delle sezioni ne ha un altro. Se il layer non ha un sistema (`-1`, come nel template SQLite), le coordinate si prendono così come sono e il riepilogo lo dice. Il comando si ferma se il sito non ha un em.json importato, se l'em.json non dice dove sta la scena, se non c'è nessuna linea scelta, se nessuna unità ha un modello 3D che si trovi (importa l'em.json con i media, o collega il disco dei proxy) o se il layer dei disegni verticali non è metrico. Un'unità che la linea attraversa ma il cui modello non è chiuso si salta, e il riepilogo dice «la sezione non si chiude (modello aperto)».
 

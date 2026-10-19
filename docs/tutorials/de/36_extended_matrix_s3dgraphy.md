@@ -165,7 +165,7 @@ Die vertikalen Zeichnungen sind in Zeichnungskoordinaten angelegt: **X = Meter e
 
     **Tutte** und **Nessuna** (alle/keine) aktivieren bzw. deaktivieren die Checkboxen; **Conferma** (Bestätigen) übernimmt die Auswahl. Wird das Fenster nicht geöffnet, gilt die Standardauswahl: alle Einheiten mit einem lesbaren Proxy, mit Grundriss und Ansicht, außer denen, die bereits eine Zeichnung von Hand haben; die vier Seiten; die Z-Verschiebung der em.json.
 2. **Anteprima** (Vorschau) zeigt zusätzlich die Zeile «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Aus dem 3D: … Grundrisse, … Ansichten der Stätte, … Ansichten von Einheiten, berechnet beim Klick auf Applica).
-3. **Applica** (Anwenden) schreibt die Datensätze, dann die Medien, dann die Zeichnungen, mit einem Fortschrittsbalken. Die Zusammenfassung zeigt zusätzlich die Zeile «Dal 3D: …», mit den übersprungenen Einheiten und dem jeweiligen Grund.
+3. **Applica** (Anwenden) schreibt die Datensätze, dann die Medien, dann die Zeichnungen, mit einem Fortschrittsbalken. Die Zusammenfassung zeigt zusätzlich die Zeile «Dal 3D: …», mit den übersprungenen Einheiten und dem jeweiligen Grund, auch denen, deren Modell sich nicht finden oder nicht lesen lässt.
 
 **Das Bezugssystem der Datenbank.** Gibt es Geometrien zu schreiben, vergleicht pyArchInit das Bezugssystem der beiden Layer mit dem der em.json, bevor überhaupt etwas geschrieben wird:
 
@@ -173,7 +173,7 @@ Die vertikalen Zeichnungen sind in Zeichnungskoordinaten angelegt: **X = Meter e
 |---|---|
 | dasselbe EPSG wie die em.json | importiert |
 | ein anderes metrisches Bezugssystem (zum Beispiel 3004) | fragt «Converto le piante in EPSG:3004 del database?» (Die Grundrisse in das EPSG:3004 der Datenbank umrechnen?), mit **Converti** (Umrechnen) oder **Annulla** (Abbrechen). Die Ansichten werden nie umgerechnet: Sie sind in Zeichnungskoordinaten |
-| in Grad (4326) oder ohne Bezugssystem (-1) | bricht ab: die Datenbank im Bezugssystem der em.json neu anlegen oder die Checkbox deaktivieren und nur die Datensätze importieren |
+| in Grad (4326) oder ohne Bezugssystem (-1) | bricht ab: die Datenbank im Bezugssystem der em.json neu anlegen oder die Checkbox deaktivieren und nur die Datensätze importieren. Die Meldung nennt den betroffenen Layer: Ist es nur der Layer der vertikalen Zeichnungen, kann man in **Scegli…** auch die Ansichten und die Seiten deaktivieren und nur die Grundrisse importieren (und umgekehrt) |
 
 Annulla oder der Abbruch lassen die Datenbank so, wie sie war. Ist die Checkbox nicht aktiviert oder gibt es keine verwendbaren Proxys, findet keine Prüfung statt, und es werden wie bisher nur die Datensätze importiert.
 
@@ -207,14 +207,14 @@ Ab **5.13.135-alpha**. Nach dem Import (§5.0, mit den Medien oder mit dem Feld 
     - die Tabelle der Linien der Stätte: **Taglia** (Schneiden), **Sezione** (Schnitt), **Descrizione** (Beschreibung), **Area**, **Tratti** (Abschnitte), **Lunghezza (m)** (Länge) und das **Documento** (Dokument), das aus jeder Linie wird.
 3. **Taglia** berechnet und schreibt, mit einem Fortschrittsbalken; die Zusammenfassung sagt, wie viele Einheiten jeder Schnitt geschnitten hat, welche Einheiten übersprungen wurden und warum, und welche Linien bereits ein anderes Dokument hatten.
 
-**Wie man einen Schnitt liest.** In Zeichnungskoordinaten: **X = Meter entlang der Linie ab ihrem ersten Punkt, Y = Höhe**. Der erste Punkt liegt links; bei einer von Westen nach Osten gezeichneten Linie steht der Betrachter daher im Süden. Das Profil einer Einheit ist alles, was innerhalb ihres geschnittenen Umrisses liegt. Die Schnitte stehen links von den Ansichten (negatives X), in 10 m Abstand voneinander.
+**Wie man einen Schnitt liest.** In Zeichnungskoordinaten: **X = Meter entlang der Linie ab ihrem ersten Punkt, Y = Höhe**. Der erste Punkt (A) liegt links; bei einer von Westen nach Osten gezeichneten Linie steht der Betrachter daher im Süden. Die Notiz des Dokuments gibt an, bei welchem X der Punkt A liegt. Die Spalte **Lunghezza (m)** ist immer in Metern angegeben, auch wenn der Layer der Schnitte in Grad ist. Das Profil einer Einheit ist alles, was innerhalb ihres geschnittenen Umrisses liegt. Die Schnitte stehen links von den Ansichten (negatives X), in 10 m Abstand voneinander.
 
 **Dokumente und Verknüpfungen.** Jeder Schnitt ist ein Dokument vom Typ **Sezione** (Schnitt), wie der Thesaurus ihn in der Sprache des Plugins nennt, mit dem Namen `3D-SEZ-<id_sezione>`, zum Beispiel `3D-SEZ-A`. Derselbe Typ und derselbe Name stehen:
 - in den Polygonen;
 - in der Liste **Documentazione** des SE-Formulars;
 - und, wenn die Linie noch keines hatte, auch in der Schnittlinie. So lädt das Formular Documentazione die Linie und den Layer «Vertikale SE» des Schnitts gemeinsam. Eine Linie, die bereits ein anderes Dokument hat, bleibt unangetastet: Die Zusammenfassung meldet es.
 
-**Einen Schnitt neu erstellen.** Wird der Befehl auf derselben Linie erneut ausgeführt, ersetzt er nur diesen Schnitt. Eine verschobene Linie, die keine Einheit mehr trifft, verliert ihren bisherigen Schnitt. Ändert sich der Name (eine korrigierte **id_sezione** oder eine zweite Linie mit derselben Kennung, wodurch die Namen zu `3D-SEZ-A-<gid>` werden), wird der Schnitt mit dem alten Namen entfernt und die Linie erhält den neuen. Ein erneuter Import der em.json mit Grundrissen und Ansichten (§5.0.2) lässt die Schnitte unangetastet.
+**Einen Schnitt neu erstellen.** Wird der Befehl auf derselben Linie erneut ausgeführt, ersetzt er nur diesen Schnitt und lässt ihn an seinem Platz im Layer. Eine verschobene Linie, die keine Einheit mehr trifft, verliert ihren bisherigen Schnitt. Ändert sich der Name (eine korrigierte **id_sezione** oder eine zweite Linie mit derselben Kennung, wodurch die Namen zu `3D-SEZ-A-<gid>` werden), wird der Schnitt mit dem alten Namen entfernt und die Linie erhält den neuen. Ein erneuter Import der em.json mit Grundrissen und Ansichten (§5.0.2) lässt die Schnitte unangetastet.
 
 **Bezugssysteme.** Die Linien werden in das Bezugssystem der em.json umgerechnet, wenn der Layer der Schnitte ein anderes hat. Hat der Layer kein Bezugssystem (`-1`, wie in der SQLite-Vorlage), werden die Koordinaten so übernommen, wie sie sind, und die Zusammenfassung meldet es. Der Befehl bricht ab, wenn die Stätte keine importierte em.json hat, wenn die em.json nicht angibt, wo die Szene liegt, wenn keine Linie ausgewählt ist, wenn keine Einheit ein auffindbares 3D-Modell hat (die em.json mit den Medien importieren oder den Datenträger der Proxys anschließen) oder wenn der Layer der vertikalen Zeichnungen nicht metrisch ist. Eine Einheit, die die Linie durchquert, deren Modell aber nicht geschlossen ist, wird übersprungen, und die Zusammenfassung meldet «la sezione non si chiude (modello aperto)» (der Schnitt schließt sich nicht: offenes Modell).
 

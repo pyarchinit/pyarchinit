@@ -165,7 +165,7 @@ Els dibuixos verticals són en coordenades del dibuix: **X = metres al llarg de 
 
     **Tutte** i **Nessuna** (totes/cap) marquen i desmarquen les caselles; **Conferma** (Confirma) conserva la tria. Si no s'obre la finestra, val la tria predeterminada: totes les unitats amb un proxy que es pot llegir, amb planta i alçat, llevat de les que ja tenen un dibuix fet a mà; els quatre costats; el desplaçament Z de l'em.json.
 2. **Anteprima** (Previsualització) afegeix la línia «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Del 3D: … plantes, … alçats del lloc, … alçats d'unitats; es calculen en aplicar).
-3. **Applica** (Aplica) escriu les fitxes, després els mèdia, després els dibuixos, amb una barra de progrés. El resum afegeix la línia «Dal 3D: …», amb les unitats omeses i el motiu.
+3. **Applica** (Aplica) escriu les fitxes, després els mèdia, després els dibuixos, amb una barra de progrés. El resum afegeix la línia «Dal 3D: …», amb les unitats omeses i el motiu, incloses aquelles el model de les quals no es troba o no es pot llegir.
 
 **El sistema de referència de la base de dades.** Si hi ha geometries per escriure, pyArchInit compara el sistema de les dues capes amb el de l'em.json abans d'escriure res:
 
@@ -173,7 +173,7 @@ Els dibuixos verticals són en coordenades del dibuix: **X = metres al llarg de 
 |---|---|
 | el mateix EPSG que l'em.json | importa |
 | un altre sistema mètric (per exemple 3004) | pregunta «Converto le piante in EPSG:3004 del database?» (Converteixo les plantes a l'EPSG:3004 de la base de dades?), amb **Converti** (Converteix) o **Annulla** (Cancel·la). Els alçats no es converteixen mai: són en coordenades del dibuix |
-| en graus (4326) o sense sistema (-1) | s'atura: cal tornar a crear la base de dades en el sistema de l'em.json, o bé desmarcar la casella i importar només les fitxes |
+| en graus (4326) o sense sistema (-1) | s'atura: cal tornar a crear la base de dades en el sistema de l'em.json, o bé desmarcar la casella i importar només les fitxes. El missatge diu quina capa falla: si només és la dels dibuixos verticals, també es poden desmarcar els alçats i els costats a **Scegli…** i importar només les plantes (i viceversa) |
 
 Annulla, o l'aturada, deixen la base de dades tal com era. Si no es marca la casella, o si no hi ha proxies que es puguin fer servir, no es fa cap control i només s'importen les fitxes, com abans.
 
@@ -207,14 +207,14 @@ Des de la **5.13.135-alpha**. Després de la importació (§5.0, amb els mèdia 
     - la taula de les línies del lloc: **Taglia** (talla), **Sezione** (secció), **Descrizione** (descripció), **Area** (àrea), **Tratti** (trams), **Lunghezza (m)** (longitud) i el **Documento** (document) en què es convertirà.
 3. **Taglia** calcula i escriu, amb una barra de progrés; el resum diu quantes unitats ha tallat cada secció, les unitats omeses i per què, i les línies que ja tenien un altre document.
 
-**Com es llegeix una secció.** En coordenades del dibuix: **X = metres al llarg de la línia des del seu primer punt, Y = cota**. El primer punt queda a l'esquerra, de manera que, en una línia traçada d'oest a est, qui mira és al sud. El perfil d'una unitat és tot el que hi ha dins del seu contorn tallat. Les seccions queden a l'esquerra dels alçats (X negativa), a 10 m l'una de l'altra.
+**Com es llegeix una secció.** En coordenades del dibuix: **X = metres al llarg de la línia des del seu primer punt, Y = cota**. El primer punt (A) queda a l'esquerra, de manera que, en una línia traçada d'oest a est, qui mira és al sud; la nota del document diu a quina X es troba el punt A. La columna **Lunghezza (m)** és sempre en metres, encara que la capa de les seccions sigui en graus. El perfil d'una unitat és tot el que hi ha dins del seu contorn tallat. Les seccions queden a l'esquerra dels alçats (X negativa), a 10 m l'una de l'altra.
 
 **Documents i vincles.** Cada secció és un document **Sezione** (secció) —l'entrada del tesaurus en la llengua del plugin— amb el nom `3D-SEZ-<id_sezione>`, per exemple `3D-SEZ-A`. El mateix tipus i el mateix nom són:
 - als polígons;
 - a la llista **Documentazione** de la fitxa US;
 - i, si la línia encara no en tenia cap, també a la línia de secció. Així, la fitxa Documentazione carrega alhora la línia i les «UE verticals» de la secció. Una línia que ja té un altre document no es toca: el resum ho diu.
 
-**Refer una secció.** Tornar a executar l'ordre sobre la mateixa línia substitueix només aquella secció. Una línia desplaçada que ja no troba cap unitat perd la secció d'abans. Si el nom canvia (un **id_sezione** corregit, o una segona línia amb el mateix id, que fa que els noms passin a ser `3D-SEZ-A-<gid>`), la secció amb el nom antic desapareix i la línia pren el nou. Tornar a importar l'em.json amb plantes i alçats (§5.0.2) no toca les seccions.
+**Refer una secció.** Tornar a executar l'ordre sobre la mateixa línia substitueix només aquella secció i la deixa a la mateixa posició de la capa. Una línia desplaçada que ja no troba cap unitat perd la secció d'abans. Si el nom canvia (un **id_sezione** corregit, o una segona línia amb el mateix id, que fa que els noms passin a ser `3D-SEZ-A-<gid>`), la secció amb el nom antic desapareix i la línia pren el nou. Tornar a importar l'em.json amb plantes i alçats (§5.0.2) no toca les seccions.
 
 **Sistemes de referència.** Les línies es porten al sistema de l'em.json si la capa de les seccions en té un altre. Si la capa no té sistema (`-1`, com a la plantilla SQLite), les coordenades es prenen tal com són i el resum ho diu. L'ordre s'atura si el lloc no té cap em.json importat, si l'em.json no diu on és l'escena, si no s'ha triat cap línia, si cap unitat no té un model 3D que es pugui trobar (cal importar l'em.json amb els mèdia, o connectar el disc dels proxies) o si la capa dels dibuixos verticals no és mètrica. Una unitat que la línia travessa però el model de la qual no és tancat s'omet, i el resum diu «la sezione non si chiude (modello aperto)» (la secció no es tanca: model obert).
 

@@ -165,7 +165,7 @@ Les dessins verticaux sont en coordonnées du dessin : **X = mètres le long de 
 
     **Tutte** et **Nessuna** (toutes/aucune) cochent et décochent les cases ; **Conferma** (Confirmer) valide le choix. Si l'on n'ouvre pas la fenêtre, c'est le choix par défaut qui s'applique : toutes les unités dont le proxy est lisible, avec plan et élévation, sauf celles qui ont déjà un dessin fait à la main ; les quatre côtés ; le décalage Z de l'em.json.
 2. **Anteprima** (Aperçu) affiche en plus la ligne « Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica) » (Du 3D : … plans, … élévations du site, … élévations d'unités, calculés quand on clique sur Applica).
-3. **Applica** (Appliquer) écrit les fiches, puis les médias, puis les dessins, avec une barre de progression. Le résumé affiche en plus la ligne « Dal 3D: … », avec les unités ignorées et la raison.
+3. **Applica** (Appliquer) écrit les fiches, puis les médias, puis les dessins, avec une barre de progression. Le résumé affiche en plus la ligne « Dal 3D: … », avec les unités ignorées et la raison, y compris celles dont le modèle est introuvable ou illisible.
 
 **Le système de référence de la base de données.** Quand il y a des géométries à écrire, pyArchInit compare le système des deux couches avec celui de l'em.json avant d'écrire quoi que ce soit :
 
@@ -173,7 +173,7 @@ Les dessins verticaux sont en coordonnées du dessin : **X = mètres le long de 
 |---|---|
 | même EPSG que l'em.json | importe |
 | un autre système métrique (par exemple 3004) | demande « Converto le piante in EPSG:3004 del database? » (Convertir les plans dans l'EPSG:3004 de la base de données ?), avec **Converti** (Convertir) ou **Annulla** (Annuler). Les élévations ne sont jamais converties : elles sont en coordonnées du dessin |
-| en degrés (4326) ou sans système (-1) | s'arrête : recréer la base de données dans le système de l'em.json, ou décocher la case et n'importer que les fiches |
+| en degrés (4326) ou sans système (-1) | s'arrête : recréer la base de données dans le système de l'em.json, ou décocher la case et n'importer que les fiches. Le message indique quelle couche pose problème : s'il ne s'agit que de celle des dessins verticaux, on peut aussi décocher les élévations et les côtés dans **Scegli…** et n'importer que les plans (et inversement) |
 
 Annulla, ou l'arrêt, laissent la base de données telle qu'elle était. Si la case n'est pas cochée, ou s'il n'y a aucun proxy utilisable, aucun contrôle n'a lieu et seules les fiches sont importées, comme avant.
 
@@ -207,14 +207,14 @@ Depuis la **5.13.135-alpha**. Après l'importation (§5.0, avec les médias, ou 
     - le tableau des lignes du site : **Taglia** (couper), **Sezione** (coupe), **Descrizione** (description), **Area**, **Tratti** (tronçons), **Lunghezza (m)** (longueur) et le **Documento** (document) que deviendra chaque ligne.
 3. **Taglia** calcule et écrit, avec une barre de progression ; le résumé indique combien d'unités chaque coupe a coupées, les unités ignorées et pourquoi, ainsi que les lignes qui avaient déjà un autre document.
 
-**Lire une coupe.** En coordonnées du dessin : **X = mètres le long de la ligne depuis son premier point, Y = cote**. Le premier point est à gauche : pour une ligne tracée d'ouest en est, l'observateur se tient donc au sud. Le profil d'une unité est tout ce qui se trouve à l'intérieur de son contour coupé. Les coupes sont placées à gauche des élévations (X négatif), à 10 m l'une de l'autre.
+**Lire une coupe.** En coordonnées du dessin : **X = mètres le long de la ligne depuis son premier point, Y = cote**. Le premier point (A) est à gauche : pour une ligne tracée d'ouest en est, l'observateur se tient donc au sud ; la note du document indique à quel X se trouve le point A. La colonne **Lunghezza (m)** est toujours en mètres, même quand la couche des coupes est en degrés. Le profil d'une unité est tout ce qui se trouve à l'intérieur de son contour coupé. Les coupes sont placées à gauche des élévations (X négatif), à 10 m l'une de l'autre.
 
 **Documents et liens.** Chaque coupe est un document de type **Sezione** (coupe), tel que le nomme le thésaurus dans la langue du plugin, avec le nom `3D-SEZ-<id_sezione>`, par exemple `3D-SEZ-A`. Le même type et le même nom figurent :
 - sur les polygones ;
 - dans la liste **Documentazione** de la fiche US ;
 - et, si la ligne n'en avait pas déjà un, sur la ligne de coupe aussi. Ainsi, la fiche Documentazione charge ensemble la ligne et les « US verticales » de la coupe. Une ligne qui a déjà un autre document n'est pas touchée : le résumé le signale.
 
-**Refaire une coupe.** Relancer la commande sur la même ligne ne remplace que cette coupe. Une ligne déplacée qui ne rencontre plus aucune unité perd sa coupe précédente. Si le nom change (un **id_sezione** corrigé, ou une deuxième ligne avec le même id, ce qui fait passer les noms à `3D-SEZ-A-<gid>`), la coupe portant l'ancien nom est supprimée et la ligne prend le nouveau. Réimporter l'em.json avec plans et élévations (§5.0.2) ne touche pas aux coupes.
+**Refaire une coupe.** Relancer la commande sur la même ligne ne remplace que cette coupe et la laisse à sa place dans la couche. Une ligne déplacée qui ne rencontre plus aucune unité perd sa coupe précédente. Si le nom change (un **id_sezione** corrigé, ou une deuxième ligne avec le même id, ce qui fait passer les noms à `3D-SEZ-A-<gid>`), la coupe portant l'ancien nom est supprimée et la ligne prend le nouveau. Réimporter l'em.json avec plans et élévations (§5.0.2) ne touche pas aux coupes.
 
 **Systèmes de référence.** Les lignes sont converties dans le système de l'em.json si la couche des coupes en a un autre. Si la couche n'a pas de système (`-1`, comme dans le template SQLite), les coordonnées sont prises telles quelles, et le résumé le signale. La commande s'arrête si le site n'a pas d'em.json importé, si l'em.json n'indique pas où se trouve la scène, si aucune ligne n'est choisie, si aucune unité n'a de modèle 3D que l'on puisse trouver (importer l'em.json avec les médias, ou connecter le disque des proxys) ou si la couche des dessins verticaux n'est pas métrique. Une unité que la ligne traverse mais dont le modèle n'est pas fermé est ignorée, et le résumé indique « la sezione non si chiude (modello aperto) » (la coupe ne se ferme pas : modèle ouvert).
 

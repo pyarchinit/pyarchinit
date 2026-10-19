@@ -165,7 +165,7 @@ Os desenhos verticais estão em coordenadas do desenho: **X = metros ao longo da
 
     **Tutte** e **Nessuna** (todas/nenhuma) assinalam e desmarcam as caixas; **Conferma** (Confirmar) guarda a escolha. Se não abrires a janela, vale a escolha predefinida: todas as unidades com um proxy legível, com planta e alçado, exceto as que já têm um desenho feito à mão; os quatro lados; o deslocamento Z do em.json.
 2. **Anteprima** (Pré-visualização) acrescenta a linha «Dal 3D: … piante, … prospetti del sito, … prospetti di unità (si calcolano all'Applica)» (Do 3D: … plantas, … alçados do sítio, … alçados de unidades; calculam-se ao aplicar).
-3. **Applica** (Aplicar) escreve as fichas, depois os media e por fim os desenhos, com uma barra de progresso. O resumo acrescenta a linha «Dal 3D: …», com as unidades ignoradas e o motivo.
+3. **Applica** (Aplicar) escreve as fichas, depois os media e por fim os desenhos, com uma barra de progresso. O resumo acrescenta a linha «Dal 3D: …», com as unidades ignoradas e o motivo, incluindo aquelas cujo modelo não se encontra ou não se consegue ler.
 
 **O sistema de referência da base de dados.** Se houver geometrias para escrever, o pyArchInit compara o sistema das duas camadas com o do em.json antes de escrever seja o que for:
 
@@ -173,7 +173,7 @@ Os desenhos verticais estão em coordenadas do desenho: **X = metros ao longo da
 |---|---|
 | o mesmo EPSG do em.json | importa |
 | outro sistema métrico (por exemplo 3004) | pergunta «Converto le piante in EPSG:3004 del database?» (Converto as plantas para o EPSG:3004 da base de dados?), com **Converti** (Converter) ou **Annulla** (Cancelar). Os alçados nunca são convertidos: estão em coordenadas do desenho |
-| em graus (4326) ou sem sistema (-1) | interrompe-se: recria a base de dados no sistema do em.json, ou retira a marca da caixa e importa só as fichas |
+| em graus (4326) ou sem sistema (-1) | interrompe-se: recria a base de dados no sistema do em.json, ou retira a marca da caixa e importa só as fichas. A mensagem diz qual é a camada que não serve: se for só a dos desenhos verticais, podes também desmarcar os alçados e os lados em **Scegli…** e importar só as plantas (e vice-versa) |
 
 Se escolheres Annulla, ou se a importação se interromper, a base de dados fica como estava. Sem a caixa, ou sem proxies utilizáveis, não há nenhuma verificação e importam-se só as fichas, como antes.
 
@@ -207,14 +207,14 @@ Desde a **5.13.135-alpha**. Depois da importação (§5.0, com os media ou com a
     - a tabela das linhas do sítio: **Taglia** (cortar), **Sezione** (secção), **Descrizione** (descrição), **Area** (área), **Tratti** (troços), **Lunghezza (m)** (comprimento) e o **Documento** em que se tornará.
 3. **Taglia** calcula e escreve, com uma barra de progresso; o resumo diz quantas unidades cortou cada secção, as unidades ignoradas e o motivo, e as linhas que já tinham outro documento.
 
-**Como se lê uma secção.** Em coordenadas do desenho: **X = metros ao longo da linha a partir do seu primeiro ponto, Y = cota**. O primeiro ponto fica à esquerda, por isso numa linha traçada de oeste para este quem observa está a sul. O perfil de uma unidade é tudo o que fica dentro do seu contorno cortado. As secções ficam à esquerda dos alçados (X negativo), a 10 m umas das outras.
+**Como se lê uma secção.** Em coordenadas do desenho: **X = metros ao longo da linha a partir do seu primeiro ponto, Y = cota**. O primeiro ponto (A) fica à esquerda, por isso numa linha traçada de oeste para este quem observa está a sul; a nota do documento diz em que X fica o ponto A. A coluna **Lunghezza (m)** está sempre em metros, mesmo que a camada das secções esteja em graus. O perfil de uma unidade é tudo o que fica dentro do seu contorno cortado. As secções ficam à esquerda dos alçados (X negativo), a 10 m umas das outras.
 
 **Documentos e ligações.** Cada secção é um documento **Sezione** (secção; o termo do tesauro na língua do plugin) com o nome `3D-SEZ-<id_sezione>`, por exemplo `3D-SEZ-A`. O mesmo tipo e o mesmo nome estão:
 - nos polígonos;
 - na lista **Documentazione** (Documentação) da ficha UE;
 - e, se a linha ainda não tinha um, também na linha de secção. Assim, a ficha Documentazione carrega em conjunto a linha e as «UE verticais» da secção. Uma linha que já tem outro documento não é tocada: o resumo di-lo.
 
-**Refazer uma secção.** Voltar a executar o comando sobre a mesma linha substitui só essa secção. Uma linha deslocada que já não encontra nenhuma unidade perde a secção anterior. Se o nome mudar (um **id_sezione** corrigido, ou uma segunda linha com o mesmo id, que faz os nomes passarem a `3D-SEZ-A-<gid>`), a secção com o nome antigo desaparece e a linha fica com o novo. Reimportar o em.json com plantas e alçados (§5.0.2) não mexe nas secções.
+**Refazer uma secção.** Voltar a executar o comando sobre a mesma linha substitui só essa secção e deixa-a no mesmo lugar na camada. Uma linha deslocada que já não encontra nenhuma unidade perde a secção anterior. Se o nome mudar (um **id_sezione** corrigido, ou uma segunda linha com o mesmo id, que faz os nomes passarem a `3D-SEZ-A-<gid>`), a secção com o nome antigo desaparece e a linha fica com o novo. Reimportar o em.json com plantas e alçados (§5.0.2) não mexe nas secções.
 
 **Sistemas de referência.** As linhas são levadas para o sistema do em.json, se a camada das secções tiver outro. Se a camada não tiver sistema (`-1`, como no modelo SQLite), as coordenadas são usadas tal como estão e o resumo di-lo. O comando interrompe-se se o sítio não tiver um em.json importado, se o em.json não disser onde está a cena, se não tiver sido escolhida nenhuma linha, se nenhuma unidade tiver um modelo 3D que se encontre (importa o em.json com os media, ou liga o disco dos proxies) ou se a camada dos desenhos verticais não for métrica. Uma unidade que a linha atravessa mas cujo modelo não é fechado é ignorada, e o resumo diz «la sezione non si chiude (modello aperto)» (a secção não fecha: modelo aberto).
 
