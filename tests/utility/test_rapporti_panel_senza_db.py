@@ -38,9 +38,16 @@ def _db(tmp_path):
     return "sqlite:///%s" % p
 
 
+def _apri(pannello):
+    """La scheda che si apre: il pannello legge i siti solo allora."""
+    from qgis.PyQt.QtGui import QShowEvent
+    pannello.showEvent(QShowEvent())
+    return pannello
+
+
 def test_senza_database_nessun_avviso_e_i_pulsanti_spenti(avvisi):
     from gui.rapporti_check_dialog import RapportiCheckPanel
-    pannello = RapportiCheckPanel(db_provider=lambda: None)
+    pannello = _apri(RapportiCheckPanel(db_provider=lambda: None))
     assert avvisi == []
     assert "database" in pannello.lblStato.text().lower()
     assert not pannello.lblStato.isHidden()
@@ -59,14 +66,44 @@ def test_quando_il_database_c_e_i_siti_si_rileggono(avvisi, tmp_path):
     assert avvisi == []
 
 
-def test_la_scheda_si_rilegge_quando_si_apre(avvisi, tmp_path):
-    from qgis.PyQt.QtGui import QShowEvent
+def test_riprova_rilegge_i_siti(avvisi, tmp_path):
     from gui.rapporti_check_dialog import RapportiCheckPanel
     db = {"x": None}
-    pannello = RapportiCheckPanel(db_provider=lambda: db["x"])
+    pannello = _apri(RapportiCheckPanel(db_provider=lambda: db["x"]))
+    assert not pannello.btnRiprova.isHidden()
     db["x"] = _db(tmp_path)
-    pannello.showEvent(QShowEvent())
+    pannello.btnRiprova.click()
     assert pannello.cboSite.count() == 1 and pannello.btnRun.isEnabled()
+    assert pannello.btnRiprova.isHidden()
+
+
+def test_il_pannello_non_legge_niente_finche_la_scheda_non_si_apre(avvisi, tmp_path):
+    """La finestra Extended Matrix si apre sulla scheda Import: il pannello
+    non deve collegarsi al database (con un server spento, 75 s fermi)."""
+    from gui.rapporti_check_dialog import RapportiCheckPanel
+    letture = []
+    percorso = _db(tmp_path)
+    pannello = RapportiCheckPanel(db_provider=lambda: letture.append(1) or percorso)
+    assert letture == []
+    _apri(pannello)
+    assert letture == [1] and pannello.cboSite.count() == 1
+    _apri(pannello)
+    assert letture == [1]                       # già letti: non si rilegge
+
+
+def test_dopo_un_errore_di_connessione_la_scheda_non_riprova_da_sola(avvisi):
+    """Un server che non risponde: un tentativo quando la scheda si apre,
+    poi solo con «Riprova» (ogni tentativo può tenere QGIS fermo)."""
+    from gui.rapporti_check_dialog import RapportiCheckPanel
+    tentativi = []
+    spento = "postgresql://utente:prova@127.0.0.1:59999/spento"
+    pannello = _apri(RapportiCheckPanel(db_provider=lambda: tentativi.append(1) or spento))
+    assert len(tentativi) == 1 and not pannello.btnRun.isEnabled()
+    _apri(pannello)
+    _apri(pannello)
+    assert len(tentativi) == 1
+    pannello.btnRiprova.click()
+    assert len(tentativi) == 2 and avvisi == []
 
 
 def test_il_messaggio_e_nelle_sei_lingue():
@@ -88,7 +125,7 @@ def test_un_database_che_non_si_legge_lo_dice_con_parole_sue(avvisi, tmp_path, m
     monkeypatch.setattr(dlg, "_qgis_lang", lambda: "it")
     vuoto = tmp_path / "vuoto.sqlite"
     sqlite3.connect(vuoto).close()                      # c'è, ma senza us_table
-    pannello = dlg.RapportiCheckPanel(db_provider=lambda: "sqlite:///%s" % vuoto)
+    pannello = _apri(dlg.RapportiCheckPanel(db_provider=lambda: "sqlite:///%s" % vuoto))
     testo = pannello.lblStato.text()
     assert "non si legge" in testo and "Nessun database" not in testo
     assert "((" not in testo and "us_table" in testo

@@ -446,7 +446,10 @@ class Pyarchinit_db_management(object):
                         }
                     )
                 else:
-                    # Configurazione per database locali
+                    # Configurazione per database locali (o di un istituto).
+                    # connect_timeout: un server che non risponde terrebbe
+                    # QGIS fermo per il tempo massimo del sistema (75 s su
+                    # macOS) a ogni tentativo.
                     self.engine = create_engine(
                         self.conn_str, 
                         echo=self.boolean,
@@ -454,9 +457,16 @@ class Pyarchinit_db_management(object):
                         max_overflow=10,
                         pool_timeout=30,
                         pool_recycle=3600,
-                        pool_pre_ping=True
+                        pool_pre_ping=True,
+                        connect_args={"connect_timeout": 10}
                     )
                 
+                # Prima di tutto la connessione: con un server che non
+                # risponde, l'aggiornamento qui sotto farebbe decine di
+                # tentativi (uno per ogni controllo), con QGIS fermo.
+                with self.engine.connect() as prova:
+                    prova.exec_driver_sql("SELECT 1")
+
                 # Check and update PostgreSQL database if needed
                 # Only run once per session per connection string
                 db_check_key = f"pg_{self.conn_str}"

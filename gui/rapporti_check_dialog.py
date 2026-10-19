@@ -53,8 +53,11 @@ class RapportiCheckPanel(QWidget):
         self._chrono_bounds = {}
         self._chrono_errore = None
         self._sites_failed = False
+        self._sites_loaded = False
         self._build_ui()
-        self._load_sites()
+        # I siti si leggono quando la scheda si apre (showEvent), non qui: la
+        # finestra Extended Matrix si apre sulla scheda Import, e con un
+        # server che non risponde ogni tentativo tiene QGIS fermo.
 
     # -- db plumbing (backend-agnostic) ------------------------------------
     def _handle(self):
@@ -103,10 +106,16 @@ class RapportiCheckPanel(QWidget):
         top.addWidget(self.chkPhases)
         lay.addLayout(top)
         # Senza database lo si dice qui, non con un avviso modale (vedi _load_sites).
+        stato = QHBoxLayout()
         self.lblStato = QLabel("")
         self.lblStato.setWordWrap(True)
         self.lblStato.setHidden(True)
-        lay.addWidget(self.lblStato)
+        stato.addWidget(self.lblStato, 1)
+        self.btnRiprova = QPushButton("Riprova")
+        self.btnRiprova.setHidden(True)
+        self.btnRiprova.clicked.connect(self._load_sites)
+        stato.addWidget(self.btnRiprova)
+        lay.addLayout(stato)
 
         split = QSplitter(Qt.Vertical)
         self.tree = QTreeWidget()
@@ -159,13 +168,16 @@ class RapportiCheckPanel(QWidget):
             self.lblStato.setText(testo)
             self.lblStato.setToolTip(str(exc))
             self.lblStato.setHidden(False)
+            self.btnRiprova.setHidden(False)
             for b in (self.btnRun, self.btnContinuity, self.btnApply):
                 b.setEnabled(False)
             return False
         self._sites_failed = False
+        self._sites_loaded = True
         self.lblStato.setText("")
         self.lblStato.setToolTip("")
         self.lblStato.setHidden(True)
+        self.btnRiprova.setHidden(True)
         scelto = self.cboSite.currentText()
         self.cboSite.clear()
         self.cboSite.addItems([str(r[0]) for r in rows])
@@ -176,9 +188,11 @@ class RapportiCheckPanel(QWidget):
         return True
 
     def showEvent(self, event):
-        """La scheda che si apre rilegge i siti, se la prima volta non c'erano."""
+        """La prima volta che la scheda si apre, i siti. Dopo un errore non
+        si riprova da soli (un server che non risponde terrebbe QGIS fermo a
+        ogni apertura): c'è «Riprova»."""
         super().showEvent(event)
-        if self._sites_failed:
+        if not self._sites_loaded and not self._sites_failed:
             self._load_sites()
 
     def select_sito(self, sito):
@@ -186,7 +200,7 @@ class RapportiCheckPanel(QWidget):
         focus the verifica on the site just imported)."""
         if not sito:
             return
-        if self._sites_failed:
+        if not self._sites_loaded:          # dopo un import il database risponde
             self._load_sites()
         idx = self.cboSite.findText(str(sito))
         if idx >= 0:

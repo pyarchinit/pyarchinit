@@ -3007,7 +3007,8 @@ class PyArchInitPlugin(object):
         try:
             conn_str = Connection().conn_str()
             db = Pyarchinit_db_management(conn_str)
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
             sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
         except Exception as e:
             QMessageBox.warning(self.iface.mainWindow(), "em.json",
@@ -3089,7 +3090,8 @@ class PyArchInitPlugin(object):
         try:
             conn = Connection()
             db = Pyarchinit_db_management(conn.conn_str())
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
             sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
         except Exception as e:
             QMessageBox.warning(self.iface.mainWindow(), titolo,
@@ -3185,7 +3187,8 @@ class PyArchInitPlugin(object):
         try:
             conn_str = Connection().conn_str()
             db = Pyarchinit_db_management(conn_str)
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
             sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
         except Exception as e:
             QMessageBox.warning(self.iface.mainWindow(), titolo,
@@ -3286,7 +3289,8 @@ class PyArchInitPlugin(object):
         from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
         try:
             db = Pyarchinit_db_management(Connection().conn_str())
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
         except Exception as e:                      # noqa: BLE001
             QMessageBox.warning(self.iface.mainWindow(), "em.json",
                                 "Connessione al database fallita:\n%s" % e)
@@ -3319,7 +3323,8 @@ class PyArchInitPlugin(object):
         try:
             conn_str = Connection().conn_str()
             db = Pyarchinit_db_management(conn_str)
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
             sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
         except Exception as e:                      # noqa: BLE001
             QMessageBox.warning(self.iface.mainWindow(), "Matrice",
@@ -3446,7 +3451,8 @@ class PyArchInitPlugin(object):
         try:
             conn_str = Connection().conn_str()
             db = Pyarchinit_db_management(conn_str)
-            db.connection()
+            if db.connection() is False:
+                return              # connection() ha già detto perché
             sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
         except Exception as e:
             QMessageBox.warning(self.iface.mainWindow(), "Stanza",
