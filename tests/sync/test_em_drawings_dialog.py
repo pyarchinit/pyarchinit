@@ -60,8 +60,9 @@ BRIDGE = (PLUGIN_ROOT / "modules" / "s3dgraphy" / "s3dgraphy_dot_bridge.py").rea
 
 
 def test_la_scheda_import_ha_la_casella_spenta(monkeypatch):
-    # Senza database il pannello «Verifica rapporti» apre un avviso modale:
-    # senza schermo aspetterebbe per sempre.
+    # Fino alla 5.13.135, senza database il pannello «Verifica rapporti»
+    # apriva un avviso modale (senza schermo aspetterebbe per sempre); ora lo
+    # dice dentro il pannello. Gli avvisi restano spenti per prudenza.
     from qgis.PyQt.QtWidgets import QMessageBox
     for nome in ("warning", "critical", "information"):
         monkeypatch.setattr(QMessageBox, nome, staticmethod(lambda *a, **k: None))

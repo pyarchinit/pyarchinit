@@ -120,6 +120,23 @@ def next_id(conn, table, pk_name):
     return (value or 0) + 1
 
 
+# Le tabelle con gli id scritti MAX + 1: alla fine i loro contatori su
+# PostgreSQL si rimettono in pari (vedi ``db_sequences``), o il primo record
+# fatto dopo con l'id di default (un poligono disegnato in QGIS) prenderebbe
+# un id già usato.
+SEQUENCED_IDS = (("us_table", "id_us"), ("inventario_materiali_table", "id_invmat"),
+                 ("pyunitastratigrafiche", "gid"), ("pyarchinit_quote", "gid"),
+                 ("media_table", "id_media"), ("media_to_entity_table", "id_mediaToEntity"),
+                 ("media_to_entity_table", "id_media_to_entity"))
+
+
+def sync_id_sequences(conn, pairs=SEQUENCED_IDS):
+    """Su PostgreSQL, i contatori delle colonne ``pairs`` oltre il massimo
+    (quelle che non ci sono si saltano); su SQLite niente."""
+    from .db_sequences import sync_sequence
+    return [f"{t}.{c}" for t, c in pairs if sync_sequence(conn, t, c)]
+
+
 def row_payload(row, table, exclude=()):
     """Interseca i campi del GPKG con le colonne reali della tabella DB,
     scartando None/stringhe vuote e le colonne escluse."""
@@ -819,6 +836,7 @@ def make_thumbnails(engine, inserted_media, thumb_path_str, thumb_resize_str,
             except Exception as e:
                 result.thumbs.errors += 1
                 log_fn(f"  ! Thumbnail id_media={m['id_media']}: {e}")
+        sync_id_sequences(conn, (("media_thumb_table", "id_media_thumb"),))
 
 
 # --------------------------------------------------------------------------
@@ -990,6 +1008,8 @@ def _run_qfield_import_on_dir(db, qfield_dir, *, sito=None, srid=None, dry_run=T
                 log("\nDRY RUN completato: rollback della transazione.")
                 transaction.rollback()
             else:
+                for nome in sync_id_sequences(conn):
+                    log(f"  contatore di {nome} rimesso in pari")
                 transaction.commit()
         except Exception:
             transaction.rollback()

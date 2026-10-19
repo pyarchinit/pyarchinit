@@ -602,6 +602,15 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
         # in QGIS prenderebbe un gid già usato.
         gid_da_se = {l: _auto_id(conn, l, "gid") for l in gid}
         doc_da_se = _auto_id(conn, "documentazione_table", "id_documentazione")
+        # Le schede scrivono gli id MAX + 1 e il contatore non si muove: prima
+        # di usare l'id di default va portato oltre il massimo, o il primo
+        # documento (o poligono) prenderebbe un id già usato.
+        from ...utility.db_sequences import sync_sequence
+        for l in gid:
+            if gid_da_se[l]:
+                sync_sequence(conn, l, "gid")
+        if doc_da_se:
+            sync_sequence(conn, "documentazione_table", "id_documentazione")
         for d in drawings:
             if not d.features or not colonne.get(d.layer):
                 continue
@@ -728,20 +737,12 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                 esito.pairs_updated += 1
         if after is not None:
             after(conn, esito)
-        if is_pg:
-            # Gli id sono scritti espliciti (MAX + 1): la sequenza va rimessa
-            # in pari, o il primo poligono disegnato in QGIS prenderebbe un
-            # gid già usato.
-            for tabella, chiave in ((PLAN_LAYER, "gid"), (VERTICAL_LAYER, "gid"),
-                                    ("documentazione_table", "id_documentazione")):
-                try:
-                    with conn.begin_nested():
-                        conn.execute(text(
-                            "SELECT setval(pg_get_serial_sequence(:t, :c), "
-                            "(SELECT COALESCE(MAX(%s), 0) + 1 FROM %s), false)" % (chiave, tabella)),
-                            {"t": tabella, "c": chiave})
-                except Exception:                           # noqa: BLE001
-                    pass
+        # Gli id scritti espliciti (MAX + 1, dove non c'è un default): il
+        # contatore va rimesso in pari, o il primo poligono disegnato in QGIS
+        # prenderebbe un gid già usato. Su SQLite non fa niente.
+        for tabella, chiave in ((PLAN_LAYER, "gid"), (VERTICAL_LAYER, "gid"),
+                                ("documentazione_table", "id_documentazione")):
+            sync_sequence(conn, tabella, chiave)
     return esito
 
 

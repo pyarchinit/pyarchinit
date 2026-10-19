@@ -28,6 +28,9 @@ _DDL = [
     "nome_doc text, data text, tipo_documentazione text, sorgente text, scala text, "
     "disegnatore text, note text, entity_uuid text)",
     "ALTER SEQUENCE documentazione_table_id_documentazione_seq OWNED BY documentazione_table.id_documentazione",
+    # riga 2577 dello schema: l'id ha il DEFAULT della sequenza
+    "ALTER TABLE ONLY documentazione_table ALTER COLUMN id_documentazione SET DEFAULT "
+    "nextval('documentazione_table_id_documentazione_seq'::regclass)",
 ]
 # Le sequenze dei gid NON sono OWNED BY la colonna (pg_get_serial_sequence dà NULL)
 # e partono da 61400, come nello schema che crea il plugin.
@@ -105,3 +108,39 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
     with pg_schema.begin() as conn:
         for tabella in ("pyunitastratigrafiche", "pyunitastratigrafiche_usm"):
             conn.execute(text("INSERT INTO %s (scavo_s) VALUES ('a mano')" % tabella))
+
+
+def test_su_postgis_con_documenti_e_poligoni_scritti_a_mano(pg_schema, tmp_path):
+    """Nel database vero la scheda Documentazione scrive gli id MAX + 1 e il
+    contatore non si muove; un vecchio import da QField ha scritto dei gid
+    a mano dopo quello disegnato in QGIS. I disegni ricavati, che usano l'id
+    di default, non devono prendere un id già usato."""
+    from sqlalchemy import text
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    from tests.sync.test_em_drawings_import import SITO, make_project
+    p = make_project(tmp_path)
+    with pg_schema.begin() as conn:
+        for nid, us in (("u1", "001"), ("u2", "002")):
+            conn.execute(text("INSERT INTO us_table (sito, area, us, unita_tipo, node_uuid, documentazione) "
+                              "VALUES (:s, '1', :u, 'US', :n, '[]')"), {"s": SITO, "u": us, "n": nid})
+        for i in (1, 2, 3):                                  # come la scheda: MAX + 1
+            conn.execute(text("INSERT INTO documentazione_table (id_documentazione, sito, nome_doc, "
+                              "tipo_documentazione) VALUES (:i, :s, :n, 'Fotografia')"),
+                         {"i": i, "s": SITO, "n": "F%d" % i})
+        conn.execute(text("INSERT INTO pyunitastratigrafiche (scavo_s, area_s, us_s) VALUES (:s, '9', '1')"),
+                     {"s": SITO})                            # disegnato in QGIS: 61400
+        conn.execute(text("INSERT INTO pyunitastratigrafiche (gid, scavo_s, area_s, us_s) VALUES "
+                          "(61401, :s, '9', '2'), (61402, :s, '9', '3')"), {"s": SITO})
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=pg_schema, sito=SITO)
+    geo = drw.georef_of(p["grafo"])
+    scelta = edi.default_choice(unita, geo)
+    esito = edi.run_drawings(pg_schema, p["grafo"], SITO, str(p["em"]), units=unita, choice=scelta,
+                             georef=geo, decision=edi.crs_decision(pg_schema, geo, scelta), lang="it")
+    assert (esito.plans, esito.side_views, esito.unit_views) == (2, 4, 2)
+    assert not [w for w in esito.warnings if "duplicate" in w.lower()]
+    with pg_schema.connect() as conn:
+        assert conn.execute(text("SELECT count(*) FROM documentazione_table WHERE sito = :s AND "
+                                 "nome_doc LIKE '3D-%'"), {"s": SITO}).scalar() == 7
+        assert conn.execute(text("SELECT MIN(gid) FROM pyunitastratigrafiche WHERE nome_doc = '3D-PLA'")
+                            ).scalar() > 61402

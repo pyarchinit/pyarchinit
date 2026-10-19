@@ -52,6 +52,7 @@ class RapportiCheckPanel(QWidget):
         self._token = None
         self._chrono_bounds = {}
         self._chrono_errore = None
+        self._sites_failed = False
         self._build_ui()
         self._load_sites()
 
@@ -59,7 +60,10 @@ class RapportiCheckPanel(QWidget):
     def _handle(self):
         if self._db_provider is not None:
             from s3dgraphy.sync._db_handle import _resolve_db_handle
-            return _resolve_db_handle(self._db_provider())
+            db = self._db_provider()
+            if db is None:
+                raise LookupError("nessun database collegato")
+            return _resolve_db_handle(db)
         from modules.db.pyarchinit_conn_strings import Connection
         from modules.db.pyarchinit_db_manager import get_db_manager
         from s3dgraphy.sync._db_handle import _resolve_db_handle
@@ -98,6 +102,11 @@ class RapportiCheckPanel(QWidget):
             "fase — non è mai una continuità.")
         top.addWidget(self.chkPhases)
         lay.addLayout(top)
+        # Senza database lo si dice qui, non con un avviso modale (vedi _load_sites).
+        self.lblStato = QLabel("")
+        self.lblStato.setWordWrap(True)
+        self.lblStato.setHidden(True)
+        lay.addWidget(self.lblStato)
 
         split = QSplitter(Qt.Vertical)
         self.tree = QTreeWidget()
@@ -125,6 +134,13 @@ class RapportiCheckPanel(QWidget):
         lay.addLayout(btns)
 
     def _load_sites(self):
+        """I siti del database nel selettore; True se si sono letti.
+
+        Il pannello si costruisce dentro la finestra Extended Matrix, prima
+        che si veda: senza database (la finestra aperta senza, o un database
+        che non risponde) un avviso modale si apriva da solo, davanti a una
+        finestra che non c'era ancora. Ora lo dice qui dentro, spegne i
+        pulsanti e riprova quando la scheda si apre o dopo un import."""
         try:
             from sqlalchemy import text
             handle = self._handle()
@@ -133,17 +149,43 @@ class RapportiCheckPanel(QWidget):
                     "SELECT DISTINCT sito FROM us_table "
                     "WHERE sito IS NOT NULL AND sito <> '' ORDER BY sito")
                 ).fetchall()
-            self.cboSite.clear()
-            self.cboSite.addItems([str(r[0]) for r in rows])
-        except Exception as exc:  # pragma: no cover - UI guard
-            QMessageBox.warning(self, "pyArchInit",
-                                f"Impossibile leggere i siti: {exc}")
+        except Exception as exc:
+            self._sites_failed = True
+            testo = RC._t(self._lang, "m_no_database")
+            if not isinstance(exc, LookupError):
+                testo += "\n(%s)" % str(exc).splitlines()[0][:200] if str(exc) else ""
+            self.lblStato.setText(testo)
+            self.lblStato.setToolTip(str(exc))
+            self.lblStato.setHidden(False)
+            for b in (self.btnRun, self.btnContinuity, self.btnApply):
+                b.setEnabled(False)
+            return False
+        self._sites_failed = False
+        self.lblStato.setText("")
+        self.lblStato.setToolTip("")
+        self.lblStato.setHidden(True)
+        scelto = self.cboSite.currentText()
+        self.cboSite.clear()
+        self.cboSite.addItems([str(r[0]) for r in rows])
+        if scelto and self.cboSite.findText(scelto) >= 0:
+            self.cboSite.setCurrentText(scelto)
+        for b in (self.btnRun, self.btnContinuity, self.btnApply):
+            b.setEnabled(True)
+        return True
+
+    def showEvent(self, event):
+        """La scheda che si apre rilegge i siti, se la prima volta non c'erano."""
+        super().showEvent(event)
+        if self._sites_failed:
+            self._load_sites()
 
     def select_sito(self, sito):
         """Pre-select *sito* in the picker (used by the import dialog to
         focus the verifica on the site just imported)."""
         if not sito:
             return
+        if self._sites_failed:
+            self._load_sites()
         idx = self.cboSite.findText(str(sito))
         if idx >= 0:
             self.cboSite.setCurrentIndex(idx)

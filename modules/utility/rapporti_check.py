@@ -304,6 +304,7 @@ _L = {
                                  "Periodizzazione",
         "s_epoch_no_dates": "Fase {fase}: nessun anno leggibile in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datazione «{corrente}» invece di «{atteso}»",
+        "m_no_database": "Nessun database da verificare: apri un database pyArchInit e riapri questa finestra.",
         "m_site_changed": "Il sito è cambiato: l'albero mostra la verifica di «{atteso}», il "
                           "selettore dice «{scelto}». Esegui di nuovo la verifica "
                           "sul sito che vuoi correggere — le spunte restano.",
@@ -354,6 +355,7 @@ _L = {
                                  "({nini} → {nfin}). Check it in the Periodization form",
         "s_epoch_no_dates": "Phase {fase}: no readable year in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}): dating «{corrente}» instead of «{atteso}»",
+        "m_no_database": "No database to check: open a pyArchInit database and reopen this window.",
         "m_site_changed": "The site has changed: the tree shows the check of «{atteso}», the "
                           "picker says «{scelto}». Run the check again on the site "
                           "you want to fix — the ticks stay.",
@@ -404,6 +406,7 @@ _L = {
                                  "Periodisierungsformular prüfen",
         "s_epoch_no_dates": "Phase {fase}: kein lesbares Jahr in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (Phase {fase}): Datierung «{corrente}» statt «{atteso}»",
+        "m_no_database": "Keine Datenbank zu prüfen: eine pyArchInit-Datenbank öffnen und dieses Fenster erneut öffnen.",
         "m_site_changed": "Die Fundstelle hat sich geändert: der Baum zeigt die Prüfung von "
                           "«{atteso}», die Auswahl sagt «{scelto}». Die Prüfung erneut "
                           "auf der zu korrigierenden Fundstelle ausführen — die Haken "
@@ -456,6 +459,7 @@ _L = {
                                  "Compruébalo en la ficha Periodización",
         "s_epoch_no_dates": "Fase {fase}: ningún año legible en cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datación «{corrente}» en vez de «{atteso}»",
+        "m_no_database": "No hay ninguna base de datos que verificar: abre una base de datos de pyArchInit y vuelve a abrir esta ventana.",
         "m_site_changed": "El sitio ha cambiado: el árbol muestra la verificación de "
                           "«{atteso}», el selector dice «{scelto}». Vuelve a ejecutar "
                           "la verificación en el sitio que quieres corregir — las "
@@ -509,6 +513,7 @@ _L = {
                                  "dans la fiche Périodisation",
         "s_epoch_no_dates": "Phase {fase} : aucune année lisible dans cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}) : datation «{corrente}» au lieu de «{atteso}»",
+        "m_no_database": "Aucune base de données à vérifier : ouvrez une base de données pyArchInit et rouvrez cette fenêtre.",
         "m_site_changed": "Le site a changé : l'arbre montre la vérification de «{atteso}», "
                           "le sélecteur indique «{scelto}». Relancez la vérification "
                           "sur le site à corriger — les cases cochées restent.",
@@ -560,6 +565,7 @@ _L = {
                                  "Periodização",
         "s_epoch_no_dates": "Fase {fase}: nenhum ano legível em cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datação «{corrente}» em vez de «{atteso}»",
+        "m_no_database": "Nenhuma base de dados para verificar: abra uma base de dados pyArchInit e volte a abrir esta janela.",
         "m_site_changed": "O sítio mudou: a árvore mostra a verificação de «{atteso}», o "
                           "seletor diz «{scelto}». Execute a verificação de novo no "
                           "sítio que quer corrigir — as marcas mantêm-se.",
