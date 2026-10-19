@@ -132,9 +132,27 @@ SEQUENCED_IDS = (("us_table", "id_us"), ("inventario_materiali_table", "id_invma
 
 def sync_id_sequences(conn, pairs=SEQUENCED_IDS):
     """Su PostgreSQL, i contatori delle colonne ``pairs`` oltre il massimo
-    (quelle che non ci sono si saltano); su SQLite niente."""
-    from .db_sequences import sync_sequence
-    return [f"{t}.{c}" for t, c in pairs if sync_sequence(conn, t, c)]
+    (quelle che non ci sono si saltano); su SQLite niente. Torna i nomi
+    ``tabella.colonna`` spostati e quelli rimasti indietro."""
+    from . import db_sequences as dbs
+    spostati, indietro = [], []
+    for t, c in pairs:
+        stato = dbs.sync_sequence_state(conn, t, c)
+        if stato == dbs.MOVED:
+            spostati.append(f"{t}.{c}")
+        elif stato == dbs.FAILED:
+            indietro.append(f"{t}.{c}")
+    return spostati, indietro
+
+
+def _warn_behind(names, result, log_fn):
+    for nome in names:
+        msg = (f"Il contatore degli id di {nome} è rimasto indietro e il database non lascia "
+               "spostarlo: un record nuovo con l'id di default (un poligono disegnato in QGIS) "
+               "potrebbe trovare un doppione. Chi amministra il database può dare il permesso "
+               "UPDATE sulla sequenza.")
+        result.warnings.append(msg)
+        log_fn(f"  ! {msg}")
 
 
 def row_payload(row, table, exclude=()):
@@ -836,7 +854,8 @@ def make_thumbnails(engine, inserted_media, thumb_path_str, thumb_resize_str,
             except Exception as e:
                 result.thumbs.errors += 1
                 log_fn(f"  ! Thumbnail id_media={m['id_media']}: {e}")
-        sync_id_sequences(conn, (("media_thumb_table", "id_media_thumb"),))
+        _spostati, indietro = sync_id_sequences(conn, (("media_thumb_table", "id_media_thumb"),))
+        _warn_behind(indietro, result, log_fn)
 
 
 # --------------------------------------------------------------------------
@@ -1008,8 +1027,10 @@ def _run_qfield_import_on_dir(db, qfield_dir, *, sito=None, srid=None, dry_run=T
                 log("\nDRY RUN completato: rollback della transazione.")
                 transaction.rollback()
             else:
-                for nome in sync_id_sequences(conn):
+                spostati, indietro = sync_id_sequences(conn)
+                for nome in spostati:
                     log(f"  contatore di {nome} rimesso in pari")
+                _warn_behind(indietro, result, log)
                 transaction.commit()
         except Exception:
             transaction.rollback()

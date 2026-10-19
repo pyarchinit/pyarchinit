@@ -126,3 +126,47 @@ def test_su_sqlite_non_fa_niente(tmp_path):
         conn.execute(text("INSERT INTO t (gid, x) VALUES (7, 'a')"))
         assert dbs.column_sequence(conn, "t", "gid") is None
         assert dbs.sync_sequence(conn, "t", "gid") is False
+
+
+# ------------------------------------------- seconda revisione (19 ottobre 2026)
+
+def test_gli_stati_del_contatore(schema):
+    """«moved» se l'ha spostato, «ok» se non serviva (o non c'è una
+    sequenza), «failed» se è indietro e non si è potuto spostare."""
+    from sqlalchemy import text
+    from modules.utility import db_sequences as dbs
+    _sql(schema, "CREATE TABLE u (id SERIAL PRIMARY KEY)", "INSERT INTO u (id) VALUES (1), (2)",
+         "CREATE TABLE w (id INT PRIMARY KEY)",
+         "CREATE SEQUENCE s MAXVALUE 5", "CREATE TABLE t (id INT DEFAULT nextval('s'::regclass) PRIMARY KEY)",
+         "INSERT INTO t (id) VALUES (10)")
+    with schema.begin() as conn:
+        assert dbs.sync_sequence_state(conn, "u", "id") == "moved"
+        assert dbs.sync_sequence_state(conn, "u", "id") == "ok"
+        assert dbs.sync_sequence_state(conn, "w", "id") == "ok"
+        assert dbs.sync_sequence_state(conn, "t", "id") == "failed"      # oltre il MAXVALUE
+        assert dbs.sync_sequence(conn, "t", "id") is False
+        conn.execute(text("INSERT INTO t (id) VALUES (11)"))             # la transazione regge
+
+
+def test_una_colonna_che_non_c_e_non_fa_avvisi(schema, caplog):
+    """L'import da QField prova le due grafie della chiave dei collegamenti:
+    quella che non c'è non deve scrivere un WARNING nel log a ogni import."""
+    import logging
+    from modules.utility import db_sequences as dbs
+    _sql(schema, "CREATE TABLE u (id SERIAL PRIMARY KEY)")
+    with caplog.at_level(logging.WARNING):
+        with schema.connect() as conn:
+            assert dbs.column_sequence(conn, "u", "id_media_to_entity") is None
+            assert dbs.sync_sequence(conn, "u", "id_media_to_entity") is False
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+
+def test_senza_transazione_non_ne_lascia_una_aperta(schema):
+    from sqlalchemy import text
+    from modules.utility import db_sequences as dbs
+    _sql(schema, "CREATE TABLE u (id SERIAL PRIMARY KEY)", "INSERT INTO u (id) VALUES (1), (2)")
+    with schema.connect() as conn:
+        assert dbs.sync_sequence(conn, "u", "id") is True
+        with conn.begin():                          # prima: «a transaction is already begun»
+            conn.execute(text("INSERT INTO u DEFAULT VALUES"))
+    assert _max(schema, "u", "id") == 3

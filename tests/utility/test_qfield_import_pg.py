@@ -120,3 +120,27 @@ def test_le_miniature_non_lasciano_indietro_il_contatore(pg, tmp_path):
     with pg.begin() as conn:
         conn.execute(text("INSERT INTO media_thumb_table (id_media) VALUES (8)"))
         assert conn.execute(text("SELECT MAX(id_media_thumb) FROM media_thumb_table")).scalar() == 3
+
+
+# ------------------------------------------- seconda revisione (19 ottobre 2026)
+
+def test_un_contatore_che_resta_indietro_si_dice(pg, tmp_path, monkeypatch):
+    from modules.utility import db_sequences as dbs
+    from modules.utility.qfield_importer import run_qfield_import
+    vero = dbs.sync_sequence_state
+    monkeypatch.setattr(dbs, "sync_sequence_state",
+                        lambda conn, t, c: "failed" if t == "us_table" else vero(conn, t, c))
+    righe = []
+    esito = run_qfield_import(pg, str(tmp_path), dry_run=False, copy_media=False, make_thumbs=False,
+                              log=righe.append, rows_override=_righe())
+    assert any("us_table" in w and "contatore" in w for w in esito.warnings)
+    assert any("us_table" in r and "contatore" in r for r in righe)
+
+
+def test_nessun_avviso_nel_log_per_le_colonne_che_non_ci_sono(pg, tmp_path, caplog):
+    import logging
+    from modules.utility.qfield_importer import run_qfield_import
+    with caplog.at_level(logging.WARNING):
+        run_qfield_import(pg, str(tmp_path), dry_run=False, copy_media=False, make_thumbs=False,
+                          log=lambda *_a: None, rows_override=_righe())
+    assert not [r for r in caplog.records if r.name.endswith("db_sequences")]

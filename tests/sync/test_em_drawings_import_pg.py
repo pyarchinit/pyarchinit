@@ -110,11 +110,10 @@ def test_su_postgis_si_scrive_e_si_richiama_insieme(pg_schema, tmp_path):
             conn.execute(text("INSERT INTO %s (scavo_s) VALUES ('a mano')" % tabella))
 
 
-def test_su_postgis_con_documenti_e_poligoni_scritti_a_mano(pg_schema, tmp_path):
-    """Nel database vero la scheda Documentazione scrive gli id MAX + 1 e il
-    contatore non si muove; un vecchio import da QField ha scritto dei gid
-    a mano dopo quello disegnato in QGIS. I disegni ricavati, che usano l'id
-    di default, non devono prendere un id già usato."""
+def _a_mano(pg_schema, tmp_path):
+    """Documenti scritti dalla scheda (id 1–3, contatore fermo) e gid scritti
+    a mano dopo quello disegnato in QGIS (61400; poi 61401 e 61402); torna il
+    progetto finto e quello che serve per run_drawings."""
     from sqlalchemy import text
     from modules.s3dgraphy import em_drawings as drw
     from modules.s3dgraphy.sync import em_drawings_import as edi
@@ -135,8 +134,24 @@ def test_su_postgis_con_documenti_e_poligoni_scritti_a_mano(pg_schema, tmp_path)
     unita = edi.plan_units(p["grafo"], str(p["em"]), db=pg_schema, sito=SITO)
     geo = drw.georef_of(p["grafo"])
     scelta = edi.default_choice(unita, geo)
-    esito = edi.run_drawings(pg_schema, p["grafo"], SITO, str(p["em"]), units=unita, choice=scelta,
-                             georef=geo, decision=edi.crs_decision(pg_schema, geo, scelta), lang="it")
+    return p, unita, geo, scelta
+
+
+def _disegna(pg_schema, p, unita, geo, scelta):
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    from tests.sync.test_em_drawings_import import SITO
+    return edi.run_drawings(pg_schema, p["grafo"], SITO, str(p["em"]), units=unita, choice=scelta,
+                            georef=geo, decision=edi.crs_decision(pg_schema, geo, scelta), lang="it")
+
+
+def test_su_postgis_con_documenti_e_poligoni_scritti_a_mano(pg_schema, tmp_path):
+    """Nel database vero la scheda Documentazione scrive gli id MAX + 1 e il
+    contatore non si muove; un vecchio import da QField ha scritto dei gid
+    a mano dopo quello disegnato in QGIS. I disegni ricavati, che usano l'id
+    di default, non devono prendere un id già usato."""
+    from sqlalchemy import text
+    from tests.sync.test_em_drawings_import import SITO
+    esito = _disegna(pg_schema, *_a_mano(pg_schema, tmp_path))
     assert (esito.plans, esito.side_views, esito.unit_views) == (2, 4, 2)
     assert not [w for w in esito.warnings if "duplicate" in w.lower()]
     with pg_schema.connect() as conn:
@@ -144,3 +159,21 @@ def test_su_postgis_con_documenti_e_poligoni_scritti_a_mano(pg_schema, tmp_path)
                                  "nome_doc LIKE '3D-%'"), {"s": SITO}).scalar() == 7
         assert conn.execute(text("SELECT MIN(gid) FROM pyunitastratigrafiche WHERE nome_doc = '3D-PLA'")
                             ).scalar() > 61402
+
+
+def test_su_postgis_un_contatore_che_non_si_sposta_non_ferma_i_disegni(pg_schema, tmp_path, monkeypatch):
+    """Un database amministrato da altri, dove l'utente non può spostare i
+    contatori: i disegni si scrivono lo stesso con gli id MAX + 1, e il
+    riepilogo dice che il contatore è rimasto indietro."""
+    from sqlalchemy import text
+    from modules.utility import db_sequences as dbs
+    from tests.sync.test_em_drawings_import import SITO
+    preparato = _a_mano(pg_schema, tmp_path)
+    monkeypatch.setattr(dbs, "sync_sequence_state", lambda *_a: "failed")
+    esito = _disegna(pg_schema, *preparato)
+    assert (esito.plans, esito.side_views, esito.unit_views) == (2, 4, 2)
+    assert not [w for w in esito.warnings if "duplicate" in w.lower()]
+    assert any("contatore" in w for w in esito.warnings)
+    with pg_schema.connect() as conn:
+        assert conn.execute(text("SELECT count(*) FROM documentazione_table WHERE sito = :s AND "
+                                 "nome_doc LIKE '3D-%'"), {"s": SITO}).scalar() == 7

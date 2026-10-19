@@ -79,3 +79,23 @@ def test_la_finestra_extended_matrix_senza_database_non_apre_avvisi(avvisi):
     from modules.s3dgraphy.s3dgraphy_dot_bridge import S3DGraphyExportDialog
     S3DGraphyExportDialog(db_manager=None)
     assert avvisi == []
+
+
+# ------------------------------------------- seconda revisione (19 ottobre 2026)
+
+def test_un_database_che_non_si_legge_lo_dice_con_parole_sue(avvisi, tmp_path, monkeypatch):
+    import gui.rapporti_check_dialog as dlg
+    monkeypatch.setattr(dlg, "_qgis_lang", lambda: "it")
+    vuoto = tmp_path / "vuoto.sqlite"
+    sqlite3.connect(vuoto).close()                      # c'è, ma senza us_table
+    pannello = dlg.RapportiCheckPanel(db_provider=lambda: "sqlite:///%s" % vuoto)
+    testo = pannello.lblStato.text()
+    assert "non si legge" in testo and "Nessun database" not in testo
+    assert "((" not in testo and "us_table" in testo
+    assert avvisi == [] and not pannello.btnRun.isEnabled()
+
+
+def test_il_messaggio_del_database_che_non_si_legge_e_nelle_sei_lingue():
+    from modules.utility.rapporti_check import _L
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        assert "{errore}" in _L[lang].get("m_db_unreadable", ""), lang

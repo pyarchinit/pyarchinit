@@ -145,3 +145,16 @@ def test_una_linea_su_una_faccia_non_dipende_dal_verso():
     ritorno = drw.section_geometry(SCATOLA, (5.0, 0.0), (-1.0, 0.0))
     assert andata is not None and ritorno is not None
     assert andata.area() == pytest.approx(12.0, abs=1e-6) and ritorno.area() == pytest.approx(12.0, abs=1e-6)
+
+
+def test_il_secondo_tentativo_solo_coi_vertici_sul_piano(monkeypatch):
+    """Il taglio dall'altra parte serve solo se un vertice sta sul piano: per
+    una linea che non incontra il modello costava il doppio per niente."""
+    chiamate = []
+    vero = drw._section_face
+    monkeypatch.setattr(drw, "_section_face", lambda *a: chiamate.append(a[-1]) or vero(*a))
+    assert drw.section_geometry(SCATOLA, (-1.0, 50.0), (5.0, 50.0)) is None
+    assert chiamate == [1.0]
+    chiamate.clear()
+    assert drw.section_geometry(SCATOLA, (-1.0, 0.0), (5.0, 0.0)) is not None     # sulla faccia y = 0
+    assert chiamate == [1.0, -1.0]

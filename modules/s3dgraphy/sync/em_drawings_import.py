@@ -274,11 +274,14 @@ def crs_decision(db, georef, choice: Choice) -> CrsDecision:
         if no_piante and no_verticali:
             cosa, solo = "piante e prospetti", ""
         elif no_verticali:
+            # l'altra strada solo se c'è: senza posizione le piante non si fanno
             cosa = "i prospetti"
-            solo = "; oppure, in «Scegli…», togli i prospetti e i quattro lati e importa solo le piante"
+            solo = ("; oppure, in «Scegli…», togli i prospetti e i quattro lati e importa solo le piante"
+                    if piante else "")
         else:
             cosa = "le piante"
-            solo = "; oppure, in «Scegli…», togli le piante e importa solo i prospetti"
+            solo = ("; oppure, in «Scegli…», togli le piante e importa solo i prospetti"
+                    if verticali else "")
         return CrsDecision("refuse", (
             "Nel database %s: %s non ci possono stare. Per avere le geometrie, %s%s; oppure "
             "togli la casella «Ricava piante e prospetti dai modelli 3D» e importa solo le schede."
@@ -604,13 +607,18 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
         doc_da_se = _auto_id(conn, "documentazione_table", "id_documentazione")
         # Le schede scrivono gli id MAX + 1 e il contatore non si muove: prima
         # di usare l'id di default va portato oltre il massimo, o il primo
-        # documento (o poligono) prenderebbe un id già usato.
-        from ...utility.db_sequences import sync_sequence
+        # documento (o poligono) prenderebbe un id già usato. Se il database
+        # non lascia spostarlo, gli id si scrivono MAX + 1 come le schede.
+        from ...utility import db_sequences as dbs
+        indietro = set()
         for l in gid:
-            if gid_da_se[l]:
-                sync_sequence(conn, l, "gid")
-        if doc_da_se:
-            sync_sequence(conn, "documentazione_table", "id_documentazione")
+            if gid_da_se[l] and dbs.sync_sequence_state(conn, l, "gid") == dbs.FAILED:
+                gid_da_se[l] = False
+                indietro.add(l)
+        if doc_da_se and dbs.sync_sequence_state(conn, "documentazione_table",
+                                                 "id_documentazione") == dbs.FAILED:
+            doc_da_se = False
+            indietro.add("documentazione_table")
         for d in drawings:
             if not d.features or not colonne.get(d.layer):
                 continue
@@ -742,7 +750,14 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
         # prenderebbe un gid già usato. Su SQLite non fa niente.
         for tabella, chiave in ((PLAN_LAYER, "gid"), (VERTICAL_LAYER, "gid"),
                                 ("documentazione_table", "id_documentazione")):
-            sync_sequence(conn, tabella, chiave)
+            if dbs.sync_sequence_state(conn, tabella, chiave) == dbs.FAILED:
+                indietro.add(tabella)
+        for tabella in sorted(indietro):
+            esito.warnings.append(
+                "il contatore degli id di %s è rimasto indietro e il database non lascia spostarlo: "
+                "i disegni si sono scritti lo stesso, ma un poligono o una scheda nuova con l'id di "
+                "default potrebbe trovare un doppione (chi amministra il database può dare il "
+                "permesso UPDATE sulla sequenza)" % tabella)
     return esito
 
 

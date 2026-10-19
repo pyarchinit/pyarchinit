@@ -151,9 +151,11 @@ class RapportiCheckPanel(QWidget):
                 ).fetchall()
         except Exception as exc:
             self._sites_failed = True
-            testo = RC._t(self._lang, "m_no_database")
-            if not isinstance(exc, LookupError):
-                testo += "\n(%s)" % str(exc).splitlines()[0][:200] if str(exc) else ""
+            if isinstance(exc, LookupError):
+                testo = RC._t(self._lang, "m_no_database")
+            else:                       # c'è, ma non risponde o non è di pyArchInit
+                dettaglio = (str(exc).strip().splitlines() or [type(exc).__name__])[0][:200]
+                testo = RC._t(self._lang, "m_db_unreadable").format(errore=dettaglio)
             self.lblStato.setText(testo)
             self.lblStato.setToolTip(str(exc))
             self.lblStato.setHidden(False)

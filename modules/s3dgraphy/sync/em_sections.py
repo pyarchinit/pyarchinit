@@ -132,7 +132,10 @@ def section_names(lines: Sequence[SectionLine]) -> Dict[int, str]:
         nome = drw._safe(linea.id_sezione)
         base[linea.gid] = "3D-SEZ-" + (nome if nome else "G%d" % linea.gid)
     quanti = Counter(base.values())
-    return {g: (n + "-%d" % g if quanti[n] > 1 else n) for g, n in base.items()}
+    nomi = {g: (n + "-%d" % g if quanti[n] > 1 else n) for g, n in base.items()}
+    # Ancora doppi (un id «A1-1» accanto a due «A1»): due linee finirebbero
+    # nello stesso documento, una sopra l'altra.
+    return drw.unique_names(nomi)
 
 
 def _lines_in(lines: Sequence[SectionLine], srid, epsg: int):
@@ -170,12 +173,13 @@ def _lines_in(lines: Sequence[SectionLine], srid, epsg: int):
 
 def line_lengths(lines: Sequence[SectionLine], srid, epsg) -> Dict[int, float]:
     """Le lunghezze delle linee in metri, nel sistema dell'em.json (per la
-    finestra: un layer in gradi le darebbe in gradi). Se non si convertono,
-    quelle del layer."""
+    finestra: un layer in gradi le darebbe in gradi). Un sistema che non si
+    converte alza SectionsError, così lo si dice prima della finestra."""
     try:
-        punti, _grezze = _lines_in(lines, srid, int(epsg))
-    except (SectionsError, TypeError, ValueError):
+        epsg = int(epsg)
+    except (TypeError, ValueError):
         return {l.gid: l.length for l in lines}
+    punti, _grezze = _lines_in(lines, srid, epsg)      # un sistema sconosciuto si dice subito
     return {g: drw.line_length(p) for g, p in punti.items()}
 
 
@@ -246,22 +250,30 @@ _NOTE = {
 }
 
 
-def _min_u_kept(db, sito: str, scope: Set[str]) -> Optional[float]:
-    """La u più a sinistra dei disegni ricavati del sito che restano."""
+def _kept_spans(db, sito: str, scope: Set[str]) -> List[Tuple[float, float]]:
+    """L'ingombro in X (da, a) di ogni disegno ricavato del sito che resta
+    nel layer dei disegni verticali: i prospetti e le sezioni che non si
+    rifanno."""
     from sqlalchemy import text
     eng = _engine(db)
-    xmin = "ST_XMin" if eng.dialect.name.startswith("postgres") else "MbrMinX"
+    pg = eng.dialect.name.startswith("postgres")
+    xmin, xmax = ("ST_XMin", "ST_XMax") if pg else ("MbrMinX", "MbrMaxX")
     nomi = sorted(scope)
     escludi = (" AND nome_doc NOT IN (%s)" % ", ".join(":n%d" % i for i in range(len(nomi)))) if nomi else ""
     try:
         with eng.connect() as conn:
-            valore = conn.execute(text(
-                "SELECT MIN(%s(the_geom)) FROM %s WHERE scavo_s = :s AND nome_doc LIKE '3D-%%'%s"
-                % (xmin, VERTICAL_LAYER, escludi)),
-                {"s": sito, **{"n%d" % i: n for i, n in enumerate(nomi)}}).scalar()
+            righe = conn.execute(text(
+                "SELECT MIN(%s(the_geom)), MAX(%s(the_geom)) FROM %s WHERE scavo_s = :s "
+                "AND nome_doc LIKE '3D-%%'%s GROUP BY nome_doc" % (xmin, xmax, VERTICAL_LAYER, escludi)),
+                {"s": sito, **{"n%d" % i: n for i, n in enumerate(nomi)}}).fetchall()
     except Exception:                                       # noqa: BLE001
-        return None
-    return float(valore) if valore is not None else None
+        return []
+    return [(float(lo), float(hi)) for lo, hi in righe if lo is not None and hi is not None]
+
+
+def _free(lo: float, hi: float, taken: Sequence[Tuple[float, float]]) -> bool:
+    """[lo, hi] sta ad almeno GAP da ogni ingombro preso."""
+    return all(hi + drw.GAP <= a + 1e-6 or b + drw.GAP <= lo + 1e-6 for a, b in taken)
 
 
 def _old_right(db, sito: str, names: Set[str]) -> Dict[str, float]:
@@ -394,25 +406,28 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
         ambito |= {l.nome_doc for l in scelte if _is_section_name(l.nome_doc) and l.nome_doc not in attuali}
     if not ambito:
         return esito
-    # Le sezioni rifatte restano dove erano (la loro X massima di prima); le
-    # nuove vanno a sinistra di u = 0 e di tutto quello che resta nel sito.
-    vecchie = _old_right(db, sito, {d.nome for d in disegni})
-    sinistra = []
-    minimo = _min_u_kept(db, sito, ambito)
-    if minimo is not None:
-        sinistra.append(minimo)
+    # Una sezione rifatta resta dov'era (la sua X massima di prima, cercata
+    # anche col nome che la linea aveva prima) se lì non tocca niente che
+    # resta né le sezioni già sistemate; se è cresciuta e toccherebbe, va con
+    # le nuove: a sinistra di u = 0 e di tutto quello che resta nel sito.
+    linea_di = {nomi[l.gid]: l for l in scelte}
+    vecchi_nomi = {n: linea_di[n].nome_doc for n in linea_di
+                   if _is_section_name(linea_di[n].nome_doc) and linea_di[n].nome_doc != n}
+    vecchie = _old_right(db, sito, {d.nome for d in disegni} | set(vecchi_nomi.values()))
+    presi = _kept_spans(db, sito, ambito) + [(0.0, 0.0)]
+    da_mettere = []
     for d in disegni:
-        if d.nome in vecchie:
-            hi = max(drw.span_u(g)[1] for _k, g in d.features)
-            d.features = [(k, drw.translated(g, vecchie[d.nome] - hi)) for k, g in d.features]
-            d.note = d.note.replace("{ax}", "%.2f" % (vecchie[d.nome] - hi))
-            sinistra.append(min(drw.span_u(g)[0] for _k, g in d.features))
-    cursore = min([0.0] + sinistra) - drw.GAP
-    for d in disegni:
-        if d.nome in vecchie:
-            continue
         lo = min(drw.span_u(g)[0] for _k, g in d.features)
         hi = max(drw.span_u(g)[1] for _k, g in d.features)
+        destra = vecchie.get(d.nome, vecchie.get(vecchi_nomi.get(d.nome)))
+        if destra is not None and _free(destra - (hi - lo), destra, presi):
+            d.features = [(k, drw.translated(g, destra - hi)) for k, g in d.features]
+            d.note = d.note.replace("{ax}", "%.2f" % (destra - hi))
+            presi.append((destra - (hi - lo), destra))
+        else:
+            da_mettere.append((d, lo, hi))
+    cursore = min(a for a, _b in presi) - drw.GAP
+    for d, lo, hi in da_mettere:
         d.features = [(k, drw.translated(g, cursore - hi)) for k, g in d.features]
         d.note = d.note.replace("{ax}", "%.2f" % (cursore - hi))
         cursore -= (hi - lo) + drw.GAP

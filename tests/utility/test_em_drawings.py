@@ -211,3 +211,10 @@ def test_i_nomi_non_si_scontrano_e_tengono_le_lettere():
     rovescio = drw.unit_drawing_names([("c", "US", "ü1", "1"), ("b", "US", "2-a", "1"),
                                        ("a", "US", "2/a", "1")])
     assert rovescio == nomi                                    # non dipende dall'ordine
+
+
+def test_un_unita_non_prende_il_nome_di_un_lato():
+    """Un'unità senza tipo e con US «N» darebbe «3D-PRO-N», il prospetto nord del sito."""
+    nomi = drw.unit_drawing_names([("a", "", "N", "1"), ("b", "US", "1", "1")])
+    assert nomi["a"] not in {drw.side_name(x) for x in drw.SIDES}
+    assert nomi["a"].startswith("3D-PRO-N") and drw.is_derived_name(nomi["a"])

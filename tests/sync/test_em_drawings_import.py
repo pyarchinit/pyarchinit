@@ -540,3 +540,22 @@ def test_il_riepilogo_dice_le_unita_senza_modello(progetto):
     unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
     esito = _scrivi(progetto)
     assert "USV103: file non trovato" in esito.summary(unita)
+
+
+# ------------------------------------------- seconda revisione (19 ottobre 2026)
+
+def test_il_fermo_non_propone_quello_che_non_si_puo(tmp_path):
+    """Senza posizione nell'em.json le piante non si possono fare: il fermo
+    per il layer USM non deve consigliare «importa solo le piante»."""
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path, georef=False)
+    con = sqlite3.connect(p["db"])
+    con.execute("UPDATE geometry_columns SET srid = 4326 WHERE f_table_name = 'pyunitastratigrafiche_usm'")
+    con.commit()
+    con.close()
+    geo = drw.georef_of(p["grafo"])
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    decisione = edi.crs_decision(p["eng"], geo, edi.default_choice(unita, geo))
+    assert decisione.kind == "refuse"
+    assert "solo le piante" not in decisione.message and "solo le schede" in decisione.message

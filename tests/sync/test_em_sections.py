@@ -252,3 +252,68 @@ def test_linee_che_non_si_convertono_si_dice(sezioni):
     linee = [es.SectionLine(1, "A1", "", "1", [(0.0, 0.0), (1.0, 0.0)])]
     with pytest.raises(es.SectionsError, match="non si (possono )?convert"):
         es._lines_in(linee, 999999, 31700)
+
+
+# ------------------------------------------- seconda revisione (19 ottobre 2026)
+
+def _spans(p):
+    righe = _righe_g(p, "SELECT nome_doc, MIN(MbrMinX(the_geom)), MAX(MbrMaxX(the_geom)) FROM "
+                        "pyunitastratigrafiche_usm WHERE nome_doc LIKE '3D-SEZ-%' GROUP BY nome_doc")
+    return {n: (lo, hi) for n, lo, hi in righe}
+
+
+def _si_toccano(a, b):
+    return a[0] < b[1] and b[0] < a[1]
+
+
+def test_una_sezione_rifatta_che_cresce_non_copre_le_altre(sezioni):
+    a = _linea(sezioni)
+    b = _linea(sezioni, wkt="LINESTRING(327298 448379.8, 327306 448379.8)", id_sezione="B1")
+    _taglia(sezioni, [a])
+    _taglia(sezioni, [b])
+    prima_b = _spans(sezioni)["3D-SEZ-B1"]
+    con = _con(sezioni["db"])
+    con.execute("UPDATE pyarchinit_sezioni SET the_geom = GeomFromText('LINESTRING(327298 448380, 327306 448380, "
+                "327306 448365, 327298 448365)', -1) WHERE gid = ?", (a,))
+    con.commit()
+    con.close()
+    _taglia(sezioni, [a])                                    # A ora è lunga 31 m
+    dopo = _spans(sezioni)
+    assert not _si_toccano(dopo["3D-SEZ-A1"], dopo["3D-SEZ-B1"])
+    assert dopo["3D-SEZ-B1"] == pytest.approx(prima_b)       # B non si è mossa
+    _taglia(sezioni, [a, b])
+    dopo = _spans(sezioni)
+    assert not _si_toccano(dopo["3D-SEZ-A1"], dopo["3D-SEZ-B1"])
+    assert all(hi < 0 for _lo, hi in dopo.values())
+
+
+def test_una_sezione_che_cambia_nome_resta_al_suo_posto(sezioni):
+    gid = _linea(sezioni)
+    b = _linea(sezioni, wkt="LINESTRING(327298 448379.8, 327306 448379.8)", id_sezione="B1")
+    _taglia(sezioni, [gid])
+    _taglia(sezioni, [b])
+    prima = _spans(sezioni)
+    con = _con(sezioni["db"])
+    con.execute("UPDATE pyarchinit_sezioni SET id_sezione = 'A2' WHERE gid = ?", (gid,))
+    con.commit()
+    con.close()
+    _taglia(sezioni, [gid])
+    dopo = _spans(sezioni)
+    assert set(dopo) == {"3D-SEZ-A2", "3D-SEZ-B1"}
+    assert dopo["3D-SEZ-A2"] == pytest.approx(prima["3D-SEZ-A1"])
+
+
+def test_i_nomi_delle_sezioni_restano_diversi():
+    from modules.s3dgraphy.sync import em_sections as es
+    linee = [es.SectionLine(1, "A1", "", "", [(0, 0), (1, 0)]), es.SectionLine(2, "A1", "", "", [(0, 0), (1, 0)]),
+             es.SectionLine(3, "A1-1", "", "", [(0, 0), (1, 0)])]
+    nomi = es.section_names(linee)
+    assert len(set(nomi.values())) == 3
+    assert nomi[1] == "3D-SEZ-A1-1" and nomi[2] == "3D-SEZ-A1-2"
+
+
+def test_le_lunghezze_con_un_sistema_sconosciuto_si_dicono_prima_della_finestra():
+    from modules.s3dgraphy.sync import em_sections as es
+    linee = [es.SectionLine(1, "A1", "", "1", [(0.0, 0.0), (5.0, 0.0)])]
+    with pytest.raises(es.SectionsError, match="non si (possono )?convert"):
+        es.line_lengths(linee, 999999, 31700)

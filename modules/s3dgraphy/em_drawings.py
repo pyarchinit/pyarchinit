@@ -324,6 +324,27 @@ def _safe(testo) -> str:
     return _UNSAFE.sub("_", str(testo or "").strip().replace("/", "-")).strip("_")
 
 
+def unique_names(nomi: Dict, riservati: Iterable[str] = ()) -> Dict:
+    """I nomi tutti diversi fra loro e da ``riservati``: dei doppi, nell'ordine
+    delle chiavi, il primo resta (se non è riservato) e gli altri prendono
+    -2, -3… (il primo numero libero). Non dipende dall'ordine dell'elenco."""
+    riservati = set(riservati)
+    usati = set(nomi.values()) | riservati
+    gruppi: Dict[str, List] = {}
+    for k in sorted(nomi):
+        gruppi.setdefault(nomi[k], []).append(k)
+    out = dict(nomi)
+    for nome, chiavi in gruppi.items():
+        da_cambiare = chiavi if nome in riservati else chiavi[1:]
+        for k in da_cambiare:
+            i = 2
+            while "%s-%d" % (nome, i) in usati:
+                i += 1
+            out[k] = "%s-%d" % (nome, i)
+            usati.add(out[k])
+    return out
+
+
 def unit_drawing_names(items: Sequence[Tuple[str, str, str, str]]) -> Dict[str, str]:
     """``(chiave, unita_tipo, us, area)`` → «3D-PRO-<tipo><us>»; ai nomi che
     verrebbero doppi si aggiunge «-A<area>»."""
@@ -331,15 +352,9 @@ def unit_drawing_names(items: Sequence[Tuple[str, str, str, str]]) -> Dict[str, 
     quanti = Counter(base.values())
     nomi = {k: base[k] + ("-A%s" % _safe(a) if quanti[base[k]] > 1 else "")
             for k, _t, _u, a in items}
-    # Quelli ancora doppi («2/a» e «2-a» nella stessa area) prendono -2, -3…
-    # nell'ordine delle chiavi, così il nome non dipende dall'ordine dell'elenco.
-    gruppi: Dict[str, List[str]] = {}
-    for k in sorted(nomi):
-        gruppi.setdefault(nomi[k], []).append(k)
-    for nome, chiavi in gruppi.items():
-        for i, k in enumerate(chiavi[1:], start=2):
-            nomi[k] = "%s-%d" % (nome, i)
-    return nomi
+    # Quelli ancora doppi («2/a» e «2-a» nella stessa area) e quelli che
+    # prenderebbero il nome di un lato del sito (tipo vuoto e US «N»).
+    return unique_names(nomi, {side_name(x) for x in SIDES})
 
 
 def _pairs(value):
@@ -411,7 +426,7 @@ def _section_segments(tri_map: np.ndarray, a, b, lato: float = 1.0):
     ax, ay = float(a[0]), float(a[1])
     lung = math.hypot(float(b[0]) - ax, float(b[1]) - ay)
     if lung <= 1e-9 or not t.size:
-        return np.zeros((0, 2, 2)), lung
+        return np.zeros((0, 2, 2)), lung, False
     rx, ry = (float(b[0]) - ax) / lung, (float(b[1]) - ay) / lung
     dx, dy = -ry, rx
     s = (t[..., 0] - ax) * dx + (t[..., 1] - ay) * dy
@@ -419,12 +434,13 @@ def _section_segments(tri_map: np.ndarray, a, b, lato: float = 1.0):
     # vertice stesso: uguale al bit in tutti i triangoli che lo toccano, senza
     # i segmentini di 1e-9 che lasciavano il contorno aperto.
     sul_piano = np.abs(s) < 1e-9
+    toccato = bool(sul_piano.any())
     s = np.where(sul_piano, 1e-9 * lato, s)
     sopra = s > 0
     attraversa = sopra.any(axis=1) & (~sopra).any(axis=1)
     t, s, sopra, sul_piano = t[attraversa], s[attraversa], sopra[attraversa], sul_piano[attraversa]
     if not len(t):
-        return np.zeros((0, 2, 2)), lung
+        return np.zeros((0, 2, 2)), lung, toccato
     seg = np.zeros((len(t), 2, 3))
     quanti = np.zeros(len(t), dtype=int)
     for i, j in ((0, 1), (1, 2), (2, 0)):
@@ -450,7 +466,7 @@ def _section_segments(tri_map: np.ndarray, a, b, lato: float = 1.0):
         seg[k, quanti[k]] = punto[k]
         quanti[k] += 1
     u = (seg[..., 0] - ax) * rx + (seg[..., 1] - ay) * ry
-    return np.stack([u, seg[..., 2]], axis=-1), lung
+    return np.stack([u, seg[..., 2]], axis=-1), lung, toccato
 
 
 def section_geometry(tri_map: np.ndarray, a, b):
@@ -461,29 +477,32 @@ def section_geometry(tri_map: np.ndarray, a, b):
     solo un anello sottile (18 ottobre 2026). I vertici sul piano contano dalla
     parte di chi guarda; se così non viene niente (una linea proprio su una
     faccia del modello, dalla parte opposta), dall'altra: il risultato non
-    dipende dal verso della linea."""
-    g = _section_face(tri_map, a, b, 1.0)
-    if g is None:
-        g = _section_face(tri_map, a, b, -1.0)
+    dipende dal verso della linea. Il secondo tentativo solo se un vertice
+    stava sul piano: per una linea che non incontra il modello costerebbe il
+    doppio per niente."""
+    g, toccato = _section_face(tri_map, a, b, 1.0)
+    if g is None and toccato:
+        g, _toccato = _section_face(tri_map, a, b, -1.0)
     return g
 
 
 def _section_face(tri_map: np.ndarray, a, b, lato: float):
+    """(profilo o None, True se un vertice stava sul piano)."""
     from qgis.core import QgsGeometry, QgsRectangle
-    seg, lung = _section_segments(tri_map, a, b, lato)
+    seg, lung, toccato = _section_segments(tri_map, a, b, lato)
     if not len(seg):
-        return None
+        return None, toccato
     seg = seg[(seg[:, 0] != seg[:, 1]).any(axis=1)]          # via solo i segmenti di un punto
     if not len(seg):
-        return None
+        return None, toccato
     wkt = "MULTILINESTRING(" + ",".join(
         "(%r %r,%r %r)" % (x0, y0, x1, y1) for (x0, y0), (x1, y1) in seg.tolist()) + ")"
     facce = _polygons(QgsGeometry.polygonize([QgsGeometry.unaryUnion([QgsGeometry.fromWkt(wkt)])]))
     if not facce:
-        return None
+        return None, toccato
     vmin, vmax = float(seg[..., 1].min()) - 1.0, float(seg[..., 1].max()) + 1.0
     tratto = QgsGeometry.fromRect(QgsRectangle(0.0, vmin, lung, vmax))
-    return _clean(QgsGeometry.unaryUnion(facce).intersection(tratto))
+    return _clean(QgsGeometry.unaryUnion(facce).intersection(tratto)), toccato
 
 
 def line_length(points) -> float:
@@ -494,7 +513,7 @@ def section_crosses(tri_map: np.ndarray, points) -> bool:
     """True se il piano di almeno un tratto attraversa il modello: con un
     profilo che non viene, vuol dire che il modello è aperto."""
     for a, b in zip(points, points[1:]):
-        seg, lung = _section_segments(tri_map, a, b)
+        seg, lung, _toccato = _section_segments(tri_map, a, b)
         if not len(seg):
             continue
         u = seg[..., 0]
