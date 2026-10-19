@@ -123,7 +123,8 @@ Vorgang:
   **`created_by = 'qfield_import'`**;
 - bringt bei PostgreSQL am Ende die **ID-Zähler** (die Sequenzen) wieder auf den
   aktuellen Stand: Polygone, die Sie danach in QGIS zeichnen, und neue
-  Datensätze erhalten keine bereits vergebene ID.
+  Datensätze erhalten keine bereits vergebene ID. Erlaubt die Datenbank nicht,
+  die Zähler anzupassen (Berechtigungen), meldet es die Zusammenfassung.
 
 ---
 

@@ -116,7 +116,8 @@ Apasă **Importă** (se solicită o **confirmare**). Operația:
   **`created_by = 'qfield_import'`**;
 - cu PostgreSQL, la final aduce la zi **contoarele de id-uri** (secvențele):
   poligoanele pe care le desenezi după aceea în QGIS și înregistrările noi nu
-  primesc un id deja folosit.
+  primesc un id deja folosit. Dacă baza de date nu permite mutarea lor
+  (permisiuni), rezumatul o spune.
 
 ---
 

@@ -5,6 +5,54 @@
 
 ---
 
+## [fix] - 2026-10-19 — I contatori di PostgreSQL in pari con gli id scritti a mano (import da QField e disegni dal 3D: niente più «duplicate key»), il pannello «Verifica rapporti» senza avvisi modali, e le cose minori di piante, prospetti e sezioni dai modelli 3D — 5.13.136-alpha
+
+> Branch `Stratigraph_00001`. Suite **2580 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +43 test). / PostgreSQL sequences brought back in step after hand-written ids (QField import, 3D drawings), the «Verifica rapporti» panel without modal message boxes, and the deferred minors from the final reviews of 5.13.134 and 5.13.135.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: Enzo, 19 ottobre 2026: «risolvi anche QField e il pannello dei rapporti».
+  - **I contatori di PostgreSQL** (`modules/utility/db_sequences.py`, nuovo: `column_sequence`, `sync_sequence`): le schede di pyArchInit scrivono gli id MAX + 1 (`max_num_id`) e il contatore della colonna non si muove; il primo record che usava l'id di default ne prendeva uno già usato. `sync_sequence` porta il contatore oltre il massimo, mai indietro, e lo trova anche quando non è OWNED BY la colonna (lo chiama solo il DEFAULT, come per i gid nello schema del plugin, via `pg_depend`); su SQLite non fa niente.
+  - **Import da QField**: alla fine, nella stessa transazione, rimette in pari i contatori delle sette tabelle che scrive (US, reperti, geometrie, quote, media, collegamenti) e, dopo, quello delle miniature: i poligoni disegnati poi in QGIS non danno più «duplicate key».
+  - **Disegni ricavati dal 3D su PostgreSQL** (5.13.134/135): nello schema vero l'id dei documenti ha il DEFAULT della sequenza, e con i documenti già fatti dalla scheda il primo documento ricavato si scontrava («duplicate key value violates unique constraint documentazione_table_pkey») e l'import dei disegni si fermava tutto; lo stesso per i gid dopo un vecchio import da QField. Ora i contatori si portano in pari prima di scrivere e dopo. La prova PostgreSQL ricalca lo schema vero (DEFAULT sull'id dei documenti).
+  - **Il pannello «Verifica rapporti»** dentro la finestra Extended Matrix leggeva i siti mentre si costruiva e, senza database, apriva un avviso modale («Impossibile leggere i siti: cannot resolve db_handle from NoneType») prima ancora che la finestra si vedesse. Ora lo dice in alto nel pannello (nelle sei lingue del pannello), spegne «Esegui verifica», «Genera continuità» e «Applica», e rilegge i siti quando la scheda si apre o dopo un import.
+  - I test locali di QField (`tests/qfield`, fuori dal repository) prendevano il vecchio `s3dgraphy` del site-packages di QGIS, senza `s3dgraphy.sync`: 8 su 41 fallivano già prima; il loro conftest ora mette `ext_libs` davanti, 41 su 41.
+- 🇬🇧 **EN**: new `db_sequences` helper brings PostgreSQL sequences past the column maximum (never backwards), finding non-owned sequences through the column default; the QField import syncs the sequences of the seven tables it writes plus thumbnails; the 3D drawings import syncs gid and document sequences before and after writing (on the real schema the first derived document collided with form-made documents and the whole write failed); the «Verifica rapporti» panel no longer opens a modal message box when there is no database — it says so inline, disables its buttons and reloads the sites when shown or after an import.
+- 🇮🇹 **IT**: dalla revisione finale di questa release (un Important e dieci minori, tutti corretti):
+  - **una sezione rifatta che cresce** (linea allungata, un'unità prima saltata che ora si legge) copriva le sezioni vicine: resta al suo posto solo se lì non tocca niente che resta né le altre già sistemate, altrimenti va a sinistra di tutte; il posto di prima si ritrova anche col nome che la linea aveva prima;
+  - **i nomi** restano diversi anche nei casi rari: un id «A1-1» accanto a due «A1» metteva due linee nello stesso documento; un'unità senza tipo con US «N» prendeva il nome del prospetto nord (`em_drawings.unique_names`);
+  - **i contatori che non si possono spostare** (permessi, MAXVALUE): `sync_sequence_state` dice «spostato / non serviva / rimasto indietro»; i disegni ricavati ripiegano allora sugli id MAX + 1, come le schede, invece di fermarsi su un «duplicate key», e il riepilogo lo dice; l'import da QField lo scrive nel log e negli avvisi; niente più WARNING nel log per la grafia della chiave dei collegamenti che non c'è; nessuna transazione lasciata aperta su una connessione che non ne aveva;
+  - **il messaggio di fermo** propone solo le alternative possibili (senza posizione nell'em.json non dice più «importa solo le piante»);
+  - **un EPSG sconosciuto** del layer delle sezioni si dice prima della finestra;
+  - **il taglio** rifà il tentativo dall'altra parte solo se un vertice stava sul piano (prima raddoppiava il tempo per ogni unità che la linea non incontra);
+  - **il pannello** distingue il database che non c'è da quello che non si legge («Il database non si legge: …», sei lingue).
+- 🇬🇧 **EN**: second final review: grown re-cut sections no longer overlap (kept position only when free, old name looked up), unique section and unit drawing names (site elevation names reserved), tri-state sequence sync with MAX+1 fallback and warnings, no spurious WARNING for the absent link-key spelling, no transaction left open, refuse message offers only possible alternatives, unknown section-layer EPSG reported before the dialog, the opposite-side cut retried only when a vertex lies on the plane, distinct panel message for an unreadable database.
+- 🇮🇹 **IT**: Enzo, 19 ottobre 2026: «risolvi le cose minori». Piante e prospetti (5.13.134):
+  - **nomi**: «US 2/a» e «US 2-a» nella stessa area non danno più lo stesso nome (`-2`, `-3`… nell'ordine delle chiavi), e le lettere non ASCII restano (`3D-PRO-USü1`, non `_`);
+  - **un file che non si legge** (sparito fra «Scegli…» e il calcolo, disco staccato) salta solo la sua unità, col motivo, invece di fermare tutto il passo;
+  - **nessun documento senza poligoni**: se tutti gli INSERT di un disegno falliscono, il documento non si crea (`WriteResult.written_names`);
+  - **`rilievo_originale`** sta nei 250 caratteri della colonna PostgreSQL: i locatori che ci stanno e «(+N)» per gli altri (`rilievo_text`);
+  - **il messaggio di fermo** dice quale layer non va («i prospetti non ci possono stare», «le piante…») e, se è uno solo, suggerisce di importare solo l'altro da «Scegli…»;
+  - **il riepilogo** elenca anche le unità senza un modello utilizzabile (file non trovato, formato).
+- 🇮🇹 **IT**: sezioni (5.13.135):
+  - **la nota del documento** dice a quale X sta il primo punto A;
+  - **rifare una sezione la lascia al suo posto** (la sua X massima di prima) invece di spostarla a sinistra di tutte le altre; i poligoni corretti a mano restano allineati;
+  - **una linea proprio su una faccia** del modello dà lo stesso profilo nei due versi (i vertici sul piano si contano dall'altra parte, se dalla prima non viene niente);
+  - **«Lunghezza (m)»** nella finestra è in metri anche con il layer delle sezioni in gradi (`line_lengths`);
+  - **la posizione dell'em.json** si controlla prima di aprire la finestra;
+  - **il collegamento della linea** al documento si scrive nella stessa transazione dei poligoni (`write_drawings(after=…)`) e solo se i poligoni ci sono;
+  - **un sistema che QGIS non conosce** (o una conversione che fallisce) ferma il comando con un messaggio chiaro, invece di leggere le linee come se fossero senza sistema o di dare l'errore grezzo.
+- 🇬🇧 **EN**: part 1: collision-free and Unicode-preserving drawing names; unreadable files skip only their unit; no document when none of its polygons is written; `rilievo_originale` capped at 250 characters; the stop message names the failing layer; the summary lists units without a usable model. Part 2: the note records where point A sits; re-cut sections keep their place; lines lying on a model face are direction-independent; dialog lengths in metres; georeference checked before the dialog; line linked in the same transaction and only when polygons were written; unknown CRS or failed transforms stop with a clear message.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +43 test, visti rossi prima: 15 per la seconda revisione, 13 per le cose minori, 7 per i contatori (sequenza OWNED BY, solo nel DEFAULT, identity, colonna con il nome misto, avanti e indietro, SQLite), 2 per QField su PostgreSQL (record nuovi dopo l'import, miniature), 1 per i disegni con documenti e gid scritti a mano, 5 per il pannello (nessun avviso, pulsanti spenti, siti riletti quando il database c'è, alla riapertura della scheda, sei lingue, finestra Extended Matrix senza database). **TempluMare vero** (em.json v3.2 e proxy dall'SSD sul Mac mini, in sola lettura; DB nuovo in EPSG:31700): di nuovo 65 piante, 4 prospetti del sito e 64 di unità, 69 documenti; la sezione A taglia 21 unità, USV105 «modello aperto», la nota dice «A, che sta a sinistra a X = -50.96».
+- 🇬🇧 **EN**: 13 new tests, all seen failing first; TempluMare results unchanged.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: tutorial 36 §5.0.2, §5.0.3 (anche: la sezione cresciuta va a sinistra) e §6 (il pannello senza database) e tutorial 38 §6 (i contatori su PostgreSQL, e il riepilogo se non si possono spostare) aggiornati in dieci lingue. `metadata.txt` 5.13.136-alpha.
+- 🇬🇧 **EN**: tutorial 36 §5.0.2/§5.0.3/§6 and tutorial 38 §6 updated in ten languages.
+
+---
+
 ## [feat] - 2026-10-18 — Sezioni lungo le linee dai modelli 3D: le linee del layer delle sezioni tagliano i proxy delle unità e ognuna diventa una sezione nel layer dei disegni verticali, col suo documento «Sezione» legato anche alla linea — 5.13.135-alpha
 
 > Branch `Stratigraph_00001`. Suite **2537 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +26 test). / Sections along lines from the 3D proxies: the lines of `pyarchinit_sezioni` cut the units' proxies, each line becomes a section in `pyunitastratigrafiche_usm` with its own «Sezione» document, linked to the polygons, to the SU form and to the line itself.

@@ -116,7 +116,8 @@ Prem **Importa** (es demana una **confirmació**). L'operació:
   **`created_by = 'qfield_import'`**;
 - amb PostgreSQL, en acabar posa al dia els **comptadors d'id** (les
   seqüències): els polígons que dibuixis després a QGIS i els registres nous no
-  reben un id ja utilitzat.
+  reben un id ja utilitzat. Si la base de dades no permet moure'ls (permisos),
+  el resum ho diu.
 
 ---
 

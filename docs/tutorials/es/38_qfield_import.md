@@ -119,7 +119,8 @@ Pulsa **Importar** (se solicita una **confirmación**). La operación:
   **`created_by = 'qfield_import'`**;
 - con PostgreSQL, al final pone al día los **contadores de id** (las
   secuencias): los polígonos que dibujes después en QGIS y los registros nuevos
-  no reciben un id ya utilizado.
+  no reciben un id ya utilizado. Si la base de datos no permite moverlos
+  (permisos), el resumen lo indica.
 
 ---
 

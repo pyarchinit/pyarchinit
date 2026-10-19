@@ -113,7 +113,8 @@ Premi **Importa** (viene chiesta una **conferma**). L'operazione:
   **`created_by = 'qfield_import'`**;
 - su PostgreSQL, alla fine rimette in pari i **contatori degli id** (le
   sequenze): i poligoni che disegni dopo in QGIS e i record nuovi non
-  prendono un id già usato.
+  prendono un id già usato. Se il database non lascia spostarli (permessi),
+  il riepilogo lo dice.
 
 ---
 

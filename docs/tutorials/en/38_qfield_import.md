@@ -114,7 +114,8 @@ Click **Import** (a **confirmation** is requested). The operation:
   **`created_by = 'qfield_import'`**;
 - on PostgreSQL, at the end it brings the **id counters** (the sequences)
   back in step: polygons you draw afterwards in QGIS and new records don't
-  get an id that is already taken.
+  get an id that is already taken. If the database doesn't allow moving them
+  (permissions), the summary says so.
 
 ---
 
