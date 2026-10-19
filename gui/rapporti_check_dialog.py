@@ -10,9 +10,10 @@ s3dgraphy import dialog); ``RapportiCheckDialog`` is a thin standalone wrapper.
 """
 from __future__ import annotations
 
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QTimer
+from qgis.PyQt.QtGui import QCursor
 from qgis.PyQt.QtWidgets import (
-    QCheckBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QComboBox,
+    QApplication, QCheckBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QComboBox,
     QPushButton, QTreeWidget, QTreeWidgetItem, QTextEdit, QLabel,
     QMessageBox, QSplitter,
 )
@@ -54,6 +55,7 @@ class RapportiCheckPanel(QWidget):
         self._chrono_errore = None
         self._sites_failed = False
         self._sites_loaded = False
+        self._sites_pending = False
         self._build_ui()
         # I siti si leggono quando la scheda si apre (showEvent), non qui: la
         # finestra Extended Matrix si apre sulla scheda Import, e con un
@@ -113,7 +115,7 @@ class RapportiCheckPanel(QWidget):
         stato.addWidget(self.lblStato, 1)
         self.btnRiprova = QPushButton("Riprova")
         self.btnRiprova.setHidden(True)
-        self.btnRiprova.clicked.connect(self._load_sites)
+        self.btnRiprova.clicked.connect(self._retry)
         stato.addWidget(self.btnRiprova)
         lay.addLayout(stato)
 
@@ -145,11 +147,11 @@ class RapportiCheckPanel(QWidget):
     def _load_sites(self):
         """I siti del database nel selettore; True se si sono letti.
 
-        Il pannello si costruisce dentro la finestra Extended Matrix, prima
-        che si veda: senza database (la finestra aperta senza, o un database
-        che non risponde) un avviso modale si apriva da solo, davanti a una
-        finestra che non c'era ancora. Ora lo dice qui dentro, spegne i
-        pulsanti e riprova quando la scheda si apre o dopo un import."""
+        Senza database (la finestra aperta senza, o un database che non
+        risponde) un avviso modale si apriva da solo, davanti alla finestra
+        Extended Matrix che non si vedeva ancora. Ora lo dice qui dentro e
+        spegne i pulsanti; si riprova dopo un import o con «Riprova» (che non
+        compare se la finestra è senza database: non cambierebbe niente)."""
         try:
             from sqlalchemy import text
             handle = self._handle()
@@ -168,7 +170,7 @@ class RapportiCheckPanel(QWidget):
             self.lblStato.setText(testo)
             self.lblStato.setToolTip(str(exc))
             self.lblStato.setHidden(False)
-            self.btnRiprova.setHidden(False)
+            self.btnRiprova.setHidden(isinstance(exc, LookupError))
             for b in (self.btnRun, self.btnContinuity, self.btnApply):
                 b.setEnabled(False)
             return False
@@ -188,20 +190,44 @@ class RapportiCheckPanel(QWidget):
         return True
 
     def showEvent(self, event):
-        """La prima volta che la scheda si apre, i siti. Dopo un errore non
-        si riprova da soli (un server che non risponde terrebbe QGIS fermo a
-        ogni apertura): c'è «Riprova»."""
+        """La prima volta che la scheda si apre, i siti: dopo che la scheda
+        si è disegnata, con «Leggo i siti…» e il cursore che aspetta (un
+        server lento può metterci fino al tempo massimo di connessione).
+        Dopo un errore non si riprova da soli (un server che non risponde
+        terrebbe QGIS fermo a ogni apertura): c'è «Riprova»."""
         super().showEvent(event)
-        if not self._sites_loaded and not self._sites_failed:
-            self._load_sites()
+        if not self._sites_loaded and not self._sites_failed and not self._sites_pending:
+            self._sites_pending = True
+            self._show_loading()
+            QTimer.singleShot(0, self._load_sites_waiting)
+
+    def _show_loading(self):
+        self.lblStato.setText(RC._t(self._lang, "m_loading_sites"))
+        self.lblStato.setToolTip("")
+        self.lblStato.setHidden(False)
+        self.btnRiprova.setHidden(True)
+
+    def _load_sites_waiting(self):
+        self._sites_pending = False
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+        try:
+            return self._load_sites()
+        finally:
+            QApplication.restoreOverrideCursor()
+
+    def _retry(self):
+        """«Riprova»: la scritta prima, poi la lettura col cursore che aspetta."""
+        self._show_loading()
+        QApplication.processEvents()
+        return self._load_sites_waiting()
 
     def select_sito(self, sito):
         """Pre-select *sito* in the picker (used by the import dialog to
         focus the verifica on the site just imported)."""
         if not sito:
             return
-        if not self._sites_loaded:          # dopo un import il database risponde
-            self._load_sites()
+        if not self._sites_loaded and not self._sites_failed:
+            self._load_sites()              # mai letti: la scheda non si era aperta
         idx = self.cboSite.findText(str(sito))
         if idx >= 0:
             self.cboSite.setCurrentIndex(idx)

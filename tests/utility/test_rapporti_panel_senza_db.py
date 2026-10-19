@@ -1,8 +1,9 @@
 """Il pannello «Verifica rapporti» senza database: costruito dentro la
-finestra Extended Matrix legge subito i siti, e se non c'è un database
+finestra Extended Matrix leggeva subito i siti, e se non c'era un database
 apriva un avviso modale prima ancora che la finestra si vedesse (e senza
-schermo, nei test, aspettava per sempre). Ora lo dice dentro il pannello,
-spegne i pulsanti e rilegge i siti quando il database c'è."""
+schermo, nei test, aspettava per sempre). Ora legge i siti quando la sua
+scheda si apre, dice dentro di sé che cosa manca, spegne i pulsanti e
+riprova solo dopo un import o con «Riprova»."""
 from __future__ import annotations
 
 import sqlite3
@@ -39,9 +40,13 @@ def _db(tmp_path):
 
 
 def _apri(pannello):
-    """La scheda che si apre: il pannello legge i siti solo allora."""
+    """La scheda che si apre: il pannello legge i siti solo allora, subito
+    dopo essersi disegnato (QTimer.singleShot)."""
     from qgis.PyQt.QtGui import QShowEvent
+    from qgis.PyQt.QtWidgets import QApplication
     pannello.showEvent(QShowEvent())
+    for _ in range(20):
+        QApplication.processEvents()
     return pannello
 
 
@@ -68,10 +73,10 @@ def test_quando_il_database_c_e_i_siti_si_rileggono(avvisi, tmp_path):
 
 def test_riprova_rilegge_i_siti(avvisi, tmp_path):
     from gui.rapporti_check_dialog import RapportiCheckPanel
-    db = {"x": None}
+    db = {"x": "postgresql://utente:prova@127.0.0.1:59999/spento"}       # il server è spento
     pannello = _apri(RapportiCheckPanel(db_provider=lambda: db["x"]))
     assert not pannello.btnRiprova.isHidden()
-    db["x"] = _db(tmp_path)
+    db["x"] = _db(tmp_path)                                               # ... e torna
     pannello.btnRiprova.click()
     assert pannello.cboSite.count() == 1 and pannello.btnRun.isEnabled()
     assert pannello.btnRiprova.isHidden()
@@ -136,3 +141,49 @@ def test_il_messaggio_del_database_che_non_si_legge_e_nelle_sei_lingue():
     from modules.utility.rapporti_check import _L
     for lang in ("it", "en", "de", "es", "fr", "pt"):
         assert "{errore}" in _L[lang].get("m_db_unreadable", ""), lang
+
+
+# ------------------------------------------- revisione finale (19 ottobre 2026)
+
+def test_mentre_legge_lo_dice_e_il_cursore_aspetta(avvisi, tmp_path, monkeypatch):
+    """Con un server lento la lettura dura fino a 10 s: la scheda si disegna
+    prima, con «Leggo i siti…», e il cursore aspetta."""
+    import gui.rapporti_check_dialog as dlg
+    from qgis.PyQt.QtCore import Qt
+    from qgis.PyQt.QtGui import QShowEvent
+    from qgis.PyQt.QtWidgets import QApplication
+    monkeypatch.setattr(dlg, "_qgis_lang", lambda: "it")
+    percorso = _db(tmp_path)
+    cursori = []
+    pannello = dlg.RapportiCheckPanel(db_provider=lambda: cursori.append(
+        QApplication.overrideCursor().shape() if QApplication.overrideCursor() else None) or percorso)
+    pannello.showEvent(QShowEvent())
+    assert "Leggo i siti" in pannello.lblStato.text() and not pannello.lblStato.isHidden()
+    assert pannello.cboSite.count() == 0                  # non ancora: dopo il disegno
+    for _ in range(20):
+        QApplication.processEvents()
+    assert pannello.cboSite.count() == 1 and pannello.lblStato.isHidden()
+    assert cursori == [Qt.CursorShape.WaitCursor] and QApplication.overrideCursor() is None
+
+
+def test_dopo_un_import_che_non_si_legge_un_tentativo_solo(avvisi):
+    from gui.rapporti_check_dialog import RapportiCheckPanel
+    tentativi = []
+    pannello = RapportiCheckPanel(db_provider=lambda: tentativi.append(1) or
+                                  "postgresql://utente:prova@127.0.0.1:59999/spento")
+    pannello._load_sites()                                # come fa la finestra dopo l'import
+    pannello.select_sito("Scavo A")
+    assert len(tentativi) == 1
+
+
+def test_riprova_solo_dove_serve_e_nelle_sei_lingue(avvisi):
+    """Senza database (la finestra aperta senza) riprovare non serve: il
+    database della finestra non cambia finché non la si riapre. «Riprova»
+    resta in italiano come gli altri pulsanti del pannello (e come lo citano
+    i tutorial); «Leggo i siti…» è un messaggio, nelle sei lingue."""
+    from gui.rapporti_check_dialog import RapportiCheckPanel
+    from modules.utility.rapporti_check import _L
+    pannello = _apri(RapportiCheckPanel(db_provider=lambda: None))
+    assert pannello.btnRiprova.isHidden()
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        assert _L[lang].get("m_loading_sites"), lang

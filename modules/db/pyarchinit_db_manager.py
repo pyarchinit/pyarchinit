@@ -99,6 +99,25 @@ def _set_db_checked(key, value):
     sys.modules[_DB_CHECKED_MODULE_KEY].checked[key] = value
 
 
+def _pg_connect_timeout(conn_str) -> int:
+    """Quanti secondi aspettare un PostgreSQL che non risponde: la variabile
+    di libpq PGCONNECT_TIMEOUT, poi ``connect_timeout`` nella stringa di
+    connessione, poi 10 (senza, su macOS ogni tentativo aspetta 75 s)."""
+    from urllib.parse import parse_qs, urlsplit
+    try:
+        dalla_stringa = (parse_qs(urlsplit(str(conn_str)).query).get("connect_timeout") or [None])[0]
+    except ValueError:
+        dalla_stringa = None
+    for valore in (os.environ.get("PGCONNECT_TIMEOUT"), dalla_stringa):
+        try:
+            secondi = int(float(valore))
+        except (TypeError, ValueError):
+            continue
+        if secondi > 0:
+            return secondi
+    return 10
+
+
 class DbConnectionSingleton:
     """Singleton per gestire connessioni database globali"""
     _instances = {}
@@ -440,7 +459,7 @@ class Pyarchinit_db_management(object):
                         pool_recycle=1800,      # Ricrea connessioni ogni 30 min
                         pool_pre_ping=True,     # Verifica connessioni prima dell'uso
                         connect_args={
-                            "connect_timeout": 10,
+                            "connect_timeout": _pg_connect_timeout(self.conn_str),
                             "application_name": "PyArchInit",
                             "options": "-c statement_timeout=30000"  # 30 sec timeout per query
                         }
@@ -449,7 +468,8 @@ class Pyarchinit_db_management(object):
                     # Configurazione per database locali (o di un istituto).
                     # connect_timeout: un server che non risponde terrebbe
                     # QGIS fermo per il tempo massimo del sistema (75 s su
-                    # macOS) a ogni tentativo.
+                    # macOS) a ogni tentativo; si alza con PGCONNECT_TIMEOUT
+                    # o con connect_timeout nella stringa di connessione.
                     self.engine = create_engine(
                         self.conn_str, 
                         echo=self.boolean,
@@ -458,14 +478,19 @@ class Pyarchinit_db_management(object):
                         pool_timeout=30,
                         pool_recycle=3600,
                         pool_pre_ping=True,
-                        connect_args={"connect_timeout": 10}
+                        connect_args={"connect_timeout": _pg_connect_timeout(self.conn_str)}
                     )
                 
+                # La sessione prima della prova: il gestore condiviso
+                # (get_db_manager) resta in memoria anche se la prova fallisce,
+                # e quando il server torna deve poter salvare.
+                self.metadata = MetaData()
+                self.Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
                 # Prima di tutto la connessione: con un server che non
                 # risponde, l'aggiornamento qui sotto farebbe decine di
                 # tentativi (uno per ogni controllo), con QGIS fermo.
-                with self.engine.connect() as prova:
-                    prova.exec_driver_sql("SELECT 1")
+                with self.engine.connect():
+                    pass
 
                 # Check and update PostgreSQL database if needed
                 # Only run once per session per connection string
