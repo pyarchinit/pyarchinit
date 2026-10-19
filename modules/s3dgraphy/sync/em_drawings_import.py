@@ -261,18 +261,28 @@ def crs_decision(db, georef, choice: Choice) -> CrsDecision:
         plan_srid = layer_srid(conn, PLAN_LAYER) if piante else None
         usm_srid = layer_srid(conn, VERTICAL_LAYER) if verticali else None
     problemi = []
-    if piante and drw.crs_kind(plan_srid) != "metric":
+    no_piante = bool(piante) and drw.crs_kind(plan_srid) != "metric"
+    no_verticali = bool(verticali) and drw.crs_kind(usm_srid) != "metric"
+    if no_piante:
         problemi.append("il layer %s %s" % (PLAN_LAYER, _descrivi(plan_srid)))
-    if verticali and drw.crs_kind(usm_srid) != "metric":
+    if no_verticali:
         problemi.append("il layer %s %s" % (VERTICAL_LAYER, _descrivi(usm_srid)))
     sorgente = georef.epsg if georef.usable else None
     if problemi:
         rimedio = ("ricrea il database in EPSG:%s (quello dell'em.json)" % georef.epsg
                    if georef.usable else "ricrea il database in un sistema metrico")
+        if no_piante and no_verticali:
+            cosa, solo = "piante e prospetti", ""
+        elif no_verticali:
+            cosa = "i prospetti"
+            solo = "; oppure, in «Scegli…», togli i prospetti e i quattro lati e importa solo le piante"
+        else:
+            cosa = "le piante"
+            solo = "; oppure, in «Scegli…», togli le piante e importa solo i prospetti"
         return CrsDecision("refuse", (
-            "Nel database %s: piante e prospetti non ci possono stare. Per avere le "
-            "geometrie, %s; oppure togli la casella «Ricava piante e prospetti dai "
-            "modelli 3D» e importa solo le schede." % ("; ".join(problemi), rimedio)),
+            "Nel database %s: %s non ci possono stare. Per avere le geometrie, %s%s; oppure "
+            "togli la casella «Ricava piante e prospetti dai modelli 3D» e importa solo le schede."
+            % ("; ".join(problemi), cosa, rimedio, solo)),
             plan_srid, usm_srid, sorgente)
     if piante and int(plan_srid) != int(georef.epsg):
         return CrsDecision("convert", "Converto le piante in EPSG:%s del database?" % plan_srid,
@@ -361,6 +371,9 @@ def compute_drawings(graph, units: Sequence[DrawingUnit], choice: Choice, georef
         except gm.GlbError as e:
             saltate[k] = str(e)
             continue
+        except Exception as e:                              # noqa: BLE001 — un file sparito, un disco staccato
+            saltate[k] = "il modello non si legge: %s" % e
+            continue
         tri = np.concatenate(parti)
         mesh[k] = drw.place(graph, georef, tri.reshape(-1, 3), z).reshape(-1, 3, 3)
     disegni: List[Drawing] = []
@@ -438,6 +451,7 @@ class WriteResult:
     skipped: Dict[str, str] = field(default_factory=dict)
     converted: Optional[Tuple[int, int]] = None
     view_fixed: bool = False
+    written_names: Dict[str, int] = field(default_factory=dict)    # poligoni scritti per nome
 
     def summary(self, units: Sequence[DrawingUnit] = ()) -> str:
         nomi = {u.key: u.name for u in units}
@@ -457,6 +471,24 @@ class WriteResult:
         if self.warnings:
             testo += "\nAvvisi: " + "; ".join(self.warnings[:5])
         return testo
+
+
+RILIEVO_MAX = 250           # rilievo_originale è varchar(250) nello schema PostgreSQL
+
+
+def rilievo_text(locators: Sequence[str], limit: int = RILIEVO_MAX) -> str:
+    """I locatori dei proxy per ``rilievo_originale``: tutti, se ci stanno;
+    altrimenti quelli che ci stanno e «(+N)» per gli altri."""
+    tutti = [str(l) for l in locators if l]
+    testo = "; ".join(tutti)
+    if len(testo) <= limit:
+        return testo
+    for n in range(len(tutti) - 1, 0, -1):
+        prova = "; ".join(tutti[:n]) + " (+%d)" % (len(tutti) - n)
+        if len(prova) <= limit:
+            return prova
+    coda = " (+%d)" % (len(tutti) - 1) if len(tutti) > 1 else ""
+    return tutti[0][:limit - len(coda) - 1] + "…" + coda
 
 
 def doc_type(db, sigla: str, ripiego: str, lingua: Optional[str] = None) -> str:
@@ -522,11 +554,13 @@ def _centroid(g) -> str:
 def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str, Scheda],
                    decision: CrsDecision, *, source_name: str, today: Optional[str] = None,
                    rilievi: Optional[Dict[str, str]] = None,
-                   scope: Optional[Set[str]] = None) -> WriteResult:
+                   scope: Optional[Set[str]] = None,
+                   after: Optional[Callable[[object, "WriteResult"], None]] = None) -> WriteResult:
     """Sostituisce l'insieme ricavato del sito: poligoni nei due layer,
     documenti, coppie della scheda US. Una transazione; un SAVEPOINT per riga.
     ``scope`` None = piante e prospetti (``3D-PLA``, ``3D-PRO-…``), che l'import
-    rifà tutti; un insieme = solo quei nomi (le sezioni che si ricalcolano)."""
+    rifà tutti; un insieme = solo quei nomi (le sezioni che si ricalcolano).
+    ``after(conn, esito)`` si chiama dentro la stessa transazione, a scrittura fatta."""
     from sqlalchemy import text
     from ...utility.qfield_importer import build_geom_sql
     esito = WriteResult()
@@ -598,6 +632,7 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                     continue
                 scritti += 1
             esito.features += scritti
+            esito.written_names[d.nome] = esito.written_names.get(d.nome, 0) + scritti
             if scritti:
                 if d.plan:
                     esito.plans += scritti
@@ -608,8 +643,8 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
         # i documenti, con lo stesso tipo e nome dei poligoni
         ora = set()
         for d in drawings:
-            if not any(schede.get(k) for k, _g in d.features):
-                continue
+            if not esito.written_names.get(d.nome):
+                continue                                    # nessun poligono, nessun documento
             ora.add((d.tipo, d.nome))
             riga = conn.execute(text(
                 "SELECT id_documentazione, disegnatore FROM documentazione_table WHERE sito = :s "
@@ -691,6 +726,8 @@ def write_drawings(db, sito: str, drawings: Sequence[Drawing], schede: Dict[str,
                 conn.execute(text("UPDATE us_table SET documentazione = :v WHERE id_us = :i"),
                              {"v": dopo, "i": int(id_us)})
                 esito.pairs_updated += 1
+        if after is not None:
+            after(conn, esito)
         if is_pg:
             # Gli id sono scritti espliciti (MAX + 1): la sequenza va rimessa
             # in pari, o il primo poligono disegnato in QGIS prenderebbe un
@@ -782,7 +819,10 @@ def run_drawings(db, graph, sito: str, emjson_path: str, *, units: Sequence[Draw
     nome = os.path.basename(str(emjson_path or "")) or "em.json"
     disegni, saltate = compute_drawings(graph, units, choice, georef, schede, source_name=nome,
                                         lang=lang, tipi=tipi, progress=progress)
-    rilievi = {u.key: "; ".join(u.locators) for u in units}
+    rilievi = {u.key: rilievo_text(u.locators) for u in units}
+    for u in units:                         # anche le unità che non si potevano scegliere
+        if not u.usable and u.status != "heir":
+            saltate.setdefault(u.key, status_text(u))
     if not any(d.features for d in disegni):
         # Per esempio il disco dei proxy staccato: niente da scrivere, e i
         # disegni ricavati la volta prima non si cancellano.

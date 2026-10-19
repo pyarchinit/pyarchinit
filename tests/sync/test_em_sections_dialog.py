@@ -61,3 +61,25 @@ def test_senza_proxy_la_voce_di_menu_lo_dice_prima_della_finestra():
     corpo = corpo[:corpo.index("\n    def ", 10)]
     controllo = corpo.find("es.NO_PROXY")
     assert controllo != -1 and controllo < corpo.index("SectionsDialog(")
+
+
+def test_la_lunghezza_e_in_metri_anche_per_un_layer_in_gradi():
+    """Minore della revisione: con il layer delle sezioni in 4326 la colonna
+    «Lunghezza (m)» mostrava gradi."""
+    from modules.s3dgraphy.em_drawings import Georef
+    from modules.s3dgraphy.em_sections_dialog import SectionsDialog
+    from modules.s3dgraphy.sync import em_sections as es
+    gradi = [es.SectionLine(1, "A1", "", "1", [(25.0, 45.0), (25.001, 45.0)])]
+    lunghezze = es.line_lengths(gradi, 4326, 31700)
+    assert 70.0 < lunghezze[1] < 90.0                          # un millesimo di grado a 45° N
+    geo = Georef("declared", 31700, 327300.0, 448370.0, 0.0, 0.0, metric=True)
+    dlg = SectionsDialog(gradi, _unita(), geo, {1: "3D-SEZ-A1"}, lengths=lunghezze)
+    assert dlg.table.item(0, 5).text() == ("%.2f" % lunghezze[1]).replace(".", ",")
+
+
+def test_la_posizione_si_controlla_prima_della_finestra():
+    corpo = PLUGIN[PLUGIN.index("    def _run_em_sections(self):"):]
+    corpo = corpo[:corpo.index("\n    def ", 10)]
+    assert "line_lengths(" in corpo
+    controllo = corpo.find("posizione.usable")
+    assert controllo != -1 and controllo < corpo.index("SectionsDialog(")

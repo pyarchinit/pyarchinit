@@ -22,8 +22,8 @@ import numpy as np
 from .. import em_drawings as drw
 from .. import glb_mesh as gm
 from .em_drawings_import import (VERTICAL_LAYER, CrsDecision, Drawing, DrawingUnit, WriteResult,
-                                 _engine, doc_type, layer_srid, plan_units, schede_of, status_text,
-                                 unfilter_usm_view, write_drawings)
+                                 _engine, doc_type, layer_srid, plan_units, rilievo_text, schede_of,
+                                 status_text, unfilter_usm_view, write_drawings)
 
 LINE_LAYER = "pyarchinit_sezioni"
 OPEN_MODEL = "la sezione non si chiude (modello aperto)"
@@ -138,18 +138,45 @@ def section_names(lines: Sequence[SectionLine]) -> Dict[int, str]:
 def _lines_in(lines: Sequence[SectionLine], srid, epsg: int):
     """I punti delle linee nel sistema dell'em.json; True se il layer non ha un
     sistema e i punti si sono presi così come sono."""
-    if drw.crs_kind(srid) == "undefined":
+    try:
+        senza = srid is None or int(srid) <= 0
+    except (TypeError, ValueError):
+        senza = True
+    if senza:                       # -1 o 0: il layer non ha un sistema
         return {l.gid: list(l.points) for l in lines}, True
     if int(srid) == int(epsg):
         return {l.gid: list(l.points) for l in lines}, False
-    from qgis.core import (QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY,
-                           QgsProject)
-    ct = QgsCoordinateTransform(QgsCoordinateReferenceSystem.fromEpsgId(int(srid)),
-                                QgsCoordinateReferenceSystem.fromEpsgId(int(epsg)), QgsProject.instance())
+    from qgis.core import (QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsCsException,
+                           QgsPointXY, QgsProject)
+    da = QgsCoordinateReferenceSystem.fromEpsgId(int(srid))
+    a = QgsCoordinateReferenceSystem.fromEpsgId(int(epsg))
+    ct = QgsCoordinateTransform(da, a, QgsProject.instance())
+    if not (da.isValid() and a.isValid() and ct.isValid()):
+        raise SectionsError(
+            "Le linee di sezione (EPSG:%s) non si possono convertire in EPSG:%s dell'em.json: "
+            "QGIS non conosce uno dei due sistemi. Controlla il sistema del layer pyarchinit_sezioni."
+            % (srid, epsg))
     out = {}
     for linea in lines:
-        out[linea.gid] = [(p.x(), p.y()) for p in (ct.transform(QgsPointXY(x, y)) for x, y in linea.points)]
+        try:
+            out[linea.gid] = [(p.x(), p.y()) for p in (ct.transform(QgsPointXY(x, y)) for x, y in linea.points)]
+        except QgsCsException as e:
+            raise SectionsError(
+                "La linea di sezione %s non si può convertire da EPSG:%s a EPSG:%s dell'em.json "
+                "(%s): forse ha coordinate fuori dal sistema del layer." % (
+                    linea.id_sezione or linea.gid, srid, epsg, str(e).strip() or "errore di conversione"))
     return out, False
+
+
+def line_lengths(lines: Sequence[SectionLine], srid, epsg) -> Dict[int, float]:
+    """Le lunghezze delle linee in metri, nel sistema dell'em.json (per la
+    finestra: un layer in gradi le darebbe in gradi). Se non si convertono,
+    quelle del layer."""
+    try:
+        punti, _grezze = _lines_in(lines, srid, int(epsg))
+    except (SectionsError, TypeError, ValueError):
+        return {l.gid: l.length for l in lines}
+    return {g: drw.line_length(p) for g, p in punti.items()}
 
 
 # ------------------------------------------------------------- em.json e unità
@@ -211,10 +238,11 @@ def section_units(graph, db, sito: str, *, search_dirs: Sequence[str] = (),
 
 _NOTE = {
     "it": ("Sezione {ids} lungo la linea «{descr}» ({tratti} tratti, {lung} m), dai proxy 3D di {src}: "
-           "X = metri lungo la linea dal primo punto (a sinistra), Y = quota (spostamento Z {z} m)."),
+           "X = metri lungo la linea dal primo punto A, che sta a sinistra a X = {ax}, "
+           "Y = quota (spostamento Z {z} m)."),
     "en": ("Section {ids} along the line \"{descr}\" ({tratti} segments, {lung} m), from the 3D proxies "
-           "of {src}: X = metres along the line from its first point (on the left), Y = elevation "
-           "(Z shift {z} m)."),
+           "of {src}: X = metres along the line from its first point A, on the left at X = {ax}, "
+           "Y = elevation (Z shift {z} m)."),
 }
 
 
@@ -234,6 +262,27 @@ def _min_u_kept(db, sito: str, scope: Set[str]) -> Optional[float]:
     except Exception:                                       # noqa: BLE001
         return None
     return float(valore) if valore is not None else None
+
+
+def _old_right(db, sito: str, names: Set[str]) -> Dict[str, float]:
+    """Dove finiscono adesso (X massima) le sezioni ricavate con questi nomi:
+    rifatte, restano al loro posto."""
+    from sqlalchemy import text
+    if not names:
+        return {}
+    eng = _engine(db)
+    xmax = "ST_XMax" if eng.dialect.name.startswith("postgres") else "MbrMaxX"
+    nomi = sorted(names)
+    try:
+        with eng.connect() as conn:
+            righe = conn.execute(text(
+                "SELECT nome_doc, MAX(%s(the_geom)) FROM %s WHERE scavo_s = :s AND disegnatore = :d "
+                "AND nome_doc IN (%s) GROUP BY nome_doc" % (
+                    xmax, VERTICAL_LAYER, ", ".join(":n%d" % i for i in range(len(nomi))))),
+                {"s": sito, "d": drw.DRAWER, **{"n%d" % i: n for i, n in enumerate(nomi)}}).fetchall()
+    except Exception:                                       # noqa: BLE001
+        return {}
+    return {str(n): float(x) for n, x in righe if x is not None}
 
 
 def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float] = None,
@@ -305,6 +354,9 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
         except gm.GlbError as e:
             esito.skipped[u.name] = str(e)
             continue
+        except Exception as e:                              # noqa: BLE001 — un file sparito, un disco staccato
+            esito.skipped[u.name] = "il modello non si legge: %s" % e
+            continue
         mesh[u.key] = drw.place(graph, georef, tri.reshape(-1, 3), z).reshape(-1, 3, 3)
     disegni: List[Drawing] = []
     for linea in scelte:
@@ -326,7 +378,7 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
             continue
         disegni.append(Drawing(VERTICAL_LAYER, tipo, nome, nota.format(
             ids=linea.id_sezione or linea.gid, descr=linea.descr, tratti=linea.segments,
-            lung=("%.2f" % drw.line_length(pts)), src=sorgente, z=z), figure))
+            lung=("%.2f" % drw.line_length(pts)), src=sorgente, z=z, ax="{ax}"), figure))
         esito.cut[nome] = len(figure)
     if progress:
         progress(totale, totale, "")
@@ -342,25 +394,39 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
         ambito |= {l.nome_doc for l in scelte if _is_section_name(l.nome_doc) and l.nome_doc not in attuali}
     if not ambito:
         return esito
-    # a sinistra di u = 0 e di tutto quello che resta nel sito
+    # Le sezioni rifatte restano dove erano (la loro X massima di prima); le
+    # nuove vanno a sinistra di u = 0 e di tutto quello che resta nel sito.
+    vecchie = _old_right(db, sito, {d.nome for d in disegni})
+    sinistra = []
     minimo = _min_u_kept(db, sito, ambito)
-    cursore = min(0.0, minimo if minimo is not None else 0.0) - drw.GAP
+    if minimo is not None:
+        sinistra.append(minimo)
     for d in disegni:
+        if d.nome in vecchie:
+            hi = max(drw.span_u(g)[1] for _k, g in d.features)
+            d.features = [(k, drw.translated(g, vecchie[d.nome] - hi)) for k, g in d.features]
+            d.note = d.note.replace("{ax}", "%.2f" % (vecchie[d.nome] - hi))
+            sinistra.append(min(drw.span_u(g)[0] for _k, g in d.features))
+    cursore = min([0.0] + sinistra) - drw.GAP
+    for d in disegni:
+        if d.nome in vecchie:
+            continue
         lo = min(drw.span_u(g)[0] for _k, g in d.features)
         hi = max(drw.span_u(g)[1] for _k, g in d.features)
         d.features = [(k, drw.translated(g, cursore - hi)) for k, g in d.features]
+        d.note = d.note.replace("{ax}", "%.2f" % (cursore - hi))
         cursore -= (hi - lo) + drw.GAP
-    rilievi = {u.key: "; ".join(u.locators) for u in unita}
-    esito.written = write_drawings(db, sito, disegni, schede, CrsDecision("ok", usm_srid=usm_srid),
-                                   source_name=sorgente, rilievi=rilievi, scope=ambito)
-    esito.sections = esito.written.unit_views
-    # La linea si lega al suo documento, se non ne ha già uno o se ha quello
-    # di una sezione ricavata di prima; perde quello ricavato se non ne ha più.
-    with _engine(db).begin() as conn:
+    rilievi = {u.key: rilievo_text(u.locators) for u in unita}
+
+    def collega(conn, scritto: WriteResult) -> None:
+        """La linea si lega al suo documento, se non ne ha già uno o se ha
+        quello di una sezione ricavata di prima, e solo se i poligoni ci sono;
+        perde quello ricavato se la sua sezione non c'è più. Nella stessa
+        transazione della scrittura."""
         for linea in scelte:
             nome = nomi[linea.gid]
             nostra = (not linea.tipo_doc and not linea.nome_doc) or _is_section_name(linea.nome_doc)
-            if nome not in esito.cut:
+            if not scritto.written_names.get(nome):
                 if nostra and linea.nome_doc and linea.nome_doc in ambito:
                     conn.execute(text("UPDATE %s SET tipo_doc = NULL, nome_doc = NULL WHERE gid = :g"
                                       % LINE_LAYER), {"g": linea.gid})
@@ -374,5 +440,9 @@ def run_sections(db, sito: str, *, gids: Sequence[int], shift_z: Optional[float]
             else:
                 esito.other_doc.append("%s (%s %s)" % (linea.id_sezione or linea.gid,
                                                        linea.tipo_doc, linea.nome_doc))
+
+    esito.written = write_drawings(db, sito, disegni, schede, CrsDecision("ok", usm_srid=usm_srid),
+                                   source_name=sorgente, rilievi=rilievi, scope=ambito, after=collega)
+    esito.sections = esito.written.unit_views
     esito.written.view_fixed = unfilter_usm_view(db)
     return esito

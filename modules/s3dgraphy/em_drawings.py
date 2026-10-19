@@ -309,7 +309,7 @@ def translated(geom, du: float):
 # ------------------------------------------------- i nomi e le coppie della scheda
 
 _DERIVED = re.compile(r"^3D-(PLA|PRO-.+|SEZ-.+)$")
-_UNSAFE = re.compile(r"[^0-9A-Za-z._-]+")
+_UNSAFE = re.compile(r"[^\w.-]+")                    # lettere di ogni lingua, cifre, . _ -
 
 
 def side_name(code: str) -> str:
@@ -329,8 +329,17 @@ def unit_drawing_names(items: Sequence[Tuple[str, str, str, str]]) -> Dict[str, 
     verrebbero doppi si aggiunge «-A<area>»."""
     base = {k: "3D-PRO-%s%s" % (_safe(t), _safe(u)) for k, t, u, _a in items}
     quanti = Counter(base.values())
-    return {k: base[k] + ("-A%s" % _safe(a) if quanti[base[k]] > 1 else "")
+    nomi = {k: base[k] + ("-A%s" % _safe(a) if quanti[base[k]] > 1 else "")
             for k, _t, _u, a in items}
+    # Quelli ancora doppi («2/a» e «2-a» nella stessa area) prendono -2, -3…
+    # nell'ordine delle chiavi, così il nome non dipende dall'ordine dell'elenco.
+    gruppi: Dict[str, List[str]] = {}
+    for k in sorted(nomi):
+        gruppi.setdefault(nomi[k], []).append(k)
+    for nome, chiavi in gruppi.items():
+        for i, k in enumerate(chiavi[1:], start=2):
+            nomi[k] = "%s-%d" % (nome, i)
+    return nomi
 
 
 def _pairs(value):
@@ -395,7 +404,7 @@ def merge_derived_pairs(new_value, old_value):
 
 # ------------------------------------------------------------------ le sezioni
 
-def _section_segments(tri_map: np.ndarray, a, b):
+def _section_segments(tri_map: np.ndarray, a, b, lato: float = 1.0):
     """I segmenti dove i triangoli attraversano il piano verticale per a→b, in
     coordinate del disegno (u lungo il tratto da a, v quota); e la lunghezza."""
     t = np.asarray(tri_map, dtype=np.float64)
@@ -410,7 +419,7 @@ def _section_segments(tri_map: np.ndarray, a, b):
     # vertice stesso: uguale al bit in tutti i triangoli che lo toccano, senza
     # i segmentini di 1e-9 che lasciavano il contorno aperto.
     sul_piano = np.abs(s) < 1e-9
-    s = np.where(sul_piano, 1e-9, s)
+    s = np.where(sul_piano, 1e-9 * lato, s)
     sopra = s > 0
     attraversa = sopra.any(axis=1) & (~sopra).any(axis=1)
     t, s, sopra, sul_piano = t[attraversa], s[attraversa], sopra[attraversa], sul_piano[attraversa]
@@ -449,9 +458,19 @@ def section_geometry(tri_map: np.ndarray, a, b):
     u = |ab|: MultiPolygon o None. Si riempie tutto quello che sta dentro il
     contorno esterno: un'unità è un volume pieno, e i proxy di TempluMare hanno
     un guscio interno rientrato di un centimetro che, pari/dispari, lascerebbe
-    solo un anello sottile (18 ottobre 2026)."""
+    solo un anello sottile (18 ottobre 2026). I vertici sul piano contano dalla
+    parte di chi guarda; se così non viene niente (una linea proprio su una
+    faccia del modello, dalla parte opposta), dall'altra: il risultato non
+    dipende dal verso della linea."""
+    g = _section_face(tri_map, a, b, 1.0)
+    if g is None:
+        g = _section_face(tri_map, a, b, -1.0)
+    return g
+
+
+def _section_face(tri_map: np.ndarray, a, b, lato: float):
     from qgis.core import QgsGeometry, QgsRectangle
-    seg, lung = _section_segments(tri_map, a, b)
+    seg, lung = _section_segments(tri_map, a, b, lato)
     if not len(seg):
         return None
     seg = seg[(seg[:, 0] != seg[:, 1]).any(axis=1)]          # via solo i segmenti di un punto

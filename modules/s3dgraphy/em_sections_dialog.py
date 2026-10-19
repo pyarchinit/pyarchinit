@@ -19,7 +19,8 @@ def _numero(x: float) -> str:
 
 class SectionsDialog(QDialog):
     def __init__(self, lines: Sequence[SectionLine], units: Sequence[DrawingUnit], georef,
-                 names: Dict[int, str], shift_z: Optional[float] = None, parent=None):
+                 names: Dict[int, str], shift_z: Optional[float] = None,
+                 lengths: Optional[Dict[int, float]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Sezioni dai modelli 3D")
         self.resize(760, 460)
@@ -58,7 +59,8 @@ class SectionsDialog(QDialog):
                 scelta.setFlags(Qt.ItemFlag.NoItemFlags)
             self.table.setItem(r, 0, scelta)
             for c, testo in ((1, linea.id_sezione), (2, linea.descr), (3, linea.area),
-                             (4, str(linea.segments)), (5, _numero(linea.length)),
+                             (4, str(linea.segments)),
+                             (5, _numero((lengths or {}).get(linea.gid, linea.length))),
                              (6, names.get(linea.gid, ""))):
                 cella = QTableWidgetItem(testo)
                 cella.setFlags(Qt.ItemFlag.ItemIsEnabled)

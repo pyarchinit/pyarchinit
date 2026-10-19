@@ -207,3 +207,48 @@ def test_senza_nessun_proxy_si_dice(sezioni):
         f.unlink()
     with pytest.raises(es.SectionsError, match="media"):
         _taglia(sezioni, [_linea(sezioni)])
+
+
+# ------------------------------------------- minori della revisione (19 ottobre 2026)
+
+def test_la_nota_dice_dove_sta_il_primo_punto(sezioni):
+    gid = _linea(sezioni)
+    _taglia(sezioni, [gid])
+    nota = _righe(sezioni, "SELECT note FROM documentazione_table WHERE nome_doc = '3D-SEZ-A1'")[0][0]
+    # SU001 va da u = 2 a u = 6; la sezione finisce a X = -10: A sta a X = -16
+    assert "X = -16.00" in nota
+
+
+def test_rifare_una_sezione_la_lascia_al_suo_posto(sezioni):
+    a = _linea(sezioni)
+    b = _linea(sezioni, wkt="LINESTRING(327298 448379.8, 327306 448379.8)", id_sezione="B1")
+    _taglia(sezioni, [a])
+    _taglia(sezioni, [b])
+    prima = dict(_righe_g(sezioni, "SELECT nome_doc, MbrMaxX(the_geom) FROM pyunitastratigrafiche_usm "
+                                 "WHERE nome_doc LIKE '3D-SEZ-%'"))
+    q = "SELECT nome_doc, MbrMaxX(the_geom) FROM pyunitastratigrafiche_usm WHERE nome_doc LIKE '3D-SEZ-%'"
+    _taglia(sezioni, [a])                                    # prima andava a sinistra di B
+    assert dict(_righe_g(sezioni, q)) == pytest.approx(prima)
+    _taglia(sezioni, [b])
+    _taglia(sezioni, [a, b])
+    assert dict(_righe_g(sezioni, q)) == pytest.approx(prima)
+
+
+def test_la_linea_non_si_lega_se_nessun_poligono_si_scrive(sezioni):
+    con = _con(sezioni["db"])
+    con.execute("CREATE TRIGGER no_sez BEFORE INSERT ON pyunitastratigrafiche_usm "
+                "WHEN NEW.nome_doc LIKE '3D-SEZ-%' BEGIN SELECT RAISE(ABORT, 'rifiutato'); END")
+    con.commit()
+    con.close()
+    gid = _linea(sezioni)
+    esito = _taglia(sezioni, [gid])
+    assert esito.linked == 0 and esito.sections == 0
+    assert _righe(sezioni, "SELECT COALESCE(nome_doc, '') FROM pyarchinit_sezioni WHERE gid = ?", gid) == [("",)]
+    assert _righe(sezioni, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-SEZ-A1'")[0][0] == 0
+
+
+def test_linee_che_non_si_convertono_si_dice(sezioni):
+    from modules.s3dgraphy.sync import em_sections as es
+    linee = [es.SectionLine(1, "A1", "", "1", [(0.0, 0.0), (1.0, 0.0)])]
+    with pytest.raises(es.SectionsError, match="non si (possono )?convert"):
+        es._lines_in(linee, 999999, 31700)

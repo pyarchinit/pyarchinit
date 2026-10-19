@@ -136,3 +136,12 @@ def test_un_proxy_a_doppio_guscio_e_pieno():
     doppio = np.concatenate([SCATOLA, _cubo(0.01, 0.01, 10.01, 3.98, 1.98, 2.98)])
     g = drw.section_geometry(doppio, (-1.0, 1.0), (5.0, 1.0))
     assert g.area() == pytest.approx(12.0, abs=1e-6)
+
+
+def test_una_linea_su_una_faccia_non_dipende_dal_verso():
+    """Minore della revisione: una linea proprio sulla faccia y = 0 della
+    scatola dava il profilo in un verso e niente nell'altro."""
+    andata = drw.section_geometry(SCATOLA, (-1.0, 0.0), (5.0, 0.0))
+    ritorno = drw.section_geometry(SCATOLA, (5.0, 0.0), (-1.0, 0.0))
+    assert andata is not None and ritorno is not None
+    assert andata.area() == pytest.approx(12.0, abs=1e-6) and ritorno.area() == pytest.approx(12.0, abs=1e-6)

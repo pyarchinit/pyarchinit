@@ -454,7 +454,7 @@ def test_importare_in_un_secondo_sito_ha_i_suoi_disegni(progetto):
     scelta = edi.default_choice(unita, geo)
     esito = edi.run_drawings(progetto["eng"], progetto["grafo"], "Copia", str(progetto["em"]), units=unita,
                              choice=scelta, georef=geo, decision=edi.crs_decision(progetto["eng"], geo, scelta))
-    assert esito.plans == 2 and not esito.skipped
+    assert esito.plans == 2 and esito.skipped == {"u3": "file non trovato"}     # solo l'unità senza file
 
 
 def test_il_reimport_non_tocca_le_sezioni(progetto):
@@ -479,3 +479,64 @@ def test_il_reimport_non_tocca_le_sezioni(progetto):
     assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-SEZ-1'")[0][0] == 1
     doc = _righe(progetto, "SELECT documentazione FROM us_table WHERE sito = ? AND us = '001'", SITO)[0][0]
     assert "['Sezione', '3D-SEZ-1']" in doc
+
+
+# ------------------------------------------- minori della revisione (19 ottobre 2026)
+
+def test_un_file_che_non_si_legge_salta_solo_la_sua_unita(progetto, monkeypatch):
+    from modules.s3dgraphy import glb_mesh as gm
+    vero = gm.read_triangles
+
+    def finto(p, **kw):
+        if "SU001" in str(p):
+            raise OSError("file sparito")
+        return vero(p, **kw)
+    monkeypatch.setattr(gm, "read_triangles", finto)
+    disegni, saltate = _calcola(progetto)
+    assert any(d.features for d in disegni)
+    assert any("file sparito" in m for m in saltate.values())
+
+
+def test_nessun_documento_se_nessun_poligono_si_scrive(progetto):
+    con = sqlite3.connect(progetto["db"])
+    con.execute("CREATE TRIGGER no_nord BEFORE INSERT ON pyunitastratigrafiche_usm "
+                "WHEN NEW.nome_doc = '3D-PRO-N' BEGIN SELECT RAISE(ABORT, 'rifiutato'); END")
+    con.commit()
+    con.close()
+    esito = _scrivi(progetto)
+    assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-PRO-N'")[0][0] == 0
+    assert _righe(progetto, "SELECT count(*) FROM documentazione_table WHERE nome_doc = '3D-PRO-E'")[0][0] == 1
+    assert esito.side_views == 3 and any("rifiutato" in w for w in esito.warnings)
+
+
+def test_il_rilievo_originale_sta_in_250_caratteri():
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    lunghi = ["webdav://server.example/progetto/EM/proxies/%03d_%s.glb" % (i, "x" * 40) for i in range(8)]
+    testo = edi.rilievo_text(lunghi)
+    assert len(testo) <= 250 and testo.startswith(lunghi[0]) and testo.endswith("(+%d)" % (8 - testo.count(";") - 1))
+    assert edi.rilievo_text(["a.glb", "b.glb"]) == "a.glb; b.glb"
+    assert len(edi.rilievo_text(["y" * 400])) <= 250
+
+
+def test_il_fermo_dice_quale_layer_non_va(tmp_path):
+    from modules.s3dgraphy import em_drawings as drw
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    p = make_project(tmp_path)
+    con = sqlite3.connect(p["db"])
+    con.execute("UPDATE geometry_columns SET srid = 4326 WHERE f_table_name = 'pyunitastratigrafiche_usm'")
+    con.commit()
+    con.close()
+    geo = drw.georef_of(p["grafo"])
+    unita = edi.plan_units(p["grafo"], str(p["em"]), db=p["eng"], sito=SITO)
+    decisione = edi.crs_decision(p["eng"], geo, edi.default_choice(unita, geo))
+    assert decisione.kind == "refuse"
+    assert "i prospetti non ci possono stare" in decisione.message
+    assert "piante e prospetti non ci possono stare" not in decisione.message
+    assert "solo le piante" in decisione.message
+
+
+def test_il_riepilogo_dice_le_unita_senza_modello(progetto):
+    from modules.s3dgraphy.sync import em_drawings_import as edi
+    unita = edi.plan_units(progetto["grafo"], str(progetto["em"]), db=progetto["eng"], sito=SITO)
+    esito = _scrivi(progetto)
+    assert "USV103: file non trovato" in esito.summary(unita)

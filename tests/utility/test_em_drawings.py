@@ -198,3 +198,16 @@ def test_al_reimport_le_coppie_ricavate_restano():
         "[['Fotografie', 'Si'], ['Sezione', 'B'], ['Prospetto', '3D-PRO-N']]"
     assert drw.merge_derived_pairs("[['Fotografie', 'Si']]", None) == "[['Fotografie', 'Si']]"
     assert drw.merge_derived_pairs("rotto [", vecchio) == "rotto ["
+
+
+def test_i_nomi_non_si_scontrano_e_tengono_le_lettere():
+    """Minori della revisione: «2/a» e «2-a» nella stessa area davano lo
+    stesso nome, e le lettere non ASCII diventavano «_»."""
+    nomi = drw.unit_drawing_names([("a", "US", "2/a", "1"), ("b", "US", "2-a", "1"),
+                                   ("c", "US", "ü1", "1")])
+    assert len(set(nomi.values())) == 3
+    assert nomi["c"] == "3D-PRO-USü1"
+    assert all(drw.is_derived_name(n) for n in nomi.values())
+    rovescio = drw.unit_drawing_names([("c", "US", "ü1", "1"), ("b", "US", "2-a", "1"),
+                                       ("a", "US", "2/a", "1")])
+    assert rovescio == nomi                                    # non dipende dall'ordine

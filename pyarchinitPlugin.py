@@ -3111,7 +3111,7 @@ class PyArchInitPlugin(object):
                 raise es.SectionsError(
                     "Il sito «%s» non ha un em.json importato: importalo prima con «Extended Matrix → "
                     "Importa em.json…», con i media, così pyArchInit ha i modelli 3D delle unità." % site)
-            linee, _srid = es.section_lines(db, site)
+            linee, srid_linee = es.section_lines(db, site)
             if not linee:
                 raise es.SectionsError(
                     "Il sito «%s» non ha linee di sezione: tracciale nel layer delle sezioni "
@@ -3120,6 +3120,11 @@ class PyArchInitPlugin(object):
             if not any(u.usable for u in unita):
                 raise es.SectionsError(es.NO_PROXY % site)
             posizione = drw.georef_of(grafo)
+            if not posizione.usable:
+                raise es.SectionsError(
+                    "L'em.json del sito non dice dove sta la scena (EPSG e spostamenti): senza "
+                    "posizione le linee della mappa e i modelli 3D non si incontrano.")
+            lunghezze = es.line_lengths(linee, srid_linee, posizione.epsg)
         except es.SectionsError as e:
             QMessageBox.information(self.iface.mainWindow(), titolo, str(e))
             return
@@ -3127,7 +3132,7 @@ class PyArchInitPlugin(object):
             QMessageBox.warning(self.iface.mainWindow(), titolo, "%s: %s" % (type(e).__name__, e))
             return
         finestra = SectionsDialog(linee, unita, posizione, es.section_names(linee),
-                                  parent=self.iface.mainWindow())
+                                  lengths=lunghezze, parent=self.iface.mainWindow())
         if not finestra.exec():
             return
         gids, spostamento = finestra.chosen()
