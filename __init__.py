@@ -204,14 +204,32 @@ class PackageManager:
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
                 subprocess.run([sys.executable, "-m", "pip", "install", package],
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif platform.system() == 'Windows' and PackageManager.is_osgeo4w():
-            python_executable = PackageManager.get_osgeo4w_python()
-            subprocess.run([python_executable, "-m", "pip", "install", package],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Windows':
-            python_executable = 'python'
-            subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            # Always `--user`: QGIS usually lives under C:\Program Files, where
+            # pip cannot write without elevation, while the per-user
+            # site-packages is on QGIS's sys.path. Prefer the interpreter of
+            # THIS process (sys.exec_prefix): a bare 'python' from PATH may be
+            # a different Python — or the Microsoft Store alias — and a package
+            # installed there never becomes importable inside QGIS.
+            attempts = []
+            exec_prefix_python = os.path.join(sys.exec_prefix, 'python.exe')
+            if os.path.exists(exec_prefix_python):
+                attempts.append((exec_prefix_python, False))
+            if PackageManager.is_osgeo4w():
+                attempts.append((PackageManager.get_osgeo4w_python(), True))
+            attempts.append(('python', True))
+            last_error = None
+            for python_executable, use_shell in attempts:
+                try:
+                    subprocess.run(
+                        [python_executable, "-m", "pip", "install", "--user", package],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        check=True, shell=use_shell)
+                    return
+                except Exception as e:
+                    last_error = e
+                    print(f"Error installing {package} with {python_executable}: {e}")
+            raise RuntimeError(f"Could not install {package} on Windows: {last_error}")
         elif platform.system() == 'Darwin':
             # Install into the plugin-local ext_libs dir: pip cannot write inside
             # the read-only QGIS app bundle on macOS (raises PermissionError),
@@ -323,7 +341,13 @@ class PackageManager:
             try:
                 name = pkg.metadata.get('Name')
                 version = pkg.metadata.get('Version')
-                if name:
+                # distributions() walks sys.path in order: when a package
+                # exists twice (e.g. a pip --user copy shadowing the one
+                # bundled with QGIS on Windows), `import` loads the FIRST
+                # copy, so the first metadata seen is the one that counts —
+                # a stale copy later on sys.path must not overwrite it, or
+                # the install prompt comes back at every QGIS start.
+                if name and name.lower() not in installed_packages:
                     installed_packages[name.lower()] = version or ''
             except Exception:
                 continue
@@ -449,7 +473,13 @@ class Worker(QObject):
         total = len(packages)
         for i, package in enumerate(packages):
             self.progress.emit(int((i + 1) / total * 100))  # Emit progress signal
-            PackageManager.install(package)
+            try:
+                PackageManager.install(package)
+            except Exception as e:
+                # Keep going: one failed package must not abort the thread, or
+                # `finished` is never emitted, the dialog hangs on
+                # "Installing..." and the remaining packages are skipped.
+                print(f"pyArchInit: failed to install {package}: {e}")
 
         self.finished.emit()  # Emit finished signal
 
