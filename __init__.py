@@ -430,7 +430,13 @@ class PackageManager:
             try:
                 name = pkg.metadata.get('Name')
                 version = pkg.metadata.get('Version')
-                if name:
+                # distributions() walks sys.path in order: when a package
+                # exists twice (e.g. a pip --user copy shadowing the one
+                # bundled with QGIS on Windows), `import` loads the FIRST
+                # copy, so the first metadata seen is the one that counts —
+                # a stale copy later on sys.path must not overwrite it, or
+                # the install prompt comes back at every QGIS start.
+                if name and name.lower() not in installed_packages:
                     installed_packages[name.lower()] = version or ''
             except Exception:
                 continue
