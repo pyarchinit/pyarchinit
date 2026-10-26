@@ -5,6 +5,28 @@
 
 ---
 
+## [fix] - 2026-10-26 — Le librerie installate da pyArchInit rispettano il numpy di QGIS: su QGIS 3.40 LTR (Windows) le schede US e Reperti non si aprivano più (issue #666) — 5.13.138-alpha
+
+> Branch `Stratigraph_00001`. Suite **2601 verdi** (0 falliti, 0 errori, 3 saltati, 1 xfail; +10 test). / Libraries installed by pyArchInit now respect QGIS's numpy: on QGIS 3.40 LTR (Windows) the US and Finds forms no longer opened (issue #666).
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: issue #666 (figueramrn, 26 ottobre 2026; Windows, QGIS 3.40.7 LTR, Python 3.12, PostgreSQL): «errore apertura scheda US e Reperti» — `ImportError: Please upgrade numpy to >= 2.0.2 to use this pandas version. Your numpy version is 1.26.4`. All'avvio pyArchInit installa le dipendenze in `ext_libs` con `pip install --upgrade --target`: pip prendeva il pandas più recente (3.1, vuole numpy >= 2.0.2), ma QGIS carica il suo numpy (1.26.4) e numpy, una volta caricato, non si cambia; le schede che importano pandas (US e Reperti, tramite `archaeological_data_mapping`) non partivano. Sul Mac (Python 3.9) non si vedeva: pandas 3 lì non esiste.
+  - **Il vincolo del numpy di QGIS** (`modules/utility/python_env.py`): `host_numpy_version` (il numpy già caricato da fuori `ext_libs`, o il primo fuori da `ext_libs`), `numpy_constraint_args` → `--constraint numpy==<quello di QGIS>` a ogni installazione (anche nel ripiego `--user`), così pip sceglie versioni compatibili: provato con pip vero per Windows/Python 3.12, pandas 3.0.6 (numpy >= 1.26.0) invece di 3.1.0.
+  - **La riparazione all'avvio** (`needs_newer_numpy`, `numpy_repairs` in `get_missing_packages`): un pacchetto di `ext_libs` il cui requisito esclude il numpy di QGIS si reinstalla col vincolo, **una volta sola** per quel numpy (`.pyarchinit_numpy_attempts.json`: una riparazione impossibile non torna a ogni avvio); vale anche al contrario, per QGIS 4 (numpy 2.5) e un vecchio pacchetto che vuole numpy < 2.
+  - **Dalla revisione finale:** `pip --target --upgrade` che scende di versione lascia il vecchio `pandas-3.1.0.dist-info` accanto al nuovo, e la riparazione sarebbe ripartita a ogni avvio: si guarda il dist-info più recente e dopo ogni installazione si tolgono quelli vecchi (`prune_stale_dists`); la copia di numpy che pip mette in `ext_libs` come dipendenza si toglie (`drop_ext_numpy`, quello che conta è di QGIS); la riga dei requisiti si sceglie col marcatore di Python giusto e senza marcatore; il file del vincolo è temporaneo e proprio (`mkstemp`) e, se non si può scrivere, l'installazione va avanti senza; la versione di numpy senza etichetta locale (`2.1.3+mkl` → `2.1.3`); un pacchetto che fallisce non lascia la finestra ferma su «Installing...». Scenario vero rifatto con pip: prima pandas 3.1.0 + numpy 2.5.4; dopo la riparazione e la pulizia, solo `pandas-3.0.6.dist-info`, niente da rifare.
+  - Provato anche con i due QGIS di questo Mac: QGIS 3 (Python 3.9, numpy 1.26.0) e QGIS 4.2.2 (Python 3.12, numpy 2.5.2, pandas 3.0.5 suo): niente da reinstallare.
+- 🇬🇧 **EN**: every pip install into `ext_libs` is now constrained to QGIS's own numpy version, so pip picks compatible releases (pandas 3.0.6 instead of 3.1.0 on QGIS 3.40/Python 3.12/numpy 1.26.4); at startup an `ext_libs` package whose numpy requirement excludes QGIS's numpy is reinstalled once per host numpy (also the reverse case on QGIS 4 with numpy 2); stale dist-infos left by downgrades are pruned, the numpy copy pip drops into `ext_libs` is removed, marker-aware requirement lines, a private constraints file that never blocks the install, local version labels stripped, a failing package no longer freezes the install dialog.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +10 test su cartelle finte (numpy di QGIS, chi chiede un altro numpy, vincolo, riga dei requisiti col marcatore, dist-info vecchi, tentativo una volta sola, file del vincolo non scrivibile, etichetta locale, copia di numpy tolta, QGIS 4 col numpy 2) visti rossi prima; scenario della issue rifatto con pip vero in una cartella di prova.
+- 🇬🇧 **EN**: 10 new tests, all seen failing first; the issue scenario replayed with real pip.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: risposta alla issue #666 col rimedio manuale nell'attesa. `metadata.txt` 5.13.138-alpha.
+- 🇬🇧 **EN**: workaround posted on issue #666.
+
+---
+
 ## [fix] - 2026-10-19 — Un PostgreSQL che non risponde non tiene più QGIS fermo: la connessione si prova prima dell'aggiornamento dello schema, con 10 secondi al massimo; il pannello «Verifica rapporti» legge i siti quando apri la sua scheda e poi riprova solo con «Riprova» — 5.13.137-alpha
 
 > Branch `Stratigraph_00001`. Suite **2591 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail; +11 test). / An unreachable PostgreSQL server no longer freezes QGIS: the connection is probed before the schema updater, with a 10-second connect timeout; the «Verifica rapporti» panel reads the sites when its tab is opened and retries only on «Riprova».
