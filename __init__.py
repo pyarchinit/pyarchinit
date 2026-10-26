@@ -32,7 +32,8 @@ from typing import Dict, List, Optional, Set
 # Its compiled packages load only in the Python that installed them: one
 # built for another Python (QGIS 3's 3.9 in a QGIS 4 profile) is parked
 # aside and a fresh one is started (modules/utility/python_env.py).
-from .modules.utility.python_env import ensure_ext_libs, pip_interpreter, probe, write_marker
+from .modules.utility.python_env import (ensure_ext_libs, numpy_constraint_args, numpy_repairs,
+                                         pip_interpreter, probe, write_marker)
 
 
 def _startup_log(message):
@@ -384,12 +385,15 @@ class PackageManager:
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
 
         # Plugin-local ext_libs (priority over the QGIS packages; no
-        # permission issues with the QGIS bundle / Program Files)
-        if PackageManager._pip_install(["--upgrade", "--target", _EXT_LIBS_DIR, package]):
+        # permission issues with the QGIS bundle / Program Files).
+        # numpy==<quello di QGIS>: pip sceglie versioni compatibili col numpy
+        # che QGIS carica (issue #666: pandas 3 su QGIS 3.40 con numpy 1.26)
+        vincolo = numpy_constraint_args(_EXT_LIBS_DIR)
+        if PackageManager._pip_install(["--upgrade", "--target", _EXT_LIBS_DIR, *vincolo, package]):
             write_marker(_EXT_LIBS_DIR)
         elif platform.system() in ('Windows', 'Linux'):
             # Fallback: the user site of the same Python
-            PackageManager._pip_install(["--upgrade", package, "--user"])
+            PackageManager._pip_install(["--upgrade", *vincolo, package, "--user"])
 
     @staticmethod
     def remove_opencv_directories() -> None:
@@ -933,6 +937,16 @@ def get_missing_packages() -> List[str]:
     """
     requirements_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
     missing_packages = PackageManager.check_required_packages(requirements_path)
+
+    # Issue #666: in ext_libs un pacchetto che chiede un numpy più nuovo di
+    # quello di QGIS (pandas 3 con numpy 1.26) non si importa: si reinstalla,
+    # col vincolo del numpy di QGIS
+    try:
+        for spec in numpy_repairs(requirements_path, _EXT_LIBS_DIR):
+            if spec not in missing_packages:
+                missing_packages.append(spec)
+    except Exception as e:                                  # noqa: BLE001
+        print(f"pyArchInit: numpy check skipped: {e}")
 
     # Add fix for PIL/Pillow issue on macOS
     if platform.system() == 'Darwin':

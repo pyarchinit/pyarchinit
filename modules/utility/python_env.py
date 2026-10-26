@@ -229,3 +229,117 @@ def pip_interpreter(extra=(), version=None, machine=None):
         without_pip = without_pip or (python, _env(home))
     _cache[key] = result or without_pip
     return _cache[key]
+
+
+# --------------------------------------------------------------------------
+#  Il numpy di QGIS (issue #666)
+# --------------------------------------------------------------------------
+#
+# numpy non si installa in ext_libs (è di QGIS, e una volta caricato non si
+# cambia), ma pip lo tirava dentro come dipendenza e sceglieva i pacchetti
+# per l'ultimo numpy: su QGIS 3.40 (Python 3.12, numpy 1.26.4) prendeva
+# pandas 3.x, che vuole numpy >= 2.0.2, e le schede che usano pandas non si
+# aprivano. Ogni installazione in ext_libs ha quindi il vincolo del numpy di
+# QGIS, e un pacchetto già installato che ne chiede uno più nuovo si rifà.
+
+def _inside(path, folder) -> bool:
+    try:
+        path, folder = os.path.realpath(path), os.path.realpath(folder)
+    except (OSError, ValueError):
+        return False
+    return path == folder or path.startswith(folder.rstrip(os.sep) + os.sep)
+
+
+def host_numpy_version(ext_dir, path=None):
+    """La versione del numpy di QGIS: il primo numpy fuori da ext_libs sul
+    percorso degli import (o quello già caricato, se viene da fuori)."""
+    from importlib.metadata import distributions
+    radici = [p for p in (sys.path if path is None else path) if p and not _inside(p, ext_dir)]
+    for d in distributions(path=radici):
+        if (d.metadata.get("Name") or "").lower() == "numpy":
+            return d.version
+    if path is None:
+        mod = sys.modules.get("numpy")
+        if mod is not None and not _inside(getattr(mod, "__file__", "") or "", ext_dir):
+            return getattr(mod, "__version__", None)
+    return None
+
+
+def numpy_constraint_args(ext_dir, path=None, workdir=None) -> list:
+    """``["--constraint", file]`` con ``numpy==<quello di QGIS>`` per pip, o
+    niente se QGIS non ha numpy."""
+    versione = host_numpy_version(ext_dir, path=path)
+    if not versione:
+        return []
+    import tempfile
+    nome = os.path.join(workdir or tempfile.gettempdir(), "pyarchinit_numpy_constraint.txt")
+    with open(nome, "w", encoding="utf-8") as f:
+        f.write("numpy==%s\n" % versione)
+    return ["--constraint", nome]
+
+
+def _packaging():
+    try:
+        from packaging.requirements import Requirement
+        from packaging.version import Version
+    except ImportError:
+        try:
+            from pip._vendor.packaging.requirements import Requirement
+            from pip._vendor.packaging.version import Version
+        except ImportError:
+            return None
+    return Requirement, Version
+
+
+def needs_newer_numpy(ext_dir, numpy_version) -> list:
+    """I pacchetti di ext_libs (nomi minuscoli) che chiedono un'altra
+    versione principale di numpy (numpy 2 con QGIS su numpy 1, o il
+    contrario): è il salto che rompe l'import. Una versione minore più nuova
+    in un requisito (1.26.2 contro 1.26.0) non conta. [] se non si può dire."""
+    strumenti = _packaging()
+    if strumenti is None or not numpy_version or not os.path.isdir(ext_dir):
+        return []
+    Requirement, Version = strumenti
+    try:
+        stessa_serie = "%d.999.999" % Version(numpy_version).major
+    except Exception:                                       # noqa: BLE001
+        return []
+    from importlib.metadata import distributions
+    fuori = []
+    for d in distributions(path=[ext_dir]):
+        nome = (d.metadata.get("Name") or "").lower()
+        if not nome or nome == "numpy" or nome in fuori:
+            continue
+        for riga in d.requires or []:
+            try:
+                req = Requirement(riga)
+            except Exception:                               # noqa: BLE001
+                continue
+            if req.name.lower() != "numpy":
+                continue
+            if req.marker is not None and not req.marker.evaluate({"extra": ""}):
+                continue
+            if (not req.specifier.contains(numpy_version, prereleases=True)
+                    and not req.specifier.contains(stessa_serie, prereleases=True)):
+                fuori.append(nome)
+                break
+    return fuori
+
+
+def numpy_repairs(requirements_path, ext_dir, path=None) -> list:
+    """Le righe dei requisiti (o i nomi, per le dipendenze) da reinstallare
+    perché in ext_libs chiedono un numpy più nuovo di quello di QGIS."""
+    fuori = needs_newer_numpy(ext_dir, host_numpy_version(ext_dir, path=path))
+    if not fuori:
+        return []
+    righe = {}
+    try:
+        with open(requirements_path, encoding="utf-8") as f:
+            for riga in f:
+                riga = riga.split(" #", 1)[0].strip()
+                if riga and not riga.startswith("#"):
+                    nome = re.split(r"[<>=!~;\[ ]", riga, 1)[0].strip().lower()
+                    righe.setdefault(nome, riga)
+    except OSError:
+        pass
+    return [righe.get(n, n) for n in fuori]
