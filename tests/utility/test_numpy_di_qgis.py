@@ -51,7 +51,7 @@ def test_il_numpy_che_conta_e_quello_di_qgis(ambiente):
 
 def test_chi_chiede_un_numpy_piu_nuovo(ambiente):
     _qgis, ext = ambiente
-    assert pe.needs_newer_numpy(str(ext), "1.26.4") == ["pandas"]
+    assert pe.needs_newer_numpy(str(ext), "1.26.4") == ["langchain-community", "pandas"]
     assert pe.needs_newer_numpy(str(ext), "2.1.0") == []
 
 
@@ -67,7 +67,8 @@ def test_da_reinstallare_con_la_riga_dei_requisiti(ambiente, tmp_path):
     qgis, ext = ambiente
     req = tmp_path / "requirements.txt"
     req.write_text("SQLAlchemy>=2.0.0\npandas>=2.0.0\nmatplotlib>=3.7.0\n", encoding="utf-8")
-    assert pe.numpy_repairs(str(req), str(ext), path=[str(ext), str(qgis)]) == ["pandas>=2.0.0"]
+    assert pe.numpy_repairs(str(req), str(ext), path=[str(ext), str(qgis)]) == [
+        "langchain-community", "pandas>=2.0.0"]
 
 
 def test_l_installatore_usa_il_vincolo_e_ripara():
@@ -79,12 +80,18 @@ def test_l_installatore_usa_il_vincolo_e_ripara():
     assert "numpy_repairs(" in missing
 
 
-def test_si_rifa_solo_quando_cambia_la_versione_principale(ambiente):
-    """numpy 1 → 2 è il salto che rompe (pandas 3 si rifiuta di partire); una
-    versione minore più nuova in un requisito non giustifica una
-    reinstallazione a ogni avvio."""
-    _qgis, ext = ambiente
-    assert "langchain-community" not in pe.needs_newer_numpy(str(ext), "1.26.4")
+def test_anche_una_versione_minore_conta_ma_si_tenta_una_volta(ambiente, tmp_path):
+    """Revisione: un pandas 3.0 (numpy >= 1.26.0) col numpy 1.24 di Debian
+    non parte, anche se la serie è la stessa. Si segnala tutto, ma una
+    riparazione già tentata per quel numpy non si ripropone a ogni avvio."""
+    qgis, ext = ambiente
+    assert "langchain-community" in pe.needs_newer_numpy(str(ext), "1.26.4")
+    req = tmp_path / "requirements.txt"
+    req.write_text("pandas>=2.0.0\nlangchain-community>=0.3.27\n", encoding="utf-8")
+    prima = pe.numpy_repairs(str(req), str(ext), path=[str(ext), str(qgis)])
+    assert prima == ["langchain-community>=0.3.27", "pandas>=2.0.0"]
+    pe.note_numpy_attempt(str(ext), "pandas>=2.0.0", path=[str(ext), str(qgis)])
+    assert pe.numpy_repairs(str(req), str(ext), path=[str(ext), str(qgis)]) == ["langchain-community>=0.3.27"]
 
 
 def test_qgis4_col_numpy_2_e_un_pacchetto_che_vuole_numpy_1(tmp_path):
@@ -97,3 +104,75 @@ def test_qgis4_col_numpy_2_e_un_pacchetto_che_vuole_numpy_1(tmp_path):
     _dist(ext, "pandas", "3.1.0", ['numpy>=2.0.2; python_version < "3.14"'])
     assert pe.host_numpy_version(str(ext), path=[str(ext), str(qgis)]) == "2.5.2"
     assert pe.needs_newer_numpy(str(ext), "2.5.2") == ["vecchio-cv"]
+
+
+def test_i_dist_info_vecchi_non_tornano_a_chiedere(ambiente):
+    """Revisione: pip --target --upgrade che scende di versione lascia il
+    vecchio pandas-3.1.0.dist-info accanto al nuovo; il controllo lo
+    rivedeva e la finestra tornava a ogni avvio. Si tiene il più recente."""
+    import os
+    import time
+    _qgis, ext = ambiente
+    time.sleep(0.01)
+    _dist(ext, "pandas", "3.0.6", ['numpy>=1.26.0; python_version < "3.14"'])   # quello appena messo da pip
+    vecchio = ext / "pandas-3.1.0.dist-info"
+    os.utime(vecchio, (1, 1))
+    assert "pandas" not in pe.needs_newer_numpy(str(ext), "1.26.4")
+    tolti = pe.prune_stale_dists(str(ext))
+    assert not vecchio.exists() and (ext / "pandas-3.0.6.dist-info").exists() and tolti
+
+
+def test_la_riga_con_la_versione_di_python_giusta(tmp_path):
+    """Revisione: per un nome scritto due volte si prendeva la prima riga (di
+    solito quella per Python < 3.10): pip la ignorava e non reinstallava."""
+    qgis, ext = tmp_path / "q", tmp_path / "e"
+    _dist(qgis, "numpy", "1.26.4")
+    _dist(ext, "langchain-community", "0.4.0", ["numpy>=2"])
+    req = tmp_path / "requirements.txt"
+    req.write_text('langchain-community>=0.3.27; python_version<"3.0"\n'
+                   'langchain-community>=0.4.0; python_version>="3.0"\n', encoding="utf-8")
+    assert pe.numpy_repairs(str(req), str(ext), path=[str(ext), str(qgis)]) == ["langchain-community>=0.4.0"]
+
+
+def test_senza_poter_scrivere_il_vincolo_niente_blocchi(ambiente, tmp_path):
+    qgis, ext = ambiente
+    sola_lettura = tmp_path / "ro"
+    sola_lettura.mkdir()
+    sola_lettura.chmod(0o500)
+    try:
+        assert pe.numpy_constraint_args(str(ext), path=[str(ext), str(qgis)], workdir=str(sola_lettura)) == []
+    finally:
+        sola_lettura.chmod(0o700)
+
+
+def test_numpy_con_etichetta_locale(tmp_path):
+    qgis, ext = tmp_path / "q", tmp_path / "e"
+    _dist(qgis, "numpy", "2.1.3+mkl")
+    ext.mkdir()
+    args = pe.numpy_constraint_args(str(ext), path=[str(ext), str(qgis)], workdir=str(tmp_path))
+    assert Path(args[1]).read_text(encoding="utf-8").strip() == "numpy==2.1.3"
+
+
+def test_la_copia_di_numpy_in_ext_libs_se_ne_va(ambiente):
+    """pip --target ci mette numpy come dipendenza: quello che conta è di
+    QGIS (già caricato), la copia in ext_libs è peso morto e per i processi
+    figli col PYTHONPATH su ext_libs sarebbe il numpy sbagliato."""
+    qgis, ext = ambiente
+    (ext / "numpy").mkdir()
+    (ext / "numpy.libs").mkdir()
+    assert pe.drop_ext_numpy(str(ext), path=[str(ext), str(qgis)])
+    assert not [v for v in ext.iterdir() if v.name.lower().startswith("numpy")]
+    # senza un numpy di QGIS non si tocca niente
+    altra = ambiente[1].parent / "ext2"
+    (altra / "numpy").mkdir(parents=True)
+    assert not pe.drop_ext_numpy(str(altra), path=[str(altra)]) and (altra / "numpy").exists()
+
+
+def test_l_installatore_mette_in_ordine_dopo_pip():
+    corpo = INIT[INIT.index("    def install(package: str) -> None:"):]
+    corpo = corpo[:corpo.index("\n    @staticmethod", 10)]
+    for chiamata in ("prune_stale_dists(", "drop_ext_numpy(", "note_numpy_attempt("):
+        assert chiamata in corpo, chiamata
+    worker = INIT[INIT.index("    def install_packages(self, packages: List[str]) -> None:"):]
+    worker = worker[:worker.index("self.finished.emit()")]
+    assert "except Exception" in worker          # un pacchetto che fallisce non blocca la finestra

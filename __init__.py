@@ -32,8 +32,9 @@ from typing import Dict, List, Optional, Set
 # Its compiled packages load only in the Python that installed them: one
 # built for another Python (QGIS 3's 3.9 in a QGIS 4 profile) is parked
 # aside and a fresh one is started (modules/utility/python_env.py).
-from .modules.utility.python_env import (ensure_ext_libs, numpy_constraint_args, numpy_repairs,
-                                         pip_interpreter, probe, write_marker)
+from .modules.utility.python_env import (drop_ext_numpy, ensure_ext_libs, note_numpy_attempt,
+                                         numpy_constraint_args, numpy_repairs, pip_interpreter,
+                                         probe, prune_stale_dists, write_marker)
 
 
 def _startup_log(message):
@@ -389,11 +390,25 @@ class PackageManager:
         # numpy==<quello di QGIS>: pip sceglie versioni compatibili col numpy
         # che QGIS carica (issue #666: pandas 3 su QGIS 3.40 con numpy 1.26)
         vincolo = numpy_constraint_args(_EXT_LIBS_DIR)
-        if PackageManager._pip_install(["--upgrade", "--target", _EXT_LIBS_DIR, *vincolo, package]):
-            write_marker(_EXT_LIBS_DIR)
-        elif platform.system() in ('Windows', 'Linux'):
-            # Fallback: the user site of the same Python
-            PackageManager._pip_install(["--upgrade", *vincolo, package, "--user"])
+        try:
+            if PackageManager._pip_install(["--upgrade", "--target", _EXT_LIBS_DIR, *vincolo, package]):
+                write_marker(_EXT_LIBS_DIR)
+                # pip --target che scende di versione lascia il vecchio
+                # dist-info (la riparazione tornerebbe a ogni avvio), e ci
+                # mette numpy come dipendenza: quello che conta è di QGIS
+                prune_stale_dists(_EXT_LIBS_DIR)
+                drop_ext_numpy(_EXT_LIBS_DIR)
+            elif platform.system() in ('Windows', 'Linux'):
+                # Fallback: the user site of the same Python
+                PackageManager._pip_install(["--upgrade", *vincolo, package, "--user"])
+        finally:
+            # riuscito o no: per questo numpy di QGIS non si ripropone a ogni avvio
+            note_numpy_attempt(_EXT_LIBS_DIR, package)
+            for f in vincolo[1:]:
+                try:
+                    os.remove(f)
+                except OSError:
+                    pass
 
     @staticmethod
     def remove_opencv_directories() -> None:
@@ -570,7 +585,12 @@ class Worker(QObject):
         for i, package in enumerate(packages):
             self.package_status.emit(template.format(n=i + 1, total=total, package=package))
             self.progress.emit(int(i / total * 100))
-            PackageManager.install(package)
+            try:
+                PackageManager.install(package)
+            except Exception as e:                          # noqa: BLE001
+                # un pacchetto che fallisce non deve lasciare la finestra
+                # ferma su «Installing...»: si passa al prossimo
+                print(f"pyArchInit: {package} not installed: {e}")
             self.progress.emit(int((i + 1) / total * 100))
 
         self.finished.emit()  # Emit finished signal
