@@ -26,12 +26,8 @@ class ResponseSQL:
                 # Usa sqlite3 direttamente per le query spaziali
                 import sqlite3
                 conn = sqlite3.connect(db_path)
-                conn.enable_load_extension(True)
-                if platform == 'win':
-                    conn.load_extension('mod_spatialite')
-
-                else:
-                    conn.load_extension('mod_spatialite.so')
+                from .spatialite_loader import load_spatialite
+                load_spatialite(conn)
 
 
 

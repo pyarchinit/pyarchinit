@@ -11505,7 +11505,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 shell=True
 
             elif platform.system()=='Darwin':
-                cmd = '/Applications/QGIS.app/Contents/MacOS/bin/python3'
+                # il Python del QGIS che gira (il 3.44 ha Contents/MacOS/python,
+                # non più Contents/MacOS/bin/python3)
+                from ..modules.utility.mac_python import mac_python_candidates, same_python
+                trovati = same_python(mac_python_candidates())
+                cmd = trovati[0] if trovati else 'python3'
                 shell=False
 
             else:
@@ -16855,9 +16859,8 @@ class SQLPromptDialog(QDialog):
         view_name = view_match.group(1).replace('"', '')
         statements = []
 
-        # Check spatialite version and init
+        # Spatialite è già caricato da execute_sql_statements
         statements.extend([
-            "SELECT load_extension('mod_spatialite');",
             "SELECT InitSpatialMetadata(1);"
         ])
 
@@ -16889,8 +16892,8 @@ class SQLPromptDialog(QDialog):
         conn = None
         try:
             conn = sq.connect(con_string.split('=')[1])
-            conn.enable_load_extension(True)
-            conn.execute('SELECT load_extension("mod_spatialite")')
+            from ..modules.utility.spatialite_loader import load_spatialite
+            load_spatialite(conn)
 
             results = None
             for stmt in statements:

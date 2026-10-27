@@ -3310,15 +3310,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
     def load_spatialite(self,dbapi_conn, connection_record):
-        dbapi_conn.enable_load_extension(True)
-
-        if Pyarchinit_OS_Utility.isWindows()== True:
-            dbapi_conn.load_extension('mod_spatialite.dll')
-
-        elif Pyarchinit_OS_Utility.isMac()== True:
-            dbapi_conn.load_extension('mod_spatialite.so')
-        else:
-            dbapi_conn.load_extension('mod_spatialite.so')
+        # prima il mod_spatialite del QGIS che gira (3.44 su macOS: in
+        # Contents/Frameworks), Homebrew solo in fondo
+        from modules.utility.spatialite_loader import load_spatialite
+        load_spatialite(dbapi_conn)
 
     def on_pushButton_upd_sqlite_pressed(self):
 

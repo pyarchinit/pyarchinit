@@ -42,6 +42,7 @@ from qgis.core import QgsSettings
 
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
+from .modules.utility.mac_python import mac_python_candidates, same_python
 
 # Constants for paths
 PYARCHINIT_HOME = os.path.expanduser("~") + os.sep + 'pyarchinit'
@@ -175,24 +176,8 @@ class PackageManager:
         Args:
             package: The package to install
         """
-        # Special handling for Pillow on macOS
-        package_base = package.split('==')[0].split('>=')[0]
-        if package_base == 'Pillow' and platform.system() == 'Darwin':
-            # First attempt to uninstall any existing Pillow
-            for qgis_type in ['standard', 'ltr']:
-                try:
-                    python_executable = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    # Try to uninstall existing Pillow first
-                    subprocess.run([python_executable, "-m", "pip", "uninstall", "-y", "Pillow"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # Then install the requested version
-                    subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--force-reinstall", package],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    break
-                except Exception as e:
-                    print(f"Error reinstalling Pillow on {qgis_type}: {e}")
-            return
+        # Pillow on macOS goes through the regular path below, into ext_libs:
+        # never uninstall/reinstall the Pillow inside the QGIS app bundle.
 
         # Regular installation process
         if PackageManager.is_ubuntu():
@@ -235,20 +220,11 @@ class PackageManager:
             # the read-only QGIS app bundle on macOS (raises PermissionError),
             # which is why a bare `pip install` silently fails here.
             os.makedirs(_EXT_LIBS_DIR, exist_ok=True)
-            # Candidate Python interpreters, covering both the legacy
-            # Contents/MacOS/bin layout and the Frameworks-based bundle (QGIS 3.40+).
+            # Candidate Python interpreters: the QGIS that is running first, the
+            # Contents/MacOS/python launcher of QGIS 3.44 (it sets PYTHONHOME),
+            # then the legacy Contents/MacOS/bin and Python.framework layouts.
             # NOTE: don't quote `package` (shell=False + list args => quoting breaks it).
-            candidates = []
-            for qgis_base in QGIS_PATHS.values():
-                contents = os.path.dirname(qgis_base)
-                for subdir in (os.path.join(qgis_base, 'bin'),
-                               os.path.join(contents, 'Frameworks', 'Python.framework',
-                                            'Versions', 'Current', 'bin')):
-                    for name in ('python3', 'python3.12', 'python3.11',
-                                 'python3.10', 'python3.9'):
-                        cand = os.path.join(subdir, name)
-                        if os.path.exists(cand) and cand not in candidates:
-                            candidates.append(cand)
+            candidates = same_python(mac_python_candidates(extra_macos_dirs=QGIS_PATHS.values()))
             installed = False
             for python_executable in candidates:
                 try:
