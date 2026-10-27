@@ -612,6 +612,9 @@ def test_genera_passa_al_thread_la_lingua_scelta(qgs, tmp_path, monkeypatch):
         def start(self):
             pass
 
+        def deleteLater(self):
+            pass
+
     class _Cfg:
         model, provider = "finto", None
     monkeypatch.setattr(tab, "NarrativeThread", _Finto)
@@ -643,6 +646,9 @@ def test_scegli_i_media_avvia_il_thread_con_database_cartelle_e_lingua(qgs, tmp_
             self.progress = self.finished_ok = self.finished = _Segnale()
 
         def start(self):
+            pass
+
+        def deleteLater(self):
             pass
 
     monkeypatch.setattr(tab, "MediaThread", _Finto)

@@ -2457,36 +2457,10 @@ class DB_update(object):
 
             # Try to load SpatiaLite extension
             spatialite_loaded = False
-            spatialite_paths = []
-
-            # Platform-specific paths for mod_spatialite
-            if platform.system() == 'Darwin':  # macOS
-                spatialite_paths = [
-                    'mod_spatialite',
-                    # QGIS bundle paths (most common on macOS)
-                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
-                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite',
-                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
-                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite',
-                    # Homebrew paths
-                    '/opt/homebrew/lib/mod_spatialite.dylib',
-                    '/opt/homebrew/lib/mod_spatialite',
-                    '/usr/local/lib/mod_spatialite.dylib',
-                    '/usr/local/lib/mod_spatialite',
-                    '/opt/homebrew/opt/libspatialite/lib/mod_spatialite.dylib',
-                    '/usr/local/opt/libspatialite/lib/mod_spatialite.dylib',
-                ]
-            elif platform.system() == 'Windows':
-                spatialite_paths = [
-                    'mod_spatialite',
-                    'mod_spatialite.dll',
-                ]
-            else:  # Linux
-                spatialite_paths = [
-                    'mod_spatialite',
-                    '/usr/lib/x86_64-linux-gnu/mod_spatialite.so',
-                    '/usr/lib/mod_spatialite.so',
-                ]
+            # prima il mod_spatialite del QGIS che gira (3.44 su macOS: in
+            # Contents/Frameworks), Homebrew solo in fondo
+            from modules.utility.spatialite_loader import spatialite_candidates
+            spatialite_paths = spatialite_candidates()
 
             for sp_path in spatialite_paths:
                 try:
@@ -2788,14 +2762,8 @@ class DB_update(object):
             conn.enable_load_extension(True)
 
             # Load SpatiaLite
-            spatialite_paths = [
-                'mod_spatialite',
-                '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
-                '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
-                '/opt/homebrew/lib/mod_spatialite.dylib',
-                '/usr/local/lib/mod_spatialite.dylib',
-                '/usr/lib/x86_64-linux-gnu/mod_spatialite.so',
-            ]
+            from modules.utility.spatialite_loader import spatialite_candidates
+            spatialite_paths = spatialite_candidates()
 
             spatialite_loaded = False
             for sp_path in spatialite_paths:

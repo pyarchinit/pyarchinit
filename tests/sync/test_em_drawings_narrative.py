@@ -63,16 +63,11 @@ def test_i_prospetti_lontani_non_deformano_una_pianta_usm_a_mano(tmp_path):
     from modules.s3dgraphy import em_drawings as drw
     from modules.s3dgraphy import em_narrative_map as nm
     from modules.s3dgraphy.sync import em_drawings_import as edi
-    from tests.sync.test_em_drawings_import import SITO, _SPATIALITE, make_project
+    from modules.utility.spatialite_loader import load_spatialite
+    from tests.sync.test_em_drawings_import import SITO, make_project
     p = make_project(tmp_path)
     con = sqlite3.connect(p["db"])
-    con.enable_load_extension(True)
-    for nome in _SPATIALITE:
-        try:
-            con.load_extension(nome)
-            break
-        except sqlite3.Error:
-            continue
+    load_spatialite(con)
     con.execute("UPDATE us_table SET unita_tipo = 'USM' WHERE sito = ? AND us = '001'", (SITO,))
     elle = ("MULTIPOLYGON(((327310 448390, 327316 448390, 327316 448392, 327312 448392, "
             "327312 448396, 327310 448396, 327310 448390)))")

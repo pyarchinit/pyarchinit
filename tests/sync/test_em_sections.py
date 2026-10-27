@@ -20,20 +20,15 @@ if str(PLUGIN_ROOT) not in sys.path:
 
 pytest.importorskip("s3dgraphy")
 
-from tests.sync.test_em_drawings_import import SITO, _SPATIALITE, _righe, _scrivi, make_project  # noqa: E402
+from modules.utility.spatialite_loader import load_spatialite  # noqa: E402
+from tests.sync.test_em_drawings_import import SITO, _righe, _scrivi, make_project  # noqa: E402
 
 LINEA = "LINESTRING(327298 448380, 327306 448380)"          # da ovest a est, a metà di SU001
 
 
 def _con(db):
     con = sqlite3.connect(db)
-    con.enable_load_extension(True)
-    for nome in _SPATIALITE:
-        try:
-            con.load_extension(nome)
-            break
-        except sqlite3.Error:
-            continue
+    load_spatialite(con)
     return con
 
 

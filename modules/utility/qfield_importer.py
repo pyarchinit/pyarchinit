@@ -896,8 +896,8 @@ def _wire_spatialite(engine, warnings):
         @event.listens_for(engine, "connect")
         def _load_spatialite(dbapi_conn, _record):
             try:
-                dbapi_conn.enable_load_extension(True)
-                dbapi_conn.load_extension("mod_spatialite")
+                from .spatialite_loader import load_spatialite
+                load_spatialite(dbapi_conn)
             except Exception as error:
                 engine._qfield_spatialite_failed = str(error)
                 log.warning("mod_spatialite non caricato (%s): import "

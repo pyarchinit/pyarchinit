@@ -22,11 +22,10 @@ if str(PLUGIN_ROOT) not in sys.path:
 pytest.importorskip("s3dgraphy")
 
 from tests.sync.glb_fixtures import box_glb, quad_glb  # noqa: E402
+from modules.utility.spatialite_loader import load_spatialite  # noqa: E402
 
 TEMPLATE_DB = PLUGIN_ROOT / "resources" / "dbfiles" / "pyarchinit.sqlite"
 SITO = "Tempio 3D"
-_SPATIALITE = ["/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so",
-               "/opt/homebrew/lib/mod_spatialite", "mod_spatialite"]
 
 
 def _nodo(nid, tipo, nome, **data):
@@ -58,14 +57,7 @@ def _spatialite_engine(path):
 
     @event.listens_for(eng, "connect")
     def _carica(dbapi_conn, _record):
-        dbapi_conn.enable_load_extension(True)
-        for nome in _SPATIALITE:
-            try:
-                dbapi_conn.load_extension(nome)
-                return
-            except Exception:                     # noqa: BLE001
-                continue
-        raise RuntimeError("mod_spatialite non si carica")
+        load_spatialite(dbapi_conn)
     return eng
 
 
@@ -317,13 +309,7 @@ def test_poligoni_documenti_e_schede_si_richiamano_insieme(progetto):
 def test_reimportare_sostituisce_solo_il_ricavato(progetto):
     _scrivi(progetto)
     con = sqlite3.connect(progetto["db"])
-    con.enable_load_extension(True)
-    for nome in _SPATIALITE:
-        try:
-            con.load_extension(nome)
-            break
-        except sqlite3.Error:
-            continue
+    load_spatialite(con)
     con.execute("INSERT INTO pyunitastratigrafiche (gid, scavo_s, area_s, us_s, disegnatore, tipo_doc, "
                 "nome_doc, the_geom) VALUES (9999, ?, '1', '001', 'Enzo', 'Planimetria', 'P1', "
                 "CastToMultiPolygon(GeomFromText('POLYGON((0 0,1 0,1 1,0 0))', 31700)))", (SITO,))
@@ -460,13 +446,7 @@ def test_importare_in_un_secondo_sito_ha_i_suoi_disegni(progetto):
 def test_il_reimport_non_tocca_le_sezioni(progetto):
     _scrivi(progetto)
     con = sqlite3.connect(progetto["db"])
-    con.enable_load_extension(True)
-    for nome in _SPATIALITE:
-        try:
-            con.load_extension(nome)
-            break
-        except sqlite3.Error:
-            continue
+    load_spatialite(con)
     con.execute("INSERT INTO pyunitastratigrafiche_usm (gid, scavo_s, area_s, us_s, unita_tipo_s, disegnatore, "
                 "tipo_doc, nome_doc, the_geom) VALUES (900, ?, '1', '001', 'US', 'pyArchInit 3D', 'Sezione', "
                 "'3D-SEZ-1', CastToMultiPolygon(GeomFromText('POLYGON((-20 0,-18 0,-18 2,-20 0))', 31700)))", (SITO,))

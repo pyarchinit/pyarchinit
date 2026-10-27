@@ -32,16 +32,12 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from modules.db import spatial_index_repair as sir  # noqa: E402
+from modules.utility.spatialite_loader import spatialite_candidates  # noqa: E402
 from modules.db import spatial_view_repair as svr  # noqa: E402
 
-_CANDIDATES = [
-    "/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so",
-    "/opt/homebrew/lib/mod_spatialite",
-    "/usr/local/lib/mod_spatialite",
-    "mod_spatialite",
-    "mod_spatialite.so",
-    "mod_spatialite.dll",
-]
+# come il plugin: prima il mod_spatialite del QGIS che gira (3.44: in
+# Contents/Frameworks), Homebrew solo in fondo
+_CANDIDATES = spatialite_candidates()
 
 
 def _find_spatialite():

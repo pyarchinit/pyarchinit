@@ -25,19 +25,11 @@ import platform
 import subprocess, sys
 try:
     import psutil
-
-
 except ImportError:
-    print("openai is not installed, installing...")
-    if sys.platform.startswith("win"):
-        subprocess.call(["pip", "install", "psutil"],shell = False)
-    elif sys.platform.startswith("darwin"):
-        subprocess.call([ "/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install", "psutil"],shell = False )
-    elif sys.platform.startswith("linux"):
-        subprocess.call(["pip", "install", "psutil"],shell = False)
-    else:
-        raise Exception(f"Unsupported platform: {sys.platform}")
-    print("openai installed successfully")
+    # psutil è nei requisiti: lo installa il plugin all'avvio. Qui niente pip
+    # con un Python scritto fisso (il QGIS 3.44 per macOS non ha più
+    # Contents/MacOS/bin/python3): senza psutil manca solo «ferma dot»
+    psutil = None
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog, QInputDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QLabel
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread, QRectF, QEventLoop, QTimer
@@ -1868,6 +1860,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             print("atlas: stopped by the user")
 
     def stop_processes_named(self, name):
+        if psutil is None:
+            return
         for proc in psutil.process_iter(['pid', 'name']):
             # Verifica se il nome del processo corrisponde a quello che stai cercando
             process_info = proc.as_dict(attrs=['pid', 'name'])
