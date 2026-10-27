@@ -5,6 +5,27 @@
 
 ---
 
+## [fix] - 2026-10-27 — Installazione su Mac: si trova qualunque QGIS (anche ogni versione di QGIS 4) e il font Cambria si installa da solo — 5.13.139-alpha
+
+> Branch `Stratigraph_00001`. Suite **2615 verdi** (0 falliti, 0 errori, 3 saltati, 1 xfail; +14 test). / Installing on macOS: any QGIS app is found (every QGIS 4 version too) and the Cambria font installs itself.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: Enzo, 27 ottobre 2026: «si deve trovare qualsiasi versione di qgis4» e «anche i font Cambria li dovrebbe installare in automatico».
+  - **Ogni QGIS installato** (`python_env.mac_qgis_apps`, `with_qgis_apps`): l'installatore cercava QGIS 4 solo in `/Applications/QGIS-final-4_0_0.app`; ora ogni `QGIS*.app` in `/Applications` e in `~/Applications` (QGIS, LTR, QGIS 4 di qualunque versione; due con lo stesso nome restano tutti e due). Il Python di ripiego di QGIS 4 è il lanciatore `Contents/MacOS/python`, che imposta PYTHONHOME da sé (`mac_fallback_pythons`; il `python3.12` lì accanto, lanciato nudo, non parte).
+  - **Cambria da solo** (`modules/utility/font_install.py`, nuovo): prima su macOS il plugin apriva `~/pyarchinit_5/bin` e chiedeva un doppio clic su ogni `cambria.*`; ora i file si copiano nei font dell'utente (`~/Library/Fonts`, su Linux `~/.local/share/fonts` con `fc-cache` lanciato senza aspettarlo), senza permessi di amministratore, da `~/pyarchinit_5/bin` o dallo zip del plugin. Dalla revisione: coi nomi esatti che cerca ReportLab (`Cambria.ttc` maiuscolo: su Linux contava, col nome dello zip le schede in PDF non partivano), installato solo se ci sono tutti e quattro i file (`Cambria.ttc`, `cambriab.ttf`, `cambriai.ttf`, `cambriaz.ttf`) interi e veri font, copia atomica da un `.part` (un disco pieno a metà non lascia più un file troncato che rompe la scheda US per sempre), nessun errore che blocchi il caricamento del plugin. L'avviso di prima resta solo se la copia non riesce. Windows invariato (lì un font dell'utente va anche registrato).
+  - **Riestrazioni a ogni avvio** (c'era da prima): `rscripts.zip` e `cambria.zip` hanno i file sciolti, e il controllo cercava cartelle `rscripts`/`cambria` che non esistono mai: script R e font si riestraevano in `~/pyarchinit_5/bin` a ogni avvio.
+- 🇬🇧 **EN**: any QGIS app is discovered on macOS (every QGIS 4 version, also in ~/Applications; QGIS 4's `Contents/MacOS/python` launcher as fallback interpreter); Cambria installs itself into the user fonts folder (macOS, Linux) with ReportLab's exact file names, a complete-and-valid check, atomic copies and no startup-blocking errors; rscripts.zip and cambria.zip are no longer re-extracted at every start.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: +14 test visti rossi prima (QGIS trovati, nomi doppi, lanciatore di QGIS 4 che parte davvero su questo Mac, Cambria: nomi esatti, cartella con un solo file, file vuoti o rovinati, copia interrotta, zip rotto, zip vero aperto da ReportLab, niente percorsi relativi, zip non riestratti).
+- 🇬🇧 **EN**: 14 new tests, all seen failing first.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: `metadata.txt` 5.13.139-alpha. I tutorial dicevano già che il plugin installa Cambria da sé.
+- 🇬🇧 **EN**: no tutorial change needed.
+
+---
+
 ## [fix] - 2026-10-26 — Le librerie installate da pyArchInit rispettano il numpy di QGIS: su QGIS 3.40 LTR (Windows) le schede US e Reperti non si aprivano più (issue #666) — 5.13.138-alpha
 
 > Branch `Stratigraph_00001`. Suite **2601 verdi** (0 falliti, 0 errori, 3 saltati, 1 xfail; +10 test). / Libraries installed by pyArchInit now respect QGIS's numpy: on QGIS 3.40 LTR (Windows) the US and Finds forms no longer opened (issue #666).
