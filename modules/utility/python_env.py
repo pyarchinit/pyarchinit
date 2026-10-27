@@ -451,3 +451,22 @@ def drop_ext_numpy(ext_dir, path=None) -> list:
             except OSError:
                 pass
     return tolte
+
+
+def mac_qgis_apps(roots=("/Applications", "~/Applications")) -> list:
+    """Le cartelle ``<app>/Contents/MacOS`` di ogni QGIS installato su macOS
+    (QGIS.app, QGIS-LTR.app, QGIS 4 di qualunque versione: QGIS-final-4_2_2.app,
+    «QGIS 4.app»…), in /Applications e in ~/Applications."""
+    trovati = []
+    for radice in roots:
+        radice = os.path.expanduser(radice)
+        try:
+            voci = sorted(os.listdir(radice))
+        except OSError:
+            continue
+        for voce in voci:
+            if voce.lower().startswith("qgis") and voce.lower().endswith(".app"):
+                macos = os.path.join(radice, voce, "Contents", "MacOS")
+                if os.path.isdir(macos) and macos not in trovati:
+                    trovati.append(macos)
+    return trovati

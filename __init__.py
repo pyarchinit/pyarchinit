@@ -32,7 +32,7 @@ from typing import Dict, List, Optional, Set
 # Its compiled packages load only in the Python that installed them: one
 # built for another Python (QGIS 3's 3.9 in a QGIS 4 profile) is parked
 # aside and a fresh one is started (modules/utility/python_env.py).
-from .modules.utility.python_env import (drop_ext_numpy, ensure_ext_libs, note_numpy_attempt,
+from .modules.utility.python_env import (drop_ext_numpy, ensure_ext_libs, mac_qgis_apps, note_numpy_attempt,
                                          numpy_constraint_args, numpy_repairs, pip_interpreter,
                                          probe, prune_stale_dists, write_marker)
 
@@ -83,8 +83,13 @@ os.environ.setdefault('PYARCHINIT_WORKSPACE_DIR',
 QGIS_PATHS = {
     'standard': '/Applications/QGIS.app/Contents/MacOS',
     'ltr': '/Applications/QGIS-LTR.app/Contents/MacOS',
-    'qgis4': '/Applications/QGIS-final-4_0_0.app/Contents/MacOS',
 }
+# ogni altro QGIS installato (QGIS 4 di qualunque versione, in /Applications
+# o in ~/Applications): prima c'era una sola versione di QGIS 4 scritta fissa
+if platform.system() == 'Darwin':
+    for _macos in mac_qgis_apps():
+        if _macos not in QGIS_PATHS.values():
+            QGIS_PATHS[os.path.basename(os.path.dirname(os.path.dirname(_macos)))] = _macos
 
 # Constants for OpenCV paths on MacOS
 OPENCV_PATHS = {
@@ -296,7 +301,8 @@ class PackageManager:
             names = ('python3', 'python%d.%d' % sys.version_info[:2])
             for qgis_base in QGIS_PATHS.values():
                 contents_dir = os.path.dirname(qgis_base)
-                for subdir in (os.path.join(qgis_base, 'bin'),
+                # QGIS 4 tiene il Python in Contents/MacOS (python3.12)
+                for subdir in (qgis_base, os.path.join(qgis_base, 'bin'),
                                os.path.join(contents_dir, 'Resources', 'python', 'bin'),
                                os.path.join(contents_dir, 'Frameworks', 'Python.framework',
                                             'Versions', 'Current', 'bin')):
@@ -814,10 +820,26 @@ class FontManager:
 
     @staticmethod
     def install_fonts(splash=None) -> None:
-        """Install required fonts for the system."""
+        """Install required fonts for the system: Cambria (le schede in PDF)
+        si copia da sé nei font dell'utente (macOS, Linux); l'avviso con la
+        cartella da aprire resta solo se la copia non riesce."""
+        from .modules.utility.font_install import cambria_installed, install_cambria, user_fonts_dir
+        fonts_dir = user_fonts_dir()
+        if fonts_dir and not cambria_installed(fonts_dir):
+            copiati = install_cambria(
+                os.path.join(os.environ.get('PYARCHINIT_HOME', ''), 'bin'), fonts_dir,
+                zip_path=os.path.join(os.path.dirname(__file__), 'resources', 'dbfiles', 'cambria.zip'))
+            if copiati:
+                print(f"pyArchInit: Cambria installato in {fonts_dir} ({', '.join(copiati)})")
+                if platform.system() == "Linux":
+                    try:
+                        subprocess.run(["fc-cache", "-f", fonts_dir], timeout=60,
+                                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    except (OSError, subprocess.SubprocessError):
+                        pass
         if platform.system() == "Darwin":
             location = os.path.expanduser("~/Library/Fonts")
-            if not os.path.exists(location + '/cambria.ttc'):
+            if not cambria_installed(location):
                 # in front of the splash (always on top) and of QGIS
                 result = exec_on_top(QMessageBox(
                     QMessageBox.Icon.Warning, 'Pyarchinit',
