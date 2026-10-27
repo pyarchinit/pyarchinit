@@ -303,11 +303,14 @@ class pyarchinit_Folder_installation(object):
         # the plugin shipped a newer version. Idempotent.
         self.install_or_update_maintenance_files()
 
-        # Extract ZIP archives (profile, rscripts, cambria fonts)
+        # Extract ZIP archives (profile, rscripts, cambria fonts). The second
+        # item is a path that exists after the extraction: rscripts.zip and
+        # cambria.zip hold loose files, so «rscripts»/«cambria» folders never
+        # appeared and both were extracted again at every start.
         zip_extracts = [
             ('profile.zip', 'profile'),
-            ('rscripts.zip', 'rscripts'),
-            ('cambria.zip', 'cambria'),
+            ('rscripts.zip', 'movealloc.rsx'),
+            ('cambria.zip', 'cambria.ttc'),
         ]
 
         for zip_name, folder_name in zip_extracts:

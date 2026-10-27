@@ -2,9 +2,15 @@
 
 Prima su macOS il plugin apriva ``~/pyarchinit_5/bin`` e chiedeva di fare
 doppio clic su ogni ``cambria.*``. Ora i file si copiano da soli nella
-cartella dei font dell'utente (nessun permesso di amministratore): da
+cartella dei font dell'utente (nessun permesso di amministratore), da
 ``<PYARCHINIT_HOME>/bin`` o, se lì non ci sono, da
-``resources/dbfiles/cambria.zip`` del plugin. Solo libreria standard.
+``resources/dbfiles/cambria.zip`` del plugin.
+
+ReportLab cerca i nomi esatti (``TTFont('Cambria', 'Cambria.ttc')``…): si
+scrivono così, maiuscole comprese (su Linux contano), e conta come
+installato solo un file intero che sia davvero un font. La copia passa da un
+``.part`` rinominato alla fine: un disco pieno a metà non lascia un file
+troncato col nome giusto. Solo libreria standard.
 """
 from __future__ import annotations
 
@@ -13,7 +19,11 @@ import platform
 import shutil
 import zipfile
 
-CAMBRIA = ("Cambria.ttf", "cambria.ttc", "cambriab.ttf", "cambriai.ttf", "cambriaz.ttf")
+# i nomi che cercano i moduli PDF
+REQUIRED = ("Cambria.ttc", "cambriab.ttf", "cambriai.ttf", "cambriaz.ttf")
+# più il regolare in .ttf, che altri programmi usano
+CAMBRIA = REQUIRED + ("Cambria.ttf",)
+_FIRME = (b"ttcf", b"\x00\x01\x00\x00", b"OTTO", b"true")
 
 
 def user_fonts_dir(system=None):
@@ -27,46 +37,76 @@ def user_fonts_dir(system=None):
     return None
 
 
-def cambria_installed(fonts_dir) -> bool:
-    if not fonts_dir:
-        return False
+def _is_font(path) -> bool:
     try:
-        presenti = {f.lower() for f in os.listdir(fonts_dir)}
+        with open(path, "rb") as f:
+            return f.read(4) in _FIRME
     except OSError:
         return False
-    return "cambria.ttc" in presenti or "cambria.ttf" in presenti
+
+
+def cambria_installed(fonts_dir) -> bool:
+    """Tutti i file che cercano le schede in PDF, coi nomi esatti, e veri font."""
+    if not fonts_dir:
+        return False
+    return all(_is_font(os.path.join(fonts_dir, f)) for f in REQUIRED)
+
+
+def _copy_atomic(src_stream, dest) -> None:
+    parte = dest + ".part"
+    try:
+        with open(parte, "wb") as dst:
+            shutil.copyfileobj(src_stream, dst)
+        if not _is_font(parte):
+            raise OSError("%s non è un font" % os.path.basename(dest))
+        os.replace(parte, dest)
+    except BaseException:
+        try:
+            os.remove(parte)
+        except OSError:
+            pass
+        raise
 
 
 def install_cambria(source_dir, fonts_dir, zip_path=None) -> list:
-    """Copia i file di Cambria che mancano in ``fonts_dir``; torna i nomi
-    copiati ([] se c'era già tutto o non c'è da dove prenderli)."""
+    """Copia in ``fonts_dir`` i file di Cambria che mancano (o che non sono
+    font interi); torna i nomi copiati. Non alza mai: le schede in PDF non
+    valgono un plugin che non si carica."""
     if not fonts_dir:
         return []
-    try:
-        presenti = {f.lower() for f in os.listdir(fonts_dir)}
-    except OSError:
-        presenti = set()
-    mancanti = [f for f in CAMBRIA if f.lower() not in presenti]
+    mancanti = [f for f in CAMBRIA if not _is_font(os.path.join(fonts_dir, f))]
     if not mancanti:
         return []
     copiati = []
     try:
         os.makedirs(fonts_dir, exist_ok=True)
-        for f in list(mancanti):
-            sorgente = os.path.join(source_dir or "", f)
-            if os.path.isfile(sorgente):
-                shutil.copy2(sorgente, os.path.join(fonts_dir, f))
-                copiati.append(f)
-                mancanti.remove(f)
+        # «bin» relativo vorrebbe dire la cartella corrente: mai
+        if source_dir and os.path.isabs(source_dir) and os.path.isdir(source_dir):
+            per_nome = {v.lower(): os.path.join(source_dir, v) for v in os.listdir(source_dir)}
+            for f in list(mancanti):
+                sorgente = per_nome.get(f.lower())
+                if sorgente and _is_font(sorgente):
+                    try:
+                        with open(sorgente, "rb") as src:
+                            _copy_atomic(src, os.path.join(fonts_dir, f))
+                    except OSError:
+                        continue
+                    copiati.append(f)
+                    mancanti.remove(f)
         if mancanti and zip_path and os.path.isfile(zip_path):
             with zipfile.ZipFile(zip_path) as z:
-                nomi = {os.path.basename(n).lower(): n for n in z.namelist()}
-                for f in mancanti:
-                    voce = nomi.get(f.lower())
-                    if voce:
-                        with z.open(voce) as src, open(os.path.join(fonts_dir, f), "wb") as dst:
-                            shutil.copyfileobj(src, dst)
-                        copiati.append(f)
-    except (OSError, zipfile.BadZipFile):
-        pass
+                per_nome = {os.path.basename(n).lower(): n for n in z.namelist()}
+                for f in list(mancanti):
+                    voce = per_nome.get(f.lower())
+                    if not voce:
+                        continue
+                    try:
+                        with z.open(voce) as src:
+                            _copy_atomic(src, os.path.join(fonts_dir, f))
+                    except Exception:                       # noqa: BLE001 — zlib.error, EOFError, BadZipFile…
+                        continue
+                    copiati.append(f)
+                    mancanti.remove(f)
+    except Exception as e:                                  # noqa: BLE001
+        print("pyArchInit: Cambria non installato: %s" % e)
     return copiati
