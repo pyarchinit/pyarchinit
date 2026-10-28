@@ -43,6 +43,7 @@ from qgis.core import QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 from .modules.utility.mac_python import mac_python_candidates, same_python
+from .modules.utility.pip_pins import constraint_sets, prune_stale_dists
 
 # Constants for paths
 PYARCHINIT_HOME = os.path.expanduser("~") + os.sep + 'pyarchinit'
@@ -225,17 +226,36 @@ class PackageManager:
             # then the legacy Contents/MacOS/bin and Python.framework layouts.
             # NOTE: don't quote `package` (shell=False + list args => quoting breaks it).
             candidates = same_python(mac_python_candidates(extra_macos_dirs=QGIS_PATHS.values()))
+            # pip --target does not see what is already in ext_libs and resolves
+            # every dependency again: without the pinned versions as constraints,
+            # SQLAlchemy-Utils / GeoAlchemy2 pulled SQLAlchemy 2.x over 1.4.27
+            # (issue #667: "cannot import name 'with_metaclass'"). All the pins
+            # first; if pip cannot resolve them together, only the DB stack.
+            vincoli, pins = constraint_sets(os.path.join(os.path.dirname(__file__), 'requirements.txt'))
             installed = False
-            for python_executable in candidates:
-                try:
-                    subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
-                                    "--target", _EXT_LIBS_DIR, package],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    installed = True
-                    break
-                except Exception as e:
-                    print(f"Error installing {package} with {python_executable}: {e}")
-            if not installed:
+            try:
+                for python_executable in candidates:
+                    for vincolo in vincoli:
+                        try:
+                            subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
+                                            "--target", _EXT_LIBS_DIR, *vincolo, package],
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                            installed = True
+                            break
+                        except Exception as e:
+                            print(f"Error installing {package} with {python_executable} {vincolo}: {e}")
+                    if installed:
+                        break
+            finally:
+                for p in pins:
+                    try:
+                        os.remove(p)
+                    except OSError:
+                        pass
+            if installed:
+                # a version change leaves the old dist-info next to the new one
+                prune_stale_dists(_EXT_LIBS_DIR)
+            else:
                 print(f"Failed to install {package} on macOS into {_EXT_LIBS_DIR}")
 
     @staticmethod
@@ -739,5 +759,10 @@ def classFactory(iface):
     PackageManager.repair_db_dependencies()
     check_and_install_dependencies()
 
-    from .pyarchinitPlugin import PyArchInitPlugin
+    # QGIS builds without QtWebKit (QGIS 3.44.9 for macOS, issue #667): a
+    # fallback QWebView while the plugin's .ui files are compiled, or the
+    # ones that contain a QWebView stop the whole plugin.
+    from .modules.utility import qt_webkit_fallback
+    with qt_webkit_fallback.only_for_pyarchinit():
+        from .pyarchinitPlugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)
