@@ -631,19 +631,61 @@ class FontManager:
 
     @staticmethod
     def install_fonts() -> None:
-        """Install required fonts for the system."""
+        """Cambria (the PDF sheets) copies itself into the user's fonts folder
+        (macOS, Linux), all four files with the names ReportLab looks for:
+        Cambria.ttc, cambriab.ttf, cambriai.ttf, cambriaz.ttf. Before, macOS
+        only checked cambria.ttc and asked for a double click on each file: with
+        one of them missing the US sheet module could not even be imported and
+        the plugin did not load (issue #667). At every start only what is
+        missing, or is not a whole font, is copied again. The message with the
+        folder to open stays only for when the copy did not work."""
+        fonts_dir = None
+        try:
+            from .modules.utility.font_install import cambria_installed, install_cambria, user_fonts_dir
+            fonts_dir = user_fonts_dir()
+            if fonts_dir:
+                copiati = install_cambria(
+                    os.path.join(PYARCHINIT_HOME, 'bin'), fonts_dir,
+                    zip_path=os.path.join(os.path.dirname(__file__), 'resources', 'dbfiles', 'cambria.zip'))
+                if copiati:
+                    print(f"pyArchInit: Cambria installed in {fonts_dir} ({', '.join(copiati)})")
+                    if platform.system() == "Linux":
+                        try:            # fontconfig cache, without waiting for it
+                            subprocess.Popen(["fc-cache", "-f", fonts_dir],
+                                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        except OSError:
+                            pass
+                if cambria_installed(fonts_dir):
+                    return
+        except Exception as e:  # never block the start of the plugin
+            print(f"pyArchInit: Cambria not installed: {e}")
         if platform.system() == "Darwin":
-            location = os.path.expanduser("~/Library/Fonts")
-            if not os.path.exists(location + '/cambria.ttc'):
-                result = QMessageBox.warning(None, 'Pyarchinit',
-                                             "INFO: The Cambria font does not appear to be installed. "
-                                             "Click Ok to install it\nand then double click on cambria.*\n"
-                                             "After that, reload the plugin",
-                                             QMessageBox.Ok)
-                if result == QMessageBox.Ok:
-                    home = os.environ['PYARCHINIT_HOME']
-                    path = f"{home}{os.sep}bin"
-                    subprocess.Popen(["open", path])
+            result = QMessageBox.warning(None, 'Pyarchinit',
+                                         "INFO: The Cambria font does not appear to be installed. "
+                                         "Click Ok to install it\nand then double click on cambria.*\n"
+                                         "After that, reload the plugin",
+                                         QMessageBox.Ok)
+            if result == QMessageBox.Ok:
+                subprocess.Popen(["open", os.path.join(PYARCHINIT_HOME, "bin")])
+
+    @staticmethod
+    def add_font_dirs_to_reportlab() -> None:
+        """The PDF modules register Cambria when they are imported, with the
+        bare file name: if ReportLab cannot find one of the four files the
+        plugin does not load at all. ~/pyarchinit/bin, where the plugin
+        unpacks cambria.zip, and the user's fonts folder are added to the
+        folders ReportLab searches, so a font copy that failed no longer stops
+        the plugin."""
+        try:
+            from reportlab import rl_config
+            from .modules.utility.font_install import user_fonts_dir
+            cartelle = [os.path.join(PYARCHINIT_HOME, 'bin'), user_fonts_dir()]
+            percorso = tuple(rl_config.TTFSearchPath)
+            nuove = tuple(c for c in cartelle if c and os.path.isdir(c) and c not in percorso)
+            if nuove:
+                rl_config.TTFSearchPath = percorso + nuove
+        except Exception as e:  # reportlab not installed yet: nothing to do
+            print(f"pyArchInit: font folders not added to ReportLab: {e}")
 
 
 def initialize_environment() -> None:
@@ -763,6 +805,8 @@ def classFactory(iface):
     # fallback QWebView while the plugin's .ui files are compiled, or the
     # ones that contain a QWebView stop the whole plugin.
     from .modules.utility import qt_webkit_fallback
+    # the PDF modules register Cambria at import: ReportLab must find it
+    FontManager.add_font_dirs_to_reportlab()
     with qt_webkit_fallback.only_for_pyarchinit():
         from .pyarchinitPlugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)
