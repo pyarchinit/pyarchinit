@@ -83,7 +83,7 @@ Antes de utilizar MoveCost, verificar que los siguientes componentes estan insta
 
 ### 2. Paquete R `movecost`
 
-La version requerida es **>= 3.1.0**. Los scripts instalan/actualizan el paquete automaticamente en la primera ejecucion; alternativamente, instalar el paquete desde R:
+La version requerida es **>= 3.1.1**. Los scripts instalan/actualizan el paquete automaticamente en la primera ejecucion; alternativamente, instalar el paquete desde R:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Dependencias principales instaladas automaticamente: `terra`, `sf`, `igraph`, `g
 | Lista de verificacion de requisitos        |
 +-------------------------------------------+
 | [x] R instalado y en el PATH             |
-| [x] movecost >= 3.1.0 instalado en R     |
+| [x] movecost >= 3.1.1 instalado en R     |
 | [x] Processing R Provider activo en QGIS |
 | [x] MDT cargado en el proyecto QGIS       |
 | [x] Capa de puntos con origenes/destinos  |
@@ -130,6 +130,7 @@ Dependencias principales instaladas automaticamente: `terra`, `sf`, `igraph`, `g
 >
 > - Todos los algoritmos ganan dos entradas opcionales: un raster **Terrain** (factor de terreno N por celda, numerico o categorico) y una **Terrain Table** (CSV con columnas `class,N` que traduce las clases de un raster categorico en factores). El parametro escalar `N` pasa a ser el valor de reserva para las celdas sin factor de terreno; `Inf` hace una celda intransitable.
 > - El plugin QGIS movecost debe ser >= **4.1.0** para mostrar las nuevas entradas; las funciones de coste que no usan factor de terreno avisan si se proporciona uno.
+> - movecost **3.1.1** corrige el signo de la pendiente en varias funciones de coste (Irmischer-Clarke, Rees, Tripcevich, Herzog, Llobera-Sluckin, Ardigo, Minetti, Pandolf con correccion, Van Leusen) y algunas unidades (Pandolf en J/m y kJ, Hare en kcal): bajar ya no cuesta como subir, asi que los resultados con esas funciones difieren -- correctamente -- de las versiones anteriores y conviene recalcularlos.
 
 ---
 
@@ -493,7 +494,7 @@ Este ejemplo muestra como calcular una ruta de menor coste entre un asentamiento
 **Soluciones**:
 1. Abrir R o RStudio
 2. Ejecutar: `install.packages("movecost")`
-3. Verificar: `library(movecost)` -- no debe producir errores; `packageVersion("movecost")` debe ser >= 3.1.0
+3. Verificar: `library(movecost)` -- no debe producir errores; `packageVersion("movecost")` debe ser >= 3.1.1
 4. Si hay problemas de dependencias: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analisis muy lento
@@ -563,7 +564,7 @@ El paquete R `movecost` soporta varias funciones de coste anisotropicas:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| Paquete movecost (R) | 3.1.0+ |
+| Paquete movecost (R) | 3.1.1+ |
 | Plugin QGIS movecost | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 

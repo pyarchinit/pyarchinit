@@ -83,7 +83,7 @@ Before using MoveCost, ensure the following components are installed and configu
 
 ### 2. R Package `movecost`
 
-The required version is **>= 3.1.0**. The scripts install/update the package automatically on first run; alternatively, install the package from within R:
+The required version is **>= 3.1.1**. The scripts install/update the package automatically on first run; alternatively, install the package from within R:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Main dependencies installed automatically: `terra`, `sf`, `igraph`, `ggplot2` (p
 | Prerequisites Checklist                    |
 +-------------------------------------------+
 | [x] R installed and in PATH              |
-| [x] movecost >= 3.1.0 installed in R     |
+| [x] movecost >= 3.1.1 installed in R     |
 | [x] Processing R Provider active in QGIS |
 | [x] DTM loaded in QGIS project           |
 | [x] Point layer with origins/destinations |
@@ -130,6 +130,7 @@ Main dependencies installed automatically: `terra`, `sf`, `igraph`, `ggplot2` (p
 >
 > - Every algorithm gains two optional inputs: a **Terrain** raster (terrain factor N per cell, numeric or categorical) and a **Terrain Table** (CSV with columns `class,N` that translates the classes of a categorical raster into factors). The scalar `N` parameter becomes the fallback for cells without a terrain value; `Inf` makes a cell impassable.
 > - The movecost QGIS plugin must be >= **4.1.0** to show the new inputs; cost functions that take no terrain factor warn when one is supplied.
+> - movecost **3.1.1** corrects the sign of the slope in several cost functions (Irmischer-Clarke, Rees, Tripcevich, Herzog, Llobera-Sluckin, Ardigo, Minetti, Pandolf with correction, Van Leusen) and some units (Pandolf in J/m and kJ, Hare in kcal): downhill no longer costs like uphill, so results with those functions differ -- correctly -- from earlier versions and are worth re-running.
 
 ---
 
@@ -493,7 +494,7 @@ This example shows how to calculate a least-cost path between a settlement and a
 **Solutions**:
 1. Open R or RStudio
 2. Run: `install.packages("movecost")`
-3. Verify: `library(movecost)` -- should produce no errors; `packageVersion("movecost")` must be >= 3.1.0
+3. Verify: `library(movecost)` -- should produce no errors; `packageVersion("movecost")` must be >= 3.1.1
 4. If there are dependency issues: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analysis Very Slow
@@ -563,7 +564,7 @@ The R `movecost` package supports several anisotropic cost functions:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| movecost R package | 3.1.0+ |
+| movecost R package | 3.1.1+ |
 | movecost QGIS plugin | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
