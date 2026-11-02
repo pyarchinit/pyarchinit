@@ -705,6 +705,19 @@ def initialize_environment() -> None:
         fi.install_dir()
     else:
         os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
+        # Self-heal: the sample DB is copied from resources/dbfiles only on
+        # the very first install (when ~/pyarchinit is created). If it has
+        # gone missing since — or is the zero-byte file a stray SQLite
+        # connection leaves behind, since opening a non-existing database
+        # creates it — re-run install_dir(): copy_file() never overwrites,
+        # so an existing database and the user's files are untouched.
+        sample_db = os.path.join(PYARCHINIT_HOME, 'pyarchinit_DB_folder',
+                                 'pyarchinit_db.sqlite')
+        try:
+            if not os.path.isfile(sample_db) or os.path.getsize(sample_db) == 0:
+                fi.install_dir()
+        except OSError as e:
+            print(f"pyArchInit: could not restore the sample database: {e}")
 
     # Install configuration files
     config_path = os.path.join(os.sep, PYARCHINIT_HOME, 'pyarchinit_DB_folder', 'config.cfg')
