@@ -918,6 +918,19 @@ def initialize_environment(splash=None) -> None:
     # (re)created. Robust to a base dir pre-created by other code paths (this
     # is why it runs unconditionally, not only when the home is absent).
     os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
+    # A stray SQLite connection may have left a zero-byte pyarchinit_db.sqlite
+    # (opening a non-existing database creates the file): remove it, so the
+    # install_dir() below recopies the bundled example DB — copy_file skips
+    # any existing destination and would keep the empty husk forever.
+    try:
+        _sample_db = os.path.join(PYARCHINIT_HOME, 'pyarchinit_DB_folder',
+                                  'pyarchinit_db.sqlite')
+        if os.path.isfile(_sample_db) and os.path.getsize(_sample_db) == 0:
+            os.remove(_sample_db)
+            print("[pyArchInit] removed zero-byte pyarchinit_db.sqlite; "
+                  "the bundled example DB will be restored")
+    except OSError as _exc:
+        print(f"[pyArchInit] zero-byte example DB cleanup skipped: {_exc}")
     fi.install_dir()
     # Refresh bundled maintenance files (dot.py, dottoxml.py, …) when the
     # plugin shipped a newer version, so fixes reach <home>/bin/.
