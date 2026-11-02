@@ -83,7 +83,7 @@ Vor der Verwendung von MoveCost muessen die folgenden Komponenten installiert un
 
 ### 2. R-Paket `movecost`
 
-Die erforderliche Version ist **>= 3.0.0**. Die Skripte installieren/aktualisieren das Paket automatisch beim ersten Lauf; alternativ das Paket innerhalb von R installieren:
+Die erforderliche Version ist **>= 3.1.0**. Die Skripte installieren/aktualisieren das Paket automatisch beim ersten Lauf; alternativ das Paket innerhalb von R installieren:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Haupt-Abhaengigkeiten werden automatisch installiert: `terra`, `sf`, `igraph`, `
 | Voraussetzungen-Checkliste                 |
 +-------------------------------------------+
 | [x] R installiert und im PATH            |
-| [x] movecost >= 3.0.0 in R installiert   |
+| [x] movecost >= 3.1.0 in R installiert   |
 | [x] Processing R Provider aktiv in QGIS  |
 | [x] DGM im QGIS-Projekt geladen          |
 | [x] Punktlayer mit Urspruengen/Zielen     |
@@ -125,6 +125,11 @@ Haupt-Abhaengigkeiten werden automatisch installiert: `terra`, `sf`, `igraph`, `
 > - Das movecost-QGIS-Plugin muss >= **4.0.0** sein: Aeltere Plugin-Versionen rufen Funktionen auf, die es in movecost 3.0 nicht mehr gibt, und brechen mit einem R-Fehler ab, der "movecost() was removed in movecost 3.0.0" erwaehnt.
 > - Einige Kostenfunktionen wurden in 3.0 KORRIGIERT (Kondo-Seino, Marin Arroyo, Pandolf mit Korrektur, Hare und die metabolischen Funktionen mit dynamischer Geschwindigkeit V=0): Ergebnisse mit diesen Einstellungen weichen -- korrekterweise -- von der 2.x-Serie ab.
 > - Diagramme basieren jetzt auf ggplot2; sie werden weiterhin wie bisher im Ergebnisbereich von PyArchInit angezeigt.
+
+> **Neu in movecost 3.1**
+>
+> - Alle Algorithmen erhalten zwei optionale Eingaben: ein **Terrain**-Raster (Gelaendefaktor N pro Zelle, numerisch oder kategorial) und eine **Terrain Table** (CSV mit den Spalten `class,N`, die die Klassen eines kategorialen Rasters in Faktoren uebersetzt). Der skalare Parameter `N` wird zum Rueckfallwert fuer Zellen ohne Gelaendefaktor; `Inf` macht eine Zelle unpassierbar.
+> - Das movecost-QGIS-Plugin muss >= **4.1.0** sein, damit die neuen Eingaben erscheinen; Kostenfunktionen ohne Gelaendefaktor warnen, wenn einer angegeben wird.
 
 ---
 
@@ -488,7 +493,7 @@ Dieses Beispiel zeigt, wie ein Wegkostenpfad zwischen einer Siedlung und einer W
 **Loesungen**:
 1. R oder RStudio oeffnen
 2. Ausfuehren: `install.packages("movecost")`
-3. Ueberpruefen: `library(movecost)` -- sollte keine Fehler erzeugen; `packageVersion("movecost")` muss >= 3.0.0 sein
+3. Ueberpruefen: `library(movecost)` -- sollte keine Fehler erzeugen; `packageVersion("movecost")` muss >= 3.1.0 sein
 4. Bei Abhaengigkeitsproblemen: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analyse sehr langsam
@@ -558,7 +563,7 @@ Das R-Paket `movecost` unterstuetzt mehrere anisotrope Kostenfunktionen:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| movecost R-Paket | 3.0.0+ |
+| movecost R-Paket | 3.1.0+ |
 | movecost QGIS-Plugin | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 

@@ -83,7 +83,7 @@ Abans d'utilitzar MoveCost, verificar que els seguents components estan instal.l
 
 ### 2. Paquet R `movecost`
 
-La versio requerida es **>= 3.0.0**. Els scripts instal.len/actualitzen el paquet automaticament a la primera execucio; alternativament, instal.lar el paquet des de R:
+La versio requerida es **>= 3.1.0**. Els scripts instal.len/actualitzen el paquet automaticament a la primera execucio; alternativament, instal.lar el paquet des de R:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Dependencies principals instal.lades automaticament: `terra`, `sf`, `igraph`, `g
 | Llista de verificacio de prerequisits      |
 +-------------------------------------------+
 | [x] R instal.lat i al PATH               |
-| [x] movecost >= 3.0.0 instal.lat a R     |
+| [x] movecost >= 3.1.0 instal.lat a R     |
 | [x] Processing R Provider actiu a QGIS   |
 | [x] MDT carregat al projecte QGIS         |
 | [x] Capa de punts amb origens/destinac.   |
@@ -125,6 +125,11 @@ Dependencies principals instal.lades automaticament: `terra`, `sf`, `igraph`, `g
 > - El plugin QGIS movecost ha de ser >= **4.0.0**: les versions anteriors del plugin criden funcions que ja no existeixen a movecost 3.0 i s'aturen amb un error de R que menciona "movecost() was removed in movecost 3.0.0".
 > - Algunes funcions de cost van ser CORREGIDES a la 3.0 (Kondo-Seino, Marin Arroyo, Pandolf amb correccio, Hare i les funcions metaboliques amb velocitat dinamica V=0): els resultats amb aquestes configuracions difereixen -- correctament -- de la serie 2.x.
 > - Els grafics ara es basen en ggplot2; es continuen mostrant al panell de resultats de PyArchInit com abans.
+
+> **Nou a movecost 3.1**
+>
+> - Tots els algorismes guanyen dues entrades opcionals: un raster **Terrain** (factor de terreny N per cella, numeric o categoric) i una **Terrain Table** (CSV amb columnes `class,N` que tradueix les classes d'un raster categoric en factors). El parametre escalar `N` passa a ser el valor de reserva per a les celles sense factor de terreny; `Inf` fa una cella intransitable.
+> - El connector QGIS movecost ha de ser >= **4.1.0** per mostrar les noves entrades; les funcions de cost que no usen factor de terreny avisen si se'n proporciona un.
 
 ---
 
@@ -488,7 +493,7 @@ Aquest exemple mostra com calcular un cami de menor cost entre un assentament i 
 **Solucions**:
 1. Obrir R o RStudio
 2. Executar: `install.packages("movecost")`
-3. Verificar: `library(movecost)` -- no ha de produir errors; `packageVersion("movecost")` ha de ser >= 3.0.0
+3. Verificar: `library(movecost)` -- no ha de produir errors; `packageVersion("movecost")` ha de ser >= 3.1.0
 4. Si hi ha problemes de dependencies: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analisi molt lenta
@@ -558,7 +563,7 @@ El paquet R `movecost` suporta diverses funcions de cost anisotropiques:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| Paquet movecost (R) | 3.0.0+ |
+| Paquet movecost (R) | 3.1.0+ |
 | Plugin QGIS movecost | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 

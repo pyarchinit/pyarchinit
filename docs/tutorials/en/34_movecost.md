@@ -83,7 +83,7 @@ Before using MoveCost, ensure the following components are installed and configu
 
 ### 2. R Package `movecost`
 
-The required version is **>= 3.0.0**. The scripts install/update the package automatically on first run; alternatively, install the package from within R:
+The required version is **>= 3.1.0**. The scripts install/update the package automatically on first run; alternatively, install the package from within R:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Main dependencies installed automatically: `terra`, `sf`, `igraph`, `ggplot2` (p
 | Prerequisites Checklist                    |
 +-------------------------------------------+
 | [x] R installed and in PATH              |
-| [x] movecost >= 3.0.0 installed in R     |
+| [x] movecost >= 3.1.0 installed in R     |
 | [x] Processing R Provider active in QGIS |
 | [x] DTM loaded in QGIS project           |
 | [x] Point layer with origins/destinations |
@@ -125,6 +125,11 @@ Main dependencies installed automatically: `terra`, `sf`, `igraph`, `ggplot2` (p
 > - The movecost QGIS plugin must be >= **4.0.0**: older plugin versions call functions that no longer exist in movecost 3.0 and stop with an R error mentioning "movecost() was removed in movecost 3.0.0".
 > - Some cost functions were CORRECTED in 3.0 (Kondo-Seino, Marin Arroyo, Pandolf with correction, Hare, and the metabolic functions with dynamic speed V=0): results with those settings differ -- correctly -- from the 2.x series.
 > - Plots are now ggplot2-based; they are still shown in the PyArchInit results panel as before.
+
+> **New in movecost 3.1**
+>
+> - Every algorithm gains two optional inputs: a **Terrain** raster (terrain factor N per cell, numeric or categorical) and a **Terrain Table** (CSV with columns `class,N` that translates the classes of a categorical raster into factors). The scalar `N` parameter becomes the fallback for cells without a terrain value; `Inf` makes a cell impassable.
+> - The movecost QGIS plugin must be >= **4.1.0** to show the new inputs; cost functions that take no terrain factor warn when one is supplied.
 
 ---
 
@@ -488,7 +493,7 @@ This example shows how to calculate a least-cost path between a settlement and a
 **Solutions**:
 1. Open R or RStudio
 2. Run: `install.packages("movecost")`
-3. Verify: `library(movecost)` -- should produce no errors; `packageVersion("movecost")` must be >= 3.0.0
+3. Verify: `library(movecost)` -- should produce no errors; `packageVersion("movecost")` must be >= 3.1.0
 4. If there are dependency issues: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analysis Very Slow
@@ -558,7 +563,7 @@ The R `movecost` package supports several anisotropic cost functions:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| movecost R package | 3.0.0+ |
+| movecost R package | 3.1.0+ |
 | movecost QGIS plugin | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 

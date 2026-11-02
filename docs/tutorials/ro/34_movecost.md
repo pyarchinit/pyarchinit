@@ -83,7 +83,7 @@ Inainte de a utiliza MoveCost, verificati ca urmatoarele componente sunt instala
 
 ### 2. Pachetul R `movecost`
 
-Versiunea necesara este **>= 3.0.0**. Scripturile instaleaza/actualizeaza pachetul automat la prima rulare; alternativ, instalati pachetul din interiorul R:
+Versiunea necesara este **>= 3.1.0**. Scripturile instaleaza/actualizeaza pachetul automat la prima rulare; alternativ, instalati pachetul din interiorul R:
 
 ```r
 install.packages("movecost")
@@ -112,7 +112,7 @@ Dependentele principale sunt instalate automat: `terra`, `sf`, `igraph`, `ggplot
 | Lista de verificare a cerintelor           |
 +-------------------------------------------+
 | [x] R instalat si in PATH                |
-| [x] movecost >= 3.0.0 instalat in R      |
+| [x] movecost >= 3.1.0 instalat in R      |
 | [x] Processing R Provider activ in QGIS  |
 | [x] MDT incarcat in proiectul QGIS        |
 | [x] Strat de puncte cu origini/destinatii |
@@ -125,6 +125,11 @@ Dependentele principale sunt instalate automat: `terra`, `sf`, `igraph`, `ggplot
 > - Plugin-ul QGIS movecost trebuie sa fie >= **4.0.0**: versiunile mai vechi ale plugin-ului apeleaza functii care nu mai exista in movecost 3.0 si se opresc cu o eroare R care mentioneaza "movecost() was removed in movecost 3.0.0".
 > - Unele functii de cost au fost CORECTATE in 3.0 (Kondo-Seino, Marin Arroyo, Pandolf cu corectie, Hare si functiile metabolice cu viteza dinamica V=0): rezultatele cu aceste setari difera -- in mod corect -- de seria 2.x.
 > - Graficele se bazeaza acum pe ggplot2; sunt afisate in continuare in panoul de rezultate PyArchInit ca inainte.
+
+> **Nou in movecost 3.1**
+>
+> - Toti algoritmii castiga doua intrari optionale: un raster **Terrain** (factor de teren N pe celula, numeric sau categorial) si un **Terrain Table** (CSV cu coloanele `class,N` care traduce clasele unui raster categorial in factori). Parametrul scalar `N` devine valoarea de rezerva pentru celulele fara factor de teren; `Inf` face o celula de netrecut.
+> - Plugin-ul QGIS movecost trebuie sa fie >= **4.1.0** pentru a afisa noile intrari; functiile de cost care nu folosesc factorul de teren avertizeaza daca este furnizat unul.
 
 ---
 
@@ -488,7 +493,7 @@ Acest exemplu arata cum se calculeaza o ruta cu cel mai mic cost intre o asezare
 **Solutii**:
 1. Deschideti R sau RStudio
 2. Rulati: `install.packages("movecost")`
-3. Verificati: `library(movecost)` -- nu trebuie sa produca erori; `packageVersion("movecost")` trebuie sa fie >= 3.0.0
+3. Verificati: `library(movecost)` -- nu trebuie sa produca erori; `packageVersion("movecost")` trebuie sa fie >= 3.1.0
 4. Daca exista probleme de dependente: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analiza foarte lenta
@@ -558,7 +563,7 @@ Pachetul R `movecost` suporta mai multe functii de cost anizotrope:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| Pachetul movecost (R) | 3.0.0+ |
+| Pachetul movecost (R) | 3.1.0+ |
 | Plugin-ul QGIS movecost | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
