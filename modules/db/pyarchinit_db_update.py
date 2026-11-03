@@ -18,9 +18,12 @@
  *                                                                         *
  ***************************************************************************/
 """
+import importlib
+
 from builtins import object
 from builtins import str
 from sqlalchemy import Table
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
 
@@ -28,13 +31,66 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class DB_update(object):
+    # Ogni tabella riflessa da update_table() con la sua classe in
+    # structures_metadata: in un DB creato da un pyArchInit precedente
+    # all'introduzione della tabella (es. pottery_table, fine 2022)
+    # Table(..., autoload=True) alza NoSuchTableError e fa fallire
+    # l'intera connessione.
+    TABLE_STRUCTURES = {
+        'pottery_table': ('Pottery_table', 'PotteryTable'),
+        'inventario_materiali_table': ('Inventario_materiali_table',
+                                       'Inventario_materiali_table'),
+        'site_table': ('Site_table', 'Site_table'),
+        'us_table': ('US_table', 'US_table'),
+        'pyarchinit_thesaurus_sigle': ('Pyarchinit_thesaurus_sigle',
+                                       'Pyarchinit_thesaurus_sigle'),
+        'periodizzazione_table': ('Periodizzazione_table',
+                                  'Periodizzazione_table'),
+        'tomba_table': ('Tomba_table', 'Tomba_table'),
+        'individui_table': ('SCHEDAIND_table', 'SCHEDAIND_table'),
+        'pyunitastratigrafiche': ('pyunitastratigrafiche',
+                                  'pyunitastratigrafiche'),
+        'pyunitastratigrafiche_usm': ('pyunitastratigrafiche_usm',
+                                      'pyunitastratigrafiche_usm'),
+        'pyarchinit_quote_usm': ('pyquote_usm', 'pyquote_usm'),
+        'pyarchinit_quote': ('pyquote', 'pyquote'),
+        'pyarchinit_strutture_ipotesi': ('pystrutture', 'pystrutture'),
+        'pyarchinit_sezioni': ('pysezioni', 'pysezioni'),
+    }
+
     # connection string postgres"
     def __init__(self, conn_str):
         # create engine and metadata
         self.engine = create_engine(conn_str, echo=False)
         self.metadata = MetaData(self.engine)
 
+    def create_missing_tables(self):
+        created = []
+        try:
+            existing = set(sa_inspect(self.engine).get_table_names())
+        except Exception as e:
+            print("[pyArchInit] impossibile elencare le tabelle: {}".format(e))
+            return created
+        for name, (module_name, class_name) in self.TABLE_STRUCTURES.items():
+            if name in existing:
+                continue
+            try:
+                module = importlib.import_module(
+                    'modules.db.structures_metadata.' + module_name)
+                table = getattr(module, class_name).define_table(MetaData())
+                table.metadata.create_all(self.engine, tables=[table],
+                                          checkfirst=True)
+                created.append(name)
+            except Exception as e:
+                print("[pyArchInit] tabella mancante {} non creata: {}".format(
+                    name, e))
+        if created:
+            print("[pyArchInit] tabelle mancanti create nel db: {}".format(
+                ", ".join(created)))
+        return created
+
     def update_table(self):
+        self.create_missing_tables()
         # ####invetario_materiali_table
         # table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
         # table_column_names_list = []
