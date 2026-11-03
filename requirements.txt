@@ -24,7 +24,11 @@ matplotlib==3.9.0
 pandas==2.2.2
 python-docx==1.1.2
 pygame==2.6.0
-pyvista==0.44.1
+# floor, non pin: QGIS 3.44 per macOS porta pyvista 0.46.x nel bundle e il
+# check «0.x: stessa minor» chiedeva per sempre un downgrade impossibile
+# (pip --target non può toccare il bundle e il vecchio dist-info in ext_libs
+# vince comunque); il plugin gira con la 0.46 da febbraio 2026
+pyvista>=0.44.1
 pyvistaqt==0.11.1
 vtk==9.3.1
 beautifulsoup4==4.13.3
