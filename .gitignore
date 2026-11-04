@@ -6,3 +6,7 @@
 /copy_excelfile.py
 /t_4707.py
 modules/gis/logs/*.log
+
+# dipendenze runtime installate dal plugin: mai in git (un cambio di branch
+# cancellava i file tracciati e mutilava i pacchetti sugli altri rami)
+/ext_libs/
