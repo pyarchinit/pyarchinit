@@ -120,7 +120,16 @@ Pillow>=9.1.0
 # the plugin imports s3dgraphy.sync from the library; the vendored copy
 # is reduced to pyArchInit-only extensions. Pin EXACT, never >=: the
 # library moves weekly and every bump is re-measured against tests/sync.
-s3dgraphy==1.6.0.dev57
+# 1.6.0.dev113 (14 Nov 2026, branch s3dgraphy_v1.6dev): a month of upstream
+# work, mostly EMStudio-side (em.json 1.1/1.2, archive/asset, use_profiles).
+# Touches us: sync/graphml_writer + sync/pyarchinit_pg_importer changed
+# (sync/rapporti.py untouched); the pyArchInit importer reads the unit
+# number from the node name (importer/unit_numbers.py) and no longer writes
+# attributes['us']; datamodel nodes 1.6.44/45 + connections 1.6.51; abuts/
+# bonded_to/equals now imply contemporaneity in the connection resolver.
+# Re-measured against tests/sync: same results as dev57 (979 passed, the
+# 11 pre-existing failures unchanged).
+s3dgraphy==1.6.0.dev113
 dtcstamp>=0.1.5
 
 # Remote Storage Backends (optional - install only if using remote storage)
@@ -135,7 +144,6 @@ webdavclient3>=3.14.0
 
 # R Integration for Archeozoology (optional - requires R installed)
 #pyper>=1.1.2
-
 # Note: The following packages are installed in a virtual environment for Pottery Tools
 # They are NOT installed in QGIS Python to avoid conflicts
 # ultralytics>=8.2.0

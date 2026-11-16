@@ -357,6 +357,13 @@ def read_em_json(source) -> MatrixModel:
                 color=str(dati.get("color") or "#F5F5F5")))
         elif tipo == "extractor" and chiave.startswith(_PROMPT_EXTRACTOR_PREFIX):
             continue      # il prompt di una narrativa non è un paradato della matrice
+        elif tipo == "property" and str(dati.get("property_type") or "") == "footprint":
+            # s3dgraphy dev113 scrive l'impronta GIS di sito e saggi come
+            # catena property/extractor/document: abita la mappa, non la
+            # matrice — disegnata, sarebbe una riga cliccabile senza media.
+            continue
+        elif tipo == "extractor" and str(dati.get("extractor_type") or "") == "gis_analysis":
+            continue      # l'estrattore che legge il layer GIS dell'impronta
         elif tipo not in _NOT_A_UNIT:
             if chiave in unita_grezze:
                 avvisi.append("Due nodi con lo stesso id «%s»: ne disegno uno."
