@@ -24,6 +24,17 @@ import os
 for _var in ("VECLIB_MAXIMUM_THREADS", "OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS"):
     os.environ.setdefault(_var, "1")
 
+# PYARCHINIT_HOME e il workspace di s3dgraphy come li imposta il root
+# __init__.py del plugin al suo import: i test importano `modules...` senza
+# passare dal pacchetto radice, quindi un lancio di `tests/sync` da solo
+# trovava la variabile solo se qualcos'altro l'aveva già messa — KeyError
+# 'PYARCHINIT_HOME' nelle miniature dei media e negli stili vista (16
+# novembre 2026). Un valore esterno vince, come nel plugin.
+from modules.utility.pyarchinit_home import default_workspace_dir, pyarchinit_home
+
+os.environ.setdefault("PYARCHINIT_HOME", pyarchinit_home())
+os.environ.setdefault("PYARCHINIT_WORKSPACE_DIR", default_workspace_dir())
+
 import pytest
 
 _APP = None

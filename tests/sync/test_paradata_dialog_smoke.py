@@ -28,8 +28,13 @@ def test_paradata_dialog_can_open(tmp_path):
 
     # Stub db_manager
     class _FakeDBManager:
+        # il resolver della libreria (sync._db_handle) riconosce un
+        # DbManager dall'attributo .engine, come il DbManager vero
+        # dopo connection(); get_sqlite_path() da solo non basta piu'
         def __init__(self, db):
+            from sqlalchemy import create_engine
             self._db = db
+            self.engine = create_engine("sqlite:///" + str(db))
         def get_sqlite_path(self):
             return self._db
 
@@ -43,7 +48,9 @@ def test_paradata_dialog_can_open(tmp_path):
     from gui.dialog_paradata_manager import ParadataManagerDialog
     dialog = ParadataManagerDialog(
         parent=None, db_manager=_FakeDBManager(db), sito="X")
-    assert dialog.tabs.count() == 3
+    # 4 tab dall'AC-18 (il quarto, «groups», è misurato dal suo smoke in
+    # test_groups_dialog_smoke.py); qui restano i tre storici
+    assert dialog.tabs.count() == 4
     assert dialog.tabs.tabText(0).lower() == "authors"
     assert dialog.tabs.tabText(1).lower() == "licenses"
     assert dialog.tabs.tabText(2).lower() == "embargoes"
