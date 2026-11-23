@@ -89,10 +89,12 @@ def _lista_della_parte(indice, parte):
 def test_i_capitoli_di_una_stessa_parte_stanno_insieme(tmp_path):
     indice = _indice(_html(tmp_path))
     rilievo = _lista_della_parte(indice, "Rilievo e analisi")
-    assert ">Introduction<" in rilievo and ">4D survey<" in rilievo
+    # dalla s3dgraphy 1.6.0.dev13x la storia è numerata: il numero sta davanti
+    # al titolo del capitolo («<span class="em-num">1</span> Introduction»)
+    assert " Introduction<" in rilievo and " 4D survey<" in rilievo
     assert "Virtual Activity 1" not in rilievo
-    assert ">Conclusioni<" in indice                          # senza parte: da solo
-    assert ">Ricostruzione — Virtual Activity 1<" in indice   # parte con un capitolo solo: titolo intero
+    assert " Conclusioni<" in indice                           # senza parte: da solo
+    assert " Ricostruzione — Virtual Activity 1<" in indice   # parte con un capitolo solo: titolo intero
 
 
 def test_le_fonti_sono_l_ultima_voce(tmp_path):
@@ -273,7 +275,7 @@ def test_l_esportazione_html_porta_le_fonti_e_l_indice(tmp_path):
     en.export_file(g, n, "html", percorso, lang="it")
     pagina = percorso.read_text(encoding="utf-8")
     assert pagina.count('class="pya-fonti-cap"') == 2
-    uno = pagina[pagina.index(">Uno</h2>"):pagina.index(">VAct.01</h2>")]
+    uno = pagina[pagina.index("Uno</h2>"):pagina.index("VAct.01</h2>")]
     assert 'data-src="d5"' in uno and 'data-src="d7"' not in uno
     assert "var PYA_FONTI" in pagina and 'class="pya-indice"' in pagina
     assert 'href="#pya-fonti"' in _indice(pagina)
@@ -301,7 +303,7 @@ def test_le_schede_delle_unita_e_dei_paradati_si_raggruppano_per_unita(tmp_path)
     percorso = tmp_path / "n.html"
     en.export_file(g, n, "html", percorso, lang="it")
     pagina = percorso.read_text(encoding="utf-8")
-    capitolo = pagina[pagina.index(">II A.D.</h2>"):]
+    capitolo = pagina[pagina.index("II A.D.</h2>"):]
     assert '<div class="em-kind">paradata</div>' not in capitolo
     assert '<div class="em-kind">us</div>' not in capitolo
     assert '<div class="em-kind">fonte</div>' not in capitolo       # è nella riga delle fonti

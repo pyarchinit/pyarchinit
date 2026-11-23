@@ -311,6 +311,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         negative.append(harris_rapp)
                     if verbo in MATRIX_CONTEMPORARY_GROUP:
                         conteporane.append(harris_rapp)
+                    # «>» = posteriore a, «<» = anteriore a: sequenza
+                    # temporale, non un rapporto fisico. «<» è lo stesso
+                    # fatto letto dall'altro capo: si gira, e il
+                    # reciproco scritto sull'altra scheda non raddoppia.
+                    if verbo in ('>', '<'):
+                        if verbo == '<':
+                            harris_rapp = (harris_rapp[1], harris_rapp[0])
+                        if harris_rapp not in data:
+                            data.append(harris_rapp)
             except Exception as e:
                 print(f"Errore durante la generazione della matrice: {e}")
 
@@ -548,6 +557,16 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
                             harris_rapp2 = (_quote_node(us), _quote_node(sing_rapp[1]))
                             conteporane.append(harris_rapp2)
 
+                    # «>» posteriore a / «<» anteriore a: sequenza
+                    # temporale; «<» si gira (vedi generate_matrix sopra).
+                    if sing_rapp[0] in ('>', '<'):
+                        if sing_rapp[1] != '':
+                            harris_rapp = (_quote_node(us), _quote_node(sing_rapp[1]))
+                            if sing_rapp[0] == '<':
+                                harris_rapp = (harris_rapp[1], harris_rapp[0])
+                            if harris_rapp not in data:
+                                data.append(harris_rapp)
+
 
             except Exception as e:
 
@@ -779,7 +798,11 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
                             print(f"DEBUG - Skipping relation to {target_us_key} - not in processed set")
                             continue
                             
-                        if sing_rapp[0] in COVERS_GROUP | ABUTS_GROUP | SAME_AS_GROUP | CONNECTED_GROUP:
+                        # «>» (posteriore a) è sequenza come «Copre»; «<»
+                        # (anteriore a) e «Gli si appoggia» sono il verso
+                        # passivo e si girano come «Coperto da». Non sono
+                        # contemporaneità.
+                        if sing_rapp[0] in COVERS_GROUP | ABUTS_GROUP | SAME_AS_GROUP | CONNECTED_GROUP or sing_rapp[0] == '>':
                             harris_rapp = (current_us_key, target_us_key)
                             reverse_relation = (target_us_key, current_us_key)
 
@@ -787,8 +810,9 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
                             if harris_rapp not in added_relations and reverse_relation not in added_relations:
                                 data.append(harris_rapp)
                                 added_relations.add(harris_rapp)
-                        elif sing_rapp[0] in COVERED_BY_GROUP | FILLED_BY_GROUP:
-                            # Inverti la relazione per "coperto da" / "riempito da"
+                        elif sing_rapp[0] in COVERED_BY_GROUP | FILLED_BY_GROUP | SUPPORTS_GROUP or sing_rapp[0] == '<':
+                            # Inverti la relazione per "coperto da" / "riempito da" /
+                            # "gli si appoggia" / "<"
                             harris_rapp = (target_us_key, current_us_key)
                             reverse_relation = (current_us_key, target_us_key)
 
@@ -809,7 +833,7 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
                                 negative.append(harris_rapp1)
                                 added_relations.add(harris_rapp1)
 
-                        elif sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP | SUPPORTS_GROUP or sing_rapp[0] == '<':
+                        elif sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
                             harris_rapp2 = (current_us_key, target_us_key)
                             if harris_rapp2 not in added_relations:
                                 conteporane.append(harris_rapp2)

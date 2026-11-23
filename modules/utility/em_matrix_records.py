@@ -70,6 +70,13 @@ def _kinds():
             if indice < len(REL_INDEX_KIND):
                 tabella.setdefault(str(voce).strip().lower(),
                                    REL_INDEX_KIND[indice])
+    # Le frecce semplici del combobox: «>» posteriore a, «<» anteriore a.
+    # Sono il prima/dopo senza un rapporto fisico (quello che
+    # em_native_import scrive per un is_after): si disegnano come la
+    # continuità, «<» girato. Le doppie «>>»/«<<» restano fuori, sono
+    # la catena dei paradati.
+    tabella.setdefault(">", ("is_after", False))
+    tabella.setdefault("<", ("is_after", True))
     return tabella
 
 

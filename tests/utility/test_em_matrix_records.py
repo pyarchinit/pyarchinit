@@ -79,6 +79,40 @@ def test_cuts_fills_abuts_and_equals_keep_their_own_kind():
         assert model.relations[0].kind == atteso, (voce, model.relations[0].kind)
 
 
+def test_the_single_arrows_are_time_not_a_physical_relation():
+    """«>» è «posteriore a», «<» «anteriore a»: il prima/dopo che
+    em_native_import scrive per un is_after. Si disegnano come sequenza
+    (is_after), mai come «Copre»; «<» si gira come «Coperto da»."""
+    model = model_from_records(
+        [_rec("1", rapporti="[['>', '2', '1', 'Alfa']]"), _rec("2")],
+        PERIODI)
+    r = model.relations[0]
+    assert (r.source, r.target, r.kind) == ("1.US1", "1.US2", "is_after")
+
+    model = model_from_records(
+        [_rec("1", rapporti="[['<', '2', '1', 'Alfa']]"), _rec("2")],
+        PERIODI)
+    r = model.relations[0]
+    assert (r.source, r.target, r.kind) == ("1.US2", "1.US1", "is_after")
+
+
+def test_an_arrow_and_its_reciprocal_are_one_relation():
+    """La scheda scrive «>» su una US e «<» sull'altra: un fatto solo."""
+    model = model_from_records(
+        [_rec("1", rapporti="[['>', '2', '1', 'Alfa']]"),
+         _rec("2", rapporti="[['<', '1', '1', 'Alfa']]")], PERIODI)
+    assert [(r.source, r.target, r.kind) for r in model.relations] == [
+        ("1.US1", "1.US2", "is_after")]
+
+
+def test_the_double_arrows_are_not_drawn_as_sequence():
+    """«>>»/«<<» sono la catena dei paradati, non il prima/dopo."""
+    model = model_from_records(
+        [_rec("1", rapporti="[['>>', '2', '1', 'Alfa']]"), _rec("2")],
+        PERIODI)
+    assert model.relations == []
+
+
 def test_a_relation_to_a_unit_that_is_not_there_is_dropped():
     """Il Time Manager mostra solo le US fino a una certa posizione: un
     rapporto verso una US che non è nel disegno non si può disegnare."""
