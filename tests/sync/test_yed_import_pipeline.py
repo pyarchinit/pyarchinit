@@ -819,9 +819,9 @@ def test_write_rapporti_format_is_type_us_area_sito(
     graph_ingestor.py:1259). Before the fix pos 1 held sito and pos 3
     held us_target, breaking every rapporti join.
 
-    Bug F regression: US ↔ US edge gets the verbose Italian token
-    'Copre' (default edge_type='overlies' resolves via the canonical
-    {US, USM}² map), NOT the placeholder 'covers'."""
+    Bug F regression: NOT the placeholder 'covers'. s3dgraphy
+    1.6.0.dev139: a plain yEd line is ``is_after`` (time), written '>'
+    for every pair — no more 'Copre', which came back as ``overlies``."""
     import json
     from s3dgraphy.sync.yed_import_pipeline import (
         _write_rapporti, _write_us_rows,
@@ -859,8 +859,9 @@ def test_write_rapporti_format_is_type_us_area_sito(
     assert len(rapporti) == 1
     rapporto = rapporti[0]
     # Canonical pyarchinit order: [type, us_target, area, sito].
-    # US → US default → verbose IT 'Copre' (Bug F: was hardcoded 'covers').
-    assert rapporto[0] == "Copre"        # type
+    # US → US default (plain line = is_after) → '>' (dev139; until dev113
+    # 'Copre'; Bug F: was hardcoded 'covers').
+    assert rapporto[0] == ">"            # type
     assert rapporto[1] == "02"           # us_target — NOT sito
     assert rapporto[2] == "1"            # area
     assert rapporto[3] == "X"            # sito — NOT us_target
@@ -869,10 +870,10 @@ def test_write_rapporti_format_is_type_us_area_sito(
 def test_write_rapporti_token_dispatch_by_unita_tipo(
     tmp_path: Path,
 ) -> None:
-    """Bug F regression: the rapporti token depends on the unita_tipo
-    of both endpoints — verbose Italian for US/USM, '>>' for any
-    other non-canonical (USV / SF / VSF / RSF / VA), '>' if either
-    is CON (continuity).
+    """Bug F regression, re-read with s3dgraphy 1.6.0.dev139 («time
+    stays time»): a plain yEd line is ``is_after`` and goes out as '>'
+    for every pair of unit types (until dev113: 'Copre' between US/USM,
+    '>>' — a paradata link — for USV / SF / VSF / RSF / VA).
     """
     import json
     from s3dgraphy.sync.yed_import_pipeline import (
@@ -895,9 +896,9 @@ def test_write_rapporti_token_dispatch_by_unita_tipo(
         expanded = ExpandedRapporti(
             policy=FolderEdgePolicy.SKIP,
             rapporti=[
-                ("y_us",  "y_usm", None),  # US  → USM  → verbose 'Copre'
-                ("y_usv", "y_us",  None),  # USV → US   → '>>'
-                ("y_sf",  "y_usv", None),  # SF  → USV  → '>>'
+                ("y_us",  "y_usm", None),  # US  → USM  → ">"
+                ("y_usv", "y_us",  None),  # USV → US   → ">"
+                ("y_sf",  "y_usv", None),  # SF  → USV  → ">"
             ],
         )
         _write_rapporti(
@@ -920,15 +921,15 @@ def test_write_rapporti_token_dispatch_by_unita_tipo(
         ))
     by_us = {r[0]: r[1] for r in rows}
 
-    # US (10) → USM (20): both canonical → verbose IT.
+    # US (10) → USM (20): time, not «Copre».
     us_rapp = json.loads(by_us["10"])
-    assert us_rapp[0][0] == "Copre"
-    # USV (30) → US (10): one non-canonical → '>>' shorthand.
+    assert us_rapp[0][0] == ">"
+    # USV (30) → US (10): time, not a paradata '>>'.
     usv_rapp = json.loads(by_us["30"])
-    assert usv_rapp[0][0] == ">>"
-    # SF (40) → USV (30): both non-canonical → '>>' shorthand.
+    assert usv_rapp[0][0] == ">"
+    # SF (40) → USV (30): likewise.
     sf_rapp = json.loads(by_us["40"])
-    assert sf_rapp[0][0] == ">>"
+    assert sf_rapp[0][0] == ">"
 
 
 def test_paradata_store_add_document_dedups_same_identity(

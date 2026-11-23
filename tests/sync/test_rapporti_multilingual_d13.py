@@ -13,7 +13,10 @@ These tests pin:
   2. ``serialize_rapporti_from_edges`` emits the label from the source
      node's own ``rapporti`` column, capitalized (Covers / Copre / …),
      so the d13 string matches the DB verbatim in the site's UI language;
-  3. virtual units (USVs/SF/…) and continuity (CON) keep their shorthand;
+  3. virtual units (USVs/SF/…) and continuity (CON): until s3dgraphy
+     1.6.0.dev113 a physical relation became ``>>`` / ``>``; from dev139
+     («time stays time, physical stays physical») it keeps its word for
+     every pair of unit types, and only time is ``>`` / ``<``;
   4. a node without a usable ``rapporti`` attribute (e.g. a yEd-imported
      graph) falls back to the canonical verbose label.
 """
@@ -45,12 +48,15 @@ def test_multilingual_us_usm_takes_verbose_branch(ut):
         f"unita_tipo {ut!r} should be canonical (verbose), got {label!r}")
 
 
-def test_virtual_and_continuity_keep_shorthand():
+def test_virtual_and_continuity_keep_the_physical_word():
     R = _R()
-    assert R.select_rapporti_label("overlies", "USVs", "US") == ">>"
-    assert R.select_rapporti_label("is_overlain_by", "US", "USVs") == "<<"
-    assert R.select_rapporti_label("overlies", "CON", "US") == ">"
-    assert R.select_rapporti_label("is_overlain_by", "US", "CON") == "<"
+    assert R.select_rapporti_label("overlies", "USVs", "US") == "Copre"
+    assert R.select_rapporti_label("is_overlain_by", "US", "USVs") == "Coperto da"
+    assert R.select_rapporti_label("overlies", "CON", "US") == "Copre"
+    assert R.select_rapporti_label("is_overlain_by", "US", "CON") == "Coperto da"
+    # time is time for every pair
+    assert R.select_rapporti_label("is_after", "USVs", "US") == ">"
+    assert R.select_rapporti_label("is_after", "CON", "US") == ">"
 
 
 # --- 2-4. serialize_rapporti_from_edges (d13) -----------------------------
@@ -111,9 +117,10 @@ def test_d13_falls_back_to_canonical_without_column():
     assert out["a"] == [["Copre", "2", "1", "Site"]]
 
 
-def test_d13_virtual_unit_keeps_shorthand_even_with_verbose_column():
-    """A virtual unit must stay ``>>`` regardless of its column text."""
+def test_d13_virtual_unit_keeps_the_physical_word():
+    """dev139: an ``overlies`` from a virtual unit is written as a physical
+    relation (until dev113 it became ``>>`` and came back as paradata)."""
     R = _R()
     out = R.serialize_rapporti_from_edges(
         _two_us("USVs", "[['copre', '2', '1', 'x']]"), "Site")
-    assert out["a"] == [[">>", "2", "1", "Site"]]
+    assert out["a"] == [["Copre", "2", "1", "Site"]]

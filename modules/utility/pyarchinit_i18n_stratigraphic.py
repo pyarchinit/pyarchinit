@@ -480,8 +480,12 @@ NEGATIVE_GROUP = CUTS_GROUP
 # Passive groups (need relationship inversion in matrix)
 PASSIVE_COVERS_GROUP = COVERED_BY_GROUP | FILLED_BY_GROUP
 PASSIVE_CUTS_GROUP = CUT_BY_GROUP
-# Contemporary group for matrix: Connected + Same + Supports
-MATRIX_CONTEMPORARY_GROUP = CONNECTED_GROUP | SAME_AS_GROUP | SUPPORTS_GROUP
+# Contemporary group for matrix: Connected + Same.
+# "Supports" / "Gli si appoggia" is NOT contemporaneity: it is the passive
+# voice of "Abuts" (B leans on A, so B is later than A), exactly as
+# "Covered by" is the passive of "Covers". Like the other passive voices it
+# is drawn by turning it around, never as a contemporary edge.
+MATRIX_CONTEMPORARY_GROUP = CONNECTED_GROUP | SAME_AS_GROUP
 
 
 def is_covers_group(term):

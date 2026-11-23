@@ -97,11 +97,20 @@ def _voci_dei_titoli(testa: str) -> Tuple[str, List[Tuple[int, str, str]]]:
     return "".join(pezzi), voci
 
 
+#: il numero che la libreria mette davanti al titolo quando la storia è
+#: numerata (s3dgraphy 1.6.0.dev13x: ``<span class="em-num">1</span> ``)
+_NUMERO = re.compile(r'^\s*(<span class="em-num">[^<]*</span>\s*)')
+
+
 def _parte(titolo: str) -> Tuple[Optional[str], str]:
-    if _SEPARATORE in titolo:
-        parte, resto = titolo.split(_SEPARATORE, 1)
+    """La parte e il resto del titolo. Il numero del capitolo, se c'è, non è
+    della parte: resta davanti al resto («1 Introduction»)."""
+    m = _NUMERO.match(titolo)
+    numero, nudo = (m.group(1), titolo[m.end():]) if m else ("", titolo)
+    if _SEPARATORE in nudo:
+        parte, resto = nudo.split(_SEPARATORE, 1)
         if parte.strip() and resto.strip():
-            return parte.strip(), resto.strip()
+            return parte.strip(), numero + resto.strip()
     return None, titolo
 
 
@@ -749,7 +758,7 @@ def align_chapters(pagina: str, titoli: List[str]) -> List[Optional[int]]:
     del capitolo della narrativa: per titolo, nell'ordine; per posizione
     quando il titolo non si ritrova."""
     testa = pagina.split('<section class="em-sources">', 1)[0]
-    nella_pagina = [_html.unescape(m.group(2))
+    nella_pagina = [_html.unescape(_NUMERO.sub("", m.group(2), count=1))
                     for m in re.finditer(r"<h2(\s[^>]*)?>(.*?)</h2>", testa, re.S)
                     if "pya-indice-titolo" not in (m.group(1) or "")]
     return align_titles(nella_pagina, titoli)

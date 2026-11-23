@@ -129,7 +129,11 @@ Pillow>=9.1.0
 # bonded_to/equals now imply contemporaneity in the connection resolver.
 # Re-measured against tests/sync: same results as dev57 (979 passed, the
 # 11 pre-existing failures unchanged).
-s3dgraphy==1.6.0.dev113
+# 1.6.0.dev140: «time stays time» — is_after / is_before go out as > / < for
+# every pair of units (as em_native_import already writes), physical relations
+# in words, >> / << only for the paradata chain; every edge that is not a
+# rapporto is in NON_RAPPORTI_EDGE_TYPES.
+s3dgraphy==1.6.0.dev140
 dtcstamp>=0.1.5
 
 # Remote Storage Backends (optional - install only if using remote storage)
