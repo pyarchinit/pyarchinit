@@ -9772,7 +9772,11 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
         """Costruisce il grafo delle relazioni stratigrafiche"""
         try:
             # Use the central i18n module which covers all 10 languages
-            rel_covers = list(COVERS_GROUP | FILLS_GROUP | CUTS_GROUP | ABUTS_GROUP | frozenset(['>>']))
+            # '>' is s3dgraphy's only voice for is_after (temporal precedence,
+            # same direction as Copre) since 1.6.0.dev139: without it the
+            # precedences synced from Extended Matrix leave the order. '<'
+            # is the reciprocal row, like Coperto da, and stays out.
+            rel_covers = list(COVERS_GROUP | FILLS_GROUP | CUTS_GROUP | ABUTS_GROUP | frozenset(['>>', '>']))
             rel_equals = list(SAME_AS_GROUP | CONNECTED_GROUP)
 
             self.logger.info(f"Relazioni di copertura riconosciute: {rel_covers}")
