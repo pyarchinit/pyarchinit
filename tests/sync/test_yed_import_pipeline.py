@@ -859,8 +859,10 @@ def test_write_rapporti_format_is_type_us_area_sito(
     assert len(rapporti) == 1
     rapporto = rapporti[0]
     # Canonical pyarchinit order: [type, us_target, area, sito].
-    # US → US default → verbose IT 'Copre' (Bug F: was hardcoded 'covers').
-    assert rapporto[0] == "Copre"        # type
+    # An edge with no yEd line style is the plain line: ``is_after`` →
+    # '>' (MICRO-LG7, s3dgraphy dev139+; until then every line between two
+    # US became 'Copre', and before Bug F the raw 'covers').
+    assert rapporto[0] == ">"            # type
     assert rapporto[1] == "02"           # us_target — NOT sito
     assert rapporto[2] == "1"            # area
     assert rapporto[3] == "X"            # sito — NOT us_target
@@ -869,10 +871,11 @@ def test_write_rapporti_format_is_type_us_area_sito(
 def test_write_rapporti_token_dispatch_by_unita_tipo(
     tmp_path: Path,
 ) -> None:
-    """Bug F regression: the rapporti token depends on the unita_tipo
-    of both endpoints — verbose Italian for US/USM, '>>' for any
-    other non-canonical (USV / SF / VSF / RSF / VA), '>' if either
-    is CON (continuity).
+    """Bug F regression, rule of MICRO-LG7 (s3dgraphy dev139+): the
+    token follows the kind of relation, not the unita_tipo. A yEd edge
+    with no line style is the plain line, ``is_after`` → '>' between
+    any two units (until dev138: verbose 'Copre' for US/USM, '>>' for
+    the rest, '>' for CON).
     """
     import json
     from s3dgraphy.sync.yed_import_pipeline import (
@@ -895,9 +898,9 @@ def test_write_rapporti_token_dispatch_by_unita_tipo(
         expanded = ExpandedRapporti(
             policy=FolderEdgePolicy.SKIP,
             rapporti=[
-                ("y_us",  "y_usm", None),  # US  → USM  → verbose 'Copre'
-                ("y_usv", "y_us",  None),  # USV → US   → '>>'
-                ("y_sf",  "y_usv", None),  # SF  → USV  → '>>'
+                ("y_us",  "y_usm", None),  # US  → USM  → '>' (is_after)
+                ("y_usv", "y_us",  None),  # USV → US   → '>'
+                ("y_sf",  "y_usv", None),  # SF  → USV  → '>'
             ],
         )
         _write_rapporti(
@@ -920,15 +923,13 @@ def test_write_rapporti_token_dispatch_by_unita_tipo(
         ))
     by_us = {r[0]: r[1] for r in rows}
 
-    # US (10) → USM (20): both canonical → verbose IT.
+    # A plain line is temporal precedence for every pair of unit types.
     us_rapp = json.loads(by_us["10"])
-    assert us_rapp[0][0] == "Copre"
-    # USV (30) → US (10): one non-canonical → '>>' shorthand.
+    assert us_rapp[0][0] == ">"
     usv_rapp = json.loads(by_us["30"])
-    assert usv_rapp[0][0] == ">>"
-    # SF (40) → USV (30): both non-canonical → '>>' shorthand.
+    assert usv_rapp[0][0] == ">"
     sf_rapp = json.loads(by_us["40"])
-    assert sf_rapp[0][0] == ">>"
+    assert sf_rapp[0][0] == ">"
 
 
 def test_paradata_store_add_document_dedups_same_identity(

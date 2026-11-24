@@ -129,7 +129,20 @@ Pillow>=9.1.0
 # bonded_to/equals now imply contemporaneity in the connection resolver.
 # Re-measured against tests/sync: same results as dev57 (979 passed, the
 # 11 pre-existing failures unchanged).
-s3dgraphy==1.6.0.dev113
+# 1.6.0.dev141 (23 Nov 2026): the RAPPORTI CONVENTION CHANGES (MICRO-LG7,
+# E.D. 22 Nov, «time stays time towards pyArchInit»). The token follows the
+# kind of relation, no longer the unit type: a physical relation keeps its
+# verbose voice for every unit type, is_after/is_before is '>' / '<' for
+# every unit type (never «Copre» again), the paradata chain '>>' / '<<',
+# has_same_time has no voice (left out, logged). yEd import reads the line
+# style (plain = is_after, double = contemporaneity, dashed = paradata)
+# instead of making every line a «Copre»; units declared without a number
+# are never written in us_table. abuts is posteriority again, not
+# contemporaneity (MICRO-LG3b reverts dev113). Rows written by older
+# versions keep their spurious «Copre»: s3dgraphy.rapporti_check reads an
+# export back against its origin graph and reports them (read-only).
+# Datamodel nodes 1.6.56 / connections 1.6.61. tests/sync re-measured.
+s3dgraphy==1.6.0.dev141
 dtcstamp>=0.1.5
 
 # Remote Storage Backends (optional - install only if using remote storage)

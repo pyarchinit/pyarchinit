@@ -45,12 +45,17 @@ def test_multilingual_us_usm_takes_verbose_branch(ut):
         f"unita_tipo {ut!r} should be canonical (verbose), got {label!r}")
 
 
-def test_virtual_and_continuity_keep_shorthand():
+def test_virtual_and_continuity_follow_the_relation_kind():
+    """Since s3dgraphy 1.6.0.dev139 (MICRO-LG7) the token follows the kind
+    of relation, not the unit type: a physical cover keeps its voice for a
+    virtual unit or a continuity too, a temporal precedence is `>` / `<`."""
     R = _R()
-    assert R.select_rapporti_label("overlies", "USVs", "US") == ">>"
-    assert R.select_rapporti_label("is_overlain_by", "US", "USVs") == "<<"
-    assert R.select_rapporti_label("overlies", "CON", "US") == ">"
-    assert R.select_rapporti_label("is_overlain_by", "US", "CON") == "<"
+    assert R.select_rapporti_label("overlies", "USVs", "US") == "Copre"
+    assert R.select_rapporti_label("is_overlain_by", "US", "USVs") == "Coperto da"
+    assert R.select_rapporti_label("overlies", "CON", "US") == "Copre"
+    assert R.select_rapporti_label("is_overlain_by", "US", "CON") == "Coperto da"
+    assert R.select_rapporti_label("is_after", "USVs", "US") == ">"
+    assert R.select_rapporti_label("is_after", "CON", "US") == ">"
 
 
 # --- 2-4. serialize_rapporti_from_edges (d13) -----------------------------
@@ -111,9 +116,10 @@ def test_d13_falls_back_to_canonical_without_column():
     assert out["a"] == [["Copre", "2", "1", "Site"]]
 
 
-def test_d13_virtual_unit_keeps_shorthand_even_with_verbose_column():
-    """A virtual unit must stay ``>>`` regardless of its column text."""
+def test_d13_virtual_unit_cover_keeps_its_voice():
+    """A virtual unit's physical cover is written as a cover, like any
+    unit's (MICRO-LG7; until dev138 a virtual unit was always ``>>``)."""
     R = _R()
     out = R.serialize_rapporti_from_edges(
         _two_us("USVs", "[['copre', '2', '1', 'x']]"), "Site")
-    assert out["a"] == [[">>", "2", "1", "Site"]]
+    assert out["a"] == [["Copre", "2", "1", "Site"]]
