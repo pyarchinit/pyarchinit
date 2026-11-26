@@ -5,6 +5,32 @@
 
 ---
 
+## [feat] - 2026-11-26 — Fase 3 avviata: un sito di pyArchInit in una stanza di un nodo StratiGraph, con login Keycloak — 5.14.0-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2602 verdi**, 66 saltati, 1 xfail, 6 falliti già presenti prima di questa release (5 dell'esportazione HTML/Word della narrativa, che con s3dgraphy dev113 erano 13; `test_db_update` legge da tastiera). `tests/sync` 1000 verdi, 0 falliti. / Phase 3 started: a pyArchInit site into a room of a StratiGraph node, with Keycloak sign-in.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **pyArchInit corrispondente dello StratiGraph Server** (`StratiGraph-ECCCH/stratigraph-server`). Dal pannello StratiGraph Sync, pulsante «Send site to a room…»: login sul nodo e invio di un sito in una stanza. Anche da riga di comando: `scripts/stratigraph_send_site.py` (opzioni `--dry-run`, `--ca-file`).
+  - **Login come applicazione nativa** (`modules/stratigraph/node_client.py`, solo libreria standard): Authorization Code + PKCE S256 sul realm del nodo, con il client che il nodo indica in `/v1/auth-config` (`native_client_id`); il codice torna a un ascoltatore di una sola richiesta su `http://127.0.0.1:<porta>/`. Nessun segreto, nessuna password scritta in pyArchInit, token solo in memoria, `state` verificato. Lo stesso contratto dell'«Open in…» di EM Tools.
+  - **Invio del sito**: il grafo esportato dall'esportatore del plugin (`em_export.export_site`) passa al motore unico di s3dgraphy (`room_import`: piano → scelte → esecuzione), lo stesso di EMStudio ed EM Tools: crea la stanza, carica i file una volta sola, siede il grafo come operazioni. Un secondo invio non duplica niente.
+  - **I database non partono mai**: l'impronta GIS del sito è una risorsa che punta al database intero di pyArchInit; ogni file sqlite / spatialite / gpkg resta un riferimento, così la stanza non riceve gli altri siti né i loro record.
+  - **Ordine stratigrafico**: `Order_layer_graph` conta anche `>`, la voce di `is_after` di s3dgraphy dalla dev139 (concordato con E.D.).
+- 🇬🇧 **EN**: pyArchInit signs in to a StratiGraph node as a native app (Authorization Code + PKCE against the node's Keycloak) and brings a site into a room through s3dgraphy's `room_import`; database files are always kept as references, never uploaded. The stratigraphic order now counts `>` (is_after).
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: s3dgraphy **1.6.0.dev141**: la voce del rapporto segue il tipo di relazione (fisico esteso per tutti, temporale `>`/`<`, paradati `>>`/`<<`, `has_same_time` senza voce); nove test riscritti sulla convenzione nuova. Nell'estensione em_tools di Blender wheel e impronta del datamodel allineate alla dev141.
+- 🇬🇧 **EN**: s3dgraphy 1.6.0.dev141 (MICRO-LG7 rapporti convention); em_tools wheel and datamodel fingerprint aligned.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack di stratigraph-server (Keycloak attivo): login nativo completo; sito di esempio → 4 grafi, 844 operazioni applicate, 0 rifiutate, documento della stanza identico all'em.json; 401 senza token, 403 a un utente senza ruolo. Nuovi `tests/sync/test_node_client.py` (login su un nodo finto: PKCE, state, nessun segreto; regola dei database) e `tests/sync/test_order_layer_is_after.py`.
+- 🇬🇧 **EN**: measured end to end on the stratigraph-server dev-stack with Keycloak enforcing; new client and order tests.
+
+#### Documentation / Documentazione
+- 🇮🇹 **IT**: `metadata.txt` 5.14.0-alpha. Stato aggiornato sulla card T5.4 della board tecnica del progetto.
+- 🇬🇧 **EN**: status posted on the T5.4 card of the project's technical board.
+
+---
+
 ## [fix] - 2026-10-27 — QGIS 3.44 per macOS: mod_spatialite si trova nel QGIS che gira, anche senza Homebrew — 5.13.140-alpha
 
 > Branch `Stratigraph_00001`. Suite **2570 verdi** sul QGIS 3.44.15 nuovo di questo Mac (+13 test); i 35 falliti e 16 errori rimasti sono gli stessi sul commit di prima e vengono dall'ambiente (in `ext_libs` del QGIS nuovo manca ancora `s3dgraphy`, test che lanciano un Python senza PYTHONHOME). / QGIS 3.44 on macOS: mod_spatialite is found inside the running QGIS, also without Homebrew.
