@@ -55,7 +55,8 @@ def test_c_e_l_indice_di_word_con_i_titoli_gia_scritti(tmp_path):
     d = docx.Document(str(percorso))
     testi = [p.text for p in d.paragraphs]
     i = testi.index("Indice")
-    assert "Rilievo e analisi — Introduction" in testi[i + 1:i + 8]
+    # i titoli come la libreria li scrive in una storia numerata (dev139+)
+    assert "1 Rilievo e analisi — Introduction" in testi[i + 1:i + 8]
     primo_capitolo = next(k for k, p in enumerate(d.paragraphs) if p.style.name == "Heading 1")
     assert i < primo_capitolo                                 # l'indice sta prima dei capitoli
 
@@ -70,8 +71,8 @@ def test_ogni_capitolo_chiude_con_le_sue_fonti(tmp_path):
     d = docx.Document(str(_docx(tmp_path, g, n)))
     testi = [p.text for p in d.paragraphs]
     titoli = {p.text: k for k, p in enumerate(d.paragraphs) if p.style.name == "Heading 1"}
-    uno = testi[titoli["Uno"]:titoli["VAct.01"]]                  # il capitolo, non la voce dell'indice
+    uno = testi[titoli["1 Uno"]:titoli["2 VAct.01"]]              # il capitolo, non la voce dell'indice
     riga = [t for t in uno if t.startswith("Fonti del capitolo")]
     assert riga and "D.05" in riga[0] and "D.07" not in riga[0]
-    dopo = " ".join(testi[titoli["VAct.01"]:])
+    dopo = " ".join(testi[titoli["2 VAct.01"]:])
     assert "D.07" in dopo and "Maison Carrée" in dopo

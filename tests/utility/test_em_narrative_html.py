@@ -49,6 +49,20 @@ def _html(tmp_path, **kw):
     return percorso.read_text(encoding="utf-8")
 
 
+def _num(n):
+    """Il numero che s3dgraphy (dev139+, MICRO-SEG22) mette davanti ai titoli
+    di una storia numerata."""
+    return '<span class="em-num">%s</span> ' % n
+
+
+def _capitolo(pagina, titolo):
+    """Dove comincia il titolo del capitolo, con o senza il suo numero."""
+    m = re.search(r'<h2[^>]*>(?:<span class="em-num">[^<]*</span> )?%s</h2>' % re.escape(titolo),
+                  pagina)
+    assert m, "manca il capitolo %r" % titolo
+    return m.start()
+
+
 def _indice(pagina):
     m = re.search(r'<nav class="pya-indice"[^>]*>(.*?)</nav>', pagina, re.S)
     assert m, "manca l'indice"
@@ -89,10 +103,11 @@ def _lista_della_parte(indice, parte):
 def test_i_capitoli_di_una_stessa_parte_stanno_insieme(tmp_path):
     indice = _indice(_html(tmp_path))
     rilievo = _lista_della_parte(indice, "Rilievo e analisi")
-    assert ">Introduction<" in rilievo and ">4D survey<" in rilievo
+    # dentro la parte il capitolo tiene il suo numero e perde il nome della parte
+    assert _num(1) + "Introduction<" in rilievo and _num(2) + "4D survey<" in rilievo
     assert "Virtual Activity 1" not in rilievo
-    assert ">Conclusioni<" in indice                          # senza parte: da solo
-    assert ">Ricostruzione — Virtual Activity 1<" in indice   # parte con un capitolo solo: titolo intero
+    assert _num(4) + "Conclusioni<" in indice                          # senza parte: da solo
+    assert _num(3) + "Ricostruzione — Virtual Activity 1<" in indice   # parte con un capitolo solo: titolo intero
 
 
 def test_le_fonti_sono_l_ultima_voce(tmp_path):
@@ -273,7 +288,7 @@ def test_l_esportazione_html_porta_le_fonti_e_l_indice(tmp_path):
     en.export_file(g, n, "html", percorso, lang="it")
     pagina = percorso.read_text(encoding="utf-8")
     assert pagina.count('class="pya-fonti-cap"') == 2
-    uno = pagina[pagina.index(">Uno</h2>"):pagina.index(">VAct.01</h2>")]
+    uno = pagina[_capitolo(pagina, "Uno"):_capitolo(pagina, "VAct.01")]
     assert 'data-src="d5"' in uno and 'data-src="d7"' not in uno
     assert "var PYA_FONTI" in pagina and 'class="pya-indice"' in pagina
     assert 'href="#pya-fonti"' in _indice(pagina)
@@ -301,7 +316,7 @@ def test_le_schede_delle_unita_e_dei_paradati_si_raggruppano_per_unita(tmp_path)
     percorso = tmp_path / "n.html"
     en.export_file(g, n, "html", percorso, lang="it")
     pagina = percorso.read_text(encoding="utf-8")
-    capitolo = pagina[pagina.index(">II A.D.</h2>"):]
+    capitolo = pagina[_capitolo(pagina, "II A.D."):]
     assert '<div class="em-kind">paradata</div>' not in capitolo
     assert '<div class="em-kind">us</div>' not in capitolo
     assert '<div class="em-kind">fonte</div>' not in capitolo       # è nella riga delle fonti
@@ -409,3 +424,28 @@ def test_lo_script_delle_fonti_si_legge(tmp_path):
     f = tmp_path / "fonti.js"
     f.write_text(nh._JS_FONTI, encoding="utf-8")
     subprocess.run(["node", "--check", str(f)], check=True)
+
+
+# -------------------------------- i titoli numerati della libreria (26-11-2026)
+
+def test_un_capitolo_numerato_si_riconosce_dal_suo_titolo():
+    """s3dgraphy numera i capitoli («1 Uno»): il confronto dei titoli deve
+    riconoscerli, non ripiegare sulla posizione."""
+    assert nh.same_title('<span class="em-num">1</span> Uno', "Uno")
+    assert nh.same_title("1.2 Uno", "Uno")
+    assert nh.same_title("Uno", "Uno")
+    # un titolo che comincia davvero con una cifra si riconosce intero, e con
+    # il numero della libreria davanti; il numero si toglie una volta sola
+    assert nh.same_title("2026 scavo", "2026 scavo")
+    assert nh.same_title('<span class="em-num">3</span> 2026 scavo', "2026 scavo")
+    assert not nh.same_title("3 2026 scavo", "scavo")
+    assert not nh.same_title("Due", "Uno")
+
+
+def test_le_fonti_seguono_il_titolo_anche_se_l_ordine_cambia():
+    """Con il numero davanti il confronto falliva sempre e si ripiegava
+    sulla posizione: con i capitoli in un altro ordine le fonti finivano
+    sotto il capitolo sbagliato."""
+    visti = ['<span class="em-num">1</span> VAct.01', '<span class="em-num">2</span> Uno']
+    assert nh.align_titles(visti, ["Uno", "VAct.01"]) == [1, 0]
+    assert nh.align_titles(["1 VAct.01", "2 Uno"], ["Uno", "VAct.01"]) == [1, 0]

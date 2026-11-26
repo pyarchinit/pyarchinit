@@ -15,6 +15,11 @@ if plugin_dir not in sys.path:
 # Importa l'updater
 from scripts.update_old_sqlite_db import PyArchInitDBUpdater
 
+# Script manuale (chiede il percorso del database da tastiera), non un test:
+# pytest lo raccoglieva per il nome e falliva leggendo lo stdin catturato.
+# A mano si lancia come prima: python tests/test_db_update.py
+__test__ = False
+
 def test_update():
     """Test the database update"""
     # Percorso del database da testare

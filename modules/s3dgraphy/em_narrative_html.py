@@ -33,6 +33,34 @@ _INDICE = {"it": "Indice", "en": "Contents", "de": "Inhalt", "fr": "Sommaire", "
 #: la parte e il capitolo, nei titoli che la dicono: «Rilievo e analisi — Introduction»
 _SEPARATORE = " — "
 
+#: s3dgraphy (dev139+, MICRO-SEG22) numera capitoli e sezioni quando la storia
+#: è numerata: nell'HTML il titolo è `<span class="em-num">1.2</span> Titolo`,
+#: nel DOCX «1.2 Titolo». Il numero si stacca per riconoscere parte e capitolo,
+#: e si rimette davanti dove il titolo si mostra.
+_NUMERO_HTML = re.compile(r'^\s*(<span class="em-num">[^<]*</span>\s*)')
+_NUMERO_TESTO = re.compile(r"^\d+(?:\.\d+)*\s+")
+
+
+def _numero_e_titolo(titolo_html: str) -> Tuple[str, str]:
+    """(il numero come HTML da rimettere davanti, il titolo senza numero)."""
+    m = _NUMERO_HTML.match(titolo_html)
+    return (m.group(1), titolo_html[m.end():]) if m else ("", titolo_html)
+
+
+def same_title(visto: str, atteso: str) -> bool:
+    """Il titolo letto nella pagina (o nel DOCX) è quello del capitolo, con o
+    senza il numero che la libreria gli mette davanti. Si toglie un numero
+    solo, e solo quando quello che resta è ESATTAMENTE il titolo atteso: un
+    titolo che comincia con una cifra («2026 scavo») si riconosce intero e
+    come «3 2026 scavo»."""
+    visto = re.sub(r"<[^>]+>", "", visto).strip()
+    atteso = atteso.strip()
+    if visto == atteso:
+        return True
+    if atteso and visto.endswith(atteso):
+        return bool(_NUMERO_TESTO.fullmatch(visto[:len(visto) - len(atteso)]))
+    return False
+
 #: un titolo di capitolo (con o senza attributi: quelli della mappa) o un
 #: paragrafo che è un sottotitolo Markdown
 _TITOLI = re.compile(r"<h2(\s[^>]*)?>(.*?)</h2>|<p>(#{2,4})\s+(.+?)</p>", re.S)
@@ -119,15 +147,22 @@ def _lista(voci: List[Tuple[int, str, str]], fonti: Optional[Tuple[str, str]]) -
         figli = "".join('<li><a href="#%s">%s</a></li>' % s for s in sotto)
         return '<li><a href="#%s">%s</a>%s</li>' % (ident, testo, "<ol>%s</ol>" % figli if figli else "")
 
+    def parte_di(titolo_html):
+        return _parte(_numero_e_titolo(titolo_html)[1])
+
+    def dentro_la_parte(titolo_html):
+        numero, titolo = _numero_e_titolo(titolo_html)
+        return numero + _parte(titolo)[1]
+
     righe: List[str] = []
     i = 0
     while i < len(capitoli):
-        parte, _resto = _parte(capitoli[i][1])
+        parte, _resto = parte_di(capitoli[i][1])
         j = i
-        while j < len(capitoli) and parte is not None and _parte(capitoli[j][1])[0] == parte:
+        while j < len(capitoli) and parte is not None and parte_di(capitoli[j][1])[0] == parte:
             j += 1
         if parte is not None and j - i >= 2:
-            interni = "".join(voce(c[0], _parte(c[1])[1], c[2]) for c in capitoli[i:j])
+            interni = "".join(voce(c[0], dentro_la_parte(c[1]), c[2]) for c in capitoli[i:j])
             righe.append('<li><span class="pya-parte">%s</span><ol>%s</ol></li>' % (parte, interni))
             i = j
         else:
@@ -761,7 +796,8 @@ def align_titles(visti: List[str], attesi: List[str]) -> List[Optional[int]]:
     usati: set = set()
     ordine: List[Optional[int]] = []
     for k, titolo in enumerate(visti):
-        trovato = next((i for i, t in enumerate(attesi) if t == titolo and i not in usati), None)
+        trovato = next((i for i, t in enumerate(attesi)
+                        if same_title(titolo, t) and i not in usati), None)
         if trovato is None and k < len(attesi) and k not in usati:
             trovato = k
         if trovato is not None:
