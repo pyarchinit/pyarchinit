@@ -78,3 +78,26 @@ def test_the_language_falls_back_to_english(monkeypatch):
     assert I.t("pulled", room="r", ins=1, upd=2) == "✔ Portato da r: 1 unità nuove, 2 aggiornate"
     monkeypatch.setattr(I, "lang", lambda: "en")
     assert I.t("no-such-key") == "no-such-key"
+
+
+def test_the_hashed_site_place_merges_into_the_real_one():
+    """s3dgraphy's footprint reader adds the site without entity_uuid
+    (sha1(name|site)) next to the real one: one site, its edges moved."""
+    from s3dgraphy import Graph
+    from s3dgraphy.hdto import site_place_id
+    from s3dgraphy.nodes.group_node import LocationNodeGroup
+    from modules.s3dgraphy.sync.graph_projector import _merge_hashed_site_place
+    g = Graph(graph_id="S")
+    def site(nid):
+        n = LocationNodeGroup(node_id=nid, name="S", kind="toponym")
+        n.attributes["level"] = "sito"
+        g.add_node(n)
+    hashed = site_place_id("S", None)
+    site(hashed); site("real-uuid")
+    area = LocationNodeGroup(node_id="loc::area::study::1", name="1", kind="study")
+    g.add_node(area)
+    g.add_edge("e1", "loc::area::study::1", hashed, "is_in_location")
+    assert _merge_hashed_site_place(g, "S") == 1
+    assert g.find_node_by_id(hashed) is None
+    assert [(e.edge_source, e.edge_target) for e in g.edges] == [("loc::area::study::1", "real-uuid")]
+    assert _merge_hashed_site_place(g, "S") == 0                 # nothing left to merge

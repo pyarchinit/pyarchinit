@@ -742,6 +742,53 @@ class _use_full_pg_importer:
         return False
 
 
+def _merge_hashed_site_place(graph, sito) -> int:
+    """ONE site node. s3dgraphy's GIS footprint reader (SQLite) adds the site
+    with ``add_site(graph, name)`` before the projector emits it, so without
+    ``entity_uuid``: a second LocationNodeGroup of level ``sito`` whose id is
+    ``sha1(name|site)``, holding the footprint and the area/sector/trench
+    links, next to the real one (``site_table.entity_uuid``). PostgreSQL,
+    whose footprint read does not get that far, had only the real one: the
+    same site gave two different graphs (measured 26 Nov 2026, a room sent
+    from PostgreSQL and pulled into SQLite showed the hashed site as
+    «new»). The hashed node's edges move to the real one; returns how many."""
+    try:
+        from s3dgraphy.hdto import site_place_id
+    except ImportError:                                     # pragma: no cover
+        return 0
+    def _level(n):
+        for src in (getattr(n, "attributes", None) or {}, getattr(n, "data", None) or {}):
+            if isinstance(src, dict) and src.get("level"):
+                return src.get("level")
+        return None
+    hashed = site_place_id(sito, None)
+    places = [n for n in getattr(graph, "nodes", []) or []
+              if type(n).__name__ == "LocationNodeGroup" and _level(n) == "sito"
+              and str(getattr(n, "name", "")) == str(sito)]
+    real = next((n for n in places if n.node_id != hashed), None)
+    if real is None or not any(n.node_id == hashed for n in places):
+        return 0
+    have = {(e.edge_source, e.edge_type, e.edge_target) for e in graph.edges}
+    moving = [e for e in list(graph.edges) if hashed in (e.edge_source, e.edge_target)]
+    moved = 0
+    for e in moving:
+        src = real.node_id if e.edge_source == hashed else e.edge_source
+        tgt = real.node_id if e.edge_target == hashed else e.edge_target
+        if src == tgt or (src, e.edge_type, tgt) in have:
+            continue
+        try:
+            graph.add_edge(edge_id=f"{src}__{e.edge_type}__{tgt}", edge_source=src,
+                           edge_target=tgt, edge_type=e.edge_type)
+            have.add((src, e.edge_type, tgt))
+            moved += 1
+        except Exception:                                   # noqa: BLE001
+            pass
+    graph.remove_node(hashed)
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return moved
+
+
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
@@ -796,6 +843,7 @@ class GraphProjector(_LibGraphProjector):
         # sul demo a dieci siti, pota 0 nodi. Resta come guardia — e
         # perche' le altre vie d'ingresso (yEd, em.json) non filtrano.
         self._prune_foreign_site_nodes(graph, sito)
+        _merge_hashed_site_place(graph, sito)
 
         # One epoch per (periodo, fase), named the way pyArchInit names
         # periods: the importer and the library projector each create
