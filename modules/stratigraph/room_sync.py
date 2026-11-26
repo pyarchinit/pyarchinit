@@ -46,14 +46,32 @@ def fetch_document(node: str, room: str, token: str) -> Dict[str, Any]:
     return _json(urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"}))
 
 
-def room_graph(answer: Dict[str, Any], workdir: str) -> Tuple[Any, str, str]:
+def live_document(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """The room's document without what was removed in it. A removal in a
+    room is a TOMBSTONE (the node or edge stays, marked removed, so a late
+    edit cannot bring it back): read as live, a relation a colleague removed
+    was still «there», and a pull never removed it here (found 26 Nov 2026)."""
+    import copy
+    from s3dgraphy.crdt import live_edges, live_nodes
+    doc = copy.deepcopy(doc)
+    graphs = doc.get("graphs") or {}
+    for section in (graphs.values() if isinstance(graphs, dict) else graphs):
+        nodes = live_nodes(section)
+        alive = {n.get("id") for n in nodes}
+        section["nodes"] = nodes
+        section["edges"] = [e for e in live_edges(section)
+                            if e.get("source") in alive and e.get("target") in alive]
+    return doc
+
+
+def room_graph(answer: Dict[str, Any], workdir: str, name: str = "room.em.json") -> Tuple[Any, str, str]:
     """The room as ONE s3dgraphy graph: ``(graph, graph_id, em_json_path)``.
     A room with several graphs is merged (``container.merge_graphs``)."""
     from s3dgraphy.container import load_container_file, merge_graphs
     os.makedirs(workdir, exist_ok=True)
-    path = os.path.join(workdir, "room.em.json")
+    path = os.path.join(workdir, name)
     with open(path, "w", encoding="utf-8") as fh:
-        json.dump(answer.get("doc") or {}, fh, ensure_ascii=False)
+        json.dump(live_document(answer.get("doc") or {}), fh, ensure_ascii=False)
     container, _warnings = load_container_file(path)
     if not container.graphs:
         raise NodeError("the room holds no graph yet")
@@ -165,36 +183,66 @@ def _site_identity(connection_url: str, site: str, graph) -> None:
                      {"u": str(ident), "s": site})
 
 
+def _unsent(found: Optional[Dict[str, Any]]) -> Dict[str, list]:
+    """What a pull would overwrite or lose of the local work not yet sent:
+    field edits, conflicts, relations added here (the pull rewrites a unit's
+    relations from the room). Empty without a base: nobody can tell."""
+    if not found or not found.get("base"):
+        return {"edits": [], "conflicts": [], "relations": [], "removals": []}
+    return {"edits": list(found.get("local_edits") or []),
+            "conflicts": list(found.get("conflicts") or []),
+            "relations": list(found.get("local_relations") or []),
+            "removals": list(found.get("removed_relations") or [])}
+
+
 def pull_room(connection_url: str, site: str, *, node: str, room: str, token: str,
               workdir: str, apply: bool = False, force: bool = False,
-              media: bool = True) -> Dict[str, Any]:
-    """The room into the site's native tables. Dry run unless ``apply``;
-    an apply that would drop local relations needs ``force``."""
-    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+              media: bool = True, found: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """The room into the site's native tables. Dry run unless ``apply``.
 
-    answer = fetch_document(node, room, token)
+    With a base (a previous sync), the apply that would overwrite local edits
+    not yet sent, conflicts, or relations added here needs ``force``; a
+    relation the room REMOVED since the base is simply removed here too.
+    Without a base, any local relation the room lacks needs ``force`` (nobody
+    can tell «removed there» from «added here»). After the apply, the room
+    that was pulled becomes the base."""
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    from . import room_state
+
+    answer, base, how = room_state.room_now(connection_url, site, node=node, room=room, token=token)
     graph, gid, path = room_graph(answer, workdir)
     rows = _rows_by_uuid(connection_url, site)
     plan = GraphIngestor().populate_list(graph, db_path=connection_url, sito=site,
                                          dry_run=True, create_missing_epochs=True)
     kinds = classify(plan, rows, site)
     drops = [r for r in kinds["real"] if r.get("only_local")]
+    if base is not None and found is None:
+        found = contribution(connection_url, site, node=node, room=room, token=token,
+                             workdir=os.path.join(workdir, "compare"))
+    unsent = _unsent(found)
     report = {"room": room, "graph_id": gid, "cursor": answer.get("cursor"), "em_json": path,
               "inserted": plan.inserted, "updated": plan.updated, "skipped": plan.skipped,
               "format_only": kinds["format_only"], "real": kinds["real"],
-              "errors": list(plan.errors), "applied": False}
+              "errors": list(plan.errors), "applied": False, "read": how,
+              "base": base is not None, "unsent": unsent}
     if not apply:
         if media:
             from .room_media import pull_media
             report["media"] = pull_media(connection_url, site, graph, path, node=node,
                                          room=room, token=token, dry_run=True)
         return report
-    if drops and not force:
+    if base is None and drops and not force:
         raise NodeError(
             f"applying the room would remove {sum(len(r['only_local']) for r in drops)} "
             f"relation(s) of {len(drops)} local unit(s) that the room does not have "
             f"(e.g. US {drops[0]['us']}: {drops[0]['only_local'][:3]}); "
             "review them, then apply with force")
+    if base is not None and any(unsent.values()) and not force:
+        raise NodeError(
+            f"pulling would overwrite local work not yet sent: {len(unsent['edits'])} field edit(s), "
+            f"{len(unsent['conflicts'])} conflict(s), {len(unsent['relations'])} relation(s) added here, "
+            f"{len(unsent['removals'])} relation(s) removed here "
+            "— send your changes first, or apply with force")
     new_site = not _site_exists(connection_url, site)
     done = GraphIngestor().populate_list(graph, db_path=connection_url, sito=site,
                                          dry_run=False, create_missing_epochs=True)
@@ -209,6 +257,22 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
         hydrate_row_fields_from_data(graph)
         report["media"] = pull_media(connection_url, site, graph, path, node=node,
                                      room=room, token=token)
+    if not done.errors:
+        # both sides now agree on this room: it is the base of the next compare;
+        # what the pull did not bring here on purpose is remembered as such
+        local_now, _ = local_graph(connection_url, site, os.path.join(workdir, "after"))
+        here = {n.node_id for n in local_now.nodes} | _map_only(graph)
+        not_here = [n.node_id for n in graph.nodes if n.node_id not in here]
+        # relations the pull cannot reproduce here either (on PostgreSQL the
+        # area → site links come from the GIS layers, which do not travel)
+        local_edges = {(e.edge_source, e.edge_type, e.edge_target) for e in local_now.edges}
+        not_here += ["|".join(t) for t in
+                     ((e.edge_source, e.edge_type, e.edge_target) for e in graph.edges)
+                     if t not in local_edges and t[0] in here and t[2] in here]
+        room_state.save(connection_url, site, node, room, answer.get("doc") or {},
+                        answer.get("cursor"), how="pull", not_here=not_here)
+        report["base_saved"] = True
+        report["not_here"] = len(not_here)
     return report
 
 
@@ -278,7 +342,8 @@ def contribution(connection_url: str, site: str, *, node: str, room: str, token:
     never touched)."""
     from s3dgraphy.em.write import _snapshot, diff
 
-    answer = fetch_document(node, room, token)
+    from . import room_state
+    answer, base, how = room_state.room_now(connection_url, site, node=node, room=room, token=token)
     remote, gid, _ = room_graph(answer, workdir)
     local, local_path = local_graph(connection_url, site, workdir)
     resources = {n.node_id for n in list(local.nodes) + list(remote.nodes)
@@ -296,14 +361,127 @@ def contribution(connection_url: str, site: str, *, node: str, room: str, token:
                            resources, absent)
     delta.ops = [op for op in delta.ops if not _same_number(op, remote)]
     names = {n.node_id: n.name for n in list(local.nodes) + list(remote.nodes)}
-    changes = [op for op in delta.ops if op.get("op") == "update_field"]
-    room_only = [op for op in delta.ops if op.get("op") in ("remove_node", "remove_edge")]
-    return {"room": room, "graph_id": gid, "cursor": answer.get("cursor"),
-            "local_em_json": local_path, "delta": delta,
-            "new_nodes": [names.get(n.get("id"), n.get("id")) for n in delta.nodes],
-            "new_edges": len(delta.edges),
-            "field_changes": [(names.get(op["node_id"], op["node_id"]), op["field"]) for op in changes],
-            "room_only": len(room_only)}
+    found = {"room": room, "graph_id": gid, "cursor": answer.get("cursor"),
+             "connection_url": connection_url, "site": site,
+             "local_em_json": local_path, "read": how, "base": base is not None,
+             "base_doc": (base or {}).get("doc"), "base_cursor": (base or {}).get("cursor"),
+             "not_here": list((base or {}).get("not_here") or [])}
+    if base is None:
+        changes = [op for op in delta.ops if op.get("op") == "update_field"]
+        room_only = [op for op in delta.ops if op.get("op") in ("remove_node", "remove_edge")]
+        delta.ops = []                                    # without a base no field is sent
+        found.update({"delta": delta, "send_fields": [],
+                      "new_nodes": [names.get(n.get("id"), n.get("id")) for n in delta.nodes],
+                      "new_edges": len(delta.edges),
+                      "field_changes": [(names.get(op["node_id"], op["node_id"]), op["field"])
+                                        for op in changes],
+                      "room_only": len(room_only), "local_edits": [], "room_edits": [],
+                      "conflicts": [], "removed_in_room": 0, "removed_here": 0,
+                      "local_relations": []})
+        return found
+    base_graph, _bgid, _ = room_graph({"doc": base["doc"]}, workdir, "base.em.json")
+    tw = three_way(delta, base_graph, remote, local, frozenset(base.get("not_here") or ()))
+    delta.nodes, delta.edges, delta.ops = tw["send_nodes"], tw["send_edges"], tw["send_fields"]
+    label = lambda nid: names.get(nid, nid)
+    found.update({
+        "delta": delta, "send_fields": tw["send_fields"],
+        "new_nodes": [label(n.get("id")) for n in tw["send_nodes"]],
+        "new_edges": len(tw["send_edges"]),
+        "local_edits": [(label(op["node_id"]), op["field"]) for op in tw["send_fields"]],
+        "room_edits": [(label(op["node_id"]), op["field"]) for op in tw["room_fields"]],
+        "conflicts": [dict(c, name=label(c["node_id"])) for c in tw["conflicts"]],
+        "field_changes": [(label(op["node_id"]), op["field"]) for op in tw["room_fields"]],
+        "removed_in_room": tw["removed_in_room"], "removed_here": tw["removed_here"],
+        "room_only": tw["room_added"],
+        "local_relations": [(label(a), k, label(b)) for a, k, b in tw["local_relations"]],
+        "send_removals": tw["send_removals"],
+        "removed_relations": [(label(r["triple"][0]), r["triple"][1], label(r["triple"][2]))
+                              for r in tw["send_removals"]]})
+    return found
+
+
+def _value(nodes: Dict[str, Dict[str, Any]], nid: str, field: str):
+    node = nodes.get(nid)
+    if node is None:
+        return None
+    if field.startswith("data."):
+        return (node.get("data") or {}).get(field[5:])
+    return node.get(field)
+
+
+def _equal(a, b) -> bool:
+    """Same value: empty is empty, 2 is 2.0, otherwise as JSON."""
+    if a in (None, "", [], {}) and b in (None, "", [], {}):
+        return True
+    if not isinstance(a, bool) and not isinstance(b, bool):
+        try:
+            return float(a) == float(b)
+        except (TypeError, ValueError):
+            pass
+    try:
+        return json.dumps(a, sort_keys=True, default=str) == json.dumps(b, sort_keys=True, default=str)
+    except (TypeError, ValueError):
+        return a == b
+
+
+def three_way(delta, base_graph, room, local, not_here: frozenset = frozenset()) -> Dict[str, Any]:
+    """Each difference between the room and the local site (``delta``: what
+    turns the room into the local site), given its author by the base.
+    ``not_here``: what the last pull left in the room on purpose — absent
+    here, never removed here."""
+    from s3dgraphy.em.write import _snapshot
+    b_nodes, b_edges = _snapshot(base_graph)
+    r_nodes, r_edges = _snapshot(room)
+    l_nodes, _l = _snapshot(local)
+    r_triple = {eid: triple for triple, eid in r_edges.items()}
+    rows = {nid for nid, p in l_nodes.items() if (p.get("data") or {}).get("node_uuid")}
+    out = {"send_nodes": [], "send_edges": [], "send_fields": [], "room_fields": [],
+           "conflicts": [], "removed_in_room": 0, "removed_here": 0, "room_added": 0,
+           "local_relations": [], "send_removals": []}
+    for n in delta.nodes:
+        if n.get("id") in b_nodes:
+            out["removed_in_room"] += 1        # it was in the base: the room removed it
+        else:
+            out["send_nodes"].append(n)
+    for e in delta.edges:
+        triple = (e.get("source"), e.get("edge_type"), e.get("target"))
+        if triple in b_edges:
+            out["removed_in_room"] += 1
+        else:
+            out["send_edges"].append(e)
+            if triple[0] in rows and triple[2] in rows:
+                out["local_relations"].append(triple)
+    for op in delta.ops:
+        kind = op.get("op")
+        if kind == "update_field":
+            nid, field = op["node_id"], op["field"]
+            here = None if op.get("remove") else op.get("value")
+            there, was = _value(r_nodes, nid, field), _value(b_nodes, nid, field)
+            if nid not in b_nodes:
+                out["room_fields"].append(op)            # no common ancestor: shown, not sent
+            elif _equal(there, was) and not _equal(here, was):
+                out["send_fields"].append(op)            # changed here only
+            elif _equal(here, was):
+                out["room_fields"].append(op)            # changed in the room only
+            else:
+                out["conflicts"].append({"node_id": nid, "field": field, "here": here,
+                                         "room": there, "base": was})
+        elif kind == "remove_node":
+            gone = op.get("id") in b_nodes and op.get("id") not in not_here
+            out["removed_here" if gone else "room_added"] += 1
+        elif kind == "remove_edge":
+            triple = r_triple.get(op.get("id"))
+            gone = (triple in b_edges and triple[0] not in not_here
+                    and triple[2] not in not_here and "|".join(triple or ()) not in not_here)
+            out["removed_here" if gone else "room_added"] += 1
+            if gone and triple[0] in rows and triple[2] in rows:
+                # a relation between two units removed here: a local edit
+                # like any other, sent with the others (a unit deleted here
+                # is only reported — removing it from a shared room is not
+                # done on its own)
+                out["send_removals"].append({"op": "remove_edge", "id": op.get("id"),
+                                             "triple": triple})
+    return out
 
 
 def push_new(found: Dict[str, Any], *, node: str, room: str, token: str) -> Dict[str, Any]:
@@ -328,8 +506,29 @@ def push_new(found: Dict[str, Any], *, node: str, room: str, token: str) -> Dict
     ops: List[Dict[str, Any]] = [{"op": "add_node", "id": n["id"], "node": n} for n in delta.nodes]
     ops += [{"op": "add_edge", "id": e["id"], "source": e["source"], "target": e["target"],
              "edge_type": e["edge_type"]} for e in delta.edges]
+    fields = []
+    for op in found.get("send_fields") or []:      # local edits: only with a base
+        f = {"op": "update_field", "node_id": op["node_id"], "field": op["field"]}
+        if op.get("remove"):
+            f["remove"] = True
+        else:
+            f["value"] = op.get("value")
+        fields.append(f)
+    ops += fields
+    removals = [{"op": "remove_edge", "id": r["id"]} for r in found.get("send_removals") or []]
+    ops += removals
     if not ops:
-        return {"applied": 0, "refused": [], "requests": 0, "uploaded": 0}
+        return {"applied": 0, "refused": [], "requests": 0, "uploaded": 0, "fields": 0, "removals": 0}
     sent = nodeio.send_ops(node_base(node), token, room, ops, graph_id=found["graph_id"])
     sent["uploaded"] = uploaded
+    sent["fields"] = len(fields)
+    sent["removals"] = len(removals)
+    if found.get("base") and found.get("connection_url") and not sent.get("refused"):
+        # the base moves by what was sent — not to the room, which may hold
+        # others' changes not yet pulled
+        from . import room_state
+        room_state.save(found["connection_url"], found["site"], node, room,
+                        room_state.advance(found["base_doc"], found["graph_id"], ops),
+                        found.get("base_cursor"), how="send", not_here=found.get("not_here"))
+        sent["base_saved"] = True
     return sent

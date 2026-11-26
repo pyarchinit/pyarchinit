@@ -76,7 +76,7 @@ class StratiGraphRoomDialog(QDialog):
         self.btn_send.setEnabled(False)
         # both directions with a room that already holds data
         self.btn_compare = QPushButton(t("compare"))
-        self.btn_push = QPushButton(t("send_additions"))
+        self.btn_push = QPushButton(t("send_changes"))
         self.btn_pull = QPushButton(t("pull"))
         self._found = None             # the last contribution (pyArchInit → room)
         self._pull = None              # the last dry pull (room → pyArchInit)
@@ -123,7 +123,9 @@ class StratiGraphRoomDialog(QDialog):
         self.btn_send.setEnabled(signed)
         self.btn_compare.setEnabled(signed)
         self.btn_push.setEnabled(signed and self._found is not None
-                                 and bool(self._found["new_nodes"] or self._found["new_edges"]))
+                                 and bool(self._found["new_nodes"] or self._found["new_edges"]
+                                          or self._found.get("local_edits")
+                                          or self._found.get("send_removals")))
         self.btn_pull.setEnabled(signed and self._pull is not None)
 
     def _run(self, fn, on_done):
@@ -215,18 +217,25 @@ class StratiGraphRoomDialog(QDialog):
             found = RS.contribution(self.connection_url, site, node=node, room=room,
                                     token=token, workdir=workdir)
             pulled = RS.pull_room(self.connection_url, site, node=node, room=room,
-                                  token=token, workdir=workdir)
+                                  token=token, workdir=workdir, found=found)
             return found, pulled
 
         def done(result):
             self._found, self._pull = result
             f, p = self._found, self._pull
+            how = f.get("read") or {}
+            if how.get("read") == "incremental":
+                self._say(t("read_incremental", n=how.get("operations", 0)))
+            else:
+                self._say(t("read_full"))
+            if not f.get("base"):
+                self._say(t("no_base_hint"))
             self._say(t("room_to_pa", ins=p['inserted'], upd=p['updated'], fmt=p['format_only'],
                         real=len(p['real'])))
             m = p.get("media") or {}
             if m:
                 self._say(t("media_preview", new=m.get('new', 0), known=m.get('known', 0)))
-            for r in p["real"][:8]:
+            for r in ([] if f.get("base") else p["real"][:8]):
                 if r["field"] == "rapporti":
                     self._say(t("rel_diff", us=r['us'], ut=r['unita_tipo'], here=r['only_local'],
                                 room=r['only_room']))
@@ -235,7 +244,20 @@ class StratiGraphRoomDialog(QDialog):
                                 room=r['room']))
             self._say(t("pa_to_room", n=len(f['new_nodes']), names=f['new_nodes'][:6],
                         edges=f['new_edges']))
-            if f["field_changes"]:
+            if f.get("base"):
+                if f["local_edits"]:
+                    self._say(t("local_edits", n=len(f["local_edits"]), list=f["local_edits"][:6]))
+                if f.get("removed_relations"):
+                    self._say(t("removed_here", n=len(f["removed_relations"]),
+                                list=f["removed_relations"][:6]))
+                if f["room_edits"]:
+                    self._say(t("room_edits", n=len(f["room_edits"]), list=f["room_edits"][:6]))
+                if f["removed_in_room"]:
+                    self._say(t("removed_in_room", n=f["removed_in_room"]))
+                for c in f["conflicts"][:8]:
+                    self._say(t("conflict", name=c["name"], field=c["field"], here=c["here"],
+                                room=c["room"]))
+            elif f["field_changes"]:
                 self._say(t("fields_differ", n=len(f['field_changes']), list=f['field_changes'][:5]))
             if f["room_only"]:
                 self._say(t("room_only", n=f['room_only']))
@@ -251,8 +273,9 @@ class StratiGraphRoomDialog(QDialog):
             return RS.push_new(self._found, node=node, room=room, token=self.session.access_token())
 
         def done(result):
-            self._say(t("additions_sent", applied=result.get('applied', 0),
-                        refused=len(result.get('refused') or []), uploaded=result.get('uploaded', 0)))
+            self._say(t("changes_sent", applied=result.get('applied', 0),
+                        refused=len(result.get('refused') or []), uploaded=result.get('uploaded', 0),
+                        fields=result.get('fields', 0), removals=result.get('removals', 0)))
             self._found = None
             self._busy(False)
 
@@ -261,12 +284,24 @@ class StratiGraphRoomDialog(QDialog):
     def _pull_room(self):
         from ..modules.stratigraph import room_sync as RS
         node, site, room = self._target()
-        drops = [r for r in (self._pull or {}).get("real", []) if r.get("only_local")]
+        pulled = self._pull or {}
         force = False
-        if drops:
-            lines = "\n".join(f"{r['unita_tipo']} {r['us']}: {r['only_local']}" for r in drops[:10])
-            answer = QMessageBox.question(
-                self, t("pull"), t("pull_question", lines=lines))
+        if pulled.get("base"):
+            # with a base: only local work not yet sent can be overwritten
+            u = pulled.get("unsent") or {}
+            items = ([f"{n} · {fld}" for n, fld in u.get("edits", [])]
+                     + [f"{c.get('name')} · {c.get('field')}: «{c.get('here')}» / «{c.get('room')}»"
+                        for c in u.get("conflicts", [])]
+                     + [" ".join(map(str, r)) for r in u.get("relations", [])]
+                     + ["− " + " ".join(map(str, r)) for r in u.get("removals", [])])
+            question = t("unsent_question", lines="\n".join(items[:12])) if items else None
+        else:
+            drops = [r for r in pulled.get("real", []) if r.get("only_local")]
+            question = (t("pull_question", lines="\n".join(
+                f"{r['unita_tipo']} {r['us']}: {r['only_local']}" for r in drops[:10]))
+                if drops else None)
+        if question:
+            answer = QMessageBox.question(self, t("pull"), question)
             if answer != QMessageBox.StandardButton.Yes:
                 self._say(t("pull_cancelled"))
                 return

@@ -79,8 +79,10 @@ def test_a_site_rebuilt_from_its_em_json_keeps_every_column(tmp_path):
     norm = lambda v: None if v in (None, "", "[]") else str(v)
     # rapporti: same relations, area and site written out; datazione and
     # cont_per: filled from the periodisation where the record has none (by
-    # design, 17 Oct 2026); order_layer: recomputed by pyArchInit
-    derived = ("id_us", "rapporti", "order_layer", "datazione", "cont_per")
+    # design, 17 Oct 2026); order_layer: recomputed by pyArchInit;
+    # last_modified_*: the database's own bookkeeping, not sent (5.14.3)
+    derived = ("id_us", "rapporti", "order_layer", "datazione", "cont_per",
+               "last_modified_by", "last_modified_timestamp")
     differ = {c for u in b for i, c in enumerate(cols)
               if c not in derived and norm(a[u][i]) != norm(b[u][i])}
     assert differ == set()

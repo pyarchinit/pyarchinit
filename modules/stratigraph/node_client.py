@@ -330,4 +330,13 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
                    "export_warnings": list(warnings or []), "media": media_report, "records": records_report,
                    "kept_as_reference": sorted(
                        row.get("path") for row in run["plan"]["rows"] if row["id"] in kept)})
+    seeded = report.get("seeded") or {}
+    if not dry_run and seeded.get("applied") is not None and not seeded.get("refused"):
+        # the room just seeded from this site is what both sides agree on
+        from . import room_state
+        from .room_sync import fetch_document
+        answer = fetch_document(node, room, token)
+        room_state.save(connection_url, site, node, room, answer.get("doc") or {},
+                        answer.get("cursor"), how="send_site")
+        report["base_saved"] = True
     return report
