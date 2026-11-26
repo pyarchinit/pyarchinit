@@ -34,9 +34,13 @@ def main(argv=None) -> int:
     parser.add_argument("--token", default=os.environ.get("STRATIGRAPH_TOKEN"))
     parser.add_argument("--workdir", default=None, help="where the em.json is written")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--ca-file", default=None,
+                        help="also trust this PEM root (a dev or field node's local CA)")
     args = parser.parse_args(argv)
 
     from modules.stratigraph import node_client as NC
+    if args.ca_file:
+        NC.trust_ca_file(os.path.expanduser(args.ca_file))
 
     url = args.db if "://" in args.db else "sqlite:///" + os.path.abspath(os.path.expanduser(args.db))
     token = args.token

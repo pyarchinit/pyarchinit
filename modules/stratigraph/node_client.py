@@ -41,6 +41,14 @@ class NodeError(RuntimeError):
     """A node answered no, or could not be reached — worded for a person."""
 
 
+def trust_ca_file(path: str) -> None:
+    """Also trust ``path`` (a PEM root, e.g. a dev or field node's local CA) for
+    every call to a node — ours and s3dgraphy's, which share one context.
+    Verification is never turned off: this ADDS a root, for this process only."""
+    from s3dgraphy.room_import import trust
+    trust.context().load_verify_locations(cafile=path)
+
+
 def _open(request: urllib.request.Request, timeout: float):
     try:
         from s3dgraphy.room_import.trust import urlopen
