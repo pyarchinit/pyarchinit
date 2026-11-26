@@ -146,13 +146,23 @@ class StratiGraphRoomDialog(QDialog):
         def done(report):
             self._say(f"✔ {report.get('nodes')} nodes, {report.get('edges')} edges exported "
                       f"({os.path.basename(str(report.get('em_json')))})")
-            for line in report.get("sentences") or []:
-                self._say(f"  {line}")
+            if dry:
+                plan = report.get("plan") or {}
+                upload = plan.get("upload") or {}
+                self._say(f"  Plan: {upload.get('files', 0)} file(s) to upload, "
+                          f"{plan.get('references', 0)} kept as reference — nothing written")
+                return
+            seeded = report.get("seeded") or {}
+            self._say(f"  Operations applied: {seeded.get('applied', 0)}, "
+                      f"refused: {seeded.get('refused', 0)}, "
+                      f"graphs: {len(seeded.get('graphs') or [])}")
+            uploaded = report.get("uploaded") or {}
+            self._say(f"  Files uploaded: {uploaded.get('files', 0)}; databases kept as "
+                      f"reference: {len(set(report.get('kept_as_reference') or []))}")
+            for refusal in (seeded.get("refusals") or [])[:5]:
+                self._say(f"  ✖ refused: {json.dumps(refusal, ensure_ascii=False, default=str)[:200]}")
             link = report.get("room_link") or report.get("link")
             if link:
                 self._say(f"Room: {link}")
-            self._say(json.dumps({k: v for k, v in report.items()
-                                  if k not in ("plan", "rows")}, ensure_ascii=False,
-                                 default=str)[:1500])
 
         self._run(work, done)

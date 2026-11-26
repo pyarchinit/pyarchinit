@@ -220,6 +220,10 @@ Aquest fitxer persisteix entre sessions de QGIS, de manera que els bundles pende
 
 Des de la versio **5.14.0-alpha** el boto **Send site to a room...** porta un jaciment a una *sala* d'un node StratiGraph (StratiGraph Server). El graf del jaciment es converteix en el contingut de la sala, on EMStudio, EM Tools i les altres eines del projecte el veuen i hi treballen.
 
+![Panell StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: El panell StratiGraph Sync amb el boto **Send site to a room...**
+
 ### Procediment pas a pas
 
 1. Al panell **StratiGraph Sync**, premeu **Send site to a room...**
@@ -228,6 +232,10 @@ Des de la versio **5.14.0-alpha** el boto **Send site to a room...** porta un ja
 4. Premeu **Sign in...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identity** mostra el nom i si podeu crear sales.
 5. Opcional: **Plan only** mostra el que s'enviaria sense escriure res al node.
 6. Premeu **Send site**: el registre indica els nodes i les arestes exportats i el resultat.
+
+![Finestra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: La finestra despres de l'acces i l'enviament del jaciment d'exemple a un node de desenvolupament: 844 operacions aplicades, 0 rebutjades, la base de dades conservada com a referencia
 
 ### Que s'envia
 

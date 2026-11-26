@@ -219,6 +219,10 @@ This file persists between QGIS sessions, so pending bundles are not lost if you
 
 Since version **5.14.0-alpha** the **Send site to a room...** button brings a site into a *room* of a StratiGraph node (StratiGraph Server). The site's graph becomes the room's content, where EMStudio, EM Tools and the project's other tools see it and work on it.
 
+![StratiGraph Sync panel](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: The StratiGraph Sync panel with the **Send site to a room...** button
+
 ### Step-by-Step Procedure
 
 1. In the **StratiGraph Sync** panel, click **Send site to a room...**
@@ -227,6 +231,10 @@ Since version **5.14.0-alpha** the **Send site to a room...** button brings a si
 4. Click **Sign in...**: the node's sign-in page opens in the browser. Sign in with your account and go back to QGIS: the **Identity** line shows your name and whether you may create rooms.
 5. Optional: **Plan only** shows what would be sent without writing anything on the node.
 6. Click **Send site**: the log reports the exported nodes and edges and the result.
+
+![Send site to a room window](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: The window after signing in and sending the sample site to a development node: 844 operations applied, 0 refused, the database kept as a reference
 
 ### What Is Sent
 

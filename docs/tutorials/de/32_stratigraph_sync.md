@@ -220,6 +220,10 @@ Diese Datei bleibt zwischen QGIS-Sitzungen erhalten, sodass ausstehende Bundles 
 
 Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Send site to a room...** eine Fundstelle in einen *Raum* eines StratiGraph-Knotens (StratiGraph Server). Der Graph der Fundstelle wird zum Inhalt des Raums, wo EMStudio, EM Tools und die anderen Werkzeuge des Projekts ihn sehen und bearbeiten.
 
+![Panel StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: Das Panel StratiGraph Sync mit der Schaltflaeche **Send site to a room...**
+
 ### Schritt-fuer-Schritt-Anleitung
 
 1. Im Panel **StratiGraph Sync** auf **Send site to a room...** klicken.
@@ -228,6 +232,10 @@ Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Send site to a room...** 
 4. Auf **Sign in...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identity** zeigt den Namen und ob Raeume erstellt werden duerfen.
 5. Optional: **Plan only** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
 6. Auf **Send site** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
+
+![Fenster Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: Das Fenster nach der Anmeldung und dem Senden der Beispiel-Fundstelle an einen Entwicklungsknoten: 844 Operationen angewendet, 0 abgelehnt, die Datenbank als Verweis behalten
 
 ### Was gesendet wird
 

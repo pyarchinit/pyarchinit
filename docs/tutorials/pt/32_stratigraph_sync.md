@@ -219,6 +219,10 @@ Este ficheiro persiste entre sessoes do QGIS, de modo que os bundles pendentes n
 
 A partir da versao **5.14.0-alpha** o botao **Send site to a room...** leva um sitio para uma *sala* de um no StratiGraph (StratiGraph Server). O grafo do sitio torna-se o conteudo da sala, onde o EMStudio, o EM Tools e as outras ferramentas do projeto o veem e trabalham nele.
 
+![Painel StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: O painel StratiGraph Sync com o botao **Send site to a room...**
+
 ### Procedimento passo a passo
 
 1. No painel **StratiGraph Sync**, carregar em **Send site to a room...**
@@ -227,6 +231,10 @@ A partir da versao **5.14.0-alpha** o botao **Send site to a room...** leva um s
 4. Carregar em **Sign in...**: a pagina de acesso do no abre-se no navegador. Entrar com a sua conta e voltar ao QGIS: a linha **Identity** mostra o nome e se pode criar salas.
 5. Opcional: **Plan only** mostra o que seria enviado sem escrever nada no no.
 6. Carregar em **Send site**: o registo indica os nos e as arestas exportados e o resultado.
+
+![Janela Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: A janela depois do acesso e do envio do sitio de exemplo para um no de desenvolvimento: 844 operacoes aplicadas, 0 recusadas, a base de dados mantida como referencia
 
 ### O que e enviado
 

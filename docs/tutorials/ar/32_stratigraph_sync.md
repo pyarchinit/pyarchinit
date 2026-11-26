@@ -220,6 +220,10 @@ $PYARCHINIT_HOME/stratigraph_sync_queue.sqlite
 
 ابتداءً من الإصدار **5.14.0-alpha** ينقل الزر **Send site to a room...** موقعاً إلى *غرفة* في عقدة StratiGraph (StratiGraph Server). يصبح مخطط الموقع محتوى الغرفة، حيث يراه EMStudio وEM Tools وأدوات المشروع الأخرى ويعملون عليه.
 
+![لوحة StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: لوحة StratiGraph Sync مع الزر **Send site to a room...**
+
 ### الإجراء خطوة بخطوة
 
 1. في لوحة **StratiGraph Sync** اضغط **Send site to a room...**
@@ -228,6 +232,10 @@ $PYARCHINIT_HOME/stratigraph_sync_queue.sqlite
 4. اضغط **Sign in...**: تُفتح صفحة تسجيل الدخول للعقدة في المتصفح. سجّل الدخول بحسابك وعُد إلى QGIS: يعرض سطر **Identity** اسمك وما إذا كان يمكنك إنشاء غرف.
 5. اختياري: يعرض **Plan only** ما سيُرسل دون كتابة أي شيء على العقدة.
 6. اضغط **Send site**: يذكر السجل العقد والحواف المصدَّرة والنتيجة.
+
+![نافذة Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: النافذة بعد تسجيل الدخول وإرسال الموقع النموذجي إلى عقدة تطوير: 844 عملية مطبّقة، 0 مرفوضة، وقاعدة البيانات محفوظة كإشارة
 
 ### ما الذي يُرسل
 

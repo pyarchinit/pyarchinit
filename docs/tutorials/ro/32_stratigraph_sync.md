@@ -220,6 +220,10 @@ Acest fisier persista intre sesiunile QGIS, deci pachetele in asteptare nu se pi
 
 Incepand cu versiunea **5.14.0-alpha**, butonul **Send site to a room...** aduce un sit intr-o *camera* a unui nod StratiGraph (StratiGraph Server). Graful sitului devine continutul camerei, unde EMStudio, EM Tools si celelalte instrumente ale proiectului il vad si lucreaza cu el.
 
+![Panoul StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: Panoul StratiGraph Sync cu butonul **Send site to a room...**
+
 ### Procedura pas cu pas
 
 1. In panoul **StratiGraph Sync**, apasati **Send site to a room...**
@@ -228,6 +232,10 @@ Incepand cu versiunea **5.14.0-alpha**, butonul **Send site to a room...** aduce
 4. Apasati **Sign in...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identity** arata numele si daca puteti crea camere.
 5. Optional: **Plan only** arata ce s-ar trimite fara sa scrie nimic pe nod.
 6. Apasati **Send site**: jurnalul arata nodurile si muchiile exportate si rezultatul.
+
+![Fereastra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: Fereastra dupa autentificare si trimiterea sitului de exemplu catre un nod de dezvoltare: 844 de operatii aplicate, 0 refuzate, baza de date pastrata ca referinta
 
 ### Ce se trimite
 

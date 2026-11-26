@@ -220,6 +220,10 @@ Ce fichier persiste entre les sessions QGIS, donc les bundles en attente ne sont
 
 Depuis la version **5.14.0-alpha**, le bouton **Send site to a room...** apporte un site dans une *salle* d'un noeud StratiGraph (StratiGraph Server). Le graphe du site devient le contenu de la salle, ou EMStudio, EM Tools et les autres outils du projet le voient et y travaillent.
 
+![Panneau StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
+
+> **Fig. 7**: Le panneau StratiGraph Sync avec le bouton **Send site to a room...**
+
 ### Procedure pas a pas
 
 1. Dans le panneau **StratiGraph Sync**, cliquer sur **Send site to a room...**
@@ -228,6 +232,10 @@ Depuis la version **5.14.0-alpha**, le bouton **Send site to a room...** apporte
 4. Cliquer sur **Sign in...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identity** affiche le nom et indique si l'on peut creer des salles.
 5. Facultatif : **Plan only** montre ce qui serait envoye sans rien ecrire sur le noeud.
 6. Cliquer sur **Send site** : le journal indique les noeuds et les aretes exportes et le resultat.
+
+![Fenetre Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+
+> **Fig. 8**: La fenetre apres la connexion et l'envoi du site d'exemple a un noeud de developpement : 844 operations appliquees, 0 refusees, la base de donnees gardee comme reference
 
 ### Ce qui est envoye
 
