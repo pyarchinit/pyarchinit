@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph: Panoul de sincronizare
 
+> Panoul si fereastra camerei urmeaza limba interfetei QGIS; aici butoanele sunt citate asa cum apar in romana.
+
 ## Cuprins
 1. [Introducere](#introducere)
 2. [Accesarea panoului](#accesarea-panoului)
@@ -98,9 +100,9 @@ Afiseaza **marca temporala** si **rezultatul** (succes sau esec) al celei mai re
 | Buton | Actiune |
 |-------|---------|
 | **Export pachet** | Creeaza un pachet din datele locale, il valideaza si il adauga in coada de sincronizare |
-| **Sincronizeaza acum** | Forteaza o tentativa imediata de sincronizare (disponibil doar cand este online) |
+| **Sincronizează acum** | Forteaza o tentativa imediata de sincronizare (disponibil doar cand este online) |
 | **Coada...** | Deschide dialogul de gestionare a cozii care afiseaza toate intrarile |
-| **Send site to a room...** | Se autentifica pe un nod StratiGraph si aduce un sit intr-o camera (vezi mai jos) |
+| **Trimite situl într-o cameră...** | Se autentifica pe un nod StratiGraph si aduce un sit intr-o camera (vezi mai jos) |
 
 ### Jurnalul de activitate
 
@@ -155,10 +157,10 @@ Procesul de sincronizare automata:
 Daca doriti sa fortati o tentativa imediata de sincronizare:
 
 1. Asigurati-va ca indicatorul de conexiune arata **Online**
-2. Faceti clic pe butonul **Sincronizeaza acum**
+2. Faceti clic pe butonul **Sincronizează acum**
 3. Sistemul incearca imediat sa incarce toate pachetele in asteptare
 
-Butonul **Sincronizeaza acum** este eficient doar cand sistemul este online.
+Butonul **Sincronizează acum** este eficient doar cand sistemul este online.
 
 ### Reincercare automata cu intarziere exponentiala
 
@@ -175,7 +177,7 @@ Daca o incarcare esueaza, sistemul **nu renunta**. In schimb, reincearca automat
 Aceasta previne supraincarcarea serverului cand este temporar indisponibil, asigurand in acelasi timp livrarea eventuala.
 
 <!-- IMAGINE: Butonul Sincronizeaza acum si indicatorul de conexiune -->
-> **Fig. 5**: Butonul "Sincronizeaza acum" si indicatorul starii conexiunii
+> **Fig. 5**: Butonul "Sincronizează acum" si indicatorul starii conexiunii
 
 ---
 
@@ -218,22 +220,22 @@ Acest fisier persista intre sesiunile QGIS, deci pachetele in asteptare nu se pi
 
 ## Trimiterea unui sit intr-o camera StratiGraph
 
-Incepand cu versiunea **5.14.0-alpha**, butonul **Send site to a room...** aduce un sit intr-o *camera* a unui nod StratiGraph (StratiGraph Server). Graful sitului devine continutul camerei, unde EMStudio, EM Tools si celelalte instrumente ale proiectului il vad si lucreaza cu el.
+Incepand cu versiunea **5.14.0-alpha**, butonul **Trimite situl într-o cameră...** aduce un sit intr-o *camera* a unui nod StratiGraph (StratiGraph Server). Graful sitului devine continutul camerei, unde EMStudio, EM Tools si celelalte instrumente ale proiectului il vad si lucreaza cu el.
 
 ![Panoul StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
 
-> **Fig. 7**: Panoul StratiGraph Sync cu butonul **Send site to a room...**
+> **Fig. 7**: Panoul StratiGraph Sync cu butonul **Trimite situl într-o cameră...**
 
 ### Procedura pas cu pas
 
-1. In panoul **StratiGraph Sync**, apasati **Send site to a room...**
+1. In panoul **StratiGraph Sync**, apasati **Trimite situl într-o cameră...**
 2. **Node**: adresa nodului, de exemplu `https://nod.example.org/em`. Este retinuta intre sesiuni.
-3. **Site**: alegeti situl. **Room id** si **Room title** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
-4. Apasati **Sign in...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identity** arata numele si daca puteti crea camere.
-5. Optional: **Plan only** arata ce s-ar trimite fara sa scrie nimic pe nod.
-6. Apasati **Send site**: jurnalul arata nodurile si muchiile exportate si rezultatul.
+3. **Site**: alegeti situl. **Id-ul camerei** si **Titlul camerei** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
+4. Apasati **Autentificare...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identitate** arata numele si daca puteti crea camere.
+5. Optional: **Doar plan** arata ce s-ar trimite fara sa scrie nimic pe nod.
+6. Apasati **Trimite situl**: jurnalul arata nodurile si muchiile exportate si rezultatul.
 
-![Fereastra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+![Fereastra Trimite situl intr-o camera](images/32_stratigraph_sync/07_send_site_dialog.png)
 
 > **Fig. 8**: Fereastra dupa autentificare si trimiterea sitului de exemplu catre un nod de dezvoltare: 745 de operatii aplicate, 0 refuzate, baza de date pastrata ca referinta
 
@@ -257,13 +259,15 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 
 Cand in camera lucreaza si altii (EMStudio, StratiField, EM Tools), dupa autentificare:
 
-1. **Compare with room** compara situl cu camera in ambele sensuri, fara sa scrie nimic: ce are nou camera pentru pyArchInit (unitati noi, definitii schimbate, relatii) si ce adauga pyArchInit in camera.
-2. **Send additions** trimite doar adaugirile sitului: unitati si relatii noi. Un camp diferit este afisat, dar nu trimis, pentru ca in camera poate fi modificarea mai recenta a unui coleg; ce exista doar in camera nu este atins niciodata.
-3. **Pull from room** aduce camera in fisele pyArchInit (US, definitii, periodizare, relatii), recunoscand fiecare fisa dupa identificatorul ei. Daca pull-ul ar elimina relatii locale pe care camera nu le cunoaste, fereastra le enumera si cere confirmare.
+1. **Compară cu camera** compara situl cu camera in ambele sensuri, fara sa scrie nimic: ce are nou camera pentru pyArchInit (unitati noi, definitii schimbate, relatii) si ce adauga pyArchInit in camera.
+2. **Trimite adăugirile** trimite doar adaugirile sitului: unitati si relatii noi. Un camp diferit este afisat, dar nu trimis, pentru ca in camera poate fi modificarea mai recenta a unui coleg; ce exista doar in camera nu este atins niciodata.
+3. **Adu din cameră** aduce camera in fisele pyArchInit (US, definitii, periodizare, relatii), recunoscand fiecare fisa dupa identificatorul ei. Daca pull-ul ar elimina relatii locale pe care camera nu le cunoaste, fereastra le enumera si cere confirmare.
 
-Cu **Pull from room** se poate si reconstrui un sit intr-o baza de date care nu il are: unitatile revin cu numar, tip, definitii si periodizare. Unitatile de continuitate (CON) nu calatoresc: pyArchInit le regenereaza cu **Genera continuita**.
+Cu **Adu din cameră** se poate si reconstrui un sit intr-o baza de date care nu il are: unitatile revin cu numar, tip, definitii si periodizare. Unitatile de continuitate (CON) nu calatoresc: pyArchInit le regenereaza cu **Genera continuita**.
 
-Camera primeste fisa US intreaga, nu doar campurile grafului: descriere, interpretare, culoare, consistenta, cote, dimensiuni, sondaj, incapere, carou, sector, campurile de zidarie (USM). O fisa reconstruita dintr-o camera este identica cu originalul; relatiile se schimba doar in scriere (cu zona si situl). O camera trimisa cu o versiune anterioara de pyArchInit are doar campurile grafului: comparatia arata multe campuri diferite; un nou **Send site** o completeaza.
+Camera primeste fisa US intreaga, nu doar campurile grafului: descriere, interpretare, culoare, consistenta, cote, dimensiuni, sondaj, incapere, carou, sector, campurile de zidarie (USM). O fisa reconstruita dintr-o camera este identica cu originalul; relatiile se schimba doar in scriere (cu zona si situl). O camera trimisa cu o versiune anterioara de pyArchInit are doar campurile grafului: comparatia arata multe campuri diferite; un nou **Trimite situl** o completeaza.
+
+Toate acestea functioneaza atat cu SQLite cat si cu PostgreSQL. Pentru a reconstrui un sit ajunge o baza de date pyArchInit creata si goala, deschisa in pyArchInit: **Adu din cameră** o populeaza (sit, fise, periodizare, relatii, media). Relatiile au mereu patru elemente: tip, US, zona, sit.
 
 ![Comparatia cu camera](images/32_stratigraph_sync/08_compare_with_room.png)
 
@@ -273,19 +277,19 @@ Camera primeste fisa US intreaga, nu doar campurile grafului: descriere, interpr
 
 Fotografiile, videoclipurile, modelele 3D si documentele legate de fisele US calatoresc cu situl, in ambele sensuri. Ortofotografiile si celelalte rastere raman deoparte: sunt straturi QGIS, nu media pyArchInit.
 
-- **Send site** si **Send additions** incarca fiecare fisier in depozitul camerei o singura data: un fisier pe care camera il are deja (acelasi continut) nu se retrimite. Daca originalul nu mai este pe disc, se foloseste copia din folderul Resize.
-- **Pull from room** descarca media noi in folderul `stratigraph_media/<camera>` din home-ul pyArchInit, creeaza miniatura si copia ca la incarcarea unui fisier din fisa si le leaga de US-ul lor, cu descriere si etichete. Un media pe care baza de date il are deja (recunoscut dupa identificator) nu se descarca din nou: se verifica doar legatura.
+- **Trimite situl** si **Trimite adăugirile** incarca fiecare fisier in depozitul camerei o singura data: un fisier pe care camera il are deja (acelasi continut) nu se retrimite. Daca originalul nu mai este pe disc, se foloseste copia din folderul Resize.
+- **Adu din cameră** descarca media noi in folderul `stratigraph_media/<camera>` din home-ul pyArchInit, creeaza miniatura si copia ca la incarcarea unui fisier din fisa si le leaga de US-ul lor, cu descriere si etichete. Un media pe care baza de date il are deja (recunoscut dupa identificator) nu se descarca din nou: se verifica doar legatura.
 - Media pentru artefacte, ceramica, morminte si structuri raman deocamdata locale: fereastra le numara.
 
 ![O fotografie noua trimisa in camera](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: O fotografie adaugata la US 3 dupa trimiterea sitului: comparatia o gaseste si Send additions incarca fisierul si legatura
+> **Fig. 10**: O fotografie adaugata la US 3 dupa trimiterea sitului: comparatia o gaseste si Trimite adăugirile incarca fisierul si legatura
 
 ### Probleme frecvente
 
 | Mesaj | Ce trebuie facut |
 |-------|------------------|
-| `401` sau autentificare expirata | Apasati din nou **Sign in...**: tokenul dureaza cateva minute |
+| `401` sau autentificare expirata | Sesiunea se reinnoieste singura in timpul lucrului; daca a expirat complet (multe ore nefolosita) apasati din nou **Autentificare...** |
 | `403` / *may create rooms: False* | Contul nu are un rol in camera sau nu poate crea camere: intrebati administratorul nodului |
 | `CERTIFICATE_VERIFY_FAILED` | Nodul foloseste un certificat local (nod de dezvoltare sau de teren): instalati-i autoritatea de certificare pe calculator, sau folositi `--ca-file` in linia de comanda |
 | `409 ... already declared` | Camera exista si apartine altui utilizator: alegeti alt id |

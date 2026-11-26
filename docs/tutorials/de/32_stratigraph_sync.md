@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph: Synchronisierungs-Panel
 
+> Das Panel und das Raumfenster folgen der Sprache der QGIS-Oberflaeche; die Schaltflaechen sind hier so genannt, wie sie auf Deutsch erscheinen.
+
 ## Inhaltsverzeichnis
 1. [Einfuehrung](#einfuehrung)
 2. [Zugriff auf das Panel](#zugriff-auf-das-panel)
@@ -97,10 +99,10 @@ Zeigt den **Zeitstempel** und das **Ergebnis** (Erfolg oder Fehlschlag) des letz
 
 | Schaltflaeche | Aktion |
 |---------------|--------|
-| **Export Bundle** | Erstellt ein Bundle aus Ihren lokalen Daten, validiert es und fuegt es der Synchronisierungs-Warteschlange hinzu |
-| **Sync Now** | Erzwingt einen sofortigen Synchronisierungsversuch (nur verfuegbar wenn online) |
-| **Queue...** | Oeffnet den Warteschlangen-Verwaltungsdialog mit allen Eintraegen |
-| **Send site to a room...** | Meldet sich an einem StratiGraph-Knoten an und bringt eine Fundstelle in einen Raum (siehe unten) |
+| **Paket exportieren** | Erstellt ein Bundle aus Ihren lokalen Daten, validiert es und fuegt es der Synchronisierungs-Warteschlange hinzu |
+| **Jetzt synchronisieren** | Erzwingt einen sofortigen Synchronisierungsversuch (nur verfuegbar wenn online) |
+| **Warteschlange...** | Oeffnet den Warteschlangen-Verwaltungsdialog mit allen Eintraegen |
+| **Fundstelle an einen Raum senden...** | Meldet sich an einem StratiGraph-Knoten an und bringt eine Fundstelle in einen Raum (siehe unten) |
 
 ### Aktivitaetsprotokoll
 
@@ -119,7 +121,7 @@ Das Exportieren eines Bundles verpackt Ihre lokalen archaeologischen Daten in ei
 
 1. Stellen Sie sicher, dass Sie alle aktuelle Arbeit in PyArchInit gespeichert haben
 2. Oeffnen Sie das StratiGraph Sync-Panel (falls nicht bereits sichtbar)
-3. Klicken Sie auf die Schaltflaeche **Export Bundle**
+3. Klicken Sie auf die Schaltflaeche **Paket exportieren**
 4. Das System fuehrt automatisch drei Operationen aus:
    - **Export**: Lokale Daten werden in eine Bundle-Datei verpackt
    - **Validierung**: Das Bundle wird auf Vollstaendigkeit und Datenintegritaet geprueft
@@ -131,8 +133,8 @@ Das Exportieren eines Bundles verpackt Ihre lokalen archaeologischen Daten in ei
 
 Ein Bundle enthaelt alle archaeologischen Entitaeten, die UUIDs haben (siehe Tutorial 31 fuer UUID-Details). Jede Entitaet wird durch ihre `entity_uuid` identifiziert, wodurch sichergestellt wird, dass derselbe Datensatz immer auf dem Server erkannt wird.
 
-<!-- IMAGE: Export Bundle-Schaltflaeche und Statusuebergang -->
-> **Abb. 4**: Klick auf "Export Bundle" und Beobachtung der Statusaenderungen im Panel
+<!-- IMAGE: Paket exportieren-Schaltflaeche und Statusuebergang -->
+> **Abb. 4**: Klick auf "Paket exportieren" und Beobachtung der Statusaenderungen im Panel
 
 ---
 
@@ -155,10 +157,10 @@ Der automatische Synchronisierungsprozess:
 Wenn Sie einen sofortigen Synchronisierungsversuch erzwingen moechten:
 
 1. Stellen Sie sicher, dass die Verbindungsanzeige **Online** zeigt
-2. Klicken Sie auf die Schaltflaeche **Sync Now**
+2. Klicken Sie auf die Schaltflaeche **Jetzt synchronisieren**
 3. Das System versucht sofort, alle ausstehenden Bundles hochzuladen
 
-Die Schaltflaeche **Sync Now** ist nur wirksam, wenn das System online ist.
+Die Schaltflaeche **Jetzt synchronisieren** ist nur wirksam, wenn das System online ist.
 
 ### Automatischer Retry mit exponentiellem Backoff
 
@@ -174,14 +176,14 @@ Wenn ein Upload fehlschlaegt, gibt das System **nicht** auf. Stattdessen versuch
 
 Dies verhindert eine Ueberlastung des Servers bei voruebergehender Nichtverfuegbarkeit und stellt gleichzeitig die endgueltige Zustellung sicher.
 
-<!-- IMAGE: Sync Now-Schaltflaeche und Verbindungsanzeige -->
-> **Abb. 5**: Die "Sync Now"-Schaltflaeche und die Verbindungsstatusanzeige
+<!-- IMAGE: Jetzt synchronisieren-Schaltflaeche und Verbindungsanzeige -->
+> **Abb. 5**: Die "Jetzt synchronisieren"-Schaltflaeche und die Verbindungsstatusanzeige
 
 ---
 
 ## Warteschlangen-Verwaltung
 
-Die Schaltflaeche **Queue...** oeffnet einen detaillierten Dialog, in dem Sie alle Bundles in der Synchronisierungs-Warteschlange einsehen koennen.
+Die Schaltflaeche **Warteschlange...** oeffnet einen detaillierten Dialog, in dem Sie alle Bundles in der Synchronisierungs-Warteschlange einsehen koennen.
 
 ### Spalten des Warteschlangen-Dialogs
 
@@ -218,22 +220,22 @@ Diese Datei bleibt zwischen QGIS-Sitzungen erhalten, sodass ausstehende Bundles 
 
 ## Eine Fundstelle in einen StratiGraph-Raum senden
 
-Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Send site to a room...** eine Fundstelle in einen *Raum* eines StratiGraph-Knotens (StratiGraph Server). Der Graph der Fundstelle wird zum Inhalt des Raums, wo EMStudio, EM Tools und die anderen Werkzeuge des Projekts ihn sehen und bearbeiten.
+Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Fundstelle an einen Raum senden...** eine Fundstelle in einen *Raum* eines StratiGraph-Knotens (StratiGraph Server). Der Graph der Fundstelle wird zum Inhalt des Raums, wo EMStudio, EM Tools und die anderen Werkzeuge des Projekts ihn sehen und bearbeiten.
 
 ![Panel StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
 
-> **Fig. 7**: Das Panel StratiGraph Sync mit der Schaltflaeche **Send site to a room...**
+> **Fig. 7**: Das Panel StratiGraph Sync mit der Schaltflaeche **Fundstelle an einen Raum senden...**
 
 ### Schritt-fuer-Schritt-Anleitung
 
-1. Im Panel **StratiGraph Sync** auf **Send site to a room...** klicken.
+1. Im Panel **StratiGraph Sync** auf **Fundstelle an einen Raum senden...** klicken.
 2. **Node**: die Adresse des Knotens, zum Beispiel `https://knoten.example.org/em`. Sie wird zwischen den Sitzungen gespeichert.
-3. **Site**: die Fundstelle waehlen. **Room id** und **Room title** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
-4. Auf **Sign in...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identity** zeigt den Namen und ob Raeume erstellt werden duerfen.
-5. Optional: **Plan only** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
-6. Auf **Send site** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
+3. **Site**: die Fundstelle waehlen. **Raum-ID** und **Raumtitel** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
+4. Auf **Anmelden...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identität** zeigt den Namen und ob Raeume erstellt werden duerfen.
+5. Optional: **Nur planen** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
+6. Auf **Fundstelle senden** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
 
-![Fenster Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+![Fenster Fundstelle an einen Raum senden](images/32_stratigraph_sync/07_send_site_dialog.png)
 
 > **Fig. 8**: Das Fenster nach der Anmeldung und dem Senden der Beispiel-Fundstelle an einen Entwicklungsknoten: 745 Operationen angewendet, 0 abgelehnt, die Datenbank als Verweis behalten
 
@@ -257,13 +259,15 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 
 Wenn auch andere im Raum arbeiten (EMStudio, StratiField, EM Tools), nach der Anmeldung:
 
-1. **Compare with room** vergleicht die Fundstelle mit dem Raum in beide Richtungen, ohne etwas zu schreiben: was der Raum Neues fuer pyArchInit hat (neue Einheiten, geaenderte Definitionen, Beziehungen) und was pyArchInit dem Raum hinzufuegt.
-2. **Send additions** sendet nur die Ergaenzungen der Fundstelle: neue Einheiten und Beziehungen. Ein abweichendes Feld wird angezeigt, aber nicht gesendet, denn im Raum kann es die neuere Aenderung eines Kollegen sein; was nur im Raum ist, wird nie angetastet.
-3. **Pull from room** bringt den Raum in die Datenblaetter von pyArchInit (SE, Definitionen, Periodisierung, Beziehungen) und erkennt jedes Blatt an seiner Kennung. Wuerde der Pull lokale Beziehungen entfernen, die der Raum nicht kennt, listet das Fenster sie auf und fragt nach Bestaetigung.
+1. **Mit dem Raum vergleichen** vergleicht die Fundstelle mit dem Raum in beide Richtungen, ohne etwas zu schreiben: was der Raum Neues fuer pyArchInit hat (neue Einheiten, geaenderte Definitionen, Beziehungen) und was pyArchInit dem Raum hinzufuegt.
+2. **Ergänzungen senden** sendet nur die Ergaenzungen der Fundstelle: neue Einheiten und Beziehungen. Ein abweichendes Feld wird angezeigt, aber nicht gesendet, denn im Raum kann es die neuere Aenderung eines Kollegen sein; was nur im Raum ist, wird nie angetastet.
+3. **Aus dem Raum holen** bringt den Raum in die Datenblaetter von pyArchInit (SE, Definitionen, Periodisierung, Beziehungen) und erkennt jedes Blatt an seiner Kennung. Wuerde der Pull lokale Beziehungen entfernen, die der Raum nicht kennt, listet das Fenster sie auf und fragt nach Bestaetigung.
 
-Mit **Pull from room** laesst sich auch eine Fundstelle in einer Datenbank wiederherstellen, die sie nicht enthaelt: die Einheiten kommen mit Nummer, Typ, Definitionen und Periodisierung zurueck. Kontinuitaetseinheiten (CON) reisen nicht mit: pyArchInit erzeugt sie mit **Genera continuita** neu.
+Mit **Aus dem Raum holen** laesst sich auch eine Fundstelle in einer Datenbank wiederherstellen, die sie nicht enthaelt: die Einheiten kommen mit Nummer, Typ, Definitionen und Periodisierung zurueck. Kontinuitaetseinheiten (CON) reisen nicht mit: pyArchInit erzeugt sie mit **Genera continuita** neu.
 
-Der Raum erhaelt den ganzen SE-Datensatz, nicht nur die Felder des Graphen: Beschreibung, Interpretation, Farbe, Konsistenz, Hoehen, Masse, Sondage, Raum, Quadrat, Sektor, die Mauerwerksfelder (USM). Ein aus einem Raum wiederhergestellter Datensatz gleicht dem Original; die Beziehungen aendern sich nur in der Schreibweise (mit Areal und Fundstelle). Ein Raum, der mit einer frueheren pyArchInit-Version gesendet wurde, enthaelt nur die Felder des Graphen: der Vergleich zeigt viele abweichende Felder; ein neues **Send site** vervollstaendigt ihn.
+Der Raum erhaelt den ganzen SE-Datensatz, nicht nur die Felder des Graphen: Beschreibung, Interpretation, Farbe, Konsistenz, Hoehen, Masse, Sondage, Raum, Quadrat, Sektor, die Mauerwerksfelder (USM). Ein aus einem Raum wiederhergestellter Datensatz gleicht dem Original; die Beziehungen aendern sich nur in der Schreibweise (mit Areal und Fundstelle). Ein Raum, der mit einer frueheren pyArchInit-Version gesendet wurde, enthaelt nur die Felder des Graphen: der Vergleich zeigt viele abweichende Felder; ein neues **Fundstelle senden** vervollstaendigt ihn.
+
+All das gilt fuer SQLite wie fuer PostgreSQL. Um eine Fundstelle wiederherzustellen, genuegt eine leere, in pyArchInit angelegte und geoeffnete Datenbank: **Aus dem Raum holen** fuellt sie (Fundstelle, Datensaetze, Periodisierung, Beziehungen, Medien). Beziehungen haben immer vier Elemente: Typ, SE, Areal, Fundstelle.
 
 ![Vergleich mit dem Raum](images/32_stratigraph_sync/08_compare_with_room.png)
 
@@ -273,19 +277,19 @@ Der Raum erhaelt den ganzen SE-Datensatz, nicht nur die Felder des Graphen: Besc
 
 Fotos, Videos, 3D-Modelle und Dokumente, die mit SE-Datensaetzen verknuepft sind, reisen mit der Fundstelle, in beide Richtungen. Orthofotos und andere Raster bleiben aussen vor: sie sind QGIS-Layer, keine pyArchInit-Medien.
 
-- **Send site** und **Send additions** laden jede Datei nur einmal in den Speicher des Raums: eine Datei, die der Raum schon hat (gleicher Inhalt), wird nicht erneut gesendet. Ist das Original nicht mehr auf der Festplatte, wird die Kopie im Resize-Ordner verwendet.
-- **Pull from room** laedt neue Medien in den Ordner `stratigraph_media/<Raum>` des pyArchInit-Home, erzeugt Vorschau und Kopie wie beim Laden einer Datei aus dem Formular und verknuepft sie mit ihrer SE, mit Beschreibung und Tags. Ein Medium, das die Datenbank schon hat (an seiner Kennung erkannt), wird nicht erneut geladen: nur die Verknuepfung wird geprueft.
+- **Fundstelle senden** und **Ergänzungen senden** laden jede Datei nur einmal in den Speicher des Raums: eine Datei, die der Raum schon hat (gleicher Inhalt), wird nicht erneut gesendet. Ist das Original nicht mehr auf der Festplatte, wird die Kopie im Resize-Ordner verwendet.
+- **Aus dem Raum holen** laedt neue Medien in den Ordner `stratigraph_media/<Raum>` des pyArchInit-Home, erzeugt Vorschau und Kopie wie beim Laden einer Datei aus dem Formular und verknuepft sie mit ihrer SE, mit Beschreibung und Tags. Ein Medium, das die Datenbank schon hat (an seiner Kennung erkannt), wird nicht erneut geladen: nur die Verknuepfung wird geprueft.
 - Medien von Funden, Keramik, Graebern und Strukturen bleiben vorerst lokal: das Fenster zaehlt sie.
 
 ![Ein neues Foto an den Raum gesendet](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Ein Foto, das nach dem Senden der Fundstelle zur SE 3 hinzugefuegt wurde: der Vergleich findet es und Send additions laedt Datei und Verknuepfung hoch
+> **Fig. 10**: Ein Foto, das nach dem Senden der Fundstelle zur SE 3 hinzugefuegt wurde: der Vergleich findet es und Ergänzungen senden laedt Datei und Verknuepfung hoch
 
 ### Haeufige Probleme
 
 | Meldung | Was tun |
 |---------|---------|
-| `401` oder Anmeldung abgelaufen | Erneut auf **Sign in...** klicken: das Token gilt wenige Minuten |
+| `401` oder Anmeldung abgelaufen | Die Sitzung erneuert sich waehrend der Arbeit selbst; ist sie ganz abgelaufen (viele Stunden ungenutzt), erneut **Anmelden...** druecken |
 | `403` / *may create rooms: False* | Das Konto hat keine Rolle im Raum oder darf keine Raeume erstellen: den Administrator des Knotens fragen |
 | `CERTIFICATE_VERIFY_FAILED` | Der Knoten nutzt ein lokales Zertifikat (Entwicklungs- oder Feldknoten): dessen CA auf dem Rechner installieren oder auf der Kommandozeile `--ca-file` verwenden |
 | `409 ... already declared` | Der Raum existiert und gehoert einem anderen Benutzer: eine andere ID waehlen |
@@ -376,11 +380,11 @@ Ausstehende Bundles werden in der Warteschlangen-Datenbank gespeichert und sind 
 
 ### Kann ich mehrere Bundles exportieren?
 
-Ja. Jedes Mal, wenn Sie auf "Export Bundle" klicken, wird ein neues Bundle erstellt und der Warteschlange hinzugefuegt. Mehrere Bundles koennen in die Warteschlange gestellt werden und werden nacheinander hochgeladen.
+Ja. Jedes Mal, wenn Sie auf "Paket exportieren" klicken, wird ein neues Bundle erstellt und der Warteschlange hinzugefuegt. Mehrere Bundles koennen in die Warteschlange gestellt werden und werden nacheinander hochgeladen.
 
 ### Wie weiss ich, ob meine Daten synchronisiert wurden?
 
-Pruefen Sie die Anzeige der **letzten Synchronisierung** im Panel fuer das juengste Ergebnis. Sie koennen auch den **Queue...**-Dialog oeffnen, um den Status jedes einzelnen Bundles zu sehen.
+Pruefen Sie die Anzeige der **letzten Synchronisierung** im Panel fuer das juengste Ergebnis. Sie koennen auch den **Warteschlange...**-Dialog oeffnen, um den Status jedes einzelnen Bundles zu sehen.
 
 ### Funktioniert StratiGraph Sync sowohl mit PostgreSQL als auch mit SQLite?
 

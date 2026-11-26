@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph: Pannello Sincronizzazione
 
+> Il pannello e la finestra della stanza seguono la lingua dell'interfaccia di QGIS; qui sotto i pulsanti sono citati come appaiono in italiano.
+
 ## Indice
 1. [Introduzione](#introduzione)
 2. [Accesso al pannello](#accesso-al-pannello)
@@ -97,10 +99,10 @@ Mostra il **timestamp** e il **risultato** (successo o fallimento) dell'ultimo t
 
 | Pulsante | Azione |
 |----------|--------|
-| **Export Bundle** | Crea un bundle dai dati locali, lo valida e lo aggiunge alla coda di sincronizzazione |
-| **Sync Now** | Forza un tentativo immediato di sincronizzazione (disponibile solo quando online) |
-| **Queue...** | Apre la finestra di gestione della coda con tutti gli elementi |
-| **Send site to a room...** | Accede a un nodo StratiGraph e porta un sito in una stanza (vedi sotto) |
+| **Esporta pacchetto** | Crea un bundle dai dati locali, lo valida e lo aggiunge alla coda di sincronizzazione |
+| **Sincronizza ora** | Forza un tentativo immediato di sincronizzazione (disponibile solo quando online) |
+| **Coda...** | Apre la finestra di gestione della coda con tutti gli elementi |
+| **Invia il sito a una stanza...** | Accede a un nodo StratiGraph e porta un sito in una stanza (vedi sotto) |
 
 ### Log delle attivita
 
@@ -119,7 +121,7 @@ L'esportazione di un bundle impacchetta i dati archeologici locali in un formato
 
 1. Assicurarsi di aver salvato tutto il lavoro corrente in PyArchInit
 2. Aprire il pannello StratiGraph Sync (se non gia visibile)
-3. Fare clic sul pulsante **Export Bundle**
+3. Fare clic sul pulsante **Esporta pacchetto**
 4. Il sistema esegue automaticamente tre operazioni:
    - **Esportazione**: I dati locali vengono impacchettati in un file bundle
    - **Validazione**: Il bundle viene controllato per completezza e integrita dei dati
@@ -131,8 +133,8 @@ L'esportazione di un bundle impacchetta i dati archeologici locali in un formato
 
 Un bundle contiene tutte le entita archeologiche che hanno UUID (vedere il Tutorial 31 per i dettagli sugli UUID). Ogni entita e identificata dal suo `entity_uuid`, garantendo che lo stesso record venga sempre riconosciuto sul server.
 
-<!-- IMAGE: Pulsante Export Bundle e transizione di stato -->
-> **Fig. 4**: Clic su "Export Bundle" e osservazione dei cambiamenti di stato nel pannello
+<!-- IMAGE: Pulsante Esporta pacchetto e transizione di stato -->
+> **Fig. 4**: Clic su "Esporta pacchetto" e osservazione dei cambiamenti di stato nel pannello
 
 ---
 
@@ -155,10 +157,10 @@ Il processo di sincronizzazione automatica:
 Se si vuole forzare un tentativo immediato di sincronizzazione:
 
 1. Assicurarsi che l'indicatore di connessione mostri **Online**
-2. Fare clic sul pulsante **Sync Now**
+2. Fare clic sul pulsante **Sincronizza ora**
 3. Il sistema tenta immediatamente di caricare tutti i bundle in attesa
 
-Il pulsante **Sync Now** e efficace solo quando il sistema e online.
+Il pulsante **Sincronizza ora** e efficace solo quando il sistema e online.
 
 ### Retry automatico con backoff esponenziale
 
@@ -174,14 +176,14 @@ Se un caricamento fallisce, il sistema **non** si arrende. Invece, ritenta autom
 
 Questo impedisce di sovraccaricare il server quando e temporaneamente non disponibile, garantendo comunque la consegna finale.
 
-<!-- IMAGE: Pulsante Sync Now e indicatore di connessione -->
-> **Fig. 5**: Il pulsante "Sync Now" e l'indicatore dello stato di connessione
+<!-- IMAGE: Pulsante Sincronizza ora e indicatore di connessione -->
+> **Fig. 5**: Il pulsante "Sincronizza ora" e l'indicatore dello stato di connessione
 
 ---
 
 ## Gestione della coda
 
-Il pulsante **Queue...** apre una finestra di dialogo dettagliata dove e possibile ispezionare tutti i bundle nella coda di sincronizzazione.
+Il pulsante **Coda...** apre una finestra di dialogo dettagliata dove e possibile ispezionare tutti i bundle nella coda di sincronizzazione.
 
 ### Colonne della finestra di dialogo della coda
 
@@ -218,22 +220,22 @@ Questo file persiste tra le sessioni di QGIS, quindi i bundle in attesa non veng
 
 ## Inviare un sito a una stanza StratiGraph
 
-Dalla versione **5.14.0-alpha** il pulsante **Send site to a room...** porta un sito in una *stanza* di un nodo StratiGraph (StratiGraph Server). Il grafo del sito diventa il contenuto della stanza, dove EMStudio, EM Tools e gli altri strumenti del progetto lo vedono e ci lavorano.
+Dalla versione **5.14.0-alpha** il pulsante **Invia il sito a una stanza...** porta un sito in una *stanza* di un nodo StratiGraph (StratiGraph Server). Il grafo del sito diventa il contenuto della stanza, dove EMStudio, EM Tools e gli altri strumenti del progetto lo vedono e ci lavorano.
 
 ![Pannello StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
 
-> **Fig. 7**: Il pannello StratiGraph Sync con il pulsante **Send site to a room...**
+> **Fig. 7**: Il pannello StratiGraph Sync con il pulsante **Invia il sito a una stanza...**
 
 ### Procedura passo per passo
 
-1. Nel pannello **StratiGraph Sync** premere **Send site to a room...**
+1. Nel pannello **StratiGraph Sync** premere **Invia il sito a una stanza...**
 2. **Node**: l'indirizzo del nodo, per esempio `https://nodo.example.org/em`. Viene ricordato tra una sessione e l'altra.
-3. **Site**: scegliere il sito. **Room id** e **Room title** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
-4. Premere **Sign in...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identity** mostra il nome e se si possono creare stanze.
-5. Facoltativo: **Plan only** mostra cosa verrebbe inviato senza scrivere niente sul nodo.
-6. Premere **Send site**: il log riporta i nodi e gli archi esportati e l'esito dell'invio.
+3. **Site**: scegliere il sito. **Id della stanza** e **Titolo della stanza** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
+4. Premere **Accedi...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identità** mostra il nome e se si possono creare stanze.
+5. Facoltativo: **Solo piano** mostra cosa verrebbe inviato senza scrivere niente sul nodo.
+6. Premere **Invia il sito**: il log riporta i nodi e gli archi esportati e l'esito dell'invio.
 
-![Finestra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+![Finestra Invia il sito a una stanza](images/32_stratigraph_sync/07_send_site_dialog.png)
 
 > **Fig. 8**: La finestra dopo l'accesso e l'invio del sito di esempio a un nodo di sviluppo: 745 operazioni applicate, 0 rifiutate, il database tenuto come riferimento
 
@@ -257,13 +259,15 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 
 Quando nella stanza lavorano anche altri (EMStudio, StratiField, EM Tools), dopo l'accesso:
 
-1. **Compare with room** confronta il sito con la stanza nei due sensi, senza scrivere niente: cosa ha di nuovo la stanza per pyArchInit (unita nuove, definizioni cambiate, rapporti) e cosa aggiunge pyArchInit alla stanza.
-2. **Send additions** invia solo le aggiunte del sito: unita e rapporti nuovi. Un campo diverso viene mostrato ma non inviato, perche nella stanza puo essere la modifica piu recente di un collega; quello che c'e solo nella stanza non viene mai toccato.
-3. **Pull from room** porta la stanza nelle schede di pyArchInit (US, definizioni, periodizzazione, rapporti), riconoscendo ogni scheda dal suo identificativo. Se il pull togliesse rapporti locali che la stanza non conosce, la finestra li elenca e chiede conferma.
+1. **Confronta con la stanza** confronta il sito con la stanza nei due sensi, senza scrivere niente: cosa ha di nuovo la stanza per pyArchInit (unita nuove, definizioni cambiate, rapporti) e cosa aggiunge pyArchInit alla stanza.
+2. **Invia le aggiunte** invia solo le aggiunte del sito: unita e rapporti nuovi. Un campo diverso viene mostrato ma non inviato, perche nella stanza puo essere la modifica piu recente di un collega; quello che c'e solo nella stanza non viene mai toccato.
+3. **Porta dalla stanza** porta la stanza nelle schede di pyArchInit (US, definizioni, periodizzazione, rapporti), riconoscendo ogni scheda dal suo identificativo. Se il pull togliesse rapporti locali che la stanza non conosce, la finestra li elenca e chiede conferma.
 
-Con **Pull from room** si puo anche ricostruire un sito in un database che non lo ha: le unita tornano con numero, tipo, definizioni e periodizzazione. Le unita di continuita (CON) non viaggiano: pyArchInit le rigenera con **Genera continuita**.
+Con **Porta dalla stanza** si puo anche ricostruire un sito in un database che non lo ha: le unita tornano con numero, tipo, definizioni e periodizzazione. Le unita di continuita (CON) non viaggiano: pyArchInit le rigenera con **Genera continuita**.
 
-La stanza riceve la scheda US intera, non solo i campi del grafo: descrizione, interpretazione, colore, consistenza, quote, misure, saggio, ambiente, quadrato, settore, i campi USM. Una scheda ricostruita da una stanza e uguale all'originale; i rapporti cambiano solo nella scrittura (con area e sito). Una stanza inviata con una versione precedente di pyArchInit ha solo i campi del grafo: il confronto mostra molti campi diversi; basta un nuovo **Send site** per completarla.
+La stanza riceve la scheda US intera, non solo i campi del grafo: descrizione, interpretazione, colore, consistenza, quote, misure, saggio, ambiente, quadrato, settore, i campi USM. Una scheda ricostruita da una stanza e uguale all'originale; i rapporti cambiano solo nella scrittura (con area e sito). Una stanza inviata con una versione precedente di pyArchInit ha solo i campi del grafo: il confronto mostra molti campi diversi; basta un nuovo **Invia il sito** per completarla.
+
+Tutto questo vale sia per SQLite sia per PostgreSQL. Per ricostruire un sito basta un database pyArchInit creato e vuoto, aperto in pyArchInit: **Porta dalla stanza** lo popola (sito, schede, periodizzazione, rapporti, media). I rapporti hanno sempre quattro elementi: tipo, US, area, sito.
 
 ![Confronto con la stanza](images/32_stratigraph_sync/08_compare_with_room.png)
 
@@ -273,19 +277,19 @@ La stanza riceve la scheda US intera, non solo i campi del grafo: descrizione, i
 
 Le foto, i video, i modelli 3D e i documenti collegati alle schede US viaggiano con il sito, nei due sensi. Le ortofoto e gli altri raster restano fuori: sono layer di QGIS, non media di pyArchInit.
 
-- **Send site** e **Send additions** caricano ogni file nel deposito della stanza una sola volta: un file che la stanza ha gia (stesso contenuto) non viene rimandato. Se l'originale non e piu sul disco si usa la copia della cartella Resize.
-- **Pull from room** scarica i media nuovi nella cartella `stratigraph_media/<stanza>` della home di pyArchInit, crea miniatura e copia come quando si carica un file dalla scheda e li collega alla loro US, con descrizione e tag. Un media che il database ha gia (riconosciuto dal suo identificativo) non viene riscaricato: si controlla solo il collegamento.
+- **Invia il sito** e **Invia le aggiunte** caricano ogni file nel deposito della stanza una sola volta: un file che la stanza ha gia (stesso contenuto) non viene rimandato. Se l'originale non e piu sul disco si usa la copia della cartella Resize.
+- **Porta dalla stanza** scarica i media nuovi nella cartella `stratigraph_media/<stanza>` della home di pyArchInit, crea miniatura e copia come quando si carica un file dalla scheda e li collega alla loro US, con descrizione e tag. Un media che il database ha gia (riconosciuto dal suo identificativo) non viene riscaricato: si controlla solo il collegamento.
 - I media di reperti, ceramica, tombe e strutture per ora restano locali: la finestra li conta.
 
 ![Una foto nuova inviata alla stanza](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Una foto aggiunta alla US 3 dopo l'invio del sito: il confronto la trova e Send additions carica il file e il suo collegamento
+> **Fig. 10**: Una foto aggiunta alla US 3 dopo l'invio del sito: il confronto la trova e Invia le aggiunte carica il file e il suo collegamento
 
 ### Problemi frequenti
 
 | Messaggio | Cosa fare |
 |-----------|-----------|
-| `401` o accesso scaduto | Premere di nuovo **Sign in...**: il token dura pochi minuti |
+| `401` o accesso scaduto | La sessione si rinnova da sola mentre si lavora; se e scaduta del tutto (molte ore senza usarla) premere di nuovo **Accedi...** |
 | `403` / *may create rooms: False* | L'account non ha un ruolo nella stanza o non puo creare stanze: chiedere all'amministratore del nodo |
 | `CERTIFICATE_VERIFY_FAILED` | Il nodo usa un certificato locale (nodo di sviluppo o da campo): installarne la CA sul computer, oppure da riga di comando usare `--ca-file` |
 | `409 ... already declared` | La stanza esiste e appartiene a un altro utente: scegliere un altro id |
@@ -376,11 +380,11 @@ I bundle in attesa sono salvati nel database della coda e saranno disponibili al
 
 ### Posso esportare piu bundle?
 
-Si. Ogni volta che si fa clic su "Export Bundle", viene creato un nuovo bundle e aggiunto alla coda. Piu bundle possono essere accodati e verranno caricati in sequenza.
+Si. Ogni volta che si fa clic su "Esporta pacchetto", viene creato un nuovo bundle e aggiunto alla coda. Piu bundle possono essere accodati e verranno caricati in sequenza.
 
 ### Come faccio a sapere se i miei dati sono stati sincronizzati?
 
-Controllare l'indicatore dell'**ultima sincronizzazione** nel pannello per il risultato piu recente. E anche possibile aprire la finestra **Queue...** per vedere lo stato di ogni singolo bundle.
+Controllare l'indicatore dell'**ultima sincronizzazione** nel pannello per il risultato piu recente. E anche possibile aprire la finestra **Coda...** per vedere lo stato di ogni singolo bundle.
 
 ### StratiGraph Sync funziona sia con PostgreSQL che con SQLite?
 

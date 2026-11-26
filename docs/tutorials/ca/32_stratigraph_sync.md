@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph: Panell de Sincronitzacio
 
+> El tauler i la finestra de la sala segueixen la llengua de la interficie de QGIS; aqui els botons es citen tal com apareixen en catala.
+
 ## Index
 1. [Introduccio](#introduccio)
 2. [Acces al panell](#acces-al-panell)
@@ -97,10 +99,10 @@ Mostra la **marca de temps** i el **resultat** (exit o fallada) de l'ultim inten
 
 | Boto | Accio |
 |------|-------|
-| **Export Bundle** | Crea un bundle des de les vostres dades locals, el valida i l'afegeix a la cua de sincronitzacio |
-| **Sync Now** | Forca un intent immediat de sincronitzacio (nomes disponible quan esta online) |
-| **Queue...** | Obre el dialeg de gestio de cua mostrant totes les entrades |
-| **Send site to a room...** | Inicia sessio en un node StratiGraph i porta un jaciment a una sala (vegeu mes avall) |
+| **Exporta el paquet** | Crea un bundle des de les vostres dades locals, el valida i l'afegeix a la cua de sincronitzacio |
+| **Sincronitza ara** | Forca un intent immediat de sincronitzacio (nomes disponible quan esta online) |
+| **Cua...** | Obre el dialeg de gestio de cua mostrant totes les entrades |
+| **Envia el jaciment a una sala...** | Inicia sessio en un node StratiGraph i porta un jaciment a una sala (vegeu mes avall) |
 
 ### Registre d'activitat
 
@@ -119,7 +121,7 @@ L'exportacio d'un bundle empaqueta les vostres dades arqueologiques locals en un
 
 1. Assegureu-vos d'haver desat tot el treball actual a PyArchInit
 2. Obriu el panell StratiGraph Sync (si no es ja visible)
-3. Feu clic al boto **Export Bundle**
+3. Feu clic al boto **Exporta el paquet**
 4. El sistema realitza automaticament tres operacions:
    - **Exportacio**: Les dades locals s'empaqueten en un fitxer bundle
    - **Validacio**: El bundle es comprova per completesa i integritat de dades
@@ -131,8 +133,8 @@ L'exportacio d'un bundle empaqueta les vostres dades arqueologiques locals en un
 
 Un bundle conte totes les entitats arqueologiques que tenen UUID (vegeu el Tutorial 31 per a detalls sobre UUID). Cada entitat s'identifica pel seu `entity_uuid`, assegurant que el mateix registre sempre sigui reconegut al servidor.
 
-<!-- IMAGE: Boto Export Bundle i transicio d'estat -->
-> **Fig. 4**: Clic a "Export Bundle" i observacio dels canvis d'estat al panell
+<!-- IMAGE: Boto Exporta el paquet i transicio d'estat -->
+> **Fig. 4**: Clic a "Exporta el paquet" i observacio dels canvis d'estat al panell
 
 ---
 
@@ -155,10 +157,10 @@ El proces de sincronitzacio automatica:
 Si voleu forcar un intent immediat de sincronitzacio:
 
 1. Assegureu-vos que l'indicador de connexio mostri **Online**
-2. Feu clic al boto **Sync Now**
+2. Feu clic al boto **Sincronitza ara**
 3. El sistema intenta immediatament pujar tots els bundles pendents
 
-El boto **Sync Now** nomes es efectiu quan el sistema esta online.
+El boto **Sincronitza ara** nomes es efectiu quan el sistema esta online.
 
 ### Reintent automatic amb backoff exponencial
 
@@ -174,14 +176,14 @@ Si una pujada falla, el sistema **no** es rendeix. En lloc d'aixo, reintenta aut
 
 Aixo evita sobrecarregar el servidor quan no esta disponible temporalment, assegurant alhora el lliurament final.
 
-<!-- IMAGE: Boto Sync Now i indicador de connexio -->
-> **Fig. 5**: El boto "Sync Now" i l'indicador d'estat de connexio
+<!-- IMAGE: Boto Sincronitza ara i indicador de connexio -->
+> **Fig. 5**: El boto "Sincronitza ara" i l'indicador d'estat de connexio
 
 ---
 
 ## Gestio de la cua
 
-El boto **Queue...** obre un dialeg detallat on podeu inspeccionar tots els bundles a la cua de sincronitzacio.
+El boto **Cua...** obre un dialeg detallat on podeu inspeccionar tots els bundles a la cua de sincronitzacio.
 
 ### Columnes del dialeg de cua
 
@@ -218,22 +220,22 @@ Aquest fitxer persisteix entre sessions de QGIS, de manera que els bundles pende
 
 ## Enviar un jaciment a una sala StratiGraph
 
-Des de la versio **5.14.0-alpha** el boto **Send site to a room...** porta un jaciment a una *sala* d'un node StratiGraph (StratiGraph Server). El graf del jaciment es converteix en el contingut de la sala, on EMStudio, EM Tools i les altres eines del projecte el veuen i hi treballen.
+Des de la versio **5.14.0-alpha** el boto **Envia el jaciment a una sala...** porta un jaciment a una *sala* d'un node StratiGraph (StratiGraph Server). El graf del jaciment es converteix en el contingut de la sala, on EMStudio, EM Tools i les altres eines del projecte el veuen i hi treballen.
 
 ![Panell StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
 
-> **Fig. 7**: El panell StratiGraph Sync amb el boto **Send site to a room...**
+> **Fig. 7**: El panell StratiGraph Sync amb el boto **Envia el jaciment a una sala...**
 
 ### Procediment pas a pas
 
-1. Al panell **StratiGraph Sync**, premeu **Send site to a room...**
+1. Al panell **StratiGraph Sync**, premeu **Envia el jaciment a una sala...**
 2. **Node**: l'adreca del node, per exemple `https://node.example.org/em`. Es recorda entre sessions.
-3. **Site**: trieu el jaciment. **Room id** i **Room title** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
-4. Premeu **Sign in...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identity** mostra el nom i si podeu crear sales.
-5. Opcional: **Plan only** mostra el que s'enviaria sense escriure res al node.
-6. Premeu **Send site**: el registre indica els nodes i les arestes exportats i el resultat.
+3. **Site**: trieu el jaciment. **Id de la sala** i **Títol de la sala** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
+4. Premeu **Inicia sessió...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identitat** mostra el nom i si podeu crear sales.
+5. Opcional: **Només pla** mostra el que s'enviaria sense escriure res al node.
+6. Premeu **Envia el jaciment**: el registre indica els nodes i les arestes exportats i el resultat.
 
-![Finestra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+![Finestra Envia el jaciment a una sala](images/32_stratigraph_sync/07_send_site_dialog.png)
 
 > **Fig. 8**: La finestra despres de l'acces i l'enviament del jaciment d'exemple a un node de desenvolupament: 745 operacions aplicades, 0 rebutjades, la base de dades conservada com a referencia
 
@@ -257,13 +259,15 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 
 Quan a la sala hi treballen tambe altres (EMStudio, StratiField, EM Tools), despres d'accedir:
 
-1. **Compare with room** compara el jaciment amb la sala en els dos sentits, sense escriure res: que te de nou la sala per a pyArchInit (unitats noves, definicions canviades, relacions) i que hi afegeix pyArchInit.
-2. **Send additions** envia nomes les addicions del jaciment: unitats i relacions noves. Un camp diferent es mostra pero no s'envia, perque a la sala pot ser la modificacio mes recent d'un company; el que nomes es a la sala no es toca mai.
-3. **Pull from room** porta la sala a les fitxes de pyArchInit (UE, definicions, perioditzacio, relacions), reconeixent cada fitxa pel seu identificador. Si el pull tragues relacions locals que la sala no coneix, la finestra les enumera i demana confirmacio.
+1. **Compara amb la sala** compara el jaciment amb la sala en els dos sentits, sense escriure res: que te de nou la sala per a pyArchInit (unitats noves, definicions canviades, relacions) i que hi afegeix pyArchInit.
+2. **Envia les novetats** envia nomes les addicions del jaciment: unitats i relacions noves. Un camp diferent es mostra pero no s'envia, perque a la sala pot ser la modificacio mes recent d'un company; el que nomes es a la sala no es toca mai.
+3. **Porta de la sala** porta la sala a les fitxes de pyArchInit (UE, definicions, perioditzacio, relacions), reconeixent cada fitxa pel seu identificador. Si el pull tragues relacions locals que la sala no coneix, la finestra les enumera i demana confirmacio.
 
-Amb **Pull from room** tambe es pot reconstruir un jaciment en una base de dades que no el te: les unitats tornen amb numero, tipus, definicions i perioditzacio. Les unitats de continuitat (CON) no viatgen: pyArchInit les regenera amb **Genera continuita**.
+Amb **Porta de la sala** tambe es pot reconstruir un jaciment en una base de dades que no el te: les unitats tornen amb numero, tipus, definicions i perioditzacio. Les unitats de continuitat (CON) no viatgen: pyArchInit les regenera amb **Genera continuita**.
 
-La sala rep la fitxa UE sencera, no nomes els camps del graf: descripcio, interpretacio, color, consistencia, cotes, mesures, sondeig, ambient, quadre, sector, els camps de parament (USM). Una fitxa reconstruida des d'una sala es igual a l'original; les relacions nomes canvien en l'escriptura (amb area i jaciment). Una sala enviada amb una versio anterior de pyArchInit nomes te els camps del graf: la comparacio mostra molts camps diferents; n'hi ha prou amb un nou **Send site** per completar-la.
+La sala rep la fitxa UE sencera, no nomes els camps del graf: descripcio, interpretacio, color, consistencia, cotes, mesures, sondeig, ambient, quadre, sector, els camps de parament (USM). Una fitxa reconstruida des d'una sala es igual a l'original; les relacions nomes canvien en l'escriptura (amb area i jaciment). Una sala enviada amb una versio anterior de pyArchInit nomes te els camps del graf: la comparacio mostra molts camps diferents; n'hi ha prou amb un nou **Envia el jaciment** per completar-la.
+
+Tot aixo val tant per a SQLite com per a PostgreSQL. Per reconstruir un jaciment n'hi ha prou amb una base de dades de pyArchInit creada i buida, oberta a pyArchInit: **Porta de la sala** l'omple (jaciment, fitxes, perioditzacio, relacions, mitjans). Les relacions tenen sempre quatre elements: tipus, UE, area, jaciment.
 
 ![Comparacio amb la sala](images/32_stratigraph_sync/08_compare_with_room.png)
 
@@ -273,19 +277,19 @@ La sala rep la fitxa UE sencera, no nomes els camps del graf: descripcio, interp
 
 Les fotos, els videos, els models 3D i els documents vinculats a les fitxes UE viatgen amb el jaciment, en tots dos sentits. Les ortofotos i els altres raster en queden fora: son capes de QGIS, no mitjans de pyArchInit.
 
-- **Send site** i **Send additions** pugen cada fitxer al diposit de la sala una sola vegada: un fitxer que la sala ja te (mateix contingut) no es torna a enviar. Si l'original ja no es al disc s'utilitza la copia de la carpeta Resize.
-- **Pull from room** descarrega els mitjans nous a la carpeta `stratigraph_media/<sala>` del home de pyArchInit, crea miniatura i copia com quan es carrega un fitxer des de la fitxa i els vincula a la seva UE, amb descripcio i etiquetes. Un mitja que la base de dades ja te (reconegut pel seu identificador) no es torna a descarregar: nomes se'n comprova el vincle.
+- **Envia el jaciment** i **Envia les novetats** pugen cada fitxer al diposit de la sala una sola vegada: un fitxer que la sala ja te (mateix contingut) no es torna a enviar. Si l'original ja no es al disc s'utilitza la copia de la carpeta Resize.
+- **Porta de la sala** descarrega els mitjans nous a la carpeta `stratigraph_media/<sala>` del home de pyArchInit, crea miniatura i copia com quan es carrega un fitxer des de la fitxa i els vincula a la seva UE, amb descripcio i etiquetes. Un mitja que la base de dades ja te (reconegut pel seu identificador) no es torna a descarregar: nomes se'n comprova el vincle.
 - Els mitjans de troballes, ceramica, tombes i estructures de moment queden en local: la finestra els compta.
 
 ![Una foto nova enviada a la sala](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Una foto afegida a la UE 3 despres d'enviar el jaciment: la comparacio la troba i Send additions puja el fitxer i el seu vincle
+> **Fig. 10**: Una foto afegida a la UE 3 despres d'enviar el jaciment: la comparacio la troba i Envia les novetats puja el fitxer i el seu vincle
 
 ### Problemes frequents
 
 | Missatge | Que cal fer |
 |----------|-------------|
-| `401` o acces caducat | Premeu de nou **Sign in...**: el token dura pocs minuts |
+| `401` o acces caducat | La sessio es renova sola mentre es treballa; si ha caducat del tot (moltes hores sense fer-la servir) premeu de nou **Inicia sessió...** |
 | `403` / *may create rooms: False* | El compte no te cap rol a la sala o no pot crear sales: pregunteu a l'administrador del node |
 | `CERTIFICATE_VERIFY_FAILED` | El node fa servir un certificat local (node de desenvolupament o de camp): instal·leu-ne la CA a l'ordinador, o feu servir `--ca-file` a la linia d'ordres |
 | `409 ... already declared` | La sala existeix i pertany a un altre usuari: trieu un altre id |
@@ -376,11 +380,11 @@ Els bundles pendents es desen a la base de dades de la cua i estaran disponibles
 
 ### Puc exportar multiples bundles?
 
-Si. Cada vegada que feu clic a "Export Bundle", es crea un nou bundle i s'afegeix a la cua. Es poden encuar multiples bundles i es pujaran sequencialment.
+Si. Cada vegada que feu clic a "Exporta el paquet", es crea un nou bundle i s'afegeix a la cua. Es poden encuar multiples bundles i es pujaran sequencialment.
 
 ### Com se si les meves dades s'han sincronitzat?
 
-Comproveu l'indicador d'**ultima sincronitzacio** al panell per al resultat mes recent. Tambe podeu obrir el dialeg **Queue...** per veure l'estat de cada bundle individual.
+Comproveu l'indicador d'**ultima sincronitzacio** al panell per al resultat mes recent. Tambe podeu obrir el dialeg **Cua...** per veure l'estat de cada bundle individual.
 
 ### StratiGraph Sync funciona tant amb PostgreSQL com amb SQLite?
 

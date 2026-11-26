@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph : Panneau de Synchronisation
 
+> Le panneau et la fenetre de la salle suivent la langue de l'interface de QGIS ; les boutons sont cites ici tels qu'ils apparaissent en francais.
+
 ## Sommaire
 1. [Introduction](#introduction)
 2. [Acces au panneau](#acces-au-panneau)
@@ -97,10 +99,10 @@ Affiche l'**horodatage** et le **resultat** (succes ou echec) de la derniere ten
 
 | Bouton | Action |
 |--------|--------|
-| **Export Bundle** | Cree un bundle depuis vos donnees locales, le valide et l'ajoute a la file de synchronisation |
-| **Sync Now** | Force une tentative immediate de synchronisation (disponible uniquement en ligne) |
-| **Queue...** | Ouvre la boite de dialogue de gestion de file d'attente affichant toutes les entrees |
-| **Send site to a room...** | Se connecte a un noeud StratiGraph et apporte un site dans une salle (voir ci-dessous) |
+| **Exporter le paquet** | Cree un bundle depuis vos donnees locales, le valide et l'ajoute a la file de synchronisation |
+| **Synchroniser maintenant** | Force une tentative immediate de synchronisation (disponible uniquement en ligne) |
+| **File...** | Ouvre la boite de dialogue de gestion de file d'attente affichant toutes les entrees |
+| **Envoyer le site vers une salle...** | Se connecte a un noeud StratiGraph et apporte un site dans une salle (voir ci-dessous) |
 
 ### Journal d'activite
 
@@ -119,7 +121,7 @@ L'exportation d'un bundle empaquete vos donnees archeologiques locales dans un f
 
 1. S'assurer d'avoir sauvegarde tout le travail en cours dans PyArchInit
 2. Ouvrir le panneau StratiGraph Sync (s'il n'est pas deja visible)
-3. Cliquer sur le bouton **Export Bundle**
+3. Cliquer sur le bouton **Exporter le paquet**
 4. Le systeme effectue automatiquement trois operations :
    - **Exportation** : Les donnees locales sont empaquetees dans un fichier bundle
    - **Validation** : Le bundle est verifie pour la completude et l'integrite des donnees
@@ -131,8 +133,8 @@ L'exportation d'un bundle empaquete vos donnees archeologiques locales dans un f
 
 Un bundle contient toutes les entites archeologiques qui ont des UUID (voir le Tutorial 31 pour les details sur les UUID). Chaque entite est identifiee par son `entity_uuid`, garantissant que le meme enregistrement est toujours reconnu sur le serveur.
 
-<!-- IMAGE : Bouton Export Bundle et transition d'etat -->
-> **Fig. 4** : Clic sur "Export Bundle" et observation des changements d'etat dans le panneau
+<!-- IMAGE : Bouton Exporter le paquet et transition d'etat -->
+> **Fig. 4** : Clic sur "Exporter le paquet" et observation des changements d'etat dans le panneau
 
 ---
 
@@ -155,10 +157,10 @@ Le processus de synchronisation automatique :
 Si vous souhaitez forcer une tentative immediate de synchronisation :
 
 1. S'assurer que l'indicateur de connexion affiche **Online**
-2. Cliquer sur le bouton **Sync Now**
+2. Cliquer sur le bouton **Synchroniser maintenant**
 3. Le systeme tente immediatement de televerser tous les bundles en attente
 
-Le bouton **Sync Now** n'est efficace que lorsque le systeme est en ligne.
+Le bouton **Synchroniser maintenant** n'est efficace que lorsque le systeme est en ligne.
 
 ### Retry automatique avec backoff exponentiel
 
@@ -174,14 +176,14 @@ Si un telechargement echoue, le systeme **n'abandonne pas**. Au lieu de cela, il
 
 Cela empeche de surcharger le serveur lorsqu'il est temporairement indisponible tout en assurant la livraison finale.
 
-<!-- IMAGE : Bouton Sync Now et indicateur de connexion -->
-> **Fig. 5** : Le bouton "Sync Now" et l'indicateur d'etat de connexion
+<!-- IMAGE : Bouton Synchroniser maintenant et indicateur de connexion -->
+> **Fig. 5** : Le bouton "Synchroniser maintenant" et l'indicateur d'etat de connexion
 
 ---
 
 ## Gestion de la file d'attente
 
-Le bouton **Queue...** ouvre une boite de dialogue detaillee ou vous pouvez inspecter tous les bundles dans la file de synchronisation.
+Le bouton **File...** ouvre une boite de dialogue detaillee ou vous pouvez inspecter tous les bundles dans la file de synchronisation.
 
 ### Colonnes de la boite de dialogue de file d'attente
 
@@ -218,22 +220,22 @@ Ce fichier persiste entre les sessions QGIS, donc les bundles en attente ne sont
 
 ## Envoyer un site dans une salle StratiGraph
 
-Depuis la version **5.14.0-alpha**, le bouton **Send site to a room...** apporte un site dans une *salle* d'un noeud StratiGraph (StratiGraph Server). Le graphe du site devient le contenu de la salle, ou EMStudio, EM Tools et les autres outils du projet le voient et y travaillent.
+Depuis la version **5.14.0-alpha**, le bouton **Envoyer le site vers une salle...** apporte un site dans une *salle* d'un noeud StratiGraph (StratiGraph Server). Le graphe du site devient le contenu de la salle, ou EMStudio, EM Tools et les autres outils du projet le voient et y travaillent.
 
 ![Panneau StratiGraph Sync](images/32_stratigraph_sync/06_sync_panel_send_button.png)
 
-> **Fig. 7**: Le panneau StratiGraph Sync avec le bouton **Send site to a room...**
+> **Fig. 7**: Le panneau StratiGraph Sync avec le bouton **Envoyer le site vers une salle...**
 
 ### Procedure pas a pas
 
-1. Dans le panneau **StratiGraph Sync**, cliquer sur **Send site to a room...**
+1. Dans le panneau **StratiGraph Sync**, cliquer sur **Envoyer le site vers une salle...**
 2. **Node** : l'adresse du noeud, par exemple `https://noeud.example.org/em`. Elle est memorisee d'une session a l'autre.
-3. **Site** : choisir le site. **Room id** et **Room title** sont remplis a partir du nom du site et peuvent etre modifies ; l'identifiant de la salle est un seul mot, sans espaces.
-4. Cliquer sur **Sign in...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identity** affiche le nom et indique si l'on peut creer des salles.
-5. Facultatif : **Plan only** montre ce qui serait envoye sans rien ecrire sur le noeud.
-6. Cliquer sur **Send site** : le journal indique les noeuds et les aretes exportes et le resultat.
+3. **Site** : choisir le site. **Id de la salle** et **Titre de la salle** sont remplis a partir du nom du site et peuvent etre modifies ; l'identifiant de la salle est un seul mot, sans espaces.
+4. Cliquer sur **Se connecter...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identité** affiche le nom et indique si l'on peut creer des salles.
+5. Facultatif : **Plan seulement** montre ce qui serait envoye sans rien ecrire sur le noeud.
+6. Cliquer sur **Envoyer le site** : le journal indique les noeuds et les aretes exportes et le resultat.
 
-![Fenetre Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
+![Fenetre Envoyer le site vers une salle](images/32_stratigraph_sync/07_send_site_dialog.png)
 
 > **Fig. 8**: La fenetre apres la connexion et l'envoi du site d'exemple a un noeud de developpement : 745 operations appliquees, 0 refusees, la base de donnees gardee comme reference
 
@@ -257,13 +259,15 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 
 Quand d'autres travaillent aussi dans la salle (EMStudio, StratiField, EM Tools), apres la connexion :
 
-1. **Compare with room** compare le site et la salle dans les deux sens, sans rien ecrire : ce que la salle a de nouveau pour pyArchInit (nouvelles unites, definitions modifiees, relations) et ce que pyArchInit ajoute a la salle.
-2. **Send additions** n'envoie que les ajouts du site : nouvelles unites et relations. Un champ different est affiche mais pas envoye, car dans la salle il peut s'agir de la modification la plus recente d'un collegue ; ce qui n'existe que dans la salle n'est jamais touche.
-3. **Pull from room** apporte la salle dans les fiches de pyArchInit (US, definitions, periodisation, relations), en reconnaissant chaque fiche par son identifiant. Si le pull supprimait des relations locales que la salle ne connait pas, la fenetre les liste et demande confirmation.
+1. **Comparer avec la salle** compare le site et la salle dans les deux sens, sans rien ecrire : ce que la salle a de nouveau pour pyArchInit (nouvelles unites, definitions modifiees, relations) et ce que pyArchInit ajoute a la salle.
+2. **Envoyer les ajouts** n'envoie que les ajouts du site : nouvelles unites et relations. Un champ different est affiche mais pas envoye, car dans la salle il peut s'agir de la modification la plus recente d'un collegue ; ce qui n'existe que dans la salle n'est jamais touche.
+3. **Récupérer de la salle** apporte la salle dans les fiches de pyArchInit (US, definitions, periodisation, relations), en reconnaissant chaque fiche par son identifiant. Si le pull supprimait des relations locales que la salle ne connait pas, la fenetre les liste et demande confirmation.
 
-**Pull from room** permet aussi de reconstruire un site dans une base qui ne l'a pas : les unites reviennent avec numero, type, definitions et periodisation. Les unites de continuite (CON) ne voyagent pas : pyArchInit les regenere avec **Genera continuita**.
+**Récupérer de la salle** permet aussi de reconstruire un site dans une base qui ne l'a pas : les unites reviennent avec numero, type, definitions et periodisation. Les unites de continuite (CON) ne voyagent pas : pyArchInit les regenere avec **Genera continuita**.
 
-La salle recoit la fiche US entiere, pas seulement les champs du graphe : description, interpretation, couleur, consistance, altitudes, mesures, sondage, piece, carre, secteur, les champs de maconnerie (USM). Une fiche reconstruite depuis une salle est identique a l'originale ; les relations ne changent que dans leur ecriture (avec zone et site). Une salle envoyee avec une version precedente de pyArchInit n'a que les champs du graphe : la comparaison montre beaucoup de champs differents ; un nouveau **Send site** la complete.
+La salle recoit la fiche US entiere, pas seulement les champs du graphe : description, interpretation, couleur, consistance, altitudes, mesures, sondage, piece, carre, secteur, les champs de maconnerie (USM). Une fiche reconstruite depuis une salle est identique a l'originale ; les relations ne changent que dans leur ecriture (avec zone et site). Une salle envoyee avec une version precedente de pyArchInit n'a que les champs du graphe : la comparaison montre beaucoup de champs differents ; un nouveau **Envoyer le site** la complete.
+
+Tout cela vaut pour SQLite comme pour PostgreSQL. Pour reconstruire un site, il suffit d'une base pyArchInit creee et vide, ouverte dans pyArchInit : **Récupérer de la salle** la remplit (site, fiches, periodisation, relations, medias). Les relations ont toujours quatre elements : type, US, zone, site.
 
 ![Comparaison avec la salle](images/32_stratigraph_sync/08_compare_with_room.png)
 
@@ -273,19 +277,19 @@ La salle recoit la fiche US entiere, pas seulement les champs du graphe : descri
 
 Les photos, videos, modeles 3D et documents lies aux fiches US voyagent avec le site, dans les deux sens. Les orthophotos et les autres rasters restent a l'ecart : ce sont des couches QGIS, pas des medias pyArchInit.
 
-- **Send site** et **Send additions** deposent chaque fichier dans le stockage de la salle une seule fois : un fichier que la salle a deja (meme contenu) n'est pas renvoye. Si l'original n'est plus sur le disque, la copie du dossier Resize est utilisee.
-- **Pull from room** telecharge les nouveaux medias dans le dossier `stratigraph_media/<salle>` du home de pyArchInit, cree miniature et copie comme lors du chargement d'un fichier depuis la fiche et les lie a leur US, avec description et etiquettes. Un media que la base a deja (reconnu par son identifiant) n'est pas retelecharge : seul son lien est verifie.
+- **Envoyer le site** et **Envoyer les ajouts** deposent chaque fichier dans le stockage de la salle une seule fois : un fichier que la salle a deja (meme contenu) n'est pas renvoye. Si l'original n'est plus sur le disque, la copie du dossier Resize est utilisee.
+- **Récupérer de la salle** telecharge les nouveaux medias dans le dossier `stratigraph_media/<salle>` du home de pyArchInit, cree miniature et copie comme lors du chargement d'un fichier depuis la fiche et les lie a leur US, avec description et etiquettes. Un media que la base a deja (reconnu par son identifiant) n'est pas retelecharge : seul son lien est verifie.
 - Les medias du mobilier, de la ceramique, des tombes et des structures restent locaux pour l'instant : la fenetre les compte.
 
 ![Une nouvelle photo envoyee a la salle](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Une photo ajoutee a l'US 3 apres l'envoi du site : la comparaison la trouve et Send additions depose le fichier et son lien
+> **Fig. 10**: Une photo ajoutee a l'US 3 apres l'envoi du site : la comparaison la trouve et Envoyer les ajouts depose le fichier et son lien
 
 ### Problemes frequents
 
 | Message | Que faire |
 |---------|-----------|
-| `401` ou connexion expiree | Cliquer de nouveau sur **Sign in...** : le jeton dure quelques minutes |
+| `401` ou connexion expiree | La session se renouvelle d'elle-meme pendant le travail ; si elle a completement expire (de longues heures sans usage), cliquer de nouveau sur **Se connecter...** |
 | `403` / *may create rooms: False* | Le compte n'a pas de role dans la salle ou ne peut pas creer de salles : demander a l'administrateur du noeud |
 | `CERTIFICATE_VERIFY_FAILED` | Le noeud utilise un certificat local (noeud de developpement ou de terrain) : installer son autorite de certification sur l'ordinateur, ou utiliser `--ca-file` en ligne de commande |
 | `409 ... already declared` | La salle existe et appartient a un autre utilisateur : choisir un autre identifiant |
@@ -376,11 +380,11 @@ Les bundles en attente sont sauvegardes dans la base de donnees de la file d'att
 
 ### Puis-je exporter plusieurs bundles ?
 
-Oui. Chaque fois que vous cliquez sur "Export Bundle", un nouveau bundle est cree et ajoute a la file d'attente. Plusieurs bundles peuvent etre mis en file d'attente et seront televerses sequentiellement.
+Oui. Chaque fois que vous cliquez sur "Exporter le paquet", un nouveau bundle est cree et ajoute a la file d'attente. Plusieurs bundles peuvent etre mis en file d'attente et seront televerses sequentiellement.
 
 ### Comment savoir si mes donnees ont ete synchronisees ?
 
-Verifier l'indicateur de **derniere synchronisation** dans le panneau pour le resultat le plus recent. Vous pouvez egalement ouvrir la boite de dialogue **Queue...** pour voir l'etat de chaque bundle individuel.
+Verifier l'indicateur de **derniere synchronisation** dans le panneau pour le resultat le plus recent. Vous pouvez egalement ouvrir la boite de dialogue **File...** pour voir l'etat de chaque bundle individuel.
 
 ### StratiGraph Sync fonctionne-t-il avec PostgreSQL et SQLite ?
 

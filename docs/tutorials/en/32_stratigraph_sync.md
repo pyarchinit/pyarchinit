@@ -1,5 +1,7 @@
 # PyArchInit - StratiGraph: Sync Panel
 
+> The panel and the room window follow the language of the QGIS interface; the buttons are quoted here as they appear in English.
+
 ## Index
 1. [Introduction](#introduction)
 2. [Accessing the Panel](#accessing-the-panel)
@@ -264,6 +266,8 @@ When others work in the room too (EMStudio, StratiField, EM Tools), after signin
 
 The room receives the whole SU record, not only the graph's fields: description, interpretation, colour, consistency, levels, measures, trench, room, square, sector, the masonry (USM) fields. A record rebuilt from a room equals the original; relations change only in how they are written (with area and site). A room sent with an earlier pyArchInit version holds only the graph's fields: the comparison shows many differing fields; a new **Send site** completes it.
 
+All of this works with both SQLite and PostgreSQL. To rebuild a site an empty pyArchInit database, created and opened in pyArchInit, is enough: **Pull from room** fills it (site, records, periodisation, relations, media). Relations always have four elements: type, SU, area, site.
+
 ![Compare with room](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: Comparing with a room that was also worked on in EMStudio: a new SU and a revised definition in the room, a new pyArchInit SU to send
@@ -284,7 +288,7 @@ Photos, videos, 3D models and documents linked to SU records travel with the sit
 
 | Message | What to do |
 |---------|------------|
-| `401` or sign-in expired | Click **Sign in...** again: the token lasts a few minutes |
+| `401` or sign-in expired | The session renews itself while you work; if it has expired completely (many hours unused) click **Sign in...** again |
 | `403` / *may create rooms: False* | Your account has no role in the room or may not create rooms: ask the node's administrator |
 | `CERTIFICATE_VERIFY_FAILED` | The node uses a local certificate (development or field node): install its CA on your computer, or use `--ca-file` on the command line |
 | `409 ... already declared` | The room exists and belongs to another user: choose another id |

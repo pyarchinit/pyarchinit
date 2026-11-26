@@ -5,6 +5,30 @@
 
 ---
 
+## [fix] - 2026-11-26 — Stanze anche su PostgreSQL, rapporti a quattro elementi, pannello e finestra nelle dieci lingue — 5.14.3-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2628 verdi**, 66 saltati, 1 xfail, 0 falliti. / Rooms on PostgreSQL too; four-element relations; StratiGraph panel and room window in ten languages.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **PostgreSQL**, misurato su un database creato vuoto con `CreateDatabase` + `pyarchinit_schema_updated.sql` (come dalla configurazione) e popolato dal pull:
+  - l'esportazione da PostgreSQL passava da un lettore ridotto di s3dgraphy (`import_from_pg`) che usa il **numero US** come identificativo del nodo invece del `node_uuid`, senza località, epoche, documenti, autori, vuoti: un sito esportato da PostgreSQL risultava con 39 unità «nuove» e 77 elementi «solo nella stanza». Ora la proiezione di pyArchInit legge PostgreSQL con lo stesso importatore completo di SQLite (solo nel thread della proiezione: la funzione della libreria resta quella per gli altri chiamanti);
+  - i legami dei media si scrivevano con la sequenza di PostgreSQL, rimasta indietro rispetto agli id espliciti dell'import dei media → `UniqueViolation`; ora id espliciti come l'import, e alla fine sequenze riallineate;
+  - `Decimal('1.40')` contro `1.4` era una differenza: 44 schede «aggiornate» a ogni pull; ora i numeri e le date si confrontano come valori;
+  - il sito creato dal pull prende l'identità che ha nella stanza (`entity_uuid` del toponimo), altrimenti l'export successivo gli dava un altro id;
+  - colonne che lo schema locale non ha (cinque colonne legacy dello SQLite di esempio) e i campi di tracciamento di PostgreSQL non contano come differenze e non viaggiano.
+- 🇮🇹 **IT**: **rapporti a quattro elementi** (tipo, US, area, sito): il confronto teneva solo (tipo, US), così «Copre 2» dell'area 1 e dell'area 2 sembravano lo stesso rapporto. Ora area e sito contano; un'area o un sito vuoti valgono quelli dell'unità.
+- 🇮🇹 **IT**: la descrizione del periodo tornava come nome dell'epoca; ora `datazione_estesa` e `descrizione` tornano ognuna al suo posto.
+- 🇬🇧 **EN**: PostgreSQL now projects through the full importer (node id = node_uuid), media links use explicit ids and resynced sequences, numeric/date values compare as values, a pulled site keeps its room identity; relations compare on all four elements; the epoch description comes back in its place.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: il pannello StratiGraph Sync e la finestra della stanza sono **nelle dieci lingue** (`gui/stratigraph_i18n.py`, 72 testi, lingua dell'interfaccia di QGIS, inglese se manca). Il tutorial 32 cita i pulsanti come appaiono in ogni lingua.
+- 🇬🇧 **EN**: StratiGraph panel and room window translated into the ten languages.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: PostgreSQL+PostGIS (container usa e getta): pull a secco (50 US, 153 media), pull applicato (50 US, 150 foto con miniature, sequenze allineate), secondo pull 0/0, confronto con la stanza 0 nodi, 0 archi, 0 campi diversi; invio da PostgreSQL e pull in uno SQLite vuoto. SQLite: stesso ciclo, stessi zeri. Nuovo `tests/sync/test_room_postgres_and_i18n.py`.
+
+---
+
 ## [fix] - 2026-11-26 — Dalla stanza torna la scheda US intera, non 15 colonne su 131 — 5.14.2-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2621 verdi**, 66 saltati, 1 xfail, 0 falliti. / The whole SU record comes back from a room.
