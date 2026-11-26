@@ -267,6 +267,18 @@ Con **Pull from room** si puo anche ricostruire un sito in un database che non l
 
 > **Fig. 9**: Il confronto con una stanza in cui si e lavorato anche in EMStudio: una US nuova e una definizione rivista nella stanza, una US nuova di pyArchInit da inviare
 
+### Foto e media nella stanza
+
+Le foto, i video, i modelli 3D e i documenti collegati alle schede US viaggiano con il sito, nei due sensi. Le ortofoto e gli altri raster restano fuori: sono layer di QGIS, non media di pyArchInit.
+
+- **Send site** e **Send additions** caricano ogni file nel deposito della stanza una sola volta: un file che la stanza ha gia (stesso contenuto) non viene rimandato. Se l'originale non e piu sul disco si usa la copia della cartella Resize.
+- **Pull from room** scarica i media nuovi nella cartella `stratigraph_media/<stanza>` della home di pyArchInit, crea miniatura e copia come quando si carica un file dalla scheda e li collega alla loro US, con descrizione e tag. Un media che il database ha gia (riconosciuto dal suo identificativo) non viene riscaricato: si controlla solo il collegamento.
+- I media di reperti, ceramica, tombe e strutture per ora restano locali: la finestra li conta.
+
+![Una foto nuova inviata alla stanza](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: Una foto aggiunta alla US 3 dopo l'invio del sito: il confronto la trova e Send additions carica il file e il suo collegamento
+
 ### Problemi frequenti
 
 | Messaggio | Cosa fare |

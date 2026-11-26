@@ -267,6 +267,18 @@ Mit **Pull from room** laesst sich auch eine Fundstelle in einer Datenbank wiede
 
 > **Fig. 9**: Der Vergleich mit einem Raum, in dem auch in EMStudio gearbeitet wurde: eine neue SE und eine ueberarbeitete Definition im Raum, eine neue SE aus pyArchInit zum Senden
 
+### Fotos und Medien im Raum
+
+Fotos, Videos, 3D-Modelle und Dokumente, die mit SE-Datensaetzen verknuepft sind, reisen mit der Fundstelle, in beide Richtungen. Orthofotos und andere Raster bleiben aussen vor: sie sind QGIS-Layer, keine pyArchInit-Medien.
+
+- **Send site** und **Send additions** laden jede Datei nur einmal in den Speicher des Raums: eine Datei, die der Raum schon hat (gleicher Inhalt), wird nicht erneut gesendet. Ist das Original nicht mehr auf der Festplatte, wird die Kopie im Resize-Ordner verwendet.
+- **Pull from room** laedt neue Medien in den Ordner `stratigraph_media/<Raum>` des pyArchInit-Home, erzeugt Vorschau und Kopie wie beim Laden einer Datei aus dem Formular und verknuepft sie mit ihrer SE, mit Beschreibung und Tags. Ein Medium, das die Datenbank schon hat (an seiner Kennung erkannt), wird nicht erneut geladen: nur die Verknuepfung wird geprueft.
+- Medien von Funden, Keramik, Graebern und Strukturen bleiben vorerst lokal: das Fenster zaehlt sie.
+
+![Ein neues Foto an den Raum gesendet](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: Ein Foto, das nach dem Senden der Fundstelle zur SE 3 hinzugefuegt wurde: der Vergleich findet es und Send additions laedt Datei und Verknuepfung hoch
+
 ### Haeufige Probleme
 
 | Meldung | Was tun |

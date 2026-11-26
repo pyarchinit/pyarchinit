@@ -266,6 +266,18 @@ Com **Pull from room** tambem se pode reconstruir um sitio numa base de dados qu
 
 > **Fig. 9**: A comparacao com uma sala em que se trabalhou tambem no EMStudio: uma UE nova e uma definicao revista na sala, uma UE nova do pyArchInit para enviar
 
+### Fotografias e media na sala
+
+As fotografias, os videos, os modelos 3D e os documentos ligados as fichas UE viajam com o sitio, nos dois sentidos. Os ortofotomapas e os outros raster ficam de fora: sao camadas do QGIS, nao media do pyArchInit.
+
+- **Send site** e **Send additions** carregam cada ficheiro no deposito da sala uma unica vez: um ficheiro que a sala ja tem (mesmo conteudo) nao e reenviado. Se o original ja nao esta no disco, usa-se a copia da pasta Resize.
+- **Pull from room** descarrega os media novos para a pasta `stratigraph_media/<sala>` da home do pyArchInit, cria miniatura e copia como ao carregar um ficheiro a partir da ficha e liga-os a sua UE, com descricao e etiquetas. Um media que a base de dados ja tem (reconhecido pelo seu identificador) nao e descarregado de novo: verifica-se apenas a ligacao.
+- Os media de achados, ceramica, sepulturas e estruturas ficam por agora locais: a janela conta-os.
+
+![Uma fotografia nova enviada a sala](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: Uma fotografia acrescentada a UE 3 depois do envio do sitio: a comparacao encontra-a e Send additions carrega o ficheiro e a sua ligacao
+
 ### Problemas frequentes
 
 | Mensagem | O que fazer |

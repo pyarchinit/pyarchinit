@@ -266,6 +266,18 @@ When others work in the room too (EMStudio, StratiField, EM Tools), after signin
 
 > **Fig. 9**: Comparing with a room that was also worked on in EMStudio: a new SU and a revised definition in the room, a new pyArchInit SU to send
 
+### Photos and Media in the Room
+
+Photos, videos, 3D models and documents linked to SU records travel with the site, in both directions. Orthophotos and other rasters stay out: they are QGIS layers, not pyArchInit media.
+
+- **Send site** and **Send additions** upload each file to the room's store only once: a file the room already has (same content) is not sent again. If the original is no longer on disk, the copy in the Resize folder is used.
+- **Pull from room** downloads new media into the `stratigraph_media/<room>` folder of the pyArchInit home, makes thumbnail and copy as when a file is loaded from the form, and links them to their SU with description and tags. A medium the database already has (recognised by its identifier) is not downloaded again: only its link is checked.
+- Media of finds, pottery, tombs and structures stay local for now: the window counts them.
+
+![A new photo sent to the room](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: A photo added to SU 3 after the site was sent: the comparison finds it and Send additions uploads the file and its link
+
 ### Common Problems
 
 | Message | What to do |

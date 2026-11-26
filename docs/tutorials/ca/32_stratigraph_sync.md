@@ -267,6 +267,18 @@ Amb **Pull from room** tambe es pot reconstruir un jaciment en una base de dades
 
 > **Fig. 9**: La comparacio amb una sala on tambe s'ha treballat a EMStudio: una UE nova i una definicio revisada a la sala, una UE nova de pyArchInit per enviar
 
+### Fotos i mitjans a la sala
+
+Les fotos, els videos, els models 3D i els documents vinculats a les fitxes UE viatgen amb el jaciment, en tots dos sentits. Les ortofotos i els altres raster en queden fora: son capes de QGIS, no mitjans de pyArchInit.
+
+- **Send site** i **Send additions** pugen cada fitxer al diposit de la sala una sola vegada: un fitxer que la sala ja te (mateix contingut) no es torna a enviar. Si l'original ja no es al disc s'utilitza la copia de la carpeta Resize.
+- **Pull from room** descarrega els mitjans nous a la carpeta `stratigraph_media/<sala>` del home de pyArchInit, crea miniatura i copia com quan es carrega un fitxer des de la fitxa i els vincula a la seva UE, amb descripcio i etiquetes. Un mitja que la base de dades ja te (reconegut pel seu identificador) no es torna a descarregar: nomes se'n comprova el vincle.
+- Els mitjans de troballes, ceramica, tombes i estructures de moment queden en local: la finestra els compta.
+
+![Una foto nova enviada a la sala](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: Una foto afegida a la UE 3 despres d'enviar el jaciment: la comparacio la troba i Send additions puja el fitxer i el seu vincle
+
 ### Problemes frequents
 
 | Missatge | Que cal fer |

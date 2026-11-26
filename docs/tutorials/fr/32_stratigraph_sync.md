@@ -267,6 +267,18 @@ Quand d'autres travaillent aussi dans la salle (EMStudio, StratiField, EM Tools)
 
 > **Fig. 9**: La comparaison avec une salle ou l'on a aussi travaille dans EMStudio : une nouvelle US et une definition revue dans la salle, une nouvelle US de pyArchInit a envoyer
 
+### Photos et medias dans la salle
+
+Les photos, videos, modeles 3D et documents lies aux fiches US voyagent avec le site, dans les deux sens. Les orthophotos et les autres rasters restent a l'ecart : ce sont des couches QGIS, pas des medias pyArchInit.
+
+- **Send site** et **Send additions** deposent chaque fichier dans le stockage de la salle une seule fois : un fichier que la salle a deja (meme contenu) n'est pas renvoye. Si l'original n'est plus sur le disque, la copie du dossier Resize est utilisee.
+- **Pull from room** telecharge les nouveaux medias dans le dossier `stratigraph_media/<salle>` du home de pyArchInit, cree miniature et copie comme lors du chargement d'un fichier depuis la fiche et les lie a leur US, avec description et etiquettes. Un media que la base a deja (reconnu par son identifiant) n'est pas retelecharge : seul son lien est verifie.
+- Les medias du mobilier, de la ceramique, des tombes et des structures restent locaux pour l'instant : la fenetre les compte.
+
+![Une nouvelle photo envoyee a la salle](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: Une photo ajoutee a l'US 3 apres l'envoi du site : la comparaison la trouve et Send additions depose le fichier et son lien
+
 ### Problemes frequents
 
 | Message | Que faire |

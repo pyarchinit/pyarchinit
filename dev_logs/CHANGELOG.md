@@ -5,6 +5,22 @@
 
 ---
 
+## [feat] - 2026-11-26 — Sito e stanza nei due sensi, foto comprese — 5.14.1-alpha
+
+> Branch `Stratigraph_00001`. `tests/sync` **1010 verdi**, 0 falliti. / Site and room both ways, photos included.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **la sessione sul nodo si rinnova da sola** (`NodeSession`, refresh token): niente nuovo login a metà lavoro.
+- 🇮🇹 **IT**: **sito e stanza nei due sensi** (`modules/stratigraph/room_sync.py`), tre pulsanti nella finestra della stanza: *Compare with room* (cosa ha di nuovo la stanza, cosa aggiunge pyArchInit, senza scrivere), *Send additions* (solo unità e rapporti nuovi; i campi diversi si mostrano e non si inviano; quello che c'è solo nella stanza non si tocca), *Pull from room* (la stanza nelle schede native riconosciute dal loro identificativo; conferma se si toglierebbero rapporti locali). Il sito viaggia come un solo grafo: la room import non porta i legami fra grafi.
+- 🇮🇹 **IT**: **foto e media delle US nella stanza e dalla stanza** (`modules/stratigraph/room_media.py`). All'invio ogni media collegato a una US diventa una risorsa del grafo (id = `entity_uuid` del media) legata alla sua US; s3dgraphy carica ogni file una volta sola, riconoscendolo dal contenuto. Se l'originale manca si usa la copia di Resize. Al pull i media nuovi si scaricano in `stratigraph_media/<stanza>` della home, si registrano con miniatura e copia come dalla scheda e si collegano alla loro US con descrizione e tag; quelli già presenti non si riscaricano. Le ortofoto restano fuori: sono layer di QGIS. I media di reperti, ceramica, tombe e strutture per ora restano locali (la finestra li conta).
+- 🇬🇧 **EN**: token renewal; compare / send additions / pull with a room; SU media (photos, videos, 3D models, documents) to and from the room, each file uploaded once and recognised by its identifier on the way back. Orthophotos stay out (QGIS layers).
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack (Keycloak attivo): 153 foto del sito di esempio in una stanza (1056 operazioni, 0 rifiutate); ricostruzione su un secondo computer simulato: 50 US e 150 foto con legami (foto, US) identici, nessun doppione; secondo pull: niente scaricato, niente cambiato; una foto aggiunta a casa → *Send additions* carica il file → il pull sull'altro computer la registra con descrizione e tag. Trovato e corretto lungo la strada: l'import dei media registrava di nuovo i media noti attraverso l'indirizzo locale del mittente (150 doppioni), e mandava le foto di una proprietà all'unità che la possiede (regola di EMStudio, non di pyArchInit). Nuovi `tests/sync/test_room_media.py`, `tests/sync/test_room_sync.py`.
+- 🇮🇹 **IT**: trovato e non ancora corretto: il pull non riporta saggio, ambiente, quadrato e settore (nella stanza sono nodi `loc::`).
+
+---
+
 ## [feat] - 2026-11-26 — Fase 3 avviata: un sito di pyArchInit in una stanza di un nodo StratiGraph, con login Keycloak — 5.14.0-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2602 verdi**, 66 saltati, 1 xfail, 6 falliti già presenti prima di questa release (5 dell'esportazione HTML/Word della narrativa, che con s3dgraphy dev113 erano 13; `test_db_update` legge da tastiera). `tests/sync` 1000 verdi, 0 falliti. / Phase 3 started: a pyArchInit site into a room of a StratiGraph node, with Keycloak sign-in.

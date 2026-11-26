@@ -267,6 +267,18 @@ Cu **Pull from room** se poate si reconstrui un sit intr-o baza de date care nu 
 
 > **Fig. 9**: Comparatia cu o camera in care s-a lucrat si in EMStudio: o US noua si o definitie revizuita in camera, o US noua din pyArchInit de trimis
 
+### Fotografii si media in camera
+
+Fotografiile, videoclipurile, modelele 3D si documentele legate de fisele US calatoresc cu situl, in ambele sensuri. Ortofotografiile si celelalte rastere raman deoparte: sunt straturi QGIS, nu media pyArchInit.
+
+- **Send site** si **Send additions** incarca fiecare fisier in depozitul camerei o singura data: un fisier pe care camera il are deja (acelasi continut) nu se retrimite. Daca originalul nu mai este pe disc, se foloseste copia din folderul Resize.
+- **Pull from room** descarca media noi in folderul `stratigraph_media/<camera>` din home-ul pyArchInit, creeaza miniatura si copia ca la incarcarea unui fisier din fisa si le leaga de US-ul lor, cu descriere si etichete. Un media pe care baza de date il are deja (recunoscut dupa identificator) nu se descarca din nou: se verifica doar legatura.
+- Media pentru artefacte, ceramica, morminte si structuri raman deocamdata locale: fereastra le numara.
+
+![O fotografie noua trimisa in camera](images/32_stratigraph_sync/09_room_media.png)
+
+> **Fig. 10**: O fotografie adaugata la US 3 dupa trimiterea sitului: comparatia o gaseste si Send additions incarca fisierul si legatura
+
 ### Probleme frecvente
 
 | Mesaj | Ce trebuie facut |
