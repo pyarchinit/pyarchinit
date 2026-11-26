@@ -235,11 +235,11 @@ Incepand cu versiunea **5.14.0-alpha**, butonul **Send site to a room...** aduce
 
 ![Fereastra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
 
-> **Fig. 8**: Fereastra dupa autentificare si trimiterea sitului de exemplu catre un nod de dezvoltare: 844 de operatii aplicate, 0 refuzate, baza de date pastrata ca referinta
+> **Fig. 8**: Fereastra dupa autentificare si trimiterea sitului de exemplu catre un nod de dezvoltare: 745 de operatii aplicate, 0 refuzate, baza de date pastrata ca referinta
 
 ### Ce se trimite
 
-- Graful sitului, acelasi ca la exportul Extended Matrix (tutorialul 36): cate un graf pentru fiecare sondaj cand situl are mai multe.
+- Graful intregului sit, ca un singur graf chiar daca situl are mai multe sondaje: astfel relatiile dintre unitati din sondaje diferite calatoresc impreuna cu restul.
 - Fisierele citate de graf sunt incarcate o singura data. Retrimiterea aceluiasi sit nu dubleaza nimic.
 - **Fisierele de baza de date nu sunt incarcate niciodata** (sqlite, spatialite, gpkg): in camera ramane doar o referinta. Celelalte situri din baza de date raman pe calculatorul dumneavoastra.
 - Parola nu trece niciodata prin pyArchInit: se scrie doar pe pagina nodului. Tokenul de acces ramane in memorie si se pierde la inchiderea ferestrei.
@@ -252,6 +252,20 @@ Aceeasi trimitere fara QGIS (fara `--dry-run` scrie efectiv; fara `--token` desc
 python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
     --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
 ```
+
+### Lucrul cu o camera care contine deja date
+
+Cand in camera lucreaza si altii (EMStudio, StratiField, EM Tools), dupa autentificare:
+
+1. **Compare with room** compara situl cu camera in ambele sensuri, fara sa scrie nimic: ce are nou camera pentru pyArchInit (unitati noi, definitii schimbate, relatii) si ce adauga pyArchInit in camera.
+2. **Send additions** trimite doar adaugirile sitului: unitati si relatii noi. Un camp diferit este afisat, dar nu trimis, pentru ca in camera poate fi modificarea mai recenta a unui coleg; ce exista doar in camera nu este atins niciodata.
+3. **Pull from room** aduce camera in fisele pyArchInit (US, definitii, periodizare, relatii), recunoscand fiecare fisa dupa identificatorul ei. Daca pull-ul ar elimina relatii locale pe care camera nu le cunoaste, fereastra le enumera si cere confirmare.
+
+Cu **Pull from room** se poate si reconstrui un sit intr-o baza de date care nu il are: unitatile revin cu numar, tip, definitii si periodizare. Unitatile de continuitate (CON) nu calatoresc: pyArchInit le regenereaza cu **Genera continuita**.
+
+![Comparatia cu camera](images/32_stratigraph_sync/08_compare_with_room.png)
+
+> **Fig. 9**: Comparatia cu o camera in care s-a lucrat si in EMStudio: o US noua si o definitie revizuita in camera, o US noua din pyArchInit de trimis
 
 ### Probleme frecvente
 

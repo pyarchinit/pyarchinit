@@ -234,11 +234,11 @@ Since version **5.14.0-alpha** the **Send site to a room...** button brings a si
 
 ![Send site to a room window](images/32_stratigraph_sync/07_send_site_dialog.png)
 
-> **Fig. 8**: The window after signing in and sending the sample site to a development node: 844 operations applied, 0 refused, the database kept as a reference
+> **Fig. 8**: The window after signing in and sending the sample site to a development node: 745 operations applied, 0 refused, the database kept as a reference
 
 ### What Is Sent
 
-- The site's graph, the same as the Extended Matrix export (tutorial 36): one graph per trench when the site has more than one.
+- The whole site's graph, as one graph even when the site has several trenches: this way relations between units of different trenches travel with the rest.
 - Files cited by the graph are uploaded once. Sending the same site again duplicates nothing.
 - **Database files are never uploaded** (sqlite, spatialite, gpkg): the room keeps only a reference. The other sites in your database stay on your computer.
 - Your password never passes through pyArchInit: you type it only on the node's page. The access token stays in memory and is gone when the window closes.
@@ -251,6 +251,20 @@ The same transfer without QGIS (without `--dry-run` it really writes; without `-
 python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
     --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
 ```
+
+### Working with a Room That Already Holds Data
+
+When others work in the room too (EMStudio, StratiField, EM Tools), after signing in:
+
+1. **Compare with room** compares the site with the room in both directions, writing nothing: what the room has that is new for pyArchInit (new units, changed definitions, relations) and what pyArchInit adds to the room.
+2. **Send additions** sends only the site's additions: new units and relations. A field that differs is shown but not sent, because in the room it may be a colleague's more recent edit; what is only in the room is never touched.
+3. **Pull from room** brings the room into pyArchInit's records (SU, definitions, periodisation, relations), recognising each record by its identifier. If the pull would remove local relations the room does not know, the window lists them and asks for confirmation.
+
+**Pull from room** can also rebuild a site in a database that does not have it: the units come back with number, type, definitions and periodisation. Continuity units (CON) do not travel: pyArchInit regenerates them with **Genera continuita**.
+
+![Compare with room](images/32_stratigraph_sync/08_compare_with_room.png)
+
+> **Fig. 9**: Comparing with a room that was also worked on in EMStudio: a new SU and a revised definition in the room, a new pyArchInit SU to send
 
 ### Common Problems
 

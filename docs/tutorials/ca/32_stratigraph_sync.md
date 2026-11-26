@@ -235,11 +235,11 @@ Des de la versio **5.14.0-alpha** el boto **Send site to a room...** porta un ja
 
 ![Finestra Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
 
-> **Fig. 8**: La finestra despres de l'acces i l'enviament del jaciment d'exemple a un node de desenvolupament: 844 operacions aplicades, 0 rebutjades, la base de dades conservada com a referencia
+> **Fig. 8**: La finestra despres de l'acces i l'enviament del jaciment d'exemple a un node de desenvolupament: 745 operacions aplicades, 0 rebutjades, la base de dades conservada com a referencia
 
 ### Que s'envia
 
-- El graf del jaciment, el mateix de l'exportacio Extended Matrix (tutorial 36): un graf per sondeig quan el jaciment en te mes d'un.
+- El graf del jaciment sencer, com un sol graf encara que el jaciment tingui diversos sondeigs: aixi les relacions entre unitats de sondeigs diferents viatgen amb la resta.
 - Els fitxers citats pel graf es pugen una sola vegada. Tornar a enviar el mateix jaciment no duplica res.
 - **Els fitxers de base de dades no es pugen mai** (sqlite, spatialite, gpkg): a la sala nomes en queda una referencia. Els altres jaciments de la base de dades es queden al vostre ordinador.
 - La contrasenya no passa mai per pyArchInit: nomes s'escriu a la pagina del node. El token d'acces queda en memoria i es perd en tancar la finestra.
@@ -252,6 +252,20 @@ El mateix enviament sense QGIS (sense `--dry-run` escriu de debo; sense `--token
 python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
     --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
 ```
+
+### Treballar amb una sala que ja te dades
+
+Quan a la sala hi treballen tambe altres (EMStudio, StratiField, EM Tools), despres d'accedir:
+
+1. **Compare with room** compara el jaciment amb la sala en els dos sentits, sense escriure res: que te de nou la sala per a pyArchInit (unitats noves, definicions canviades, relacions) i que hi afegeix pyArchInit.
+2. **Send additions** envia nomes les addicions del jaciment: unitats i relacions noves. Un camp diferent es mostra pero no s'envia, perque a la sala pot ser la modificacio mes recent d'un company; el que nomes es a la sala no es toca mai.
+3. **Pull from room** porta la sala a les fitxes de pyArchInit (UE, definicions, perioditzacio, relacions), reconeixent cada fitxa pel seu identificador. Si el pull tragues relacions locals que la sala no coneix, la finestra les enumera i demana confirmacio.
+
+Amb **Pull from room** tambe es pot reconstruir un jaciment en una base de dades que no el te: les unitats tornen amb numero, tipus, definicions i perioditzacio. Les unitats de continuitat (CON) no viatgen: pyArchInit les regenera amb **Genera continuita**.
+
+![Comparacio amb la sala](images/32_stratigraph_sync/08_compare_with_room.png)
+
+> **Fig. 9**: La comparacio amb una sala on tambe s'ha treballat a EMStudio: una UE nova i una definicio revisada a la sala, una UE nova de pyArchInit per enviar
 
 ### Problemes frequents
 

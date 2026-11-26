@@ -235,11 +235,11 @@ Desde la version **5.14.0-alpha** el boton **Send site to a room...** lleva un s
 
 ![Ventana Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
 
-> **Fig. 8**: La ventana tras el acceso y el envio del sitio de ejemplo a un nodo de desarrollo: 844 operaciones aplicadas, 0 rechazadas, la base de datos conservada como referencia
+> **Fig. 8**: La ventana tras el acceso y el envio del sitio de ejemplo a un nodo de desarrollo: 745 operaciones aplicadas, 0 rechazadas, la base de datos conservada como referencia
 
 ### Que se envia
 
-- El grafo del sitio, el mismo de la exportacion Extended Matrix (tutorial 36): un grafo por sondeo cuando el sitio tiene mas de uno.
+- El grafo del sitio entero, como un solo grafo aunque el sitio tenga varios sondeos: asi las relaciones entre unidades de sondeos distintos viajan con el resto.
 - Los archivos citados por el grafo se suben una sola vez. Volver a enviar el mismo sitio no duplica nada.
 - **Los archivos de base de datos nunca se suben** (sqlite, spatialite, gpkg): en la sala queda solo una referencia. Los demas sitios de su base de datos se quedan en su ordenador.
 - La contrasena nunca pasa por pyArchInit: se escribe solo en la pagina del nodo. El token de acceso queda en memoria y se pierde al cerrar la ventana.
@@ -252,6 +252,20 @@ El mismo envio sin QGIS (sin `--dry-run` escribe de verdad; sin `--token` abre e
 python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
     --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
 ```
+
+### Trabajar con una sala que ya tiene datos
+
+Cuando en la sala trabajan tambien otros (EMStudio, StratiField, EM Tools), despues de acceder:
+
+1. **Compare with room** compara el sitio con la sala en los dos sentidos, sin escribir nada: que tiene de nuevo la sala para pyArchInit (unidades nuevas, definiciones cambiadas, relaciones) y que anade pyArchInit a la sala.
+2. **Send additions** envia solo las adiciones del sitio: unidades y relaciones nuevas. Un campo distinto se muestra pero no se envia, porque en la sala puede ser la modificacion mas reciente de un colega; lo que solo esta en la sala nunca se toca.
+3. **Pull from room** lleva la sala a las fichas de pyArchInit (UE, definiciones, periodizacion, relaciones), reconociendo cada ficha por su identificador. Si el pull quitara relaciones locales que la sala no conoce, la ventana las enumera y pide confirmacion.
+
+Con **Pull from room** tambien se puede reconstruir un sitio en una base de datos que no lo tiene: las unidades vuelven con numero, tipo, definiciones y periodizacion. Las unidades de continuidad (CON) no viajan: pyArchInit las regenera con **Genera continuita**.
+
+![Comparacion con la sala](images/32_stratigraph_sync/08_compare_with_room.png)
+
+> **Fig. 9**: La comparacion con una sala en la que se ha trabajado tambien en EMStudio: una UE nueva y una definicion revisada en la sala, una UE nueva de pyArchInit para enviar
 
 ### Problemas frecuentes
 

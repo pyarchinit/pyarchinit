@@ -318,10 +318,11 @@ File: `modules/db/database_sync.py` (1290 righe)
 
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
-| Client API StratiGraph | `[PARZIALE]` | 60% | `modules/stratigraph/node_client.py`: `auth_config`, `whoami`, invio di un sito in una stanza. Manca la lettura delle modifiche dalla stanza (`GET …/changes`, `…/ops`) |
-| Autenticazione token-based | `[FATTO]` | 80% | Login nativo Authorization Code + PKCE sul Keycloak del nodo; manca il rinnovo automatico (vedi 3.7) |
+| Client API StratiGraph | `[FATTO]` | 85% | `modules/stratigraph/node_client.py` (accesso, invio) e `room_sync.py` (documento della stanza, confronto, aggiunte, pull). Manca il feed incrementale `GET …/changes`, `…/ops` (oggi si rilegge il documento) |
+| Autenticazione token-based | `[FATTO]` | 100% | Login nativo Authorization Code + PKCE sul Keycloak del nodo; `NodeSession` rinnova da sola il token con il refresh token |
+| Lettura delle modifiche dalla stanza | `[FATTO]` | 80% | `room_sync.pull_room`: la stanza nelle schede native via ingestore, a secco di default, conflitti classificati (formato / veri), conferma se si toglierebbero rapporti locali. Verificato: un sito ricostruito da una stanza in un database vuoto (50 unità su 51, manca solo la continuità CON generata). Mancano i file binari dal bucket |
 | Invio dati al nodo (era «submit bundle») | `[FATTO]` | 100% | Sito → em.json → `s3dgraphy.room_import` (stanza creata, file caricati una volta, grafo come operazioni). I file di database restano riferimenti |
-| Query stato sync | `[PARZIALE]` | 50% | Il report dell'invio dice operazioni applicate/rifiutate; il documento della stanza si rilegge con `GET …/document` (cursore) |
+| Query stato sync | `[FATTO]` | 80% | `room_sync.contribution`: cosa aggiunge pyArchInit, cosa ha di nuovo la stanza, cosa c'è solo nella stanza; `push_new` invia solo le aggiunte. Senza base comune i campi diversi si mostrano e non si inviano |
 | Recupero errori validazione | `[PARZIALE]` | 50% | `refused` e `conflicts` delle operazioni arrivano nel report; non ancora mostrati riga per riga nella UI |
 | Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator; l'invio a una stanza è idempotente (un secondo invio non duplica) |
 
@@ -370,7 +371,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Auth locale (offline) | `[FATTO]` | 90% | `user_management_dialog.py` + `permission_handler.py` |
 | Auth token StratiGraph | `[FATTO]` | 90% | OIDC Authorization Code + PKCE (S256) con il client nativo che il nodo indica (`native_client_id`), ritorno su `127.0.0.1`; nessuna password in pyArchInit. Da chiedere a WP4 un client Keycloak dedicato a pyArchInit |
 | Token storage sicuro | `[FATTO]` | 100% | Per scelta il token **non viene salvato**: resta in memoria nella finestra |
-| Token refresh automatico | `[DA FARE]` | 20% | Il refresh token arriva dal nodo ma non è ancora usato: scaduto il token si rifà l'accesso |
+| Token refresh automatico | `[FATTO]` | 100% | `NodeSession.access_token()` rinnova a meno di 30 s dalla scadenza (verificato sul Keycloak del dev-stack); un rinnovo rifiutato chiede un nuovo accesso |
 | Fallback offline su scadenza token | `[DA FARE]` | 0% | Logica da integrare nella state machine |
 
 **File da creare**: `modules/stratigraph/auth_stratigraph.py`

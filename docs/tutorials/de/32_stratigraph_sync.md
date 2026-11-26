@@ -235,11 +235,11 @@ Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Send site to a room...** 
 
 ![Fenster Send site to a room](images/32_stratigraph_sync/07_send_site_dialog.png)
 
-> **Fig. 8**: Das Fenster nach der Anmeldung und dem Senden der Beispiel-Fundstelle an einen Entwicklungsknoten: 844 Operationen angewendet, 0 abgelehnt, die Datenbank als Verweis behalten
+> **Fig. 8**: Das Fenster nach der Anmeldung und dem Senden der Beispiel-Fundstelle an einen Entwicklungsknoten: 745 Operationen angewendet, 0 abgelehnt, die Datenbank als Verweis behalten
 
 ### Was gesendet wird
 
-- Der Graph der Fundstelle, derselbe wie beim Extended-Matrix-Export (Tutorial 36): ein Graph pro Sondage, wenn die Fundstelle mehrere hat.
+- Der Graph der ganzen Fundstelle, als ein einziger Graph auch bei mehreren Sondagen: so reisen die Beziehungen zwischen Einheiten verschiedener Sondagen mit.
 - Vom Graphen zitierte Dateien werden nur einmal hochgeladen. Erneutes Senden derselben Fundstelle verdoppelt nichts.
 - **Datenbankdateien werden nie hochgeladen** (sqlite, spatialite, gpkg): im Raum bleibt nur ein Verweis. Die anderen Fundstellen der Datenbank bleiben auf dem eigenen Rechner.
 - Das Passwort geht nie durch pyArchInit: es wird nur auf der Seite des Knotens eingegeben. Das Zugangstoken bleibt im Speicher und verfaellt beim Schliessen des Fensters.
@@ -252,6 +252,20 @@ Dieselbe Uebertragung ohne QGIS (ohne `--dry-run` wird wirklich geschrieben; ohn
 python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
     --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
 ```
+
+### Mit einem Raum arbeiten, der bereits Daten enthaelt
+
+Wenn auch andere im Raum arbeiten (EMStudio, StratiField, EM Tools), nach der Anmeldung:
+
+1. **Compare with room** vergleicht die Fundstelle mit dem Raum in beide Richtungen, ohne etwas zu schreiben: was der Raum Neues fuer pyArchInit hat (neue Einheiten, geaenderte Definitionen, Beziehungen) und was pyArchInit dem Raum hinzufuegt.
+2. **Send additions** sendet nur die Ergaenzungen der Fundstelle: neue Einheiten und Beziehungen. Ein abweichendes Feld wird angezeigt, aber nicht gesendet, denn im Raum kann es die neuere Aenderung eines Kollegen sein; was nur im Raum ist, wird nie angetastet.
+3. **Pull from room** bringt den Raum in die Datenblaetter von pyArchInit (SE, Definitionen, Periodisierung, Beziehungen) und erkennt jedes Blatt an seiner Kennung. Wuerde der Pull lokale Beziehungen entfernen, die der Raum nicht kennt, listet das Fenster sie auf und fragt nach Bestaetigung.
+
+Mit **Pull from room** laesst sich auch eine Fundstelle in einer Datenbank wiederherstellen, die sie nicht enthaelt: die Einheiten kommen mit Nummer, Typ, Definitionen und Periodisierung zurueck. Kontinuitaetseinheiten (CON) reisen nicht mit: pyArchInit erzeugt sie mit **Genera continuita** neu.
+
+![Vergleich mit dem Raum](images/32_stratigraph_sync/08_compare_with_room.png)
+
+> **Fig. 9**: Der Vergleich mit einem Raum, in dem auch in EMStudio gearbeitet wurde: eine neue SE und eine ueberarbeitete Definition im Raum, eine neue SE aus pyArchInit zum Senden
 
 ### Haeufige Probleme
 
