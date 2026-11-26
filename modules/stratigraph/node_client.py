@@ -284,7 +284,7 @@ def database_rows(rows) -> Dict[str, str]:
 
 def send_site(connection_url: str, site: str, *, node: str, room: str, token: str,
               workdir: str, title: Optional[str] = None, per_saggio: Optional[bool] = False,
-              dry_run: bool = False) -> Dict[str, Any]:
+              dry_run: bool = False, media: bool = True) -> Dict[str, Any]:
     """The site's graph into ``room`` on ``node``: exported, then brought in.
 
     s3dgraphy's room import in its three steps — the plan, the choices (every
@@ -306,6 +306,11 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
 
     em_json, n_nodes, n_edges, warnings = em_export.export_site(
         connection_url, site, workdir, per_saggio=per_saggio)
+    media_report = None
+    if media:
+        # the unit media as resources: room_import uploads each file once
+        from .room_media import add_media_resources
+        media_report = add_media_resources(em_json, connection_url, site)
     run = RI.prepare(em_json, node=node_base(node), room=room, title=title or site,
                      token=token, dry_run=dry_run)
     kept = database_rows(run["plan"]["rows"])
@@ -319,7 +324,7 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
         report = RI.execute(run)
     report = dict(report or {})
     report.update({"em_json": em_json, "nodes": n_nodes, "edges": n_edges,
-                   "export_warnings": list(warnings or []),
+                   "export_warnings": list(warnings or []), "media": media_report,
                    "kept_as_reference": sorted(
                        row.get("path") for row in run["plan"]["rows"] if row["id"] in kept)})
     return report

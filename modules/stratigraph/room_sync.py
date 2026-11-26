@@ -71,6 +71,8 @@ def local_graph(connection_url: str, site: str, workdir: str) -> Tuple[Any, str]
     out = os.path.join(workdir, "local")
     os.makedirs(out, exist_ok=True)
     path, _n, _e, _w = em_export.export_site(connection_url, site, out, per_saggio=False)
+    from .room_media import add_media_resources
+    add_media_resources(path, connection_url, site)        # the unit media, as in send_site
     container, _ = load_container_file(path)
     (_gid, graph), = container.graphs.items()
     return graph, path
@@ -117,7 +119,8 @@ def _rows_by_uuid(connection_url: str, site: str) -> Dict[str, Tuple[str, str]]:
 
 
 def pull_room(connection_url: str, site: str, *, node: str, room: str, token: str,
-              workdir: str, apply: bool = False, force: bool = False) -> Dict[str, Any]:
+              workdir: str, apply: bool = False, force: bool = False,
+              media: bool = True) -> Dict[str, Any]:
     """The room into the site's native tables. Dry run unless ``apply``;
     an apply that would drop local relations needs ``force``."""
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
@@ -134,6 +137,10 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
               "format_only": kinds["format_only"], "real": kinds["real"],
               "errors": list(plan.errors), "applied": False}
     if not apply:
+        if media:
+            from .room_media import pull_media
+            report["media"] = pull_media(connection_url, site, graph, path, node=node,
+                                         room=room, token=token, dry_run=True)
         return report
     if drops and not force:
         raise NodeError(
@@ -145,6 +152,13 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
                                          dry_run=False, create_missing_epochs=True)
     report.update({"inserted": done.inserted, "updated": done.updated, "skipped": done.skipped,
                    "errors": list(done.errors), "applied": True})
+    if media:
+        # after the units: the media attach to their id_us
+        from modules.s3dgraphy.sync.graph_ingestor import hydrate_row_fields_from_data
+        from .room_media import pull_media
+        hydrate_row_fields_from_data(graph)
+        report["media"] = pull_media(connection_url, site, graph, path, node=node,
+                                     room=room, token=token)
     return report
 
 
@@ -162,7 +176,7 @@ def _map_only(graph) -> set:
     return ids
 
 
-def _without_noise(delta, skip: set):
+def _without_noise(delta, skip: set, resources: frozenset = frozenset()):
     """The delta minus map artefacts, minus ``data.lang`` the node adds
     (``und``) where the local node simply has none, and minus
     ``data.rapporti`` — a text copy of the relations, which the delta
@@ -177,6 +191,9 @@ def _without_noise(delta, skip: set):
             continue
         if op.get("op") == "update_field" and op.get("field") == "data.rapporti":
             continue      # the text copy of the relations: they travel as edges
+        if (op.get("op") == "update_field" and op.get("node_id") in resources
+                and str(op.get("field", "")).startswith("data.")):
+            continue      # where a file's bytes live (local path, room store): not an edit
         keep.append(op)
     delta.ops = keep
     return delta
@@ -192,7 +209,10 @@ def contribution(connection_url: str, site: str, *, node: str, room: str, token:
     answer = fetch_document(node, room, token)
     remote, gid, _ = room_graph(answer, workdir)
     local, local_path = local_graph(connection_url, site, workdir)
-    delta = _without_noise(diff(_snapshot(remote), local), _map_only(local) | _map_only(remote))
+    resources = {n.node_id for n in list(local.nodes) + list(remote.nodes)
+                 if getattr(n, "node_type", "") == "resource"}
+    delta = _without_noise(diff(_snapshot(remote), local), _map_only(local) | _map_only(remote),
+                           resources)
     names = {n.node_id: n.name for n in list(local.nodes) + list(remote.nodes)}
     changes = [op for op in delta.ops if op.get("op") == "update_field"]
     room_only = [op for op in delta.ops if op.get("op") in ("remove_node", "remove_edge")]
@@ -209,9 +229,25 @@ def push_new(found: Dict[str, Any], *, node: str, room: str, token: str) -> Dict
     ``add_edge``, into the room's graph. Idempotent on the node's side."""
     from s3dgraphy.room_import import node as nodeio
     delta = found["delta"]
+    uploaded = 0
+    for n in delta.nodes:
+        data = n.get("data") or {}
+        local = str(data.get("url") or "")
+        if n.get("node_type") == "resource" and local and os.path.isfile(local):
+            # the bytes first, then the node that points at them
+            from s3dgraphy.room_import.inventory import media_type_for
+            put = nodeio.upload_asset(node_base(node), room, local, None,
+                                      media_type_for(local), token)
+            data["url"] = put["url"]
+            data["checksum"] = f"sha256:{put['sha256']}"
+            data["addresses"] = [{"locator": local}]
+            n["data"] = data
+            uploaded += 0 if put.get("already") else 1
     ops: List[Dict[str, Any]] = [{"op": "add_node", "id": n["id"], "node": n} for n in delta.nodes]
     ops += [{"op": "add_edge", "id": e["id"], "source": e["source"], "target": e["target"],
              "edge_type": e["edge_type"]} for e in delta.edges]
     if not ops:
-        return {"applied": 0, "refused": [], "requests": 0}
-    return nodeio.send_ops(node_base(node), token, room, ops, graph_id=found["graph_id"])
+        return {"applied": 0, "refused": [], "requests": 0, "uploaded": 0}
+    sent = nodeio.send_ops(node_base(node), token, room, ops, graph_id=found["graph_id"])
+    sent["uploaded"] = uploaded
+    return sent

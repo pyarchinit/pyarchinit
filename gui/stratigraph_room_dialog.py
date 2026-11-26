@@ -179,6 +179,15 @@ class StratiGraphRoomDialog(QDialog):
             uploaded = report.get("uploaded") or {}
             self._say(f"  Files uploaded: {uploaded.get('files', 0)}; databases kept as "
                       f"reference: {len(set(report.get('kept_as_reference') or []))}")
+            media = report.get("media") or {}
+            if media:
+                self._say(f"  Unit media as resources: {media.get('resources', 0)} file(s), "
+                          f"{media.get('links', 0)} link(s); not found on disk: "
+                          f"{len(media.get('missing') or [])}")
+                other = media.get("other_entities") or {}
+                if other:
+                    self._say("  Media of finds, pottery, tombs, structures stay local for now: "
+                              + ", ".join(f"{k} {v}" for k, v in sorted(other.items())))
             for refusal in (seeded.get("refusals") or [])[:5]:
                 self._say(f"  ✖ refused: {json.dumps(refusal, ensure_ascii=False, default=str)[:200]}")
             link = report.get("room_link") or report.get("link")
@@ -211,6 +220,10 @@ class StratiGraphRoomDialog(QDialog):
             f, p = self._found, self._pull
             self._say(f"Room → pyArchInit: {p['inserted']} new unit(s), {p['updated']} to update "
                       f"({p['format_only']} only in format), {len(p['real'])} real difference(s)")
+            m = p.get("media") or {}
+            if m:
+                self._say(f"  Media: {m.get('new', 0)} new file(s) to download, "
+                          f"{m.get('known', 0)} already here")
             for r in p["real"][:8]:
                 if r["field"] == "rapporti":
                     self._say(f"  US {r['us']} ({r['unita_tipo']}): only here {r['only_local']}, "
@@ -237,7 +250,8 @@ class StratiGraphRoomDialog(QDialog):
 
         def done(result):
             self._say(f"✔ Additions sent: {result.get('applied', 0)} applied, "
-                      f"{len(result.get('refused') or [])} refused")
+                      f"{len(result.get('refused') or [])} refused, "
+                      f"{result.get('uploaded', 0)} file(s) uploaded")
             self._found = None
             self._busy(False)
 
@@ -268,6 +282,11 @@ class StratiGraphRoomDialog(QDialog):
         def done(report):
             self._say(f"✔ Pulled from {room}: {report['inserted']} new unit(s), "
                       f"{report['updated']} updated")
+            m = report.get("media") or {}
+            if m:
+                self._say(f"  Media: {m.get('downloaded', 0)} downloaded, "
+                          f"{m.get('imported', 0)} registered with thumbnails, "
+                          f"{m.get('relinked', 0)} relinked, {m.get('known', 0)} already here")
             self._pull = None
             self._busy(False)
 
