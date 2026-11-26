@@ -7,9 +7,10 @@
 4. [Exporting Bundles](#exporting-bundles)
 5. [Synchronization](#synchronization)
 6. [Queue Management](#queue-management)
-7. [Configuration](#configuration)
-8. [Troubleshooting](#troubleshooting)
-9. [Frequently Asked Questions](#frequently-asked-questions)
+7. [Sending a Site to a StratiGraph Room](#sending-a-site-to-a-stratigraph-room)
+8. [Configuration](#configuration)
+9. [Troubleshooting](#troubleshooting)
+10. [Frequently Asked Questions](#frequently-asked-questions)
 
 ---
 
@@ -98,6 +99,7 @@ Shows the **timestamp** and **result** (success or failure) of the most recent s
 | **Export Bundle** | Creates a bundle from your local data, validates it, and adds it to the sync queue |
 | **Sync Now** | Forces an immediate synchronization attempt (only available when online) |
 | **Queue...** | Opens the queue management dialog showing all entries |
+| **Send site to a room...** | Signs in to a StratiGraph node and brings a site into a room (see below) |
 
 ### Activity Log
 
@@ -210,6 +212,46 @@ This file persists between QGIS sessions, so pending bundles are not lost if you
 
 <!-- IMAGE: Queue dialog showing several entries -->
 > **Fig. 6**: The queue management dialog with bundle entries
+
+---
+
+## Sending a Site to a StratiGraph Room
+
+Since version **5.14.0-alpha** the **Send site to a room...** button brings a site into a *room* of a StratiGraph node (StratiGraph Server). The site's graph becomes the room's content, where EMStudio, EM Tools and the project's other tools see it and work on it.
+
+### Step-by-Step Procedure
+
+1. In the **StratiGraph Sync** panel, click **Send site to a room...**
+2. **Node**: the node's address, for example `https://node.example.org/em`. It is remembered between sessions.
+3. **Site**: choose the site. **Room id** and **Room title** are filled in from the site name and can be changed; the room id is one word, without spaces.
+4. Click **Sign in...**: the node's sign-in page opens in the browser. Sign in with your account and go back to QGIS: the **Identity** line shows your name and whether you may create rooms.
+5. Optional: **Plan only** shows what would be sent without writing anything on the node.
+6. Click **Send site**: the log reports the exported nodes and edges and the result.
+
+### What Is Sent
+
+- The site's graph, the same as the Extended Matrix export (tutorial 36): one graph per trench when the site has more than one.
+- Files cited by the graph are uploaded once. Sending the same site again duplicates nothing.
+- **Database files are never uploaded** (sqlite, spatialite, gpkg): the room keeps only a reference. The other sites in your database stay on your computer.
+- Your password never passes through pyArchInit: you type it only on the node's page. The access token stays in memory and is gone when the window closes.
+
+### From the Command Line
+
+The same transfer without QGIS (without `--dry-run` it really writes; without `--token` it opens the browser to sign in):
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Common Problems
+
+| Message | What to do |
+|---------|------------|
+| `401` or sign-in expired | Click **Sign in...** again: the token lasts a few minutes |
+| `403` / *may create rooms: False* | Your account has no role in the room or may not create rooms: ask the node's administrator |
+| `CERTIFICATE_VERIFY_FAILED` | The node uses a local certificate (development or field node): install its CA on your computer, or use `--ca-file` on the command line |
+| `409 ... already declared` | The room exists and belongs to another user: choose another id |
 
 ---
 

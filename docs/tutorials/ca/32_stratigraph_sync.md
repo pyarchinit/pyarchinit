@@ -7,9 +7,10 @@
 4. [Exportacio de bundles](#exportacio-de-bundles)
 5. [Sincronitzacio](#sincronitzacio)
 6. [Gestio de la cua](#gestio-de-la-cua)
-7. [Configuracio](#configuracio)
-8. [Resolucio de problemes](#resolucio-de-problemes)
-9. [Preguntes Frequents](#preguntes-frequents)
+7. [Enviar un jaciment a una sala StratiGraph](#enviar-un-jaciment-a-una-sala-stratigraph)
+8. [Configuracio](#configuracio)
+9. [Resolucio de problemes](#resolucio-de-problemes)
+10. [Preguntes Frequents](#preguntes-frequents)
 
 ---
 
@@ -99,6 +100,7 @@ Mostra la **marca de temps** i el **resultat** (exit o fallada) de l'ultim inten
 | **Export Bundle** | Crea un bundle des de les vostres dades locals, el valida i l'afegeix a la cua de sincronitzacio |
 | **Sync Now** | Forca un intent immediat de sincronitzacio (nomes disponible quan esta online) |
 | **Queue...** | Obre el dialeg de gestio de cua mostrant totes les entrades |
+| **Send site to a room...** | Inicia sessio en un node StratiGraph i porta un jaciment a una sala (vegeu mes avall) |
 
 ### Registre d'activitat
 
@@ -211,6 +213,46 @@ Aquest fitxer persisteix entre sessions de QGIS, de manera que els bundles pende
 
 <!-- IMAGE: Dialeg de cua mostrant diverses entrades -->
 > **Fig. 6**: El dialeg de gestio de cua amb entrades de bundles
+
+---
+
+## Enviar un jaciment a una sala StratiGraph
+
+Des de la versio **5.14.0-alpha** el boto **Send site to a room...** porta un jaciment a una *sala* d'un node StratiGraph (StratiGraph Server). El graf del jaciment es converteix en el contingut de la sala, on EMStudio, EM Tools i les altres eines del projecte el veuen i hi treballen.
+
+### Procediment pas a pas
+
+1. Al panell **StratiGraph Sync**, premeu **Send site to a room...**
+2. **Node**: l'adreca del node, per exemple `https://node.example.org/em`. Es recorda entre sessions.
+3. **Site**: trieu el jaciment. **Room id** i **Room title** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
+4. Premeu **Sign in...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identity** mostra el nom i si podeu crear sales.
+5. Opcional: **Plan only** mostra el que s'enviaria sense escriure res al node.
+6. Premeu **Send site**: el registre indica els nodes i les arestes exportats i el resultat.
+
+### Que s'envia
+
+- El graf del jaciment, el mateix de l'exportacio Extended Matrix (tutorial 36): un graf per sondeig quan el jaciment en te mes d'un.
+- Els fitxers citats pel graf es pugen una sola vegada. Tornar a enviar el mateix jaciment no duplica res.
+- **Els fitxers de base de dades no es pugen mai** (sqlite, spatialite, gpkg): a la sala nomes en queda una referencia. Els altres jaciments de la base de dades es queden al vostre ordinador.
+- La contrasenya no passa mai per pyArchInit: nomes s'escriu a la pagina del node. El token d'acces queda en memoria i es perd en tancar la finestra.
+
+### Des de la linia d'ordres
+
+El mateix enviament sense QGIS (sense `--dry-run` escriu de debo; sense `--token` obre el navegador per accedir):
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Problemes frequents
+
+| Missatge | Que cal fer |
+|----------|-------------|
+| `401` o acces caducat | Premeu de nou **Sign in...**: el token dura pocs minuts |
+| `403` / *may create rooms: False* | El compte no te cap rol a la sala o no pot crear sales: pregunteu a l'administrador del node |
+| `CERTIFICATE_VERIFY_FAILED` | El node fa servir un certificat local (node de desenvolupament o de camp): instal·leu-ne la CA a l'ordinador, o feu servir `--ca-file` a la linia d'ordres |
+| `409 ... already declared` | La sala existeix i pertany a un altre usuari: trieu un altre id |
 
 ---
 

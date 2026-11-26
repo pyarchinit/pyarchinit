@@ -7,9 +7,10 @@
 4. [Bundles exportieren](#bundles-exportieren)
 5. [Synchronisierung](#synchronisierung)
 6. [Warteschlangen-Verwaltung](#warteschlangen-verwaltung)
-7. [Konfiguration](#konfiguration)
-8. [Fehlerbehebung](#fehlerbehebung)
-9. [Haeufig gestellte Fragen](#haeufig-gestellte-fragen)
+7. [Eine Fundstelle in einen StratiGraph-Raum senden](#eine-fundstelle-in-einen-stratigraph-raum-senden)
+8. [Konfiguration](#konfiguration)
+9. [Fehlerbehebung](#fehlerbehebung)
+10. [Haeufig gestellte Fragen](#haeufig-gestellte-fragen)
 
 ---
 
@@ -99,6 +100,7 @@ Zeigt den **Zeitstempel** und das **Ergebnis** (Erfolg oder Fehlschlag) des letz
 | **Export Bundle** | Erstellt ein Bundle aus Ihren lokalen Daten, validiert es und fuegt es der Synchronisierungs-Warteschlange hinzu |
 | **Sync Now** | Erzwingt einen sofortigen Synchronisierungsversuch (nur verfuegbar wenn online) |
 | **Queue...** | Oeffnet den Warteschlangen-Verwaltungsdialog mit allen Eintraegen |
+| **Send site to a room...** | Meldet sich an einem StratiGraph-Knoten an und bringt eine Fundstelle in einen Raum (siehe unten) |
 
 ### Aktivitaetsprotokoll
 
@@ -211,6 +213,46 @@ Diese Datei bleibt zwischen QGIS-Sitzungen erhalten, sodass ausstehende Bundles 
 
 <!-- IMAGE: Warteschlangen-Dialog mit mehreren Eintraegen -->
 > **Abb. 6**: Der Warteschlangen-Verwaltungsdialog mit Bundle-Eintraegen
+
+---
+
+## Eine Fundstelle in einen StratiGraph-Raum senden
+
+Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Send site to a room...** eine Fundstelle in einen *Raum* eines StratiGraph-Knotens (StratiGraph Server). Der Graph der Fundstelle wird zum Inhalt des Raums, wo EMStudio, EM Tools und die anderen Werkzeuge des Projekts ihn sehen und bearbeiten.
+
+### Schritt-fuer-Schritt-Anleitung
+
+1. Im Panel **StratiGraph Sync** auf **Send site to a room...** klicken.
+2. **Node**: die Adresse des Knotens, zum Beispiel `https://knoten.example.org/em`. Sie wird zwischen den Sitzungen gespeichert.
+3. **Site**: die Fundstelle waehlen. **Room id** und **Room title** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
+4. Auf **Sign in...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identity** zeigt den Namen und ob Raeume erstellt werden duerfen.
+5. Optional: **Plan only** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
+6. Auf **Send site** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
+
+### Was gesendet wird
+
+- Der Graph der Fundstelle, derselbe wie beim Extended-Matrix-Export (Tutorial 36): ein Graph pro Sondage, wenn die Fundstelle mehrere hat.
+- Vom Graphen zitierte Dateien werden nur einmal hochgeladen. Erneutes Senden derselben Fundstelle verdoppelt nichts.
+- **Datenbankdateien werden nie hochgeladen** (sqlite, spatialite, gpkg): im Raum bleibt nur ein Verweis. Die anderen Fundstellen der Datenbank bleiben auf dem eigenen Rechner.
+- Das Passwort geht nie durch pyArchInit: es wird nur auf der Seite des Knotens eingegeben. Das Zugangstoken bleibt im Speicher und verfaellt beim Schliessen des Fensters.
+
+### Ueber die Kommandozeile
+
+Dieselbe Uebertragung ohne QGIS (ohne `--dry-run` wird wirklich geschrieben; ohne `--token` oeffnet sich der Browser zur Anmeldung):
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Haeufige Probleme
+
+| Meldung | Was tun |
+|---------|---------|
+| `401` oder Anmeldung abgelaufen | Erneut auf **Sign in...** klicken: das Token gilt wenige Minuten |
+| `403` / *may create rooms: False* | Das Konto hat keine Rolle im Raum oder darf keine Raeume erstellen: den Administrator des Knotens fragen |
+| `CERTIFICATE_VERIFY_FAILED` | Der Knoten nutzt ein lokales Zertifikat (Entwicklungs- oder Feldknoten): dessen CA auf dem Rechner installieren oder auf der Kommandozeile `--ca-file` verwenden |
+| `409 ... already declared` | Der Raum existiert und gehoert einem anderen Benutzer: eine andere ID waehlen |
 
 ---
 

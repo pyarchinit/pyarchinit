@@ -7,9 +7,10 @@
 4. [Exportul pachetelor](#exportul-pachetelor)
 5. [Sincronizare](#sincronizare)
 6. [Gestionarea cozii](#gestionarea-cozii)
-7. [Configurare](#configurare)
-8. [Depanare](#depanare)
-9. [Intrebari frecvente](#intrebari-frecvente)
+7. [Trimiterea unui sit intr-o camera StratiGraph](#trimiterea-unui-sit-intr-o-camera-stratigraph)
+8. [Configurare](#configurare)
+9. [Depanare](#depanare)
+10. [Intrebari frecvente](#intrebari-frecvente)
 
 ---
 
@@ -99,6 +100,7 @@ Afiseaza **marca temporala** si **rezultatul** (succes sau esec) al celei mai re
 | **Export pachet** | Creeaza un pachet din datele locale, il valideaza si il adauga in coada de sincronizare |
 | **Sincronizeaza acum** | Forteaza o tentativa imediata de sincronizare (disponibil doar cand este online) |
 | **Coada...** | Deschide dialogul de gestionare a cozii care afiseaza toate intrarile |
+| **Send site to a room...** | Se autentifica pe un nod StratiGraph si aduce un sit intr-o camera (vezi mai jos) |
 
 ### Jurnalul de activitate
 
@@ -211,6 +213,46 @@ Acest fisier persista intre sesiunile QGIS, deci pachetele in asteptare nu se pi
 
 <!-- IMAGINE: Dialogul cozii care afiseaza mai multe intrari -->
 > **Fig. 6**: Dialogul de gestionare a cozii cu intrarile pachetelor
+
+---
+
+## Trimiterea unui sit intr-o camera StratiGraph
+
+Incepand cu versiunea **5.14.0-alpha**, butonul **Send site to a room...** aduce un sit intr-o *camera* a unui nod StratiGraph (StratiGraph Server). Graful sitului devine continutul camerei, unde EMStudio, EM Tools si celelalte instrumente ale proiectului il vad si lucreaza cu el.
+
+### Procedura pas cu pas
+
+1. In panoul **StratiGraph Sync**, apasati **Send site to a room...**
+2. **Node**: adresa nodului, de exemplu `https://nod.example.org/em`. Este retinuta intre sesiuni.
+3. **Site**: alegeti situl. **Room id** si **Room title** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
+4. Apasati **Sign in...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identity** arata numele si daca puteti crea camere.
+5. Optional: **Plan only** arata ce s-ar trimite fara sa scrie nimic pe nod.
+6. Apasati **Send site**: jurnalul arata nodurile si muchiile exportate si rezultatul.
+
+### Ce se trimite
+
+- Graful sitului, acelasi ca la exportul Extended Matrix (tutorialul 36): cate un graf pentru fiecare sondaj cand situl are mai multe.
+- Fisierele citate de graf sunt incarcate o singura data. Retrimiterea aceluiasi sit nu dubleaza nimic.
+- **Fisierele de baza de date nu sunt incarcate niciodata** (sqlite, spatialite, gpkg): in camera ramane doar o referinta. Celelalte situri din baza de date raman pe calculatorul dumneavoastra.
+- Parola nu trece niciodata prin pyArchInit: se scrie doar pe pagina nodului. Tokenul de acces ramane in memorie si se pierde la inchiderea ferestrei.
+
+### Din linia de comanda
+
+Aceeasi trimitere fara QGIS (fara `--dry-run` scrie efectiv; fara `--token` deschide browserul pentru autentificare):
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Probleme frecvente
+
+| Mesaj | Ce trebuie facut |
+|-------|------------------|
+| `401` sau autentificare expirata | Apasati din nou **Sign in...**: tokenul dureaza cateva minute |
+| `403` / *may create rooms: False* | Contul nu are un rol in camera sau nu poate crea camere: intrebati administratorul nodului |
+| `CERTIFICATE_VERIFY_FAILED` | Nodul foloseste un certificat local (nod de dezvoltare sau de teren): instalati-i autoritatea de certificare pe calculator, sau folositi `--ca-file` in linia de comanda |
+| `409 ... already declared` | Camera exista si apartine altui utilizator: alegeti alt id |
 
 ---
 

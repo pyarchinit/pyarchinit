@@ -7,9 +7,10 @@
 4. [Exportation des bundles](#exportation-des-bundles)
 5. [Synchronisation](#synchronisation)
 6. [Gestion de la file d'attente](#gestion-de-la-file-dattente)
-7. [Configuration](#configuration)
-8. [Depannage](#depannage)
-9. [Questions Frequentes](#questions-frequentes)
+7. [Envoyer un site dans une salle StratiGraph](#envoyer-un-site-dans-une-salle-stratigraph)
+8. [Configuration](#configuration)
+9. [Depannage](#depannage)
+10. [Questions Frequentes](#questions-frequentes)
 
 ---
 
@@ -99,6 +100,7 @@ Affiche l'**horodatage** et le **resultat** (succes ou echec) de la derniere ten
 | **Export Bundle** | Cree un bundle depuis vos donnees locales, le valide et l'ajoute a la file de synchronisation |
 | **Sync Now** | Force une tentative immediate de synchronisation (disponible uniquement en ligne) |
 | **Queue...** | Ouvre la boite de dialogue de gestion de file d'attente affichant toutes les entrees |
+| **Send site to a room...** | Se connecte a un noeud StratiGraph et apporte un site dans une salle (voir ci-dessous) |
 
 ### Journal d'activite
 
@@ -211,6 +213,46 @@ Ce fichier persiste entre les sessions QGIS, donc les bundles en attente ne sont
 
 <!-- IMAGE : Boite de dialogue de file d'attente montrant plusieurs entrees -->
 > **Fig. 6** : La boite de dialogue de gestion de file d'attente avec les entrees de bundles
+
+---
+
+## Envoyer un site dans une salle StratiGraph
+
+Depuis la version **5.14.0-alpha**, le bouton **Send site to a room...** apporte un site dans une *salle* d'un noeud StratiGraph (StratiGraph Server). Le graphe du site devient le contenu de la salle, ou EMStudio, EM Tools et les autres outils du projet le voient et y travaillent.
+
+### Procedure pas a pas
+
+1. Dans le panneau **StratiGraph Sync**, cliquer sur **Send site to a room...**
+2. **Node** : l'adresse du noeud, par exemple `https://noeud.example.org/em`. Elle est memorisee d'une session a l'autre.
+3. **Site** : choisir le site. **Room id** et **Room title** sont remplis a partir du nom du site et peuvent etre modifies ; l'identifiant de la salle est un seul mot, sans espaces.
+4. Cliquer sur **Sign in...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identity** affiche le nom et indique si l'on peut creer des salles.
+5. Facultatif : **Plan only** montre ce qui serait envoye sans rien ecrire sur le noeud.
+6. Cliquer sur **Send site** : le journal indique les noeuds et les aretes exportes et le resultat.
+
+### Ce qui est envoye
+
+- Le graphe du site, le meme que l'export Extended Matrix (tutoriel 36) : un graphe par sondage lorsque le site en compte plusieurs.
+- Les fichiers cites par le graphe sont televerses une seule fois. Renvoyer le meme site ne duplique rien.
+- **Les fichiers de base de donnees ne sont jamais televerses** (sqlite, spatialite, gpkg) : la salle n'en garde qu'une reference. Les autres sites de la base restent sur votre ordinateur.
+- Le mot de passe ne passe jamais par pyArchInit : il se saisit uniquement sur la page du noeud. Le jeton d'acces reste en memoire et disparait a la fermeture de la fenetre.
+
+### En ligne de commande
+
+Le meme envoi sans QGIS (sans `--dry-run` il ecrit reellement ; sans `--token` il ouvre le navigateur pour la connexion) :
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Problemes frequents
+
+| Message | Que faire |
+|---------|-----------|
+| `401` ou connexion expiree | Cliquer de nouveau sur **Sign in...** : le jeton dure quelques minutes |
+| `403` / *may create rooms: False* | Le compte n'a pas de role dans la salle ou ne peut pas creer de salles : demander a l'administrateur du noeud |
+| `CERTIFICATE_VERIFY_FAILED` | Le noeud utilise un certificat local (noeud de developpement ou de terrain) : installer son autorite de certification sur l'ordinateur, ou utiliser `--ca-file` en ligne de commande |
+| `409 ... already declared` | La salle existe et appartient a un autre utilisateur : choisir un autre identifiant |
 
 ---
 

@@ -314,15 +314,19 @@ File: `modules/db/database_sync.py` (1290 righe)
 
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
-| Client API StratiGraph | `[DA FARE]` | 0% | `[BLOCCATO]` — API specs da WP4 |
-| Autenticazione token-based | `[PARZIALE]` | 40% | JWT già implementato per Unibo. Adattare per StratiGraph. |
-| Submit bundle | `[DA FARE]` | 0% | `[BLOCCATO]` — endpoint da WP4 |
-| Query stato sync | `[DA FARE]` | 0% | `[BLOCCATO]` — endpoint da WP4 |
-| Recupero errori validazione | `[DA FARE]` | 0% | `[BLOCCATO]` — formato errori da WP4 |
-| Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator |
+> **Aggiornamento 26 nov 2026 (5.14.0-alpha).** Le specifiche WP4 esistono: sono lo StratiGraph Server (`StratiGraph-ECCCH/stratigraph-server`, `docs/REST-API.md`). Il server **non riceve bundle**: lavora a *stanze* e *operazioni* sul grafo (`POST /v1/rooms`, `POST /v1/rooms/{id}/ops`), con identità Keycloak (`GET /v1/auth-config`). Le righe sotto sono riscritte su questo modello.
 
-**File da creare**: `modules/stratigraph/api_client.py`, `modules/stratigraph/auth_stratigraph.py`
-**File da estendere**: `modules/storage/credentials.py` (aggiungere tipo `stratigraph`)
+| Sotto-requisito | Stato | % | Note |
+|-----------------|-------|---|------|
+| Client API StratiGraph | `[PARZIALE]` | 60% | `modules/stratigraph/node_client.py`: `auth_config`, `whoami`, invio di un sito in una stanza. Manca la lettura delle modifiche dalla stanza (`GET …/changes`, `…/ops`) |
+| Autenticazione token-based | `[FATTO]` | 80% | Login nativo Authorization Code + PKCE sul Keycloak del nodo; manca il rinnovo automatico (vedi 3.7) |
+| Invio dati al nodo (era «submit bundle») | `[FATTO]` | 100% | Sito → em.json → `s3dgraphy.room_import` (stanza creata, file caricati una volta, grafo come operazioni). I file di database restano riferimenti |
+| Query stato sync | `[PARZIALE]` | 50% | Il report dell'invio dice operazioni applicate/rifiutate; il documento della stanza si rilegge con `GET …/document` (cursore) |
+| Recupero errori validazione | `[PARZIALE]` | 50% | `refused` e `conflicts` delle operazioni arrivano nel report; non ancora mostrati riga per riga nella UI |
+| Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator; l'invio a una stanza è idempotente (un secondo invio non duplica) |
+
+**File creati**: `modules/stratigraph/node_client.py`, `gui/stratigraph_room_dialog.py`, `scripts/stratigraph_send_site.py`
+**Verificato**: dev-stack di stratigraph-server con Keycloak attivo — login completo, sito di esempio in 4 grafi (844 operazioni, 0 rifiutate), 401 senza token, 403 senza ruolo
 
 ---
 
@@ -364,9 +368,9 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
 | Auth locale (offline) | `[FATTO]` | 90% | `user_management_dialog.py` + `permission_handler.py` |
-| Auth token StratiGraph | `[DA FARE]` | 0% | `[BLOCCATO]` — protocollo auth da WP4 |
-| Token storage sicuro | `[PARZIALE]` | 60% | `credentials.py` multi-source. Aggiungere tipo StratiGraph. |
-| Token refresh automatico | `[PARZIALE]` | 50% | Pattern JWT refresh esiste in backend Unibo. Riusare. |
+| Auth token StratiGraph | `[FATTO]` | 90% | OIDC Authorization Code + PKCE (S256) con il client nativo che il nodo indica (`native_client_id`), ritorno su `127.0.0.1`; nessuna password in pyArchInit. Da chiedere a WP4 un client Keycloak dedicato a pyArchInit |
+| Token storage sicuro | `[FATTO]` | 100% | Per scelta il token **non viene salvato**: resta in memoria nella finestra |
+| Token refresh automatico | `[DA FARE]` | 20% | Il refresh token arriva dal nodo ma non è ancora usato: scaduto il token si rifà l'accesso |
 | Fallback offline su scadenza token | `[DA FARE]` | 0% | Logica da integrare nella state machine |
 
 **File da creare**: `modules/stratigraph/auth_stratigraph.py`
@@ -380,11 +384,11 @@ File: `modules/db/database_sync.py` (1290 righe)
 
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
-| Installazione dipendenze WP4 | `[DA FARE]` | 0% | `[BLOCCATO]` — SDK non ancora rilasciato |
-| Wrapper per accesso KG | `[DA FARE]` | 0% | `[BLOCCATO]` — API KG da WP4 |
-| Wrapper per auth WP4 | `[DA FARE]` | 0% | `[BLOCCATO]` — protocollo da WP4 |
-| Wrapper per sync WP4 | `[DA FARE]` | 0% | `[BLOCCATO]` — interfaccia da WP4 |
-| Wrapper per I/O dati WP4 | `[DA FARE]` | 0% | `[BLOCCATO]` — formato da WP4 |
+| Installazione dipendenze WP4 | `[FATTO]` | 100% | La libreria condivisa è s3dgraphy (pin esatto `1.6.0.dev141` in `requirements.txt`) |
+| Wrapper per accesso KG | `[PARZIALE]` | 40% | Accesso alle stanze via REST in `node_client.py`; nessuna query sul Catalog ancora |
+| Wrapper per auth WP4 | `[FATTO]` | 90% | Vedi 3.7 |
+| Wrapper per sync WP4 | `[PARZIALE]` | 30% | Solo sito → stanza. La sincronizzazione campo ↔ cloud fra nodi è ancora aperta lato WP4 (`docs/SYNC-FIELD-TO-CLOUD.md` del server, decisioni D1–D5) |
+| Wrapper per I/O dati WP4 | `[FATTO]` | 100% | em.json via `s3dgraphy.room_import`, il motore usato anche da EMStudio ed EM Tools |
 
 **File da creare**: `modules/stratigraph/wp4_sdk_wrapper.py`
 **File da estendere**: `requirements.txt`, `scripts/modules_installer.py`
@@ -607,7 +611,8 @@ scripts/
 ### Fase 3 — Integrazione WP4 (M12–M16)
 
 **Obiettivo**: Client API, autenticazione StratiGraph, integrazione SDK.
-**Dipendenze esterne**: CRITICA — richiede specifiche API e SDK da WP4.
+**Dipendenze esterne**: ~~CRITICA — richiede specifiche API e SDK da WP4~~ → sbloccata: lo StratiGraph Server e s3dgraphy forniscono API, identità e motore di importazione. Resta aperta la sincronizzazione campo ↔ cloud fra nodi (decisioni D1–D5 con PSNC).
+**Avviata**: 26 nov 2026, release 5.14.0-alpha. Il disegno dei task qui sotto (bundle, `api_client.py`, `auth_stratigraph.py`) è superato dal modello a stanze e operazioni: lo stato reale è nelle tabelle §3.5, §3.7, §3.8.
 
 #### Task 3.1 — Client API StratiGraph
 
@@ -623,9 +628,9 @@ scripts/
   2. Basato su `NetworkAccessManager` esistente
   3. Gestione errori HTTP con retry
   4. Configurazione endpoint via `QgsSettings`
-- **Dipendenza**: `[BLOCCATO]` fino a specifiche API WP4
+- **Dipendenza**: sbloccata (StratiGraph Server)
 - **Impatto**: NESSUNO — modulo nuovo
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[PARZIALE]` | **60%** — realizzato come `modules/stratigraph/node_client.py` (stanze e operazioni, non bundle)
 
 #### Task 3.2 — Autenticazione StratiGraph
 
@@ -640,9 +645,9 @@ scripts/
      - Token storage via `credentials.py` esistente
   2. Pattern: riusare logica JWT da `unibo_filemanager_backend.py`
   3. Fallback: se token scaduto e offline, permettere operazioni locali
-- **Dipendenza**: `[BLOCCATO]` fino a protocollo auth WP4
-- **Impatto**: BASSO — estende `credentials.py`
-- **Stato**: `[DA FARE]` | **0%**
+- **Dipendenza**: sbloccata (Keycloak del nodo)
+- **Impatto**: BASSO — non serve più estendere `credentials.py`
+- **Stato**: `[PARZIALE]` | **70%** — login nativo PKCE in `node_client.py`, senza username/password in pyArchInit; manca il rinnovo automatico del token
 
 #### Task 3.3 — Wrapper SDK WP4
 
@@ -656,9 +661,9 @@ scripts/
      - `resolve_pid(entity_uuid)` → URI/PID esterno
   3. Aggiungere dipendenze WP4 a `requirements.txt`
   4. Gestire installazione via `modules_installer.py`
-- **Dipendenza**: `[BLOCCATO]` fino a rilascio SDK WP4
+- **Dipendenza**: sbloccata — la «SDK» è s3dgraphy (`room_import`) più la REST del server
 - **Impatto**: BASSO
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[PARZIALE]` | **50%** — import nelle stanze fatto; query sul Catalog e sync fra nodi da fare
 
 #### Task 3.4 — Tab StratiGraph nella UI
 
@@ -671,9 +676,9 @@ scripts/
      - Stato connessione e token
      - Pulsante test connessione
   2. Integrato nel dialog user management esistente
-- **Dipendenza**: Parzialmente bloccato (UI può essere preparata)
-- **Impatto**: BASSO — aggiunge tab a dialog esistente
-- **Stato**: `[DA FARE]` | **0%**
+- **Dipendenza**: nessuna
+- **Impatto**: BASSO
+- **Stato**: `[FATTO]` | **80%** — finestra «Send site to a room…» dal pannello StratiGraph Sync (nodo, sito, stanza, accesso nel browser, invio); niente campi username/password, per scelta
 
 ---
 

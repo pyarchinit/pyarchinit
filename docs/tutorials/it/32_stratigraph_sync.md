@@ -7,9 +7,10 @@
 4. [Esportazione dei bundle](#esportazione-dei-bundle)
 5. [Sincronizzazione](#sincronizzazione)
 6. [Gestione della coda](#gestione-della-coda)
-7. [Configurazione](#configurazione)
-8. [Risoluzione dei problemi](#risoluzione-dei-problemi)
-9. [Domande Frequenti](#domande-frequenti)
+7. [Inviare un sito a una stanza StratiGraph](#inviare-un-sito-a-una-stanza-stratigraph)
+8. [Configurazione](#configurazione)
+9. [Risoluzione dei problemi](#risoluzione-dei-problemi)
+10. [Domande Frequenti](#domande-frequenti)
 
 ---
 
@@ -99,6 +100,7 @@ Mostra il **timestamp** e il **risultato** (successo o fallimento) dell'ultimo t
 | **Export Bundle** | Crea un bundle dai dati locali, lo valida e lo aggiunge alla coda di sincronizzazione |
 | **Sync Now** | Forza un tentativo immediato di sincronizzazione (disponibile solo quando online) |
 | **Queue...** | Apre la finestra di gestione della coda con tutti gli elementi |
+| **Send site to a room...** | Accede a un nodo StratiGraph e porta un sito in una stanza (vedi sotto) |
 
 ### Log delle attivita
 
@@ -211,6 +213,46 @@ Questo file persiste tra le sessioni di QGIS, quindi i bundle in attesa non veng
 
 <!-- IMAGE: Finestra di dialogo della coda con diversi elementi -->
 > **Fig. 6**: La finestra di gestione della coda con gli elementi dei bundle
+
+---
+
+## Inviare un sito a una stanza StratiGraph
+
+Dalla versione **5.14.0-alpha** il pulsante **Send site to a room...** porta un sito in una *stanza* di un nodo StratiGraph (StratiGraph Server). Il grafo del sito diventa il contenuto della stanza, dove EMStudio, EM Tools e gli altri strumenti del progetto lo vedono e ci lavorano.
+
+### Procedura passo per passo
+
+1. Nel pannello **StratiGraph Sync** premere **Send site to a room...**
+2. **Node**: l'indirizzo del nodo, per esempio `https://nodo.example.org/em`. Viene ricordato tra una sessione e l'altra.
+3. **Site**: scegliere il sito. **Room id** e **Room title** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
+4. Premere **Sign in...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identity** mostra il nome e se si possono creare stanze.
+5. Facoltativo: **Plan only** mostra cosa verrebbe inviato senza scrivere niente sul nodo.
+6. Premere **Send site**: il log riporta i nodi e gli archi esportati e l'esito dell'invio.
+
+### Cosa viene inviato
+
+- Il grafo del sito, lo stesso dell'esportazione Extended Matrix (tutorial 36): un grafo per saggio quando il sito ne ha piu d'uno.
+- I file citati dal grafo vengono caricati una sola volta. Inviare di nuovo lo stesso sito non duplica niente.
+- **I file di database non vengono mai caricati** (sqlite, spatialite, gpkg): nella stanza resta solo un riferimento. Cosi gli altri siti del database restano sul proprio computer.
+- La password non passa da pyArchInit: si scrive solo nella pagina del nodo. Il token di accesso resta in memoria e si perde chiudendo la finestra.
+
+### Da riga di comando
+
+Lo stesso invio, senza QGIS (senza `--dry-run` scrive davvero; senza `--token` apre il browser per l'accesso):
+
+```bash
+python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder/pyarchinit_db.sqlite \
+    --site "Scavo archeologico" --node https://nodo.example.org/em --room scavo-2026 --dry-run
+```
+
+### Problemi frequenti
+
+| Messaggio | Cosa fare |
+|-----------|-----------|
+| `401` o accesso scaduto | Premere di nuovo **Sign in...**: il token dura pochi minuti |
+| `403` / *may create rooms: False* | L'account non ha un ruolo nella stanza o non puo creare stanze: chiedere all'amministratore del nodo |
+| `CERTIFICATE_VERIFY_FAILED` | Il nodo usa un certificato locale (nodo di sviluppo o da campo): installarne la CA sul computer, oppure da riga di comando usare `--ca-file` |
+| `409 ... already declared` | La stanza esiste e appartiene a un altro utente: scegliere un altro id |
 
 ---
 
