@@ -5,6 +5,20 @@
 
 ---
 
+## [feat] - 2026-11-26 — Le geometrie tornano dalla stanza nei layer GIS; avviso sui numeri US ambigui — 5.16.0-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2645 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **geometrie dalla stanza a pyArchInit** (`modules/stratigraph/room_geometry.py`). Le impronte che partono con il sito — sito (`pyarchinit_siti_polygonal`), saggi (`pyarchinit_sondaggi`), aree e settori (`pyarchinit_ripartizioni_spaziali`), tagli cioè US negative (`pyunitastratigrafiche`) — tornano con **Porta dalla stanza** negli stessi layer, SpatiaLite o PostGIS, nel sistema di riferimento del layer (OGR; layer senza CRS dichiarato scritti con il loro srid). Ciò che manca viene aggiunto, ciò che è uguale resta, un elemento **disegnato qui in modo diverso non viene mai sovrascritto** e viene segnalato. Il confronto legge le geometrie in WKB (esatto) e le unità con più poligoni come unione. Anteprima nel pull a secco, riepilogo nella finestra, nelle dieci lingue.
+- 🇮🇹 **IT**: **avviso sui numeri US ambigui** (`modules/stratigraph/room_checks.py`, s3dgraphy#40): prima dell'invio e nel confronto, pyArchInit segnala quando nella stessa area due unità hanno lo stesso numero e tipo diverso, e quali schede hanno rapporti verso quel numero (nella stanza raggiungerebbero entrambe le unità).
+- 🇬🇧 **EN**: room footprints written back into pyArchInit's GIS layers (site, trenches, areas, cuts; SpatiaLite and PostGIS; local drawings never overwritten); a warning for unit numbers shared by different types.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack, sito con sito, saggio e taglio disegnati inviato a una stanza (1.068 operazioni) e portato in un database senza quei disegni: 3 geometrie scritte, secondo pull 3 «uguali». Su PostgreSQL 17 + PostGIS 3.4 (5433, database di prova poi cancellato): sito, saggio (colonne `sito`/`id_sondagg`) e taglio scritti come POLYGON/MULTIPOLYGON in EPSG:3004, secondo giro senza cambiamenti. Un saggio ridisegnato a mano resta e viene segnalato. Nuovi `tests/sync/test_room_geometry.py`, `tests/sync/test_room_checks.py`. Tutorial 32 nelle dieci lingue (sezione «Geometrie» e riga nei problemi frequenti).
+
+---
+
 ## [fix] - 2026-11-26 — Impronte da PostGIS, client Keycloak dedicato, siti grandi più veloci — 5.15.1-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2640 verdi**, 66 saltati, 1 xfail, 0 falliti.

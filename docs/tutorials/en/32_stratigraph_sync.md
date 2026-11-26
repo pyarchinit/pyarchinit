@@ -298,11 +298,20 @@ Units the pull leaves out on purpose (generated CON continuity units and their m
 
 > **Fig. 11**: The comparison after a sync: a field changed here to send, one changed in the room to pull, a conflict on the same field
 
+### Geometries: site, trenches, areas and cuts
+
+The drawings of pyArchInit's GIS layers travel with the site too, as footprints in their own reference system: the **site** polygon (`pyarchinit_siti_polygonal`), the **trenches** (`pyarchinit_sondaggi`), **areas and sectors** (`pyarchinit_ripartizioni_spaziali`) and the **cuts**, i.e. the negative SU (`pyunitastratigrafiche`). They leave from SQLite and from PostGIS.
+
+**Pull from room** writes them back into the layers, SpatiaLite or PostGIS, in the layer's reference system: a missing feature is added, an identical one is left alone, and a feature **drawn differently here stays as it is** and is reported: the pull never overwrites a local drawing.
+
+Positive SU polygons do not travel: for the Extended Matrix their geometry is the 3D model. Orthophotos and rasters stay in QGIS.
+
 ### Common Problems
 
 | Message | What to do |
 |---------|------------|
 | `401` or sign-in expired | The session renews itself while you work; if it has expired completely (many hours unused) click **Sign in...** again |
+| ⚠ «Number … belongs to several units» | In the same area two units share a number with different types: rapporti name a unit only by number, area and site, so in the room they reach both. Renumber one of them before sending |
 | `403` / *may create rooms: False* | Your account has no role in the room or may not create rooms: ask the node's administrator |
 | `CERTIFICATE_VERIFY_FAILED` | The node uses a local certificate (development or field node): install its CA on your computer, or use `--ca-file` on the command line |
 | `409 ... already declared` | The room exists and belongs to another user: choose another id |

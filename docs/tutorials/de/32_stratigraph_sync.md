@@ -299,11 +299,20 @@ Einheiten, die das Holen absichtlich auslässt (erzeugte Kontinuitätseinheiten 
 
 > **Fig. 11**: Der Vergleich nach einer Synchronisation: ein hier geändertes Feld zum Senden, ein im Raum geändertes zum Holen, ein Konflikt im selben Feld
 
+### Geometrien: Fundstelle, Sondagen, Areale und Eingriffe
+
+Mit der Fundstelle reisen auch die Zeichnungen der GIS-Layer von pyArchInit, als Footprints in ihrem eigenen Bezugssystem: das Polygon der **Fundstelle** (`pyarchinit_siti_polygonal`), die **Sondagen** (`pyarchinit_sondaggi`), **Areale und Sektoren** (`pyarchinit_ripartizioni_spaziali`) und die **Eingriffe**, also die negativen SE (`pyunitastratigrafiche`). Sie gehen von SQLite und von PostGIS aus.
+
+**Aus dem Raum holen** schreibt sie in die Layer zurück, SpatiaLite oder PostGIS, im Bezugssystem des Layers: ein fehlendes Objekt wird ergänzt, ein gleiches bleibt unberührt, und ein **hier anders gezeichnetes Objekt bleibt, wie es ist**, und wird gemeldet: das Holen überschreibt nie eine lokale Zeichnung.
+
+Die Polygone der positiven SE reisen nicht: für die Extended Matrix ist ihre Geometrie das 3D-Modell. Orthofotos und Raster bleiben in QGIS.
+
 ### Haeufige Probleme
 
 | Meldung | Was tun |
 |---------|---------|
 | `401` oder Anmeldung abgelaufen | Die Sitzung erneuert sich waehrend der Arbeit selbst; ist sie ganz abgelaufen (viele Stunden ungenutzt), erneut **Anmelden...** druecken |
+| ⚠ «Die Nummer … gehört mehreren Einheiten» | Im selben Areal haben zwei Einheiten dieselbe Nummer und verschiedene Typen: Beziehungen nennen eine Einheit nur mit Nummer, Areal und Fundstelle und erreichen im Raum daher beide. Vor dem Senden eine davon umnummerieren |
 | `403` / *may create rooms: False* | Das Konto hat keine Rolle im Raum oder darf keine Raeume erstellen: den Administrator des Knotens fragen |
 | `CERTIFICATE_VERIFY_FAILED` | Der Knoten nutzt ein lokales Zertifikat (Entwicklungs- oder Feldknoten): dessen CA auf dem Rechner installieren oder auf der Kommandozeile `--ca-file` verwenden |
 | `409 ... already declared` | Der Raum existiert und gehoert einem anderen Benutzer: eine andere ID waehlen |

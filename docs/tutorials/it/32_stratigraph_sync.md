@@ -299,11 +299,20 @@ Le unità che il pull non porta di proposito (le continuità CON generate e i lo
 
 > **Fig. 11**: Il confronto dopo una sincronizzazione: un campo cambiato qui da inviare, uno cambiato nella stanza da portare, un conflitto sullo stesso campo
 
+### Geometrie: sito, saggi, aree e tagli
+
+Con il sito viaggiano anche i disegni dei layer GIS di pyArchInit, come impronte nel loro sistema di riferimento: il poligono del **sito** (`pyarchinit_siti_polygonal`), i **saggi** (`pyarchinit_sondaggi`), **aree e settori** (`pyarchinit_ripartizioni_spaziali`) e i **tagli**, cioè le US negative (`pyunitastratigrafiche`). Partono da SQLite e da PostGIS.
+
+**Porta dalla stanza** li riscrive nei layer, in SpatiaLite o PostGIS, nel sistema di riferimento del layer: un elemento che manca viene aggiunto, uno uguale non viene toccato, e un elemento **disegnato qui in modo diverso resta com'è** e viene segnalato: il pull non sovrascrive mai un disegno locale.
+
+I poligoni delle US positive non viaggiano: per l'Extended Matrix la loro geometria è il modello 3D. Ortofoto e raster restano in QGIS.
+
 ### Problemi frequenti
 
 | Messaggio | Cosa fare |
 |-----------|-----------|
 | `401` o accesso scaduto | La sessione si rinnova da sola mentre si lavora; se e scaduta del tutto (molte ore senza usarla) premere di nuovo **Accedi...** |
+| ⚠ «Il numero … è di più unità» | Nella stessa area due unità hanno lo stesso numero e tipo diverso: i rapporti indicano l'unità solo con numero, area e sito, quindi nella stanza raggiungono entrambe. Rinumerare una delle due prima di inviare |
 | `403` / *may create rooms: False* | L'account non ha un ruolo nella stanza o non puo creare stanze: chiedere all'amministratore del nodo |
 | `CERTIFICATE_VERIFY_FAILED` | Il nodo usa un certificato locale (nodo di sviluppo o da campo): installarne la CA sul computer, oppure da riga di comando usare `--ca-file` |
 | `409 ... already declared` | La stanza esiste e appartiene a un altro utente: scegliere un altro id |

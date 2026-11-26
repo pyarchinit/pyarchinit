@@ -299,11 +299,20 @@ Les unités que la récupération laisse de côté à dessein (les continuités 
 
 > **Fig. 11**: La comparaison après une synchronisation : un champ modifié ici à envoyer, un modifié dans la salle à récupérer, un conflit sur le même champ
 
+### Géométries : site, sondages, zones et creusements
+
+Avec le site voyagent aussi les dessins des couches SIG de pyArchInit, comme empreintes dans leur propre système de référence : le polygone du **site** (`pyarchinit_siti_polygonal`), les **sondages** (`pyarchinit_sondaggi`), **zones et secteurs** (`pyarchinit_ripartizioni_spaziali`) et les **creusements**, c'est-à-dire les US négatives (`pyunitastratigrafiche`). Ils partent de SQLite et de PostGIS.
+
+**Récupérer de la salle** les réécrit dans les couches, SpatiaLite ou PostGIS, dans le système de référence de la couche : un élément manquant est ajouté, un élément identique n'est pas touché, et un élément **dessiné autrement ici reste tel quel** et est signalé : la récupération n'écrase jamais un dessin local.
+
+Les polygones des US positives ne voyagent pas : pour l'Extended Matrix leur géométrie est le modèle 3D. Orthophotos et rasters restent dans QGIS.
+
 ### Problemes frequents
 
 | Message | Que faire |
 |---------|-----------|
 | `401` ou connexion expiree | La session se renouvelle d'elle-meme pendant le travail ; si elle a completement expire (de longues heures sans usage), cliquer de nouveau sur **Se connecter...** |
+| ⚠ «Le numéro … appartient à plusieurs unités» | Dans la même zone deux unités ont le même numéro et un type différent : les relations désignent une unité seulement par numéro, zone et site, donc dans la salle elles atteignent les deux. Renuméroter l'une d'elles avant l'envoi |
 | `403` / *may create rooms: False* | Le compte n'a pas de role dans la salle ou ne peut pas creer de salles : demander a l'administrateur du noeud |
 | `CERTIFICATE_VERIFY_FAILED` | Le noeud utilise un certificat local (noeud de developpement ou de terrain) : installer son autorite de certification sur l'ordinateur, ou utiliser `--ca-file` en ligne de commande |
 | `409 ... already declared` | La salle existe et appartient a un autre utilisateur : choisir un autre identifiant |

@@ -299,11 +299,20 @@ Les unitats que el portar deixa fora a propòsit (les continuïtats CON generade
 
 > **Fig. 11**: La comparació després d'una sincronització: un camp canviat aquí per enviar, un canviat a la sala per portar, un conflicte en el mateix camp
 
+### Geometries: jaciment, sondejos, àrees i retalls
+
+Amb el jaciment viatgen també els dibuixos de les capes SIG de pyArchInit, com a empremtes en el seu propi sistema de referència: el polígon del **jaciment** (`pyarchinit_siti_polygonal`), els **sondejos** (`pyarchinit_sondaggi`), **àrees i sectors** (`pyarchinit_ripartizioni_spaziali`) i els **retalls**, és a dir les UE negatives (`pyunitastratigrafiche`). Surten de SQLite i de PostGIS.
+
+**Porta de la sala** els torna a escriure a les capes, SpatiaLite o PostGIS, en el sistema de referència de la capa: un element que falta s'afegeix, un d'igual no es toca, i un element **dibuixat aquí d'una altra manera es queda com està** i se senyala: el portar mai no sobreescriu un dibuix local.
+
+Els polígons de les UE positives no viatgen: per a l'Extended Matrix la seva geometria és el model 3D. Ortofotos i ràsters es queden a QGIS.
+
 ### Problemes frequents
 
 | Missatge | Que cal fer |
 |----------|-------------|
 | `401` o acces caducat | La sessio es renova sola mentre es treballa; si ha caducat del tot (moltes hores sense fer-la servir) premeu de nou **Inicia sessió...** |
+| ⚠ «El número … és de diverses unitats» | A la mateixa àrea dues unitats tenen el mateix número i tipus diferent: les relacions indiquen la unitat només amb número, àrea i jaciment, així que a la sala arriben a totes dues. Renumerar-ne una abans d'enviar |
 | `403` / *may create rooms: False* | El compte no te cap rol a la sala o no pot crear sales: pregunteu a l'administrador del node |
 | `CERTIFICATE_VERIFY_FAILED` | El node fa servir un certificat local (node de desenvolupament o de camp): instal·leu-ne la CA a l'ordinador, o feu servir `--ca-file` a la linia d'ordres |
 | `409 ... already declared` | La sala existeix i pertany a un altre usuari: trieu un altre id |

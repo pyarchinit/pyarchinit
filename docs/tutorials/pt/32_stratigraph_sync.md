@@ -298,11 +298,20 @@ As unidades que o trazer deixa de fora de propósito (as continuidades CON gerad
 
 > **Fig. 11**: A comparação depois de uma sincronização: um campo alterado aqui a enviar, um alterado na sala a trazer, um conflito no mesmo campo
 
+### Geometrias: sítio, sondagens, áreas e cortes
+
+Com o sítio viajam também os desenhos das camadas SIG do pyArchInit, como pegadas no seu próprio sistema de referência: o polígono do **sítio** (`pyarchinit_siti_polygonal`), as **sondagens** (`pyarchinit_sondaggi`), **áreas e sectores** (`pyarchinit_ripartizioni_spaziali`) e os **cortes**, ou seja as UE negativas (`pyunitastratigrafiche`). Partem do SQLite e do PostGIS.
+
+**Trazer da sala** volta a escrevê-los nas camadas, SpatiaLite ou PostGIS, no sistema de referência da camada: um elemento que falta é acrescentado, um igual não é tocado, e um elemento **desenhado aqui de outra forma fica como está** e é assinalado: o trazer nunca sobrescreve um desenho local.
+
+Os polígonos das UE positivas não viajam: para o Extended Matrix a sua geometria é o modelo 3D. Ortofotomapas e rasters ficam no QGIS.
+
 ### Problemas frequentes
 
 | Mensagem | O que fazer |
 |----------|-------------|
 | `401` ou sessao expirada | A sessao renova-se sozinha enquanto se trabalha; se expirou por completo (muitas horas sem uso) clique de novo em **Iniciar sessão...** |
+| ⚠ «O número … pertence a várias unidades» | Na mesma área duas unidades têm o mesmo número e tipo diferente: as relações indicam a unidade só com número, área e sítio, por isso na sala chegam às duas. Renumerar uma delas antes de enviar |
 | `403` / *may create rooms: False* | A conta nao tem um papel na sala ou nao pode criar salas: perguntar ao administrador do no |
 | `CERTIFICATE_VERIFY_FAILED` | O no usa um certificado local (no de desenvolvimento ou de campo): instalar a sua CA no computador, ou usar `--ca-file` na linha de comandos |
 | `409 ... already declared` | A sala existe e pertence a outro utilizador: escolher outro id |

@@ -299,11 +299,20 @@ Unitățile pe care aducerea le lasă deoparte intenționat (continuitățile CO
 
 > **Fig. 11**: Comparația după o sincronizare: un câmp schimbat aici de trimis, unul schimbat în cameră de adus, un conflict pe același câmp
 
+### Geometrii: sit, sondaje, zone și tăieturi
+
+Odată cu situl călătoresc și desenele straturilor GIS din pyArchInit, ca amprente în propriul sistem de referință: poligonul **sitului** (`pyarchinit_siti_polygonal`), **sondajele** (`pyarchinit_sondaggi`), **zonele și sectoarele** (`pyarchinit_ripartizioni_spaziali`) și **tăieturile**, adică US negative (`pyunitastratigrafiche`). Pleacă din SQLite și din PostGIS.
+
+**Adu din cameră** le scrie înapoi în straturi, SpatiaLite sau PostGIS, în sistemul de referință al stratului: un element care lipsește este adăugat, unul identic nu este atins, iar un element **desenat altfel aici rămâne cum este** și este semnalat: aducerea nu suprascrie niciodată un desen local.
+
+Poligoanele US pozitive nu călătoresc: pentru Extended Matrix geometria lor este modelul 3D. Ortofotografiile și rasterele rămân în QGIS.
+
 ### Probleme frecvente
 
 | Mesaj | Ce trebuie facut |
 |-------|------------------|
 | `401` sau autentificare expirata | Sesiunea se reinnoieste singura in timpul lucrului; daca a expirat complet (multe ore nefolosita) apasati din nou **Autentificare...** |
+| ⚠ «Numărul … aparține mai multor unități» | În aceeași zonă două unități au același număr și tip diferit: relațiile indică unitatea doar prin număr, zonă și sit, deci în cameră ajung la ambele. Renumerotați una dintre ele înainte de trimitere |
 | `403` / *may create rooms: False* | Contul nu are un rol in camera sau nu poate crea camere: intrebati administratorul nodului |
 | `CERTIFICATE_VERIFY_FAILED` | Nodul foloseste un certificat local (nod de dezvoltare sau de teren): instalati-i autoritatea de certificare pe calculator, sau folositi `--ca-file` in linia de comanda |
 | `409 ... already declared` | Camera exista si apartine altui utilizator: alegeti alt id |
