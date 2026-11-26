@@ -5,6 +5,19 @@
 
 ---
 
+## [fix] - 2026-11-26 — Dalla stanza torna la scheda US intera, non 15 colonne su 131 — 5.14.2-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2621 verdi**, 66 saltati, 1 xfail, 0 falliti. / The whole SU record comes back from a room.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: una scheda ricostruita da una stanza riportava solo i campi del grafo (15 colonne di `us_table` su 131): si perdevano descrizione, interpretazione, colore, consistenza, quote, misure, saggio, ambiente, quadrato, settore, i campi USM. Ora all'invio ogni unità porta nella stanza le colonne non vuote della sua scheda (`modules/stratigraph/room_records.py`, senza sostituire i campi che l'export scrive già), e l'ingestor riscrive ogni colonna vera di `us_table` di un nodo nato da pyArchInit (un nodo di EMStudio resta alle colonne di sempre). Correggo così anche quanto scritto in 5.14.0/5.14.1: il «50 unità su 51 identiche» confrontava solo i campi del grafo.
+- 🇬🇧 **EN**: a record rebuilt from a room came back with 15 of us_table's 131 columns; the whole record now travels and is written back.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack, stanza nuova: invio 51 unità con 3080 campi della scheda, ricostruzione su un altro computer → **130 colonne su 131 identiche** (i rapporti differiscono solo nella scrittura), confronto 0 campi diversi, secondo pull senza effetti. Una stanza inviata prima: 3080 campi diversi, un nuovo *Send site* (246 operazioni) li porta a 0. Nuovo `tests/sync/test_room_records.py` (andata e ritorno su mini_volterra).
+
+---
+
 ## [feat] - 2026-11-26 — Sito e stanza nei due sensi, foto comprese — 5.14.1-alpha
 
 > Branch `Stratigraph_00001`. `tests/sync` **1010 verdi**, 0 falliti. / Site and room both ways, photos included.

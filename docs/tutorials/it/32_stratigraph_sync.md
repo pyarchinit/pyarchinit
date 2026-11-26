@@ -263,6 +263,8 @@ Quando nella stanza lavorano anche altri (EMStudio, StratiField, EM Tools), dopo
 
 Con **Pull from room** si puo anche ricostruire un sito in un database che non lo ha: le unita tornano con numero, tipo, definizioni e periodizzazione. Le unita di continuita (CON) non viaggiano: pyArchInit le rigenera con **Genera continuita**.
 
+La stanza riceve la scheda US intera, non solo i campi del grafo: descrizione, interpretazione, colore, consistenza, quote, misure, saggio, ambiente, quadrato, settore, i campi USM. Una scheda ricostruita da una stanza e uguale all'originale; i rapporti cambiano solo nella scrittura (con area e sito). Una stanza inviata con una versione precedente di pyArchInit ha solo i campi del grafo: il confronto mostra molti campi diversi; basta un nuovo **Send site** per completarla.
+
 ![Confronto con la stanza](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: Il confronto con una stanza in cui si e lavorato anche in EMStudio: una US nuova e una definizione rivista nella stanza, una US nuova di pyArchInit da inviare

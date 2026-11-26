@@ -263,6 +263,8 @@ Quan a la sala hi treballen tambe altres (EMStudio, StratiField, EM Tools), desp
 
 Amb **Pull from room** tambe es pot reconstruir un jaciment en una base de dades que no el te: les unitats tornen amb numero, tipus, definicions i perioditzacio. Les unitats de continuitat (CON) no viatgen: pyArchInit les regenera amb **Genera continuita**.
 
+La sala rep la fitxa UE sencera, no nomes els camps del graf: descripcio, interpretacio, color, consistencia, cotes, mesures, sondeig, ambient, quadre, sector, els camps de parament (USM). Una fitxa reconstruida des d'una sala es igual a l'original; les relacions nomes canvien en l'escriptura (amb area i jaciment). Una sala enviada amb una versio anterior de pyArchInit nomes te els camps del graf: la comparacio mostra molts camps diferents; n'hi ha prou amb un nou **Send site** per completar-la.
+
 ![Comparacio amb la sala](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: La comparacio amb una sala on tambe s'ha treballat a EMStudio: una UE nova i una definicio revisada a la sala, una UE nova de pyArchInit per enviar

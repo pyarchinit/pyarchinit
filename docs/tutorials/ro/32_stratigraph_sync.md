@@ -263,6 +263,8 @@ Cand in camera lucreaza si altii (EMStudio, StratiField, EM Tools), dupa autenti
 
 Cu **Pull from room** se poate si reconstrui un sit intr-o baza de date care nu il are: unitatile revin cu numar, tip, definitii si periodizare. Unitatile de continuitate (CON) nu calatoresc: pyArchInit le regenereaza cu **Genera continuita**.
 
+Camera primeste fisa US intreaga, nu doar campurile grafului: descriere, interpretare, culoare, consistenta, cote, dimensiuni, sondaj, incapere, carou, sector, campurile de zidarie (USM). O fisa reconstruita dintr-o camera este identica cu originalul; relatiile se schimba doar in scriere (cu zona si situl). O camera trimisa cu o versiune anterioara de pyArchInit are doar campurile grafului: comparatia arata multe campuri diferite; un nou **Send site** o completeaza.
+
 ![Comparatia cu camera](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: Comparatia cu o camera in care s-a lucrat si in EMStudio: o US noua si o definitie revizuita in camera, o US noua din pyArchInit de trimis

@@ -263,6 +263,8 @@ Quand d'autres travaillent aussi dans la salle (EMStudio, StratiField, EM Tools)
 
 **Pull from room** permet aussi de reconstruire un site dans une base qui ne l'a pas : les unites reviennent avec numero, type, definitions et periodisation. Les unites de continuite (CON) ne voyagent pas : pyArchInit les regenere avec **Genera continuita**.
 
+La salle recoit la fiche US entiere, pas seulement les champs du graphe : description, interpretation, couleur, consistance, altitudes, mesures, sondage, piece, carre, secteur, les champs de maconnerie (USM). Une fiche reconstruite depuis une salle est identique a l'originale ; les relations ne changent que dans leur ecriture (avec zone et site). Une salle envoyee avec une version precedente de pyArchInit n'a que les champs du graphe : la comparaison montre beaucoup de champs differents ; un nouveau **Send site** la complete.
+
 ![Comparaison avec la salle](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: La comparaison avec une salle ou l'on a aussi travaille dans EMStudio : une nouvelle US et une definition revue dans la salle, une nouvelle US de pyArchInit a envoyer

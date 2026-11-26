@@ -262,6 +262,8 @@ When others work in the room too (EMStudio, StratiField, EM Tools), after signin
 
 **Pull from room** can also rebuild a site in a database that does not have it: the units come back with number, type, definitions and periodisation. Continuity units (CON) do not travel: pyArchInit regenerates them with **Genera continuita**.
 
+The room receives the whole SU record, not only the graph's fields: description, interpretation, colour, consistency, levels, measures, trench, room, square, sector, the masonry (USM) fields. A record rebuilt from a room equals the original; relations change only in how they are written (with area and site). A room sent with an earlier pyArchInit version holds only the graph's fields: the comparison shows many differing fields; a new **Send site** completes it.
+
 ![Compare with room](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: Comparing with a room that was also worked on in EMStudio: a new SU and a revised definition in the room, a new pyArchInit SU to send

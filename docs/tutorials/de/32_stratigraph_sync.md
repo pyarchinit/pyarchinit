@@ -263,6 +263,8 @@ Wenn auch andere im Raum arbeiten (EMStudio, StratiField, EM Tools), nach der An
 
 Mit **Pull from room** laesst sich auch eine Fundstelle in einer Datenbank wiederherstellen, die sie nicht enthaelt: die Einheiten kommen mit Nummer, Typ, Definitionen und Periodisierung zurueck. Kontinuitaetseinheiten (CON) reisen nicht mit: pyArchInit erzeugt sie mit **Genera continuita** neu.
 
+Der Raum erhaelt den ganzen SE-Datensatz, nicht nur die Felder des Graphen: Beschreibung, Interpretation, Farbe, Konsistenz, Hoehen, Masse, Sondage, Raum, Quadrat, Sektor, die Mauerwerksfelder (USM). Ein aus einem Raum wiederhergestellter Datensatz gleicht dem Original; die Beziehungen aendern sich nur in der Schreibweise (mit Areal und Fundstelle). Ein Raum, der mit einer frueheren pyArchInit-Version gesendet wurde, enthaelt nur die Felder des Graphen: der Vergleich zeigt viele abweichende Felder; ein neues **Send site** vervollstaendigt ihn.
+
 ![Vergleich mit dem Raum](images/32_stratigraph_sync/08_compare_with_room.png)
 
 > **Fig. 9**: Der Vergleich mit einem Raum, in dem auch in EMStudio gearbeitet wurde: eine neue SE und eine ueberarbeitete Definition im Raum, eine neue SE aus pyArchInit zum Senden
