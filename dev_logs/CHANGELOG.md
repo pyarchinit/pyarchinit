@@ -5,6 +5,19 @@
 
 ---
 
+## [fix] - 2026-11-26 — Un solo sito nel grafo; verificato sul PostgreSQL 17 + PostGIS 3.4 del Mac (porta 5433) — 5.14.4-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2628 verdi**, 0 falliti.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: l'esportazione da SQLite metteva nel grafo **due nodi del sito**: il lettore delle impronte GIS di s3dgraphy chiama `add_site(graph, nome)` senza `entity_uuid` prima che il proiettore emetta il sito vero, e nasce un secondo sito con id `sha1(nome|site)` che porta impronta e legami di area, settore e saggi. Da PostgreSQL (dove quella lettura non arriva) il sito era uno solo, quindi lo stesso sito dava grafi diversi e una stanza inviata da PostgreSQL e portata in SQLite mostrava il sito come «nuovo». Ora la proiezione fonde il doppione nel sito vero (`_merge_hashed_site_place`). Da segnalare a monte (s3dgraphy, `pyarchinit_footprints` → `add_site` senza `entity_uuid`).
+- 🇬🇧 **EN**: one site node per projection (the footprint reader's hashed duplicate is merged into the real one).
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul PostgreSQL del Mac (17.2, PostGIS 3.4.3, porta 5433), database di prova creato con lo schema di pyArchInit e poi cancellato: stanza nuova inviata da SQLite → ricostruzione su PostgreSQL e in uno SQLite vuoto: 50 US e 150 foto in entrambi, secondo pull 0/0, confronto con la stanza 0 nodi nuovi, 0 archi nuovi, 0 campi diversi. Restano solo nella stanza (non toccati): la CON 500 generata e le sue 3 foto; su PostgreSQL anche i legami area/settore → sito, che nascono dalla lettura delle impronte GIS (i layer GIS non viaggiano con il pull).
+
+---
+
 ## [fix] - 2026-11-26 — Stanze anche su PostgreSQL, rapporti a quattro elementi, pannello e finestra nelle dieci lingue — 5.14.3-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2628 verdi**, 66 saltati, 1 xfail, 0 falliti. / Rooms on PostgreSQL too; four-element relations; StratiGraph panel and room window in ten languages.
