@@ -57,7 +57,7 @@ class StratiGraphRoomDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Send a site to a StratiGraph room")
         self.connection_url = connection_url
-        self.token = None
+        self.session = None            # NodeSession: tokens in memory, renewed by itself
         self._job = None
 
         self.node = QLineEdit(QgsSettings().value(SETTINGS_NODE, DEFAULT_NODE))
@@ -103,7 +103,7 @@ class StratiGraphRoomDialog(QDialog):
 
     def _busy(self, busy: bool):
         self.btn_sign.setEnabled(not busy)
-        self.btn_send.setEnabled(not busy and bool(self.token))
+        self.btn_send.setEnabled(not busy and self.session is not None)
 
     def _run(self, fn, on_done):
         self._busy(True)
@@ -119,11 +119,11 @@ class StratiGraphRoomDialog(QDialog):
         self._say(f"Opening the sign-in page of {node} in the browser…")
 
         def work():
-            tokens = NC.sign_in(node)
-            return tokens["access_token"], NC.whoami(node, tokens["access_token"])
+            session = NC.NodeSession.sign_in(node)
+            return session, NC.whoami(node, session.access_token())
 
         def done(result):
-            self.token, who = result
+            self.session, who = result
             name = who.get("name") or who.get("orcid") or who.get("preferred_username") or "?"
             self.who.setText(f"{name} — may create rooms: {who.get('may_create')}")
             self._say(f"✔ Signed in as {name}")
@@ -139,9 +139,10 @@ class StratiGraphRoomDialog(QDialog):
         self._say(f"{'Planning' if dry else 'Sending'} «{site}» → room {room} …")
 
         def work():
+            # renewed here if it is about to expire: the node's tokens live minutes
             return NC.send_site(self.connection_url, site, node=node, room=room,
-                                token=self.token, workdir=workdir, title=title,
-                                dry_run=dry)
+                                token=self.session.access_token(), workdir=workdir,
+                                title=title, dry_run=dry)
 
         def done(report):
             self._say(f"✔ {report.get('nodes')} nodes, {report.get('edges')} edges exported "

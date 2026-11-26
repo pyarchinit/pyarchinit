@@ -196,6 +196,71 @@ def sign_in(node: str, **kwargs) -> Dict[str, Any]:
     return session.wait()
 
 
+def refresh_tokens(config: Dict[str, Any], *, refresh_token: str,
+                   client_id: str) -> Dict[str, Any]:
+    """New tokens for the refresh token — the same public client, no secret."""
+    body = urllib.parse.urlencode({
+        "grant_type": "refresh_token", "refresh_token": refresh_token,
+        "client_id": client_id}).encode()
+    return _json(urllib.request.Request(
+        config["token_endpoint"], data=body, method="POST",
+        headers={"Content-Type": "application/x-www-form-urlencoded"}))
+
+
+class NodeSession:
+    """A signed-in node: the tokens, kept in memory, renewed before they expire.
+
+    The node's access token lives minutes (the dev realm issues five); the
+    refresh token it gives with it lives the session. ``access_token()`` is
+    what every call asks for: the current token, or a renewed one when fewer
+    than ``margin`` seconds are left. A refused renewal (session ended on the
+    node, refresh token revoked) is said as «sign in again», never retried.
+    """
+
+    def __init__(self, node: str, tokens: Dict[str, Any], *, config: Optional[Dict[str, Any]] = None,
+                 client_id: Optional[str] = None, margin: float = 30.0, clock=None):
+        import time
+        self.node = node_base(node)
+        self._clock = clock or time.monotonic
+        self.config = config or auth_config(self.node)
+        self.client_id = client_id or client_of(self.config)
+        self.margin = margin
+        self.renewals = 0
+        self._take(tokens)
+
+    def _take(self, tokens: Dict[str, Any]) -> None:
+        if not tokens.get("access_token"):
+            raise NodeError("the node gave no access token")
+        self._access = tokens["access_token"]
+        self._refresh = tokens.get("refresh_token") or getattr(self, "_refresh", None)
+        self._expires_at = self._clock() + float(tokens.get("expires_in") or 300)
+
+    @classmethod
+    def sign_in(cls, node: str, **kwargs) -> "NodeSession":
+        """Browser sign-in, then a session that renews itself."""
+        running = SignIn(node, **kwargs)
+        running.start()
+        return cls(node, running.wait(), config=running.config, client_id=running.client_id)
+
+    def expires_in(self) -> float:
+        return self._expires_at - self._clock()
+
+    def access_token(self) -> str:
+        if self.expires_in() > self.margin:
+            return self._access
+        if not self._refresh:
+            raise NodeError("the access token expired and the node gave no refresh token: "
+                            "sign in again")
+        try:
+            tokens = refresh_tokens(self.config, refresh_token=self._refresh,
+                                    client_id=self.client_id)
+        except NodeError as exc:
+            raise NodeError(f"the session on the node ended ({exc}): sign in again") from None
+        self._take(tokens)
+        self.renewals += 1
+        return self._access
+
+
 def whoami(node: str, token: str) -> Dict[str, Any]:
     """Who this token says you are, on this node (and whether you may create rooms)."""
     return _json(urllib.request.Request(

@@ -25,6 +25,7 @@ class _FakeNode:
         self.challenge = None
         self.wrong_state = wrong_state
         self.token_requests = []
+        self.renewed = 0
         fake = self
 
         class Handler(http.server.BaseHTTPRequestHandler):
@@ -67,6 +68,13 @@ class _FakeNode:
                 length = int(self.headers.get("Content-Length") or 0)
                 form = dict(urllib.parse.parse_qsl(self.rfile.read(length).decode()))
                 fake.token_requests.append(form)
+                if form.get("grant_type") == "refresh_token":
+                    if form.get("refresh_token") != "RT" or "client_secret" in form:
+                        return self._send(400, json.dumps({"error": "invalid_grant"}).encode())
+                    fake.renewed += 1
+                    return self._send(200, json.dumps(
+                        {"access_token": "AT%d" % (fake.renewed + 1), "refresh_token": "RT",
+                         "expires_in": 300}).encode())
                 digest = hashlib.sha256(form["code_verifier"].encode()).digest()
                 ok = (base64.urlsafe_b64encode(digest).rstrip(b"=").decode() == fake.challenge
                       and form["code"] == "the-code" and "client_secret" not in form)
@@ -142,3 +150,40 @@ def test_a_database_file_is_never_uploaded():
             {"id": "r3", "path": "/data/foto/US1.jpg"},
             {"id": "r4", "path": None}]
     assert NC.database_rows(rows) == {"r1": "reference", "r2": "reference"}
+
+
+
+class _Clock:
+    def __init__(self):
+        self.t = 1000.0
+
+    def __call__(self):
+        return self.t
+
+
+def test_the_session_renews_the_token_before_it_expires(fake):
+    clock = _Clock()
+    session = NC.NodeSession(fake.node, {"access_token": "AT", "refresh_token": "RT",
+                                         "expires_in": 300}, clock=clock)
+    assert session.access_token() == "AT"            # fresh: no call
+    assert fake.token_requests == []
+    clock.t += 280                                   # 20 s left, under the 30 s margin
+    assert session.access_token() == "AT2"
+    form = fake.token_requests[-1]
+    assert form["grant_type"] == "refresh_token" and form["client_id"] == "em-tools"
+    assert "client_secret" not in form
+    assert session.renewals == 1 and session.expires_in() > 290
+
+
+def test_a_refused_renewal_says_sign_in_again(fake):
+    clock = _Clock()
+    session = NC.NodeSession(fake.node, {"access_token": "AT", "refresh_token": "REVOKED",
+                                         "expires_in": 10}, clock=clock)
+    with pytest.raises(NC.NodeError, match="sign in again"):
+        session.access_token()
+
+
+def test_without_a_refresh_token_it_asks_to_sign_in_again(fake):
+    session = NC.NodeSession(fake.node, {"access_token": "AT", "expires_in": 5}, clock=_Clock())
+    with pytest.raises(NC.NodeError, match="sign in again"):
+        session.access_token()
