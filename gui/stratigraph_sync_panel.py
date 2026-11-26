@@ -128,6 +128,12 @@ class StratiGraphSyncPanel(QDockWidget):
         btn_layout.addWidget(self._btn_queue)
         root.addLayout(btn_layout)
 
+        # ── Phase 3: the site into a room of a StratiGraph node ─────
+        self._btn_room = QPushButton("Send site to a room...")
+        self._btn_room.setToolTip(
+            "Sign in to a StratiGraph node and bring a site's graph into a room")
+        root.addWidget(self._btn_room)
+
         # ── Activity log ────────────────────────────────────
         log_group = QGroupBox("Recent Activity")
         log_layout = QVBoxLayout(log_group)
@@ -145,6 +151,7 @@ class StratiGraphSyncPanel(QDockWidget):
         self._btn_export.clicked.connect(self._on_export)
         self._btn_sync.clicked.connect(self._on_sync)
         self._btn_queue.clicked.connect(self._on_show_queue)
+        self._btn_room.clicked.connect(self._on_send_to_room)
 
         # Orchestrator signals
         sm = self._orch.state_machine
@@ -177,6 +184,20 @@ class StratiGraphSyncPanel(QDockWidget):
     def _on_show_queue(self):
         dlg = QueueDialog(self._orch.queue, self)
         dlg.exec()
+
+    def _on_send_to_room(self):
+        from sqlalchemy import create_engine, text
+        from ..modules.db.pyarchinit_conn_strings import Connection
+        from .stratigraph_room_dialog import StratiGraphRoomDialog
+        url = Connection().conn_str()
+        try:
+            with create_engine(url).connect() as conn:
+                sites = [r[0] for r in conn.execute(
+                    text("SELECT sito FROM site_table ORDER BY sito")) if r[0]]
+        except Exception as exc:                    # noqa: BLE001
+            self._log_activity(f"Cannot read the sites: {exc}")
+            return
+        StratiGraphRoomDialog(url, sites, self).exec()
 
     def _on_state_changed(self, old_state: str, new_state: str):
         icon = _STATE_ICONS.get(new_state, "")
