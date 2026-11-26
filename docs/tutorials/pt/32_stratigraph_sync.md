@@ -228,8 +228,8 @@ A partir da versao **5.14.0-alpha** o botao **Enviar o sítio para uma sala...**
 ### Procedimento passo a passo
 
 1. No painel **StratiGraph Sync**, carregar em **Enviar o sítio para uma sala...**
-2. **Node**: o endereco do no, por exemplo `https://no.example.org/em`. Fica memorizado entre sessoes.
-3. **Site**: escolher o sitio. **Id da sala** e **Título da sala** sao preenchidos com o nome do sitio e podem ser alterados; o id da sala e uma so palavra, sem espacos.
+2. **Nó**: o endereco do no, por exemplo `https://no.example.org/em`. Fica memorizado entre sessoes.
+3. **Sítio**: escolher o sitio. **Id da sala** e **Título da sala** sao preenchidos com o nome do sitio e podem ser alterados; o id da sala e uma so palavra, sem espacos.
 4. Carregar em **Iniciar sessão...**: a pagina de acesso do no abre-se no navegador. Entrar com a sua conta e voltar ao QGIS: a linha **Identidade** mostra o nome e se pode criar salas.
 5. Opcional: **Apenas plano** mostra o que seria enviado sem escrever nada no no.
 6. Carregar em **Enviar o sítio**: o registo indica os nos e as arestas exportados e o resultado.
@@ -259,7 +259,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Quando na sala trabalham tambem outros (EMStudio, StratiField, EM Tools), depois de iniciar sessao:
 
 1. **Comparar com a sala** compara o sitio com a sala nos dois sentidos, sem escrever nada: o que a sala tem de novo para o pyArchInit (unidades novas, definicoes alteradas, relacoes) e o que o pyArchInit acrescenta a sala.
-2. **Enviar os acrescentos** envia apenas as adicoes do sitio: unidades e relacoes novas. Um campo diferente e mostrado mas nao enviado, porque na sala pode ser a alteracao mais recente de um colega; o que existe so na sala nunca e tocado.
+2. **Enviar as alterações** envia para a sala o trabalho feito aqui: unidades e relações novas, campos alterados aqui, relações retiradas aqui. O que mudou só na sala não é tocado; um campo alterado dos dois lados é um conflito e só é mostrado (ver «Sincronização com memória»).
 3. **Trazer da sala** traz a sala para as fichas do pyArchInit (UE, definicoes, periodizacao, relacoes), reconhecendo cada ficha pelo seu identificador. Se o pull retirasse relacoes locais que a sala nao conhece, a janela enumera-as e pede confirmacao.
 
 Com **Trazer da sala** tambem se pode reconstruir um sitio numa base de dados que nao o tem: as unidades voltam com numero, tipo, definicoes e periodizacao. As unidades de continuidade (CON) nao viajam: o pyArchInit regenera-as com **Genera continuita**.
@@ -276,13 +276,27 @@ Tudo isto vale tanto para SQLite como para PostgreSQL. Para reconstruir um sitio
 
 As fotografias, os videos, os modelos 3D e os documentos ligados as fichas UE viajam com o sitio, nos dois sentidos. Os ortofotomapas e os outros raster ficam de fora: sao camadas do QGIS, nao media do pyArchInit.
 
-- **Enviar o sítio** e **Enviar os acrescentos** carregam cada ficheiro no deposito da sala uma unica vez: um ficheiro que a sala ja tem (mesmo conteudo) nao e reenviado. Se o original ja nao esta no disco, usa-se a copia da pasta Resize.
+- **Enviar o sítio** e **Enviar as alterações** carregam cada ficheiro no deposito da sala uma unica vez: um ficheiro que a sala ja tem (mesmo conteudo) nao e reenviado. Se o original ja nao esta no disco, usa-se a copia da pasta Resize.
 - **Trazer da sala** descarrega os media novos para a pasta `stratigraph_media/<sala>` da home do pyArchInit, cria miniatura e copia como ao carregar um ficheiro a partir da ficha e liga-os a sua UE, com descricao e etiquetas. Um media que a base de dados ja tem (reconhecido pelo seu identificador) nao e descarregado de novo: verifica-se apenas a ligacao.
 - Os media de achados, ceramica, sepulturas e estruturas ficam por agora locais: a janela conta-os.
 
 ![Uma fotografia nova enviada a sala](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Uma fotografia acrescentada a UE 3 depois do envio do sitio: a comparacao encontra-a e Enviar os acrescentos carrega o ficheiro e a sua ligacao
+> **Fig. 10**: Uma fotografia acrescentada a UE 3 depois do envio do sitio: a comparacao encontra-a e Enviar as alterações carrega o ficheiro e a sua ligacao
+
+### Sincronização com memória
+
+Depois do primeiro **Trazer da sala** (ou do primeiro **Enviar o sítio**) o pyArchInit lembra-se da sala tal como era nesse momento: a *base* comum, guardada na pasta `stratigraph_rooms` da home do pyArchInit, uma por base de dados, sítio e sala. A partir daí:
+
+- a comparação lê da sala **só as novidades** desde a última sincronização, não o documento inteiro;
+- cada diferença tem um autor: **alterado aqui** (envia-se), **alterado na sala** (trá-lo o «Trazer»), **alterado dos dois lados** (conflito, mostrado com os dois valores), **retirado na sala** (retira-se também aqui), **retirado aqui** (envia-se);
+- **Trazer da sala** nunca sobrescreve em silêncio trabalho ainda não enviado: se houver alterações locais, conflitos, relações acrescentadas ou retiradas aqui, a janela lista-os e aconselha enviá-los primeiro. Num conflito confirmado ganha o valor da sala.
+
+As unidades que o trazer deixa de fora de propósito (as continuidades CON geradas e os seus media) ficam na sala e não contam como remoções. Funciona da mesma forma com SQLite e PostgreSQL.
+
+![Comparação a três vias](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: A comparação depois de uma sincronização: um campo alterado aqui a enviar, um alterado na sala a trazer, um conflito no mesmo campo
 
 ### Problemas frequentes
 

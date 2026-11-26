@@ -5,6 +5,25 @@
 
 ---
 
+## [feat] - 2026-11-26 — Sincronizzazione con memoria: confronto a tre vie e lettura incrementale della stanza — 5.15.0-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2636 verdi**, 66 saltati, 1 xfail, 0 falliti. / Sync with memory: three-way compare and incremental room reads.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **la base** (`modules/stratigraph/room_state.py`): per ogni database + sito + nodo + stanza pyArchInit ricorda la stanza dell'ultima sincronizzazione e il suo cursore (`<PYARCHINIT_HOME>/stratigraph_rooms/`, nessuna password nel percorso o nei file). Si salva dopo **Porta dalla stanza** e dopo **Invia il sito**; dopo **Invia le modifiche** avanza solo di ciò che è stato inviato (non assorbe le modifiche di altri non ancora portate, che altrimenti sembrerebbero modifiche locali da annullare).
+- 🇮🇹 **IT**: **lettura incrementale**: confronto e pull leggono solo le operazioni arrivate dopo il cursore (`GET …/ops?after=`), applicate alla base con `s3dgraphy.api.apply_op`, la funzione del server; se il nodo non può servire il cursore, si rilegge il documento intero.
+- 🇮🇹 **IT**: **confronto a tre vie**: cambiato qui (si invia), cambiato nella stanza (lo porta il pull), cambiato da entrambe le parti (conflitto con i due valori, mai inviato), tolto nella stanza (il pull lo toglie anche qui, senza conferma), tolto qui (si invia: rapporti fra unità; un'unità cancellata qui è solo segnalata). Il pulsante diventa **Invia le modifiche** (campi e rimozioni oltre alle aggiunte).
+- 🇮🇹 **IT**: **pull sicuro**: con una base, **Porta dalla stanza** chiede conferma solo se sovrascriverebbe lavoro non inviato (modifiche, conflitti, rapporti aggiunti o tolti qui); in un conflitto confermato vince la stanza. Ciò che il pull non porta di proposito (continuità CON generate e loro media; su PostgreSQL i legami area→sito che vengono dai layer GIS) è ricordato come «non presente qui», non come rimozione.
+- 🇬🇧 **EN**: a per-room base and cursor; incremental room reads through the ops feed; three-way compare (here / room / conflict / removed in room / removed here); «Send changes» sends fields and relation removals too; the pull never silently overwrites unsent work.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: le rimozioni nella stanza sono lapidi CRDT: lette come vive, un rapporto tolto da un collega nella stanza non veniva mai tolto qui dal pull. Ora la stanza si legge senza lapidi (`crdt.live_nodes` / `live_edges`).
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack, due computer simulati (SQLite) su una stanza: modifiche di B arrivate ad A come «cambiate nella stanza»; conflitto sullo stesso campo riconosciuto; pull di A rifiutato finché non invia; US e rapporto nuovi di A arrivati a B; rapporto tolto da un collega nella stanza tolto anche da A e B; rapporto tolto da B inviato e arrivato ad A; confronti successivi a zero. Su PostgreSQL 17 (porta 5433, database di prova poi cancellato): pull, modifica locale riconosciuta e inviata, confronto a zero. Nuovo `tests/sync/test_room_state.py`. Tutorial 32 nelle dieci lingue, nuova sezione «Sincronizzazione con memoria» con la Fig. 11.
+
+---
+
 ## [fix] - 2026-11-26 — Un solo sito nel grafo; verificato sul PostgreSQL 17 + PostGIS 3.4 del Mac (porta 5433) — 5.14.4-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2628 verdi**, 0 falliti.

@@ -229,8 +229,8 @@ Incepand cu versiunea **5.14.0-alpha**, butonul **Trimite situl într-o cameră.
 ### Procedura pas cu pas
 
 1. In panoul **StratiGraph Sync**, apasati **Trimite situl într-o cameră...**
-2. **Node**: adresa nodului, de exemplu `https://nod.example.org/em`. Este retinuta intre sesiuni.
-3. **Site**: alegeti situl. **Id-ul camerei** si **Titlul camerei** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
+2. **Nod**: adresa nodului, de exemplu `https://nod.example.org/em`. Este retinuta intre sesiuni.
+3. **Sit**: alegeti situl. **Id-ul camerei** si **Titlul camerei** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
 4. Apasati **Autentificare...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identitate** arata numele si daca puteti crea camere.
 5. Optional: **Doar plan** arata ce s-ar trimite fara sa scrie nimic pe nod.
 6. Apasati **Trimite situl**: jurnalul arata nodurile si muchiile exportate si rezultatul.
@@ -260,7 +260,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Cand in camera lucreaza si altii (EMStudio, StratiField, EM Tools), dupa autentificare:
 
 1. **Compară cu camera** compara situl cu camera in ambele sensuri, fara sa scrie nimic: ce are nou camera pentru pyArchInit (unitati noi, definitii schimbate, relatii) si ce adauga pyArchInit in camera.
-2. **Trimite adăugirile** trimite doar adaugirile sitului: unitati si relatii noi. Un camp diferit este afisat, dar nu trimis, pentru ca in camera poate fi modificarea mai recenta a unui coleg; ce exista doar in camera nu este atins niciodata.
+2. **Trimite modificările** trimite camerei munca făcută aici: unități și relații noi, câmpuri schimbate aici, relații eliminate aici. Ce s-a schimbat doar în cameră nu este atins; un câmp schimbat de ambele părți este un conflict și doar se afișează (vezi «Sincronizare cu memorie»).
 3. **Adu din cameră** aduce camera in fisele pyArchInit (US, definitii, periodizare, relatii), recunoscand fiecare fisa dupa identificatorul ei. Daca pull-ul ar elimina relatii locale pe care camera nu le cunoaste, fereastra le enumera si cere confirmare.
 
 Cu **Adu din cameră** se poate si reconstrui un sit intr-o baza de date care nu il are: unitatile revin cu numar, tip, definitii si periodizare. Unitatile de continuitate (CON) nu calatoresc: pyArchInit le regenereaza cu **Genera continuita**.
@@ -277,13 +277,27 @@ Toate acestea functioneaza atat cu SQLite cat si cu PostgreSQL. Pentru a reconst
 
 Fotografiile, videoclipurile, modelele 3D si documentele legate de fisele US calatoresc cu situl, in ambele sensuri. Ortofotografiile si celelalte rastere raman deoparte: sunt straturi QGIS, nu media pyArchInit.
 
-- **Trimite situl** si **Trimite adăugirile** incarca fiecare fisier in depozitul camerei o singura data: un fisier pe care camera il are deja (acelasi continut) nu se retrimite. Daca originalul nu mai este pe disc, se foloseste copia din folderul Resize.
+- **Trimite situl** si **Trimite modificările** incarca fiecare fisier in depozitul camerei o singura data: un fisier pe care camera il are deja (acelasi continut) nu se retrimite. Daca originalul nu mai este pe disc, se foloseste copia din folderul Resize.
 - **Adu din cameră** descarca media noi in folderul `stratigraph_media/<camera>` din home-ul pyArchInit, creeaza miniatura si copia ca la incarcarea unui fisier din fisa si le leaga de US-ul lor, cu descriere si etichete. Un media pe care baza de date il are deja (recunoscut dupa identificator) nu se descarca din nou: se verifica doar legatura.
 - Media pentru artefacte, ceramica, morminte si structuri raman deocamdata locale: fereastra le numara.
 
 ![O fotografie noua trimisa in camera](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: O fotografie adaugata la US 3 dupa trimiterea sitului: comparatia o gaseste si Trimite adăugirile incarca fisierul si legatura
+> **Fig. 10**: O fotografie adaugata la US 3 dupa trimiterea sitului: comparatia o gaseste si Trimite modificările incarca fisierul si legatura
+
+### Sincronizare cu memorie
+
+După prima **Adu din cameră** (sau prima **Trimite situl**) pyArchInit își amintește camera așa cum era în acel moment: *baza* comună, salvată în folderul `stratigraph_rooms` din home-ul pyArchInit, câte una pentru fiecare bază de date, sit și cameră. De atunci:
+
+- comparația citește din cameră **doar noutățile** de la ultima sincronizare, nu tot documentul;
+- fiecare diferență are un autor: **schimbat aici** (se trimite), **schimbat în cameră** (o aduce aducerea), **schimbat de ambele părți** (conflict, afișat cu ambele valori), **eliminat în cameră** (se elimină și aici), **eliminat aici** (se trimite);
+- **Adu din cameră** nu suprascrie niciodată în tăcere munca încă netrimisă: dacă există modificări locale, conflicte, relații adăugate sau eliminate aici, fereastra le enumeră și recomandă trimiterea lor mai întâi. Într-un conflict confirmat câștigă valoarea camerei.
+
+Unitățile pe care aducerea le lasă deoparte intenționat (continuitățile CON generate și media lor) rămân în cameră și nu contează ca eliminări. Funcționează la fel cu SQLite și PostgreSQL.
+
+![Comparație în trei căi](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: Comparația după o sincronizare: un câmp schimbat aici de trimis, unul schimbat în cameră de adus, un conflict pe același câmp
 
 ### Probleme frecvente
 

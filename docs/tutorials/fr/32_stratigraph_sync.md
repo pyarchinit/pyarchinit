@@ -229,7 +229,7 @@ Depuis la version **5.14.0-alpha**, le bouton **Envoyer le site vers une salle..
 ### Procedure pas a pas
 
 1. Dans le panneau **StratiGraph Sync**, cliquer sur **Envoyer le site vers une salle...**
-2. **Node** : l'adresse du noeud, par exemple `https://noeud.example.org/em`. Elle est memorisee d'une session a l'autre.
+2. **Nœud** : l'adresse du noeud, par exemple `https://noeud.example.org/em`. Elle est memorisee d'une session a l'autre.
 3. **Site** : choisir le site. **Id de la salle** et **Titre de la salle** sont remplis a partir du nom du site et peuvent etre modifies ; l'identifiant de la salle est un seul mot, sans espaces.
 4. Cliquer sur **Se connecter...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identité** affiche le nom et indique si l'on peut creer des salles.
 5. Facultatif : **Plan seulement** montre ce qui serait envoye sans rien ecrire sur le noeud.
@@ -260,7 +260,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Quand d'autres travaillent aussi dans la salle (EMStudio, StratiField, EM Tools), apres la connexion :
 
 1. **Comparer avec la salle** compare le site et la salle dans les deux sens, sans rien ecrire : ce que la salle a de nouveau pour pyArchInit (nouvelles unites, definitions modifiees, relations) et ce que pyArchInit ajoute a la salle.
-2. **Envoyer les ajouts** n'envoie que les ajouts du site : nouvelles unites et relations. Un champ different est affiche mais pas envoye, car dans la salle il peut s'agir de la modification la plus recente d'un collegue ; ce qui n'existe que dans la salle n'est jamais touche.
+2. **Envoyer les modifications** envoie à la salle le travail fait ici : nouvelles unités et relations, champs modifiés ici, relations retirées ici. Ce qui n'a changé que dans la salle n'est pas touché ; un champ modifié des deux côtés est un conflit et n'est qu'affiché (voir «Synchronisation avec mémoire»).
 3. **Récupérer de la salle** apporte la salle dans les fiches de pyArchInit (US, definitions, periodisation, relations), en reconnaissant chaque fiche par son identifiant. Si le pull supprimait des relations locales que la salle ne connait pas, la fenetre les liste et demande confirmation.
 
 **Récupérer de la salle** permet aussi de reconstruire un site dans une base qui ne l'a pas : les unites reviennent avec numero, type, definitions et periodisation. Les unites de continuite (CON) ne voyagent pas : pyArchInit les regenere avec **Genera continuita**.
@@ -277,13 +277,27 @@ Tout cela vaut pour SQLite comme pour PostgreSQL. Pour reconstruire un site, il 
 
 Les photos, videos, modeles 3D et documents lies aux fiches US voyagent avec le site, dans les deux sens. Les orthophotos et les autres rasters restent a l'ecart : ce sont des couches QGIS, pas des medias pyArchInit.
 
-- **Envoyer le site** et **Envoyer les ajouts** deposent chaque fichier dans le stockage de la salle une seule fois : un fichier que la salle a deja (meme contenu) n'est pas renvoye. Si l'original n'est plus sur le disque, la copie du dossier Resize est utilisee.
+- **Envoyer le site** et **Envoyer les modifications** deposent chaque fichier dans le stockage de la salle une seule fois : un fichier que la salle a deja (meme contenu) n'est pas renvoye. Si l'original n'est plus sur le disque, la copie du dossier Resize est utilisee.
 - **Récupérer de la salle** telecharge les nouveaux medias dans le dossier `stratigraph_media/<salle>` du home de pyArchInit, cree miniature et copie comme lors du chargement d'un fichier depuis la fiche et les lie a leur US, avec description et etiquettes. Un media que la base a deja (reconnu par son identifiant) n'est pas retelecharge : seul son lien est verifie.
 - Les medias du mobilier, de la ceramique, des tombes et des structures restent locaux pour l'instant : la fenetre les compte.
 
 ![Une nouvelle photo envoyee a la salle](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Une photo ajoutee a l'US 3 apres l'envoi du site : la comparaison la trouve et Envoyer les ajouts depose le fichier et son lien
+> **Fig. 10**: Une photo ajoutee a l'US 3 apres l'envoi du site : la comparaison la trouve et Envoyer les modifications depose le fichier et son lien
+
+### Synchronisation avec mémoire
+
+Après la première **Récupérer de la salle** (ou le premier **Envoyer le site**), pyArchInit se souvient de la salle telle qu'elle était à ce moment : la *base* commune, enregistrée dans le dossier `stratigraph_rooms` du home de pyArchInit, une par base de données, site et salle. Dès lors :
+
+- la comparaison ne lit dans la salle **que les nouveautés** depuis la dernière synchronisation, pas tout le document ;
+- chaque différence a un auteur : **modifié ici** (envoyé), **modifié dans la salle** (la récupération l'apporte), **modifié des deux côtés** (conflit, affiché avec les deux valeurs), **retiré dans la salle** (retiré aussi ici), **retiré ici** (envoyé) ;
+- **Récupérer de la salle** n'écrase jamais en silence le travail pas encore envoyé : s'il y a des modifications locales, des conflits, des relations ajoutées ou retirées ici, la fenêtre les liste et conseille de les envoyer d'abord. Dans un conflit confirmé, la valeur de la salle l'emporte.
+
+Les unités que la récupération laisse de côté à dessein (les continuités CON générées et leurs médias) restent dans la salle et ne comptent pas comme des suppressions. Cela fonctionne de la même façon avec SQLite et PostgreSQL.
+
+![Comparaison à trois voies](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: La comparaison après une synchronisation : un champ modifié ici à envoyer, un modifié dans la salle à récupérer, un conflit sur le même champ
 
 ### Problemes frequents
 

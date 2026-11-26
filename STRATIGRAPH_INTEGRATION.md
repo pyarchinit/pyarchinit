@@ -318,11 +318,11 @@ File: `modules/db/database_sync.py` (1290 righe)
 
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
-| Client API StratiGraph | `[FATTO]` | 85% | `modules/stratigraph/node_client.py` (accesso, invio) e `room_sync.py` (documento della stanza, confronto, aggiunte, pull). Manca il feed incrementale `GET …/changes`, `…/ops` (oggi si rilegge il documento) |
+| Client API StratiGraph | `[FATTO]` | 95% | `modules/stratigraph/node_client.py` (accesso, invio), `room_sync.py` (confronto a tre vie, invio delle modifiche, pull), `room_state.py` (base e cursore per stanza; lettura incrementale con `GET …/ops?after=`, operazioni applicate con `s3dgraphy.api.apply_op`; documento intero se il cursore non vale). Non usato: `GET …/changes?since=` (riepilogo per persona) |
 | Autenticazione token-based | `[FATTO]` | 100% | Login nativo Authorization Code + PKCE sul Keycloak del nodo; `NodeSession` rinnova da sola il token con il refresh token |
 | Lettura delle modifiche dalla stanza | `[FATTO]` | 80% | `room_sync.pull_room`: la stanza nelle schede native via ingestore, a secco di default, conflitti classificati (formato / veri), conferma se si toglierebbero rapporti locali. Verificato: un sito ricostruito da una stanza in un database vuoto (50 unità su 51, manca solo la continuità CON generata). Media delle US nei due sensi (`room_media.py`): 150 foto ricostruite su un altro computer con legami (foto, US) identici, secondo pull senza effetti, foto nuova arrivata con descrizione e tag. Le ortofoto restano fuori (layer QGIS). Scheda US intera nella stanza (`room_records.py`) e riscritta dal pull: ricostruita altrove, 130 colonne su 131 identiche (i rapporti tornano nella forma completa a quattro elementi: tipo, US, area, sito). Verificato anche su PostgreSQL (database creato vuoto con lo schema di pyArchInit): pull, secondo pull senza effetti, confronto con la stanza a zero differenze; pannello e finestra della stanza nelle dieci lingue. Ancora aperti: i media di reperti/ceramica/tombe/strutture (non sono nodi del grafo) |
 | Invio dati al nodo (era «submit bundle») | `[FATTO]` | 100% | Sito → em.json → `s3dgraphy.room_import` (stanza creata, file caricati una volta, grafo come operazioni). I file di database restano riferimenti |
-| Query stato sync | `[FATTO]` | 80% | `room_sync.contribution`: cosa aggiunge pyArchInit, cosa ha di nuovo la stanza, cosa c'è solo nella stanza; `push_new` invia solo le aggiunte. Senza base comune i campi diversi si mostrano e non si inviano |
+| Query stato sync | `[FATTO]` | 95% | Confronto a tre vie con la base dell'ultima sincronizzazione: cambiato qui (si invia), cambiato nella stanza (lo porta il pull), conflitto (mostrato), tolto nella stanza (il pull lo toglie), tolto qui (si invia, solo rapporti fra unità). Il pull non sovrascrive in silenzio lavoro non inviato. Rimozioni nella stanza lette come lapidi CRDT. Verificato su due computer simulati (SQLite) e su PostgreSQL 17 |
 | Recupero errori validazione | `[PARZIALE]` | 50% | `refused` e `conflicts` delle operazioni arrivano nel report; non ancora mostrati riga per riga nella UI |
 | Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator; l'invio a una stanza è idempotente (un secondo invio non duplica) |
 
@@ -793,7 +793,7 @@ Per i task `[BLOCCATO]`, la strategia è:
 | Offline-first (state machine) | 100% |
 | Coda sync + orchestratore | 100% |
 | UI pannello sync | 100% |
-| Client API StratiGraph | 0% (bloccato) |
+| Client API StratiGraph | `[FATTO]` | 95% | `modules/stratigraph/node_client.py` (accesso, invio), `room_sync.py` (confronto a tre vie, invio delle modifiche, pull), `room_state.py` (base e cursore per stanza; lettura incrementale con `GET …/ops?after=`, operazioni applicate con `s3dgraphy.api.apply_op`; documento intero se il cursore non vale). Non usato: `GET …/changes?since=` (riepilogo per persona) |
 | Auth StratiGraph | 0% (bloccato) |
 | SDK WP4 | 0% (bloccato) |
 | Test conformità CIDOC-CRM | 0% |

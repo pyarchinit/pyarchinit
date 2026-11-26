@@ -230,7 +230,7 @@ Des de la versio **5.14.0-alpha** el boto **Envia el jaciment a una sala...** po
 
 1. Al panell **StratiGraph Sync**, premeu **Envia el jaciment a una sala...**
 2. **Node**: l'adreca del node, per exemple `https://node.example.org/em`. Es recorda entre sessions.
-3. **Site**: trieu el jaciment. **Id de la sala** i **Títol de la sala** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
+3. **Jaciment**: trieu el jaciment. **Id de la sala** i **Títol de la sala** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
 4. Premeu **Inicia sessió...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identitat** mostra el nom i si podeu crear sales.
 5. Opcional: **Només pla** mostra el que s'enviaria sense escriure res al node.
 6. Premeu **Envia el jaciment**: el registre indica els nodes i les arestes exportats i el resultat.
@@ -260,7 +260,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Quan a la sala hi treballen tambe altres (EMStudio, StratiField, EM Tools), despres d'accedir:
 
 1. **Compara amb la sala** compara el jaciment amb la sala en els dos sentits, sense escriure res: que te de nou la sala per a pyArchInit (unitats noves, definicions canviades, relacions) i que hi afegeix pyArchInit.
-2. **Envia les novetats** envia nomes les addicions del jaciment: unitats i relacions noves. Un camp diferent es mostra pero no s'envia, perque a la sala pot ser la modificacio mes recent d'un company; el que nomes es a la sala no es toca mai.
+2. **Envia els canvis** envia a la sala la feina feta aquí: unitats i relacions noves, camps canviats aquí, relacions tretes aquí. El que només ha canviat a la sala no es toca; un camp canviat a les dues bandes és un conflicte i només es mostra (vegeu «Sincronització amb memòria»).
 3. **Porta de la sala** porta la sala a les fitxes de pyArchInit (UE, definicions, perioditzacio, relacions), reconeixent cada fitxa pel seu identificador. Si el pull tragues relacions locals que la sala no coneix, la finestra les enumera i demana confirmacio.
 
 Amb **Porta de la sala** tambe es pot reconstruir un jaciment en una base de dades que no el te: les unitats tornen amb numero, tipus, definicions i perioditzacio. Les unitats de continuitat (CON) no viatgen: pyArchInit les regenera amb **Genera continuita**.
@@ -277,13 +277,27 @@ Tot aixo val tant per a SQLite com per a PostgreSQL. Per reconstruir un jaciment
 
 Les fotos, els videos, els models 3D i els documents vinculats a les fitxes UE viatgen amb el jaciment, en tots dos sentits. Les ortofotos i els altres raster en queden fora: son capes de QGIS, no mitjans de pyArchInit.
 
-- **Envia el jaciment** i **Envia les novetats** pugen cada fitxer al diposit de la sala una sola vegada: un fitxer que la sala ja te (mateix contingut) no es torna a enviar. Si l'original ja no es al disc s'utilitza la copia de la carpeta Resize.
+- **Envia el jaciment** i **Envia els canvis** pugen cada fitxer al diposit de la sala una sola vegada: un fitxer que la sala ja te (mateix contingut) no es torna a enviar. Si l'original ja no es al disc s'utilitza la copia de la carpeta Resize.
 - **Porta de la sala** descarrega els mitjans nous a la carpeta `stratigraph_media/<sala>` del home de pyArchInit, crea miniatura i copia com quan es carrega un fitxer des de la fitxa i els vincula a la seva UE, amb descripcio i etiquetes. Un mitja que la base de dades ja te (reconegut pel seu identificador) no es torna a descarregar: nomes se'n comprova el vincle.
 - Els mitjans de troballes, ceramica, tombes i estructures de moment queden en local: la finestra els compta.
 
 ![Una foto nova enviada a la sala](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Una foto afegida a la UE 3 despres d'enviar el jaciment: la comparacio la troba i Envia les novetats puja el fitxer i el seu vincle
+> **Fig. 10**: Una foto afegida a la UE 3 despres d'enviar el jaciment: la comparacio la troba i Envia els canvis puja el fitxer i el seu vincle
+
+### Sincronització amb memòria
+
+Després del primer **Porta de la sala** (o del primer **Envia el jaciment**) pyArchInit recorda la sala tal com era en aquell moment: la *base* comuna, desada a la carpeta `stratigraph_rooms` del home de pyArchInit, una per base de dades, jaciment i sala. A partir d'aleshores:
+
+- la comparació llegeix de la sala **només les novetats** des de la darrera sincronització, no tot el document;
+- cada diferència té un autor: **canviat aquí** (s'envia), **canviat a la sala** (el porta «Porta»), **canviat a les dues bandes** (conflicte, mostrat amb els dos valors), **tret a la sala** (es treu també aquí), **tret aquí** (s'envia);
+- **Porta de la sala** mai no sobreescriu en silenci feina encara no enviada: si hi ha canvis locals, conflictes, relacions afegides o tretes aquí, la finestra els llista i aconsella enviar-los abans. En un conflicte confirmat guanya el valor de la sala.
+
+Les unitats que el portar deixa fora a propòsit (les continuïtats CON generades i els seus mitjans) queden a la sala i no compten com a eliminacions. Funciona igual amb SQLite i PostgreSQL.
+
+![Comparació a tres vies](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: La comparació després d'una sincronització: un camp canviat aquí per enviar, un canviat a la sala per portar, un conflicte en el mateix camp
 
 ### Problemes frequents
 

@@ -229,8 +229,8 @@ Dalla versione **5.14.0-alpha** il pulsante **Invia il sito a una stanza...** po
 ### Procedura passo per passo
 
 1. Nel pannello **StratiGraph Sync** premere **Invia il sito a una stanza...**
-2. **Node**: l'indirizzo del nodo, per esempio `https://nodo.example.org/em`. Viene ricordato tra una sessione e l'altra.
-3. **Site**: scegliere il sito. **Id della stanza** e **Titolo della stanza** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
+2. **Nodo**: l'indirizzo del nodo, per esempio `https://nodo.example.org/em`. Viene ricordato tra una sessione e l'altra.
+3. **Sito**: scegliere il sito. **Id della stanza** e **Titolo della stanza** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
 4. Premere **Accedi...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identità** mostra il nome e se si possono creare stanze.
 5. Facoltativo: **Solo piano** mostra cosa verrebbe inviato senza scrivere niente sul nodo.
 6. Premere **Invia il sito**: il log riporta i nodi e gli archi esportati e l'esito dell'invio.
@@ -260,7 +260,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Quando nella stanza lavorano anche altri (EMStudio, StratiField, EM Tools), dopo l'accesso:
 
 1. **Confronta con la stanza** confronta il sito con la stanza nei due sensi, senza scrivere niente: cosa ha di nuovo la stanza per pyArchInit (unita nuove, definizioni cambiate, rapporti) e cosa aggiunge pyArchInit alla stanza.
-2. **Invia le aggiunte** invia solo le aggiunte del sito: unita e rapporti nuovi. Un campo diverso viene mostrato ma non inviato, perche nella stanza puo essere la modifica piu recente di un collega; quello che c'e solo nella stanza non viene mai toccato.
+2. **Invia le modifiche** invia alla stanza il lavoro fatto qui: unità e rapporti nuovi, campi cambiati qui, rapporti tolti qui. Quello che è cambiato solo nella stanza non viene toccato; un campo cambiato da entrambe le parti è un conflitto e viene solo mostrato (vedi «Sincronizzazione con memoria»).
 3. **Porta dalla stanza** porta la stanza nelle schede di pyArchInit (US, definizioni, periodizzazione, rapporti), riconoscendo ogni scheda dal suo identificativo. Se il pull togliesse rapporti locali che la stanza non conosce, la finestra li elenca e chiede conferma.
 
 Con **Porta dalla stanza** si puo anche ricostruire un sito in un database che non lo ha: le unita tornano con numero, tipo, definizioni e periodizzazione. Le unita di continuita (CON) non viaggiano: pyArchInit le rigenera con **Genera continuita**.
@@ -277,13 +277,27 @@ Tutto questo vale sia per SQLite sia per PostgreSQL. Per ricostruire un sito bas
 
 Le foto, i video, i modelli 3D e i documenti collegati alle schede US viaggiano con il sito, nei due sensi. Le ortofoto e gli altri raster restano fuori: sono layer di QGIS, non media di pyArchInit.
 
-- **Invia il sito** e **Invia le aggiunte** caricano ogni file nel deposito della stanza una sola volta: un file che la stanza ha gia (stesso contenuto) non viene rimandato. Se l'originale non e piu sul disco si usa la copia della cartella Resize.
+- **Invia il sito** e **Invia le modifiche** caricano ogni file nel deposito della stanza una sola volta: un file che la stanza ha gia (stesso contenuto) non viene rimandato. Se l'originale non e piu sul disco si usa la copia della cartella Resize.
 - **Porta dalla stanza** scarica i media nuovi nella cartella `stratigraph_media/<stanza>` della home di pyArchInit, crea miniatura e copia come quando si carica un file dalla scheda e li collega alla loro US, con descrizione e tag. Un media che il database ha gia (riconosciuto dal suo identificativo) non viene riscaricato: si controlla solo il collegamento.
 - I media di reperti, ceramica, tombe e strutture per ora restano locali: la finestra li conta.
 
 ![Una foto nuova inviata alla stanza](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Una foto aggiunta alla US 3 dopo l'invio del sito: il confronto la trova e Invia le aggiunte carica il file e il suo collegamento
+> **Fig. 10**: Una foto aggiunta alla US 3 dopo l'invio del sito: il confronto la trova e Invia le modifiche carica il file e il suo collegamento
+
+### Sincronizzazione con memoria
+
+Dopo il primo **Porta dalla stanza** (o il primo **Invia il sito**) pyArchInit ricorda la stanza com'era in quel momento: è la *base* comune, salvata nella cartella `stratigraph_rooms` della home di pyArchInit, una per database, sito e stanza. Da allora:
+
+- il confronto legge dalla stanza **solo le novità** arrivate dopo l'ultima sincronizzazione, non tutto il documento;
+- ogni differenza ha un autore: **cambiato qui** (si invia), **cambiato nella stanza** (lo porta il pull), **cambiato da entrambe le parti** (conflitto, mostrato con i due valori), **tolto nella stanza** (il pull lo toglie anche qui), **tolto qui** (si invia);
+- **Porta dalla stanza** non sovrascrive mai in silenzio il lavoro non ancora inviato: se ci sono modifiche locali, conflitti, rapporti aggiunti o tolti qui, la finestra li elenca e consiglia di inviarli prima. In un conflitto confermato vince il valore della stanza.
+
+Le unità che il pull non porta di proposito (le continuità CON generate e i loro media) restano nella stanza e non contano come rimozioni. Funziona allo stesso modo con SQLite e PostgreSQL.
+
+![Confronto a tre vie](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: Il confronto dopo una sincronizzazione: un campo cambiato qui da inviare, uno cambiato nella stanza da portare, un conflitto sullo stesso campo
 
 ### Problemi frequenti
 

@@ -259,7 +259,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 When others work in the room too (EMStudio, StratiField, EM Tools), after signing in:
 
 1. **Compare with room** compares the site with the room in both directions, writing nothing: what the room has that is new for pyArchInit (new units, changed definitions, relations) and what pyArchInit adds to the room.
-2. **Send additions** sends only the site's additions: new units and relations. A field that differs is shown but not sent, because in the room it may be a colleague's more recent edit; what is only in the room is never touched.
+2. **Send changes** sends the room the work done here: new units and relations, fields changed here, relations removed here. What changed only in the room is not touched; a field changed on both sides is a conflict and is only shown (see «Sync with memory»).
 3. **Pull from room** brings the room into pyArchInit's records (SU, definitions, periodisation, relations), recognising each record by its identifier. If the pull would remove local relations the room does not know, the window lists them and asks for confirmation.
 
 **Pull from room** can also rebuild a site in a database that does not have it: the units come back with number, type, definitions and periodisation. Continuity units (CON) do not travel: pyArchInit regenerates them with **Genera continuita**.
@@ -276,13 +276,27 @@ All of this works with both SQLite and PostgreSQL. To rebuild a site an empty py
 
 Photos, videos, 3D models and documents linked to SU records travel with the site, in both directions. Orthophotos and other rasters stay out: they are QGIS layers, not pyArchInit media.
 
-- **Send site** and **Send additions** upload each file to the room's store only once: a file the room already has (same content) is not sent again. If the original is no longer on disk, the copy in the Resize folder is used.
+- **Send site** and **Send changes** upload each file to the room's store only once: a file the room already has (same content) is not sent again. If the original is no longer on disk, the copy in the Resize folder is used.
 - **Pull from room** downloads new media into the `stratigraph_media/<room>` folder of the pyArchInit home, makes thumbnail and copy as when a file is loaded from the form, and links them to their SU with description and tags. A medium the database already has (recognised by its identifier) is not downloaded again: only its link is checked.
 - Media of finds, pottery, tombs and structures stay local for now: the window counts them.
 
 ![A new photo sent to the room](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: A photo added to SU 3 after the site was sent: the comparison finds it and Send additions uploads the file and its link
+> **Fig. 10**: A photo added to SU 3 after the site was sent: the comparison finds it and Send changes uploads the file and its link
+
+### Sync with Memory
+
+After the first **Pull from room** (or the first **Send site**) pyArchInit remembers the room as it was at that moment: the common *base*, saved in the `stratigraph_rooms` folder of the pyArchInit home, one per database, site and room. From then on:
+
+- the comparison reads from the room **only what is new** since the last sync, not the whole document;
+- every difference has an author: **changed here** (sent), **changed in the room** (the pull brings it), **changed on both sides** (a conflict, shown with both values), **removed in the room** (the pull removes it here too), **removed here** (sent);
+- **Pull from room** never silently overwrites work not yet sent: if there are local edits, conflicts, relations added or removed here, the window lists them and suggests sending them first. In a confirmed conflict the room's value wins.
+
+Units the pull leaves out on purpose (generated CON continuity units and their media) stay in the room and do not count as removals. It works the same with SQLite and PostgreSQL.
+
+![Three-way comparison](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: The comparison after a sync: a field changed here to send, one changed in the room to pull, a conflict on the same field
 
 ### Common Problems
 

@@ -229,8 +229,8 @@ Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Fundstelle an einen Raum 
 ### Schritt-fuer-Schritt-Anleitung
 
 1. Im Panel **StratiGraph Sync** auf **Fundstelle an einen Raum senden...** klicken.
-2. **Node**: die Adresse des Knotens, zum Beispiel `https://knoten.example.org/em`. Sie wird zwischen den Sitzungen gespeichert.
-3. **Site**: die Fundstelle waehlen. **Raum-ID** und **Raumtitel** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
+2. **Knoten**: die Adresse des Knotens, zum Beispiel `https://knoten.example.org/em`. Sie wird zwischen den Sitzungen gespeichert.
+3. **Fundstelle**: die Fundstelle waehlen. **Raum-ID** und **Raumtitel** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
 4. Auf **Anmelden...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identität** zeigt den Namen und ob Raeume erstellt werden duerfen.
 5. Optional: **Nur planen** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
 6. Auf **Fundstelle senden** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
@@ -260,7 +260,7 @@ python scripts/stratigraph_send_site.py --db ~/pyarchinit_5/pyarchinit_DB_folder
 Wenn auch andere im Raum arbeiten (EMStudio, StratiField, EM Tools), nach der Anmeldung:
 
 1. **Mit dem Raum vergleichen** vergleicht die Fundstelle mit dem Raum in beide Richtungen, ohne etwas zu schreiben: was der Raum Neues fuer pyArchInit hat (neue Einheiten, geaenderte Definitionen, Beziehungen) und was pyArchInit dem Raum hinzufuegt.
-2. **Ergänzungen senden** sendet nur die Ergaenzungen der Fundstelle: neue Einheiten und Beziehungen. Ein abweichendes Feld wird angezeigt, aber nicht gesendet, denn im Raum kann es die neuere Aenderung eines Kollegen sein; was nur im Raum ist, wird nie angetastet.
+2. **Änderungen senden** sendet dem Raum die hier geleistete Arbeit: neue Einheiten und Beziehungen, hier geänderte Felder, hier entfernte Beziehungen. Was sich nur im Raum geändert hat, bleibt unberührt; ein auf beiden Seiten geändertes Feld ist ein Konflikt und wird nur angezeigt (siehe «Synchronisation mit Gedächtnis»).
 3. **Aus dem Raum holen** bringt den Raum in die Datenblaetter von pyArchInit (SE, Definitionen, Periodisierung, Beziehungen) und erkennt jedes Blatt an seiner Kennung. Wuerde der Pull lokale Beziehungen entfernen, die der Raum nicht kennt, listet das Fenster sie auf und fragt nach Bestaetigung.
 
 Mit **Aus dem Raum holen** laesst sich auch eine Fundstelle in einer Datenbank wiederherstellen, die sie nicht enthaelt: die Einheiten kommen mit Nummer, Typ, Definitionen und Periodisierung zurueck. Kontinuitaetseinheiten (CON) reisen nicht mit: pyArchInit erzeugt sie mit **Genera continuita** neu.
@@ -277,13 +277,27 @@ All das gilt fuer SQLite wie fuer PostgreSQL. Um eine Fundstelle wiederherzustel
 
 Fotos, Videos, 3D-Modelle und Dokumente, die mit SE-Datensaetzen verknuepft sind, reisen mit der Fundstelle, in beide Richtungen. Orthofotos und andere Raster bleiben aussen vor: sie sind QGIS-Layer, keine pyArchInit-Medien.
 
-- **Fundstelle senden** und **Ergänzungen senden** laden jede Datei nur einmal in den Speicher des Raums: eine Datei, die der Raum schon hat (gleicher Inhalt), wird nicht erneut gesendet. Ist das Original nicht mehr auf der Festplatte, wird die Kopie im Resize-Ordner verwendet.
+- **Fundstelle senden** und **Änderungen senden** laden jede Datei nur einmal in den Speicher des Raums: eine Datei, die der Raum schon hat (gleicher Inhalt), wird nicht erneut gesendet. Ist das Original nicht mehr auf der Festplatte, wird die Kopie im Resize-Ordner verwendet.
 - **Aus dem Raum holen** laedt neue Medien in den Ordner `stratigraph_media/<Raum>` des pyArchInit-Home, erzeugt Vorschau und Kopie wie beim Laden einer Datei aus dem Formular und verknuepft sie mit ihrer SE, mit Beschreibung und Tags. Ein Medium, das die Datenbank schon hat (an seiner Kennung erkannt), wird nicht erneut geladen: nur die Verknuepfung wird geprueft.
 - Medien von Funden, Keramik, Graebern und Strukturen bleiben vorerst lokal: das Fenster zaehlt sie.
 
 ![Ein neues Foto an den Raum gesendet](images/32_stratigraph_sync/09_room_media.png)
 
-> **Fig. 10**: Ein Foto, das nach dem Senden der Fundstelle zur SE 3 hinzugefuegt wurde: der Vergleich findet es und Ergänzungen senden laedt Datei und Verknuepfung hoch
+> **Fig. 10**: Ein Foto, das nach dem Senden der Fundstelle zur SE 3 hinzugefuegt wurde: der Vergleich findet es und Änderungen senden laedt Datei und Verknuepfung hoch
+
+### Synchronisation mit Gedächtnis
+
+Nach dem ersten **Aus dem Raum holen** (oder dem ersten **Fundstelle senden**) merkt sich pyArchInit den Raum, wie er in diesem Moment war: die gemeinsame *Basis*, gespeichert im Ordner `stratigraph_rooms` des pyArchInit-Home, eine pro Datenbank, Fundstelle und Raum. Von da an:
+
+- liest der Vergleich aus dem Raum **nur das Neue** seit der letzten Synchronisation, nicht das ganze Dokument;
+- hat jeder Unterschied einen Urheber: **hier geändert** (wird gesendet), **im Raum geändert** (das Holen bringt es), **auf beiden Seiten geändert** (Konflikt, mit beiden Werten angezeigt), **im Raum entfernt** (das Holen entfernt es auch hier), **hier entfernt** (wird gesendet);
+- überschreibt **Aus dem Raum holen** nie stillschweigend noch nicht gesendete Arbeit: gibt es lokale Änderungen, Konflikte, hier hinzugefügte oder entfernte Beziehungen, listet das Fenster sie auf und empfiehlt, sie zuerst zu senden. Bei einem bestätigten Konflikt gewinnt der Wert des Raums.
+
+Einheiten, die das Holen absichtlich auslässt (erzeugte Kontinuitätseinheiten CON und ihre Medien), bleiben im Raum und zählen nicht als Entfernungen. Es funktioniert mit SQLite und PostgreSQL gleich.
+
+![Drei-Wege-Vergleich](images/32_stratigraph_sync/10_three_way_compare.png)
+
+> **Fig. 11**: Der Vergleich nach einer Synchronisation: ein hier geändertes Feld zum Senden, ein im Raum geändertes zum Holen, ein Konflikt im selben Feld
 
 ### Haeufige Probleme
 
