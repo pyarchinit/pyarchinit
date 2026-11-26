@@ -231,7 +231,7 @@ Ab Version **5.14.0-alpha** bringt die Schaltflaeche **Fundstelle an einen Raum 
 1. Im Panel **StratiGraph Sync** auf **Fundstelle an einen Raum senden...** klicken.
 2. **Knoten**: die Adresse des Knotens, zum Beispiel `https://knoten.example.org/em`. Sie wird zwischen den Sitzungen gespeichert.
 3. **Fundstelle**: die Fundstelle waehlen. **Raum-ID** und **Raumtitel** werden aus dem Namen der Fundstelle ausgefuellt und koennen geaendert werden; die Raum-ID ist ein Wort ohne Leerzeichen.
-4. Auf **Anmelden...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identität** zeigt den Namen und ob Raeume erstellt werden duerfen.
+4. Auf **Anmelden...** klicken: die Anmeldeseite des Knotens oeffnet sich im Browser. Mit dem eigenen Konto anmelden und zu QGIS zurueckkehren: die Zeile **Identität** zeigt den Namen und ob Raeume erstellt werden duerfen. Hat der Knoten einen eigenen Keycloak-Client für pyArchInit, gehört sein Name in die QGIS-Einstellung `pyArchInit/stratigraph/client_id`; sonst wird der vom Knoten genannte Client verwendet.
 5. Optional: **Nur planen** zeigt, was gesendet wuerde, ohne etwas auf dem Knoten zu schreiben.
 6. Auf **Fundstelle senden** klicken: das Protokoll nennt die exportierten Knoten und Kanten und das Ergebnis.
 

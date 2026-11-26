@@ -230,7 +230,7 @@ Since version **5.14.0-alpha** the **Send site to a room...** button brings a si
 1. In the **StratiGraph Sync** panel, click **Send site to a room...**
 2. **Node**: the node's address, for example `https://node.example.org/em`. It is remembered between sessions.
 3. **Site**: choose the site. **Room id** and **Room title** are filled in from the site name and can be changed; the room id is one word, without spaces.
-4. Click **Sign in...**: the node's sign-in page opens in the browser. Sign in with your account and go back to QGIS: the **Identity** line shows your name and whether you may create rooms.
+4. Click **Sign in...**: the node's sign-in page opens in the browser. Sign in with your account and go back to QGIS: the **Identity** line shows your name and whether you may create rooms. If the node has a Keycloak client dedicated to pyArchInit, its name goes in the QGIS setting `pyArchInit/stratigraph/client_id`; otherwise the client the node names is used.
 5. Optional: **Plan only** shows what would be sent without writing anything on the node.
 6. Click **Send site**: the log reports the exported nodes and edges and the result.
 

@@ -230,7 +230,7 @@ A partir da versao **5.14.0-alpha** o botao **Enviar o sítio para uma sala...**
 1. No painel **StratiGraph Sync**, carregar em **Enviar o sítio para uma sala...**
 2. **Nó**: o endereco do no, por exemplo `https://no.example.org/em`. Fica memorizado entre sessoes.
 3. **Sítio**: escolher o sitio. **Id da sala** e **Título da sala** sao preenchidos com o nome do sitio e podem ser alterados; o id da sala e uma so palavra, sem espacos.
-4. Carregar em **Iniciar sessão...**: a pagina de acesso do no abre-se no navegador. Entrar com a sua conta e voltar ao QGIS: a linha **Identidade** mostra o nome e se pode criar salas.
+4. Carregar em **Iniciar sessão...**: a pagina de acesso do no abre-se no navegador. Entrar com a sua conta e voltar ao QGIS: a linha **Identidade** mostra o nome e se pode criar salas. Se o nó tiver um cliente Keycloak dedicado ao pyArchInit, o seu nome vai na definição do QGIS `pyArchInit/stratigraph/client_id`; caso contrário usa-se o cliente que o nó indica.
 5. Opcional: **Apenas plano** mostra o que seria enviado sem escrever nada no no.
 6. Carregar em **Enviar o sítio**: o registo indica os nos e as arestas exportados e o resultado.
 

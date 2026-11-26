@@ -231,7 +231,7 @@ Incepand cu versiunea **5.14.0-alpha**, butonul **Trimite situl într-o cameră.
 1. In panoul **StratiGraph Sync**, apasati **Trimite situl într-o cameră...**
 2. **Nod**: adresa nodului, de exemplu `https://nod.example.org/em`. Este retinuta intre sesiuni.
 3. **Sit**: alegeti situl. **Id-ul camerei** si **Titlul camerei** se completeaza din numele sitului si pot fi modificate; id-ul camerei este un singur cuvant, fara spatii.
-4. Apasati **Autentificare...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identitate** arata numele si daca puteti crea camere.
+4. Apasati **Autentificare...**: pagina de autentificare a nodului se deschide in browser. Autentificati-va cu contul propriu si reveniti in QGIS: randul **Identitate** arata numele si daca puteti crea camere. Dacă nodul are un client Keycloak dedicat pyArchInit, numele lui se pune în setarea QGIS `pyArchInit/stratigraph/client_id`; altfel se folosește clientul indicat de nod.
 5. Optional: **Doar plan** arata ce s-ar trimite fara sa scrie nimic pe nod.
 6. Apasati **Trimite situl**: jurnalul arata nodurile si muchiile exportate si rezultatul.
 

@@ -231,7 +231,7 @@ Des de la versio **5.14.0-alpha** el boto **Envia el jaciment a una sala...** po
 1. Al panell **StratiGraph Sync**, premeu **Envia el jaciment a una sala...**
 2. **Node**: l'adreca del node, per exemple `https://node.example.org/em`. Es recorda entre sessions.
 3. **Jaciment**: trieu el jaciment. **Id de la sala** i **Títol de la sala** s'omplen amb el nom del jaciment i es poden canviar; l'id de la sala es una sola paraula, sense espais.
-4. Premeu **Inicia sessió...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identitat** mostra el nom i si podeu crear sales.
+4. Premeu **Inicia sessió...**: la pagina d'acces del node s'obre al navegador. Accediu amb el vostre compte i torneu a QGIS: la linia **Identitat** mostra el nom i si podeu crear sales. Si el node té un client Keycloak dedicat a pyArchInit, el seu nom va al paràmetre de QGIS `pyArchInit/stratigraph/client_id`; si no, s'utilitza el client que indica el node.
 5. Opcional: **Només pla** mostra el que s'enviaria sense escriure res al node.
 6. Premeu **Envia el jaciment**: el registre indica els nodes i les arestes exportats i el resultat.
 

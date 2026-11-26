@@ -231,7 +231,7 @@ Depuis la version **5.14.0-alpha**, le bouton **Envoyer le site vers une salle..
 1. Dans le panneau **StratiGraph Sync**, cliquer sur **Envoyer le site vers une salle...**
 2. **Nœud** : l'adresse du noeud, par exemple `https://noeud.example.org/em`. Elle est memorisee d'une session a l'autre.
 3. **Site** : choisir le site. **Id de la salle** et **Titre de la salle** sont remplis a partir du nom du site et peuvent etre modifies ; l'identifiant de la salle est un seul mot, sans espaces.
-4. Cliquer sur **Se connecter...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identité** affiche le nom et indique si l'on peut creer des salles.
+4. Cliquer sur **Se connecter...** : la page de connexion du noeud s'ouvre dans le navigateur. Se connecter avec son compte et revenir dans QGIS : la ligne **Identité** affiche le nom et indique si l'on peut creer des salles. Si le nœud dispose d'un client Keycloak dédié à pyArchInit, son nom se met dans le réglage QGIS `pyArchInit/stratigraph/client_id` ; sinon le client indiqué par le nœud est utilisé.
 5. Facultatif : **Plan seulement** montre ce qui serait envoye sans rien ecrire sur le noeud.
 6. Cliquer sur **Envoyer le site** : le journal indique les noeuds et les aretes exportes et le resultat.
 

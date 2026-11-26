@@ -231,7 +231,7 @@ Dalla versione **5.14.0-alpha** il pulsante **Invia il sito a una stanza...** po
 1. Nel pannello **StratiGraph Sync** premere **Invia il sito a una stanza...**
 2. **Nodo**: l'indirizzo del nodo, per esempio `https://nodo.example.org/em`. Viene ricordato tra una sessione e l'altra.
 3. **Sito**: scegliere il sito. **Id della stanza** e **Titolo della stanza** si compilano dal nome del sito e si possono cambiare; l'id della stanza e una sola parola, senza spazi.
-4. Premere **Accedi...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identità** mostra il nome e se si possono creare stanze.
+4. Premere **Accedi...**: si apre nel browser la pagina di accesso del nodo. Accedere con il proprio account e tornare in QGIS: la riga **Identità** mostra il nome e se si possono creare stanze. Se il nodo ha un client Keycloak dedicato a pyArchInit, il suo nome va nell'impostazione `pyArchInit/stratigraph/client_id` di QGIS; altrimenti si usa il client che il nodo indica.
 5. Facoltativo: **Solo piano** mostra cosa verrebbe inviato senza scrivere niente sul nodo.
 6. Premere **Invia il sito**: il log riporta i nodi e gli archi esportati e l'esito dell'invio.
 

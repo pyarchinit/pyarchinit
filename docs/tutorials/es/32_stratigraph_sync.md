@@ -231,7 +231,7 @@ Desde la version **5.14.0-alpha** el boton **Enviar el sitio a una sala...** lle
 1. En el panel **StratiGraph Sync**, pulse **Enviar el sitio a una sala...**
 2. **Nodo**: la direccion del nodo, por ejemplo `https://nodo.example.org/em`. Se recuerda entre sesiones.
 3. **Sitio**: elija el sitio. **Id de la sala** y **Título de la sala** se rellenan con el nombre del sitio y se pueden cambiar; el id de la sala es una sola palabra, sin espacios.
-4. Pulse **Iniciar sesión...**: la pagina de acceso del nodo se abre en el navegador. Acceda con su cuenta y vuelva a QGIS: la linea **Identidad** muestra su nombre y si puede crear salas.
+4. Pulse **Iniciar sesión...**: la pagina de acceso del nodo se abre en el navegador. Acceda con su cuenta y vuelva a QGIS: la linea **Identidad** muestra su nombre y si puede crear salas. Si el nodo tiene un cliente Keycloak dedicado a pyArchInit, su nombre va en el ajuste de QGIS `pyArchInit/stratigraph/client_id`; si no, se usa el cliente que indica el nodo.
 5. Opcional: **Solo plan** muestra lo que se enviaria sin escribir nada en el nodo.
 6. Pulse **Enviar el sitio**: el registro indica los nodos y aristas exportados y el resultado.
 

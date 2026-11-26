@@ -1,0 +1,87 @@
+{
+  "clientId": "pyarchinit",
+  "name": "pyArchInit for QGIS (native app, loopback + PKCE)",
+  "enabled": true,
+  "protocol": "openid-connect",
+  "publicClient": true,
+  "standardFlowEnabled": true,
+  "directAccessGrantsEnabled": false,
+  "implicitFlowEnabled": false,
+  "serviceAccountsEnabled": false,
+  "fullScopeAllowed": true,
+  "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "access.token.lifespan": "900"
+  },
+  "redirectUris": [
+    "http://127.0.0.1/"
+  ],
+  "webOrigins": [],
+  "protocolMappers": [
+    {
+      "name": "audience",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.client.audience": "em-server",
+        "id.token.claim": "false",
+        "access.token.claim": "true"
+      }
+    },
+    {
+      "name": "audience-chatbot",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.custom.audience": "em-chatbot",
+        "id.token.claim": "false",
+        "access.token.claim": "true"
+      }
+    },
+    {
+      "name": "orcid",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "orcid",
+        "claim.name": "orcid",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "em-idp",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "identity_provider",
+        "claim.name": "em_idp",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "em-auth-reported",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-hardcoded-claim-mapper",
+      "consentRequired": false,
+      "config": {
+        "claim.name": "em_auth_reported",
+        "claim.value": "true",
+        "jsonType.label": "boolean",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    }
+  ],
+  "description": "pyArchInit (QGIS plugin): desktop sign-in with Authorization Code + PKCE S256 on the loopback (RFC 8252). Same shape and mappers as em-tools; its own clientId lets the node tell the two tools apart."
+}

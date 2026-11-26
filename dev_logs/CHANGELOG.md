@@ -5,6 +5,26 @@
 
 ---
 
+## [fix] - 2026-11-26 — Impronte da PostGIS, client Keycloak dedicato, siti grandi più veloci — 5.15.1-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2640 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **impronte GIS da PostgreSQL/PostGIS**: lo schema PostGIS chiama le colonne di `pyarchinit_sondaggi` `sito` / `id_sondagg` (SQLite `sito_sond` / `id_sondaggio`); il lettore delle impronte di s3dgraphy interrogava i nomi SQLite, la query falliva e con lei la lettura di TUTTE le impronte, sito compreso. Ora la proiezione adatta il mapping alle colonne reali e salta un layer che non le ha. Verificato sul PostgreSQL 17 della porta 5433: l'impronta del sito parte in WKT con EPSG:3004.
+- 🇮🇹 **IT**: una **base vecchia** (database ricreato o svuotato con lo stesso nome) faceva credere al pull di avere una storia comune con un sito che non c'era: ora viene scartata.
+- 🇮🇹 **IT**: un **database vecchio** senza `media_table.entity_uuid` (Pesaro) fermava confronto e invio: ora i media aspettano (lo dice il rapporto) e il resto va.
+- 🇮🇹 **IT**: **siti grandi**: due passate della proiezione erano quadratiche (rimozione degli archi inversi uno a uno; confronto con una lista). Export di 1.020 US da 6,2 a 3,9 s, di 3.060 US da 47,8 a 17,8 s, grafo identico (stessa firma). Il resto è in s3dgraphy (`_find_node_by_name`, issue #27).
+- 🇬🇧 **EN**: GIS footprints from PostGIS; stale bases dropped; old databases without media identity no longer block; quadratic passes removed from the projection.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **client Keycloak dedicato**: `docs/stratigraph/keycloak-client-pyarchinit.json` (stessa forma e mapper di `em-tools`) e istruzioni per WP4; pyArchInit usa l'impostazione `pyArchInit/stratigraph/client_id`, oppure `native_clients.pyarchinit` se il nodo la pubblica, altrimenti il client del nodo. Verificato sul dev-stack: accesso PKCE completo come `pyarchinit`, il nodo lo accetta, il rinnovo resta su `pyarchinit`.
+- 🇮🇹 **IT**: copione della demo del 10 dicembre (`docs/stratigraph/DEMO-2026-12-10.md`).
+
+#### Test / Verifica
+- 🇮🇹 **IT**: misure su Pesaro (288 US) e su siti sintetici da 1.020 e 3.060 US: confronto a tre vie sotto i 2 s, pull di 3.000 schede in un database vuoto 4,0 s, secondo pull 2,8 s, nessuna differenza spuria. Nuovi test per la scelta del client, l'adattamento dei layer, la base vecchia, il database senza identità dei media. Tutorial 32 nelle dieci lingue (nota sul client dedicato).
+
+---
+
 ## [feat] - 2026-11-26 — Sincronizzazione con memoria: confronto a tre vie e lettura incrementale della stanza — 5.15.0-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2636 verdi**, 66 saltati, 1 xfail, 0 falliti. / Sync with memory: three-way compare and incremental room reads.
