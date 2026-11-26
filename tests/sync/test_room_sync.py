@@ -58,10 +58,24 @@ def test_rapporti_that_differ_only_in_format_are_not_conflicts():
         conflict("a", "[['Copre', '2']]", "[['Copre', '2', '1', 'X']]"),
         conflict("b", "[['<', '500'], ['Copre', '3']]", "[['Copre', '3', '1', 'X']]"),
     ])
-    out = RS.classify(result, {"a": ("1", "US"), "b": ("12", "USM")})
+    out = RS.classify(result, {"a": ("1", "US", "1"), "b": ("12", "USM", "1")}, "X")
     assert out["format_only"] == 1
     assert out["real"] == [{"field": "rapporti", "us": "12", "unita_tipo": "USM",
-                            "only_local": [("<", "500")], "only_room": []}]
+                            "only_local": [("<", "500", "1", "X")], "only_room": []}]
+
+
+def test_rapporti_have_four_elements_and_another_area_is_another_unit():
+    """pyArchInit's rapporti are [type, us, area, site]: an empty area or
+    site is the unit's own, but «Copre 2» in area 2 is not «Copre 2» in area 1."""
+    assert RS._pairs("[['Copre', '2', '', '']]", "1", "S") == {("Copre", "2", "1", "S")}
+    assert RS._pairs("[['Copre', '2']]", "1", "S") == RS._pairs("[['Copre', '2', '1', 'S']]", "1", "S")
+    conflict = SimpleNamespace(node_uuid="a", field="rapporti",
+                               db_value="[['Copre', '2', '1', 'S']]",
+                               graph_value="[['Copre', '2', '2', 'S']]")
+    out = RS.classify(SimpleNamespace(conflicts=[conflict]), {"a": ("1", "US", "1")}, "S")
+    assert out["format_only"] == 0
+    assert out["real"][0]["only_local"] == [("Copre", "2", "1", "S")]
+    assert out["real"][0]["only_room"] == [("Copre", "2", "2", "S")]
 
 
 def test_the_contribution_ignores_map_artefacts_and_the_lang_the_node_adds():

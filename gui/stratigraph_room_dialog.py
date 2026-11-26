@@ -15,6 +15,8 @@ import re
 import tempfile
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
+
+from .stratigraph_i18n import t
 from qgis.PyQt.QtWidgets import (QCheckBox, QComboBox, QDialog, QFormLayout, QMessageBox,
                                  QHBoxLayout, QLabel, QLineEdit, QPushButton,
                                  QTextEdit, QVBoxLayout)
@@ -55,7 +57,7 @@ class StratiGraphRoomDialog(QDialog):
 
     def __init__(self, connection_url: str, sites, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Send a site to a StratiGraph room")
+        self.setWindowTitle(t("title"))
         self.connection_url = connection_url
         self.session = None            # NodeSession: tokens in memory, renewed by itself
         self._job = None
@@ -65,27 +67,27 @@ class StratiGraphRoomDialog(QDialog):
         self.site.addItems([str(s) for s in sites])
         self.room = QLineEdit()
         self.title = QLineEdit()
-        self.dry_run = QCheckBox("Plan only (write nothing on the node)")
-        self.who = QLabel("Not signed in")
+        self.dry_run = QCheckBox(t("plan_only"))
+        self.who = QLabel(t("not_signed_in"))
         self.log = QTextEdit()
         self.log.setReadOnly(True)
-        self.btn_sign = QPushButton("Sign in…")
-        self.btn_send = QPushButton("Send site")
+        self.btn_sign = QPushButton(t("sign_in"))
+        self.btn_send = QPushButton(t("send_site"))
         self.btn_send.setEnabled(False)
         # both directions with a room that already holds data
-        self.btn_compare = QPushButton("Compare with room")
-        self.btn_push = QPushButton("Send additions")
-        self.btn_pull = QPushButton("Pull from room")
+        self.btn_compare = QPushButton(t("compare"))
+        self.btn_push = QPushButton(t("send_additions"))
+        self.btn_pull = QPushButton(t("pull"))
         self._found = None             # the last contribution (pyArchInit → room)
         self._pull = None              # the last dry pull (room → pyArchInit)
 
         form = QFormLayout()
-        form.addRow("Node", self.node)
-        form.addRow("Site", self.site)
-        form.addRow("Room id", self.room)
-        form.addRow("Room title", self.title)
+        form.addRow(t("f_node"), self.node)
+        form.addRow(t("f_site"), self.site)
+        form.addRow(t("f_room_id"), self.room)
+        form.addRow(t("f_room_title"), self.title)
         form.addRow("", self.dry_run)
-        form.addRow("Identity", self.who)
+        form.addRow(t("f_identity"), self.who)
         buttons = QHBoxLayout()
         buttons.addWidget(self.btn_sign)
         buttons.addWidget(self.btn_send)
@@ -128,14 +130,14 @@ class StratiGraphRoomDialog(QDialog):
         self._busy(True)
         self._job = _Job(fn, self)
         self._job.done.connect(lambda result: (self._busy(False), on_done(result)))
-        self._job.failed.connect(lambda why: (self._busy(False), self._say(f"✖ {why}")))
+        self._job.failed.connect(lambda why: (self._busy(False), self._say(t("error", why=why))))
         self._job.start()
 
     def _sign_in(self):
         from ..modules.stratigraph import node_client as NC
         node = self.node.text().strip()
         QgsSettings().setValue(SETTINGS_NODE, node)
-        self._say(f"Opening the sign-in page of {node} in the browser…")
+        self._say(t("opening_signin", node=node))
 
         def work():
             session = NC.NodeSession.sign_in(node)
@@ -144,8 +146,8 @@ class StratiGraphRoomDialog(QDialog):
         def done(result):
             self.session, who = result
             name = who.get("name") or who.get("orcid") or who.get("preferred_username") or "?"
-            self.who.setText(f"{name} — may create rooms: {who.get('may_create')}")
-            self._say(f"✔ Signed in as {name}")
+            self.who.setText(t("may_create", name=name, may=who.get('may_create')))
+            self._say(t("signed_in", name=name))
             self._busy(False)
 
         self._run(work, done)
@@ -155,7 +157,7 @@ class StratiGraphRoomDialog(QDialog):
         node, site = self.node.text().strip(), self.site.currentText()
         room, title, dry = self.room.text().strip(), self.title.text().strip(), self.dry_run.isChecked()
         workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
-        self._say(f"{'Planning' if dry else 'Sending'} «{site}» → room {room} …")
+        self._say(t("planning" if dry else "sending", site=site, room=room))
 
         def work():
             # renewed here if it is about to expire: the node's tokens live minutes
@@ -164,35 +166,36 @@ class StratiGraphRoomDialog(QDialog):
                                 title=title, dry_run=dry)
 
         def done(report):
-            self._say(f"✔ {report.get('nodes')} nodes, {report.get('edges')} edges exported "
-                      f"({os.path.basename(str(report.get('em_json')))})")
+            self._say(t("exported", nodes=report.get('nodes'), edges=report.get('edges'),
+                        file=os.path.basename(str(report.get('em_json')))))
             if dry:
                 plan = report.get("plan") or {}
                 upload = plan.get("upload") or {}
-                self._say(f"  Plan: {upload.get('files', 0)} file(s) to upload, "
-                          f"{plan.get('references', 0)} kept as reference — nothing written")
+                self._say(t("plan", files=upload.get('files', 0), refs=plan.get('references', 0)))
                 return
             seeded = report.get("seeded") or {}
-            self._say(f"  Operations applied: {seeded.get('applied', 0)}, "
-                      f"refused: {seeded.get('refused', 0)}, "
-                      f"graphs: {len(seeded.get('graphs') or [])}")
+            self._say(t("ops", applied=seeded.get('applied', 0), refused=seeded.get('refused', 0),
+                        graphs=len(seeded.get('graphs') or [])))
             uploaded = report.get("uploaded") or {}
-            self._say(f"  Files uploaded: {uploaded.get('files', 0)}; databases kept as "
-                      f"reference: {len(set(report.get('kept_as_reference') or []))}")
+            self._say(t("uploaded", files=uploaded.get('files', 0),
+                        dbs=len(set(report.get('kept_as_reference') or []))))
+            records = report.get("records") or {}
+            if records:
+                self._say(t("records_sent", units=records.get("units", 0),
+                            fields=records.get("fields", 0)))
             media = report.get("media") or {}
             if media:
-                self._say(f"  Unit media as resources: {media.get('resources', 0)} file(s), "
-                          f"{media.get('links', 0)} link(s); not found on disk: "
-                          f"{len(media.get('missing') or [])}")
+                self._say(t("media_sent", res=media.get('resources', 0), links=media.get('links', 0),
+                            missing=len(media.get('missing') or [])))
                 other = media.get("other_entities") or {}
                 if other:
-                    self._say("  Media of finds, pottery, tombs, structures stay local for now: "
-                              + ", ".join(f"{k} {v}" for k, v in sorted(other.items())))
+                    self._say(t("media_local",
+                                list=", ".join(f"{k} {v}" for k, v in sorted(other.items()))))
             for refusal in (seeded.get("refusals") or [])[:5]:
-                self._say(f"  ✖ refused: {json.dumps(refusal, ensure_ascii=False, default=str)[:200]}")
+                self._say(t("refused", what=json.dumps(refusal, ensure_ascii=False, default=str)[:200]))
             link = report.get("room_link") or report.get("link")
             if link:
-                self._say(f"Room: {link}")
+                self._say(t("room_link", link=link))
 
         self._run(work, done)
 
@@ -205,7 +208,7 @@ class StratiGraphRoomDialog(QDialog):
         from ..modules.stratigraph import room_sync as RS
         node, site, room = self._target()
         workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
-        self._say(f"Comparing «{site}» with room {room} …")
+        self._say(t("comparing", site=site, room=room))
 
         def work():
             token = self.session.access_token()
@@ -218,25 +221,24 @@ class StratiGraphRoomDialog(QDialog):
         def done(result):
             self._found, self._pull = result
             f, p = self._found, self._pull
-            self._say(f"Room → pyArchInit: {p['inserted']} new unit(s), {p['updated']} to update "
-                      f"({p['format_only']} only in format), {len(p['real'])} real difference(s)")
+            self._say(t("room_to_pa", ins=p['inserted'], upd=p['updated'], fmt=p['format_only'],
+                        real=len(p['real'])))
             m = p.get("media") or {}
             if m:
-                self._say(f"  Media: {m.get('new', 0)} new file(s) to download, "
-                          f"{m.get('known', 0)} already here")
+                self._say(t("media_preview", new=m.get('new', 0), known=m.get('known', 0)))
             for r in p["real"][:8]:
                 if r["field"] == "rapporti":
-                    self._say(f"  US {r['us']} ({r['unita_tipo']}): only here {r['only_local']}, "
-                              f"only in the room {r['only_room']}")
+                    self._say(t("rel_diff", us=r['us'], ut=r['unita_tipo'], here=r['only_local'],
+                                room=r['only_room']))
                 else:
-                    self._say(f"  US {r['us']} {r['field']}: here «{r['local']}», room «{r['room']}»")
-            self._say(f"pyArchInit → room: {len(f['new_nodes'])} new node(s) "
-                      f"{f['new_nodes'][:6]}, {f['new_edges']} new relation(s)")
+                    self._say(t("field_diff", us=r['us'], field=r['field'], here=r['local'],
+                                room=r['room']))
+            self._say(t("pa_to_room", n=len(f['new_nodes']), names=f['new_nodes'][:6],
+                        edges=f['new_edges']))
             if f["field_changes"]:
-                self._say(f"  {len(f['field_changes'])} field(s) differ — shown, not sent: "
-                          f"{f['field_changes'][:5]}")
+                self._say(t("fields_differ", n=len(f['field_changes']), list=f['field_changes'][:5]))
             if f["room_only"]:
-                self._say(f"  {f['room_only']} item(s) only in the room (others' work): left alone")
+                self._say(t("room_only", n=f['room_only']))
             self._busy(False)
 
         self._run(work, done)
@@ -249,9 +251,8 @@ class StratiGraphRoomDialog(QDialog):
             return RS.push_new(self._found, node=node, room=room, token=self.session.access_token())
 
         def done(result):
-            self._say(f"✔ Additions sent: {result.get('applied', 0)} applied, "
-                      f"{len(result.get('refused') or [])} refused, "
-                      f"{result.get('uploaded', 0)} file(s) uploaded")
+            self._say(t("additions_sent", applied=result.get('applied', 0),
+                        refused=len(result.get('refused') or []), uploaded=result.get('uploaded', 0)))
             self._found = None
             self._busy(False)
 
@@ -263,13 +264,11 @@ class StratiGraphRoomDialog(QDialog):
         drops = [r for r in (self._pull or {}).get("real", []) if r.get("only_local")]
         force = False
         if drops:
-            lines = "\n".join(f"US {r['us']} ({r['unita_tipo']}): {r['only_local']}" for r in drops[:10])
+            lines = "\n".join(f"{r['unita_tipo']} {r['us']}: {r['only_local']}" for r in drops[:10])
             answer = QMessageBox.question(
-                self, "Pull from room",
-                "The room does not have these relations of the local units, and pulling "
-                "would remove them:\n\n" + lines + "\n\nPull anyway?")
+                self, t("pull"), t("pull_question", lines=lines))
             if answer != QMessageBox.StandardButton.Yes:
-                self._say("Pull cancelled: nothing written")
+                self._say(t("pull_cancelled"))
                 return
             force = True
         workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
@@ -280,13 +279,11 @@ class StratiGraphRoomDialog(QDialog):
                                 apply=True, force=force)
 
         def done(report):
-            self._say(f"✔ Pulled from {room}: {report['inserted']} new unit(s), "
-                      f"{report['updated']} updated")
+            self._say(t("pulled", room=room, ins=report['inserted'], upd=report['updated']))
             m = report.get("media") or {}
             if m:
-                self._say(f"  Media: {m.get('downloaded', 0)} downloaded, "
-                          f"{m.get('imported', 0)} registered with thumbnails, "
-                          f"{m.get('relinked', 0)} relinked, {m.get('known', 0)} already here")
+                self._say(t("media_pulled", down=m.get('downloaded', 0), imp=m.get('imported', 0),
+                            rel=m.get('relinked', 0), known=m.get('known', 0)))
             self._pull = None
             self._busy(False)
 

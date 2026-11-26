@@ -397,7 +397,11 @@ def _pyarchinit_epoch(node):
             periodo, fase = m.group(1), m.group(2)
     if periodo is None:
         return None
-    descrizione = getattr(node, "name", "") or ""
+    # L'esportazione scrive datazione_estesa come NOME dell'epoca e la
+    # descrizione del periodo come sua DESCRIZIONE: tornando, ognuna al suo
+    # posto (prima la descrizione del periodo diventava il nome: 26 nov 2026).
+    nome = getattr(node, "name", "") or ""
+    descrizione = str(getattr(node, "description", "") or "").strip() or nome
     cron_ini = getattr(node, "start_time", None)
     cron_fin = getattr(node, "end_time", None)
     return {
@@ -407,7 +411,7 @@ def _pyarchinit_epoch(node):
         "cron_fin": int(cron_fin) if cron_fin not in (None, 0, 0.0) else None,
         # datazione_estesa: free-text human label, often the epoch name.
         "datazione": (eattrs.get("datazione") or eattrs.get("datazione_estesa")
-                      or descrizione),
+                      or nome),
     }
 
 
@@ -1438,6 +1442,24 @@ def _values_equal(col: str, a, b) -> bool:
             return forma(a) == forma(b)
         except (ValueError, SyntaxError, TypeError, IndexError):
             return str(a) == str(b)
+    # Un numero è lo stesso numero comunque arrivi: PostgreSQL dà
+    # Decimal('1.40') per una colonna numeric, l'em.json 1.4 (con il testo
+    # le 44 schede di una stanza risultavano «aggiornate» a ogni pull).
+    import datetime
+    import decimal
+    import math
+    numeri = (int, float, decimal.Decimal)
+    if (isinstance(a, numeri) or isinstance(b, numeri)) and not isinstance(a, bool) \
+            and not isinstance(b, bool):
+        try:
+            return math.isclose(float(a), float(b), rel_tol=1e-9, abs_tol=1e-9)
+        except (TypeError, ValueError):
+            pass
+    # Una data di PostgreSQL contro il suo testo ISO dell'em.json.
+    if isinstance(a, (datetime.date, datetime.time)) and not isinstance(b, (datetime.date, datetime.time)):
+        return a.isoformat() == str(b)
+    if isinstance(b, (datetime.date, datetime.time)) and not isinstance(a, (datetime.date, datetime.time)):
+        return b.isoformat() == str(a)
     return str(a) == str(b)
 
 

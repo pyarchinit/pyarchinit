@@ -82,42 +82,87 @@ def local_graph(connection_url: str, site: str, workdir: str) -> Tuple[Any, str]
 
 # ── room → pyArchInit ────────────────────────────────────────────────────────
 
-def _pairs(value) -> Optional[set]:
-    """A rapporti field as a set of (type, target unit), area and site aside."""
+def _pairs(value, area: str = "", site: str = "") -> Optional[set]:
+    """A rapporti field as a set of ``(type, us, area, site)`` — pyArchInit's
+    four elements. An empty area or site is the unit's own (how pyArchInit
+    reads ``['Copre', '2', '', '']``), so it equals the written-out form;
+    the same number in ANOTHER area is another unit."""
     try:
         items = ast.literal_eval(value) if isinstance(value, str) else (value or [])
     except (ValueError, SyntaxError):
         return None
-    return {(str(x[0]), str(x[1])) for x in items if isinstance(x, (list, tuple)) and len(x) >= 2}
+    out = set()
+    for x in items:
+        if not isinstance(x, (list, tuple)) or len(x) < 2:
+            continue
+        a = str(x[2]).strip() if len(x) > 2 and str(x[2] or "").strip() else str(area or "")
+        z = str(x[3]).strip() if len(x) > 3 and str(x[3] or "").strip() else str(site or "")
+        out.add((str(x[0]).strip(), str(x[1]).strip(), a, z))
+    return out
 
 
-def classify(result, rows_by_uuid: Dict[str, Tuple[str, str]]) -> Dict[str, Any]:
+def classify(result, rows_by_uuid: Dict[str, Tuple[str, ...]], site: str = "") -> Dict[str, Any]:
     """The ingest's conflicts, split: format only / real, and per real one
     what only the local row has and what only the room has."""
     format_only, real = 0, []
     for c in result.conflicts:
         if c.field == "rapporti":
-            local, room = _pairs(c.db_value), _pairs(c.graph_value)
+            row = tuple(rows_by_uuid.get(c.node_uuid, ("?", "?", "")))
+            us, tipo, area = (row + ("",))[:3]
+            local, room = _pairs(c.db_value, area, site), _pairs(c.graph_value, area, site)
             if local is not None and local == room:
                 format_only += 1
                 continue
-            us, tipo = rows_by_uuid.get(c.node_uuid, ("?", "?"))
             real.append({"field": "rapporti", "us": us, "unita_tipo": tipo,
                          "only_local": sorted(local - room) if local is not None and room is not None else [],
                          "only_room": sorted(room - local) if local is not None and room is not None else []})
         else:
-            us, tipo = rows_by_uuid.get(c.node_uuid, ("?", "?"))
+            us, tipo = tuple(rows_by_uuid.get(c.node_uuid, ("?", "?")))[:2]
             real.append({"field": c.field, "us": us, "unita_tipo": tipo,
                          "local": c.db_value, "room": c.graph_value})
     return {"format_only": format_only, "real": real}
 
 
-def _rows_by_uuid(connection_url: str, site: str) -> Dict[str, Tuple[str, str]]:
+def _rows_by_uuid(connection_url: str, site: str) -> Dict[str, Tuple[str, str, str]]:
     from sqlalchemy import create_engine, text
     with create_engine(connection_url).connect() as conn:
-        return {str(u): (str(us), str(ut)) for u, us, ut in conn.execute(
-            text("SELECT node_uuid, us, unita_tipo FROM us_table WHERE sito = :s"), {"s": site})
+        return {str(u): (str(us), str(ut), str(area or "")) for u, us, ut, area in conn.execute(
+            text("SELECT node_uuid, us, unita_tipo, area FROM us_table WHERE sito = :s"), {"s": site})
             if u}
+
+
+def _site_exists(connection_url: str, site: str) -> bool:
+    from sqlalchemy import create_engine, text
+    with create_engine(connection_url).connect() as conn:
+        return conn.execute(text("SELECT 1 FROM site_table WHERE sito = :s"),
+                            {"s": site}).fetchone() is not None
+
+
+def _site_identity(connection_url: str, site: str, graph) -> None:
+    """A site row the pull CREATED takes the identity the site has in the
+    room (its toponym group's ``entity_uuid``): with the one generated on
+    insert the next export gave the site another id and its units' location
+    links came out «new» (measured on PostgreSQL, 26 Nov 2026). Called only
+    for a site the database did not have: an existing site is never
+    touched."""
+    from sqlalchemy import create_engine, inspect, text
+    ident = None
+    for n in getattr(graph, "nodes", None) or []:
+        data = getattr(n, "data", None) or {}
+        # the room's own site node carries entity_uuid; the ingestor adds a
+        # site group of its own (no entity_uuid) that must not be taken
+        if (type(n).__name__ == "LocationNodeGroup" and data.get("level") == "sito"
+                and str(getattr(n, "name", "")) == site and data.get("entity_uuid")):
+            ident = data["entity_uuid"]
+            break
+    if not ident:
+        return
+    engine = create_engine(connection_url)
+    if "entity_uuid" not in {c["name"] for c in inspect(engine).get_columns("site_table")}:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("UPDATE site_table SET entity_uuid = :u WHERE sito = :s"),
+                     {"u": str(ident), "s": site})
 
 
 def pull_room(connection_url: str, site: str, *, node: str, room: str, token: str,
@@ -132,7 +177,7 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
     rows = _rows_by_uuid(connection_url, site)
     plan = GraphIngestor().populate_list(graph, db_path=connection_url, sito=site,
                                          dry_run=True, create_missing_epochs=True)
-    kinds = classify(plan, rows)
+    kinds = classify(plan, rows, site)
     drops = [r for r in kinds["real"] if r.get("only_local")]
     report = {"room": room, "graph_id": gid, "cursor": answer.get("cursor"), "em_json": path,
               "inserted": plan.inserted, "updated": plan.updated, "skipped": plan.skipped,
@@ -150,10 +195,13 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
             f"relation(s) of {len(drops)} local unit(s) that the room does not have "
             f"(e.g. US {drops[0]['us']}: {drops[0]['only_local'][:3]}); "
             "review them, then apply with force")
+    new_site = not _site_exists(connection_url, site)
     done = GraphIngestor().populate_list(graph, db_path=connection_url, sito=site,
                                          dry_run=False, create_missing_epochs=True)
     report.update({"inserted": done.inserted, "updated": done.updated, "skipped": done.skipped,
                    "errors": list(done.errors), "applied": True})
+    if new_site:
+        _site_identity(connection_url, site, graph)
     if media:
         # after the units: the media attach to their id_us
         from modules.s3dgraphy.sync.graph_ingestor import hydrate_row_fields_from_data
@@ -178,7 +226,8 @@ def _map_only(graph) -> set:
     return ids
 
 
-def _without_noise(delta, skip: set, resources: frozenset = frozenset()):
+def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
+                   absent: frozenset = frozenset()):
     """The delta minus map artefacts, minus ``data.lang`` the node adds
     (``und``) where the local node simply has none, and minus
     ``data.rapporti`` — a text copy of the relations, which the delta
@@ -196,9 +245,30 @@ def _without_noise(delta, skip: set, resources: frozenset = frozenset()):
         if (op.get("op") == "update_field" and op.get("node_id") in resources
                 and str(op.get("field", "")).startswith("data.")):
             continue      # where a file's bytes live (local path, room store): not an edit
+        if (op.get("op") == "update_field" and op.get("remove")
+                and str(op.get("field", ""))[5:] in absent):
+            continue      # a column this database does not have (an older schema): not an edit
         keep.append(op)
     delta.ops = keep
     return delta
+
+
+def _same_number(op, remote) -> bool:
+    """``2`` in the room and ``2.0`` here (a PostgreSQL numeric column) are
+    the same value: not a field change."""
+    if op.get("op") != "update_field" or not str(op.get("field", "")).startswith("data."):
+        return False
+    node = remote.find_node_by_id(op.get("node_id")) if hasattr(remote, "find_node_by_id") else None
+    data = getattr(node, "data", None)
+    if not isinstance(data, dict):
+        return False
+    old, new = data.get(op["field"][5:]), op.get("value")
+    if isinstance(old, bool) or isinstance(new, bool):
+        return False
+    try:
+        return float(old) == float(new)
+    except (TypeError, ValueError):
+        return False
 
 
 def contribution(connection_url: str, site: str, *, node: str, room: str, token: str,
@@ -213,8 +283,18 @@ def contribution(connection_url: str, site: str, *, node: str, room: str, token:
     local, local_path = local_graph(connection_url, site, workdir)
     resources = {n.node_id for n in list(local.nodes) + list(remote.nodes)
                  if getattr(n, "node_type", "") == "resource"}
+    # A key this database cannot hold (not one of its us_table columns) and
+    # that its export never writes: an older schema, not an edit — PostgreSQL
+    # from pyarchinit_schema_updated.sql lacks five legacy columns of SQLite.
+    from .room_records import us_columns
+
+    def _keys(graph):
+        return {k for n in graph.nodes if isinstance(getattr(n, "data", None), dict)
+                for k in n.data}
+    absent = frozenset(_keys(remote) - _keys(local) - us_columns(connection_url))
     delta = _without_noise(diff(_snapshot(remote), local), _map_only(local) | _map_only(remote),
-                           resources)
+                           resources, absent)
+    delta.ops = [op for op in delta.ops if not _same_number(op, remote)]
     names = {n.node_id: n.name for n in list(local.nodes) + list(remote.nodes)}
     changes = [op for op in delta.ops if op.get("op") == "update_field"]
     room_only = [op for op in delta.ops if op.get("op") in ("remove_node", "remove_edge")]

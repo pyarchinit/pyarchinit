@@ -681,6 +681,67 @@ def _fold_inverse_edges(graph) -> int:
     return tolti
 
 
+def _import_from_pg_full(handle, sito, mapping_name="pyarchinit_us_mapping"):
+    """PostgreSQL through the SAME importer as SQLite.
+
+    The library's projector reads PostgreSQL with ``import_from_pg``, a
+    reduced reader: the node id is the US NUMBER (SQLite: the row's
+    ``node_uuid``), so a unit lost its identity on every export and two
+    units with the same number in different areas or types overwrote each
+    other; no locations, epochs, documents, authors, voids. Measured 26 Nov
+    2026: a site exported from PostgreSQL showed 39 «new» units and 77
+    «room-only» items against the room it came from. ``PyArchInitImporter``
+    already speaks PostgreSQL (``connection_url``): the projector uses it."""
+    from s3dgraphy.importer.pyarchinit_importer import PyArchInitImporter
+    url = handle.engine.url.render_as_string(hide_password=False)
+    return PyArchInitImporter(connection_url=url, mapping_name=mapping_name,
+                              filters={"sito": sito}).parse()
+
+
+import threading as _threading
+
+_projecting = _threading.local()
+
+
+def _install_pg_dispatch():
+    """Install, once per module object (a reload of s3dgraphy makes a new
+    one), a reader that is the full importer ONLY in the thread where
+    pyArchInit is projecting, and the library's own reader everywhere else.
+    Swapping the global for the duration of a projection was not safe: a
+    projection running in a worker thread changed the reader under any
+    other caller meanwhile."""
+    try:
+        from s3dgraphy.sync import pyarchinit_pg_importer as pg
+    except ImportError:                                     # pragma: no cover
+        return
+    if getattr(pg.import_from_pg, "_pyarchinit_dispatch", False):
+        return
+    library = pg.import_from_pg
+
+    def import_from_pg(handle, sito, mapping_name="pyarchinit_us_mapping"):
+        if getattr(_projecting, "depth", 0):
+            return _import_from_pg_full(handle, sito, mapping_name)
+        return import_from_pg._library(handle, sito, mapping_name=mapping_name)
+
+    import_from_pg._pyarchinit_dispatch = True
+    import_from_pg._library = library
+    pg.import_from_pg = import_from_pg
+
+
+class _use_full_pg_importer:
+    """``with`` around pyArchInit's projection: this thread reads PostgreSQL
+    with the full importer."""
+
+    def __enter__(self):
+        _install_pg_dispatch()
+        _projecting.depth = getattr(_projecting, "depth", 0) + 1
+        return self
+
+    def __exit__(self, *exc):
+        _projecting.depth -= 1
+        return False
+
+
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
@@ -715,7 +776,8 @@ class GraphProjector(_LibGraphProjector):
         quindi resta: si spengono i raggruppamenti, non l'ancora dello
         studio.
         """
-        graph = super().populate_graph(db_path, sito, **kwargs)
+        with _use_full_pg_importer():
+            graph = super().populate_graph(db_path, sito, **kwargs)
 
         # pyArchInit's flat attributes (us / sito / unita_tipo / ...):
         # the round-trip ingestor, the d13 serialiser and the writers

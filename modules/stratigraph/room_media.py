@@ -126,6 +126,36 @@ def add_media_resources(em_json: str, connection_url: str, site: str,
 
 # ── from the room ────────────────────────────────────────────────────────────
 
+def _link(conn, engine, id_us, id_media, filepath, name) -> None:
+    """One media_to_entity_table row with an explicit id, as pyArchInit's own
+    media import writes it: on PostgreSQL the serial sequence lags behind
+    explicit ids, so leaning on it collided (``id_mediaToEntity`` = 1)."""
+    from sqlalchemy import MetaData
+    from modules.utility.qfield_importer import next_id, reflected
+    table = reflected(MetaData(), engine, "media_to_entity_table")
+    conn.execute(table.insert().values(**{
+        "id_mediaToEntity": next_id(conn, table, "id_mediaToEntity"),
+        "id_entity": id_us, "entity_type": UNIT_ENTITY, "table_name": "us_table",
+        "id_media": id_media, "filepath": filepath, "media_name": name}))
+
+
+def _resync_sequences(engine) -> None:
+    """PostgreSQL only: each media table's serial back to MAX(id), so the
+    next record saved from the form does not collide with the pulled ones."""
+    if engine.dialect.name != "postgresql":
+        return
+    from sqlalchemy import text
+    for table, pk in (("media_table", "id_media"), ("media_thumb_table", "id_media_thumb"),
+                      ("media_to_entity_table", "id_mediaToEntity")):
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(
+                    f"SELECT setval(pg_get_serial_sequence('{table}', '{pk}'), "
+                    f"GREATEST((SELECT COALESCE(MAX(\"{pk}\"), 0) FROM {table}), 1))"))
+        except Exception:                                   # no sequence: nothing to align
+            pass
+
+
 def _safe(name: str) -> str:
     return re.sub(r"[^\w.\-]+", "_", name).strip("._") or "media"
 
@@ -190,15 +220,14 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
                 if not linked and not dry_run:
                     m = conn.execute(text("SELECT filepath, filename FROM media_table "
                                           "WHERE id_media = :m"), {"m": known[res]}).fetchone()
-                    conn.execute(text(
-                        "INSERT INTO media_to_entity_table (id_entity, entity_type, table_name, "
-                        "id_media, filepath, media_name) VALUES (:e, :t, 'us_table', :m, :p, :n)"),
-                        {"e": id_us, "t": UNIT_ENTITY, "m": known[res], "p": m[0], "n": m[1]})
+                    _link(conn, engine, id_us, known[res], m[0], m[1])
                     report["relinked"] += 1
                 continue
-            if id_us is None:
+            if id_us is None and not dry_run:
                 report["no_unit"] += 1     # its unit is not here (a generated CON, say)
                 continue
+            # a dry run into a database still without the site counts the
+            # media of units the pull is about to insert
             fresh.add(res)
     # the new ones: from the room's store to the room's media folder
     downloaded: Dict[str, str] = {}
@@ -219,6 +248,8 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
         downloaded[res] = target
     if dry_run or not downloaded:
         report["new"] = len(downloaded)
+        if not dry_run:
+            _resync_sequences(engine)
         return report
     # Only what was just downloaded goes to the import. Every other resource
     # loses its addresses in this in-memory graph: a known medium still
@@ -274,8 +305,6 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
                                   "AND entity_type = :t AND id_entity = :e"),
                              {"m": id_media, "t": UNIT_ENTITY, "e": extra})
             for missing in desired - have:
-                conn.execute(text(
-                    "INSERT INTO media_to_entity_table (id_entity, entity_type, table_name, "
-                    "id_media, filepath, media_name) VALUES (:e, :t, 'us_table', :m, :p, :n)"),
-                    {"e": missing, "t": UNIT_ENTITY, "m": id_media, "p": fpath, "n": fname})
+                _link(conn, engine, missing, id_media, fpath, fname)
+    _resync_sequences(engine)
     return report

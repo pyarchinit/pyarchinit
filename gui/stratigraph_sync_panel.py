@@ -13,6 +13,8 @@ from qgis.PyQt.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView,
     QDialogButtonBox)
 
+from .stratigraph_i18n import t
+
 
 # ── small icon helpers (unicode fallback when no icon theme) ────────────
 
@@ -33,7 +35,7 @@ class QueueDialog(QDialog):
 
     def __init__(self, queue, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("StratiGraph — Sync Queue")
+        self.setWindowTitle(t("queue_title"))
         self.resize(700, 400)
         self._queue = queue
         self._build_ui()
@@ -44,7 +46,7 @@ class QueueDialog(QDialog):
 
         self.table = QTableWidget(0, 6)
         self.table.setHorizontalHeaderLabels([
-            "ID", "Status", "Attempts", "Created", "Last Error", "Bundle"])
+            "ID", t("col_status"), t("col_attempts"), t("col_created"), t("col_error"), t("col_bundle")])
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
@@ -54,7 +56,7 @@ class QueueDialog(QDialog):
         layout.addWidget(self.table)
 
         btn_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        btn_refresh = QPushButton("Refresh")
+        btn_refresh = QPushButton(t("refresh"))
         btn_box.addButton(btn_refresh,
                           QDialogButtonBox.ButtonRole.ActionRole)
         btn_refresh.clicked.connect(self._refresh)
@@ -104,13 +106,13 @@ class StratiGraphSyncPanel(QDockWidget):
         root.setContentsMargins(6, 6, 6, 6)
 
         # ── Status section ──────────────────────────────────
-        status_group = QGroupBox("Status")
+        status_group = QGroupBox(t("status"))
         status_layout = QVBoxLayout(status_group)
 
-        self._lbl_state = QLabel("State: —")
-        self._lbl_conn = QLabel("Connection: —")
-        self._lbl_queue = QLabel("Queue: —")
-        self._lbl_last_sync = QLabel("Last sync: —")
+        self._lbl_state = QLabel(t("state", x="—"))
+        self._lbl_conn = QLabel(t("connection", x="—"))
+        self._lbl_queue = QLabel(t("queue", x="—"))
+        self._lbl_last_sync = QLabel(t("last_sync", x="—"))
 
         for lbl in (self._lbl_state, self._lbl_conn,
                     self._lbl_queue, self._lbl_last_sync):
@@ -119,9 +121,9 @@ class StratiGraphSyncPanel(QDockWidget):
 
         # ── Action buttons ──────────────────────────────────
         btn_layout = QHBoxLayout()
-        self._btn_export = QPushButton("Export Bundle")
-        self._btn_sync = QPushButton("Sync Now")
-        self._btn_queue = QPushButton("Queue...")
+        self._btn_export = QPushButton(t("export_bundle"))
+        self._btn_sync = QPushButton(t("sync_now"))
+        self._btn_queue = QPushButton(t("queue_btn"))
 
         btn_layout.addWidget(self._btn_export)
         btn_layout.addWidget(self._btn_sync)
@@ -129,13 +131,13 @@ class StratiGraphSyncPanel(QDockWidget):
         root.addLayout(btn_layout)
 
         # ── Phase 3: the site into a room of a StratiGraph node ─────
-        self._btn_room = QPushButton("Send site to a room...")
+        self._btn_room = QPushButton(t("room_btn"))
         self._btn_room.setToolTip(
-            "Sign in to a StratiGraph node and bring a site's graph into a room")
+            t("room_tip"))
         root.addWidget(self._btn_room)
 
         # ── Activity log ────────────────────────────────────
-        log_group = QGroupBox("Recent Activity")
+        log_group = QGroupBox(t("recent"))
         log_layout = QVBoxLayout(log_group)
         self._log = QTextEdit()
         self._log.setReadOnly(True)
@@ -167,18 +169,18 @@ class StratiGraphSyncPanel(QDockWidget):
 
     def _on_export(self):
         self._btn_export.setEnabled(False)
-        self._log_activity("Exporting bundle...")
+        self._log_activity(t("exporting"))
         result = self._orch.export_bundle()
         self._btn_export.setEnabled(True)
         if result.get("success"):
             self._log_activity(
-                f"Bundle exported: {result.get('bundle_path', '?')}")
+                t("bundle_exported", path=result.get('bundle_path', '?')))
         else:
-            errors = ", ".join(result.get("errors", ["unknown error"]))
-            self._log_activity(f"Export failed: {errors}")
+            errors = ", ".join(result.get("errors", [t("unknown_error")]))
+            self._log_activity(t("export_failed", err=errors))
 
     def _on_sync(self):
-        self._log_activity("Sync requested...")
+        self._log_activity(t("sync_requested"))
         self._orch.sync_now()
 
     def _on_show_queue(self):
@@ -195,28 +197,28 @@ class StratiGraphSyncPanel(QDockWidget):
                 sites = [r[0] for r in conn.execute(
                     text("SELECT sito FROM site_table ORDER BY sito")) if r[0]]
         except Exception as exc:                    # noqa: BLE001
-            self._log_activity(f"Cannot read the sites: {exc}")
+            self._log_activity(t("cannot_read_sites", err=exc))
             return
         StratiGraphRoomDialog(url, sites, self).exec()
 
     def _on_state_changed(self, old_state: str, new_state: str):
         icon = _STATE_ICONS.get(new_state, "")
-        self._lbl_state.setText(f"State: {icon} {new_state}")
-        self._log_activity(f"State: {old_state} \u2192 {new_state}")
+        self._lbl_state.setText(t("state", x=f"{icon} {new_state}"))
+        self._log_activity(t("state", x=f"{old_state} \u2192 {new_state}"))
 
     def _on_connectivity_changed(self, is_online: bool):
         if is_online:
-            self._lbl_conn.setText(f"Connection: {_ICON_ONLINE} Online")
+            self._lbl_conn.setText(t("connection", x=f"{_ICON_ONLINE} {t('online')}"))
         else:
-            self._lbl_conn.setText(f"Connection: {_ICON_OFFLINE} Offline")
+            self._lbl_conn.setText(t("connection", x=f"{_ICON_OFFLINE} {t('offline')}"))
         self._log_activity(
-            f"Connectivity: {'Online' if is_online else 'Offline'}")
+            t("connectivity", x=t("online") if is_online else t("offline")))
 
     def _on_sync_completed(self, entry_id: int, success: bool, message: str):
         ts = datetime.now(timezone.utc).strftime("%H:%M")
-        status = "OK" if success else "FAILED"
+        status = t("ok") if success else t("failed_status")
         self._last_sync_msg = f"{ts} {status}"
-        self._lbl_last_sync.setText(f"Last sync: {self._last_sync_msg}")
+        self._lbl_last_sync.setText(t("last_sync", x=self._last_sync_msg))
         self._log_activity(
             f"Sync #{entry_id}: {status} — {message}")
 
@@ -231,28 +233,28 @@ class StratiGraphSyncPanel(QDockWidget):
         uploading = stats.get("uploading", 0)
         failed = stats.get("failed", 0)
         total_waiting = pending + uploading
-        parts = [f"{total_waiting} pending"]
+        parts = [t("pending", n=total_waiting)]
         if failed:
-            parts.append(f"{failed} failed")
-        self._lbl_queue.setText(f"Queue: {', '.join(parts)}")
+            parts.append(t("failed_n", n=failed))
+        self._lbl_queue.setText(t("queue", x=', '.join(parts)))
 
     def _refresh_all(self):
         state = self._orch.state_machine.current_state.value
         icon = _STATE_ICONS.get(state, "")
-        self._lbl_state.setText(f"State: {icon} {state}")
+        self._lbl_state.setText(t("state", x=f"{icon} {state}"))
 
         online = self._orch.connectivity.is_online
         conn_icon = _ICON_ONLINE if online else _ICON_OFFLINE
-        conn_text = "Online" if online else "Offline"
-        self._lbl_conn.setText(f"Connection: {conn_icon} {conn_text}")
+        conn_text = t("online") if online else t("offline")
+        self._lbl_conn.setText(t("connection", x=f"{conn_icon} {conn_text}"))
 
         self._refresh_stats()
 
         if self._last_sync_msg:
             self._lbl_last_sync.setText(
-                f"Last sync: {self._last_sync_msg}")
+                t("last_sync", x=self._last_sync_msg))
         else:
-            self._lbl_last_sync.setText("Last sync: —")
+            self._lbl_last_sync.setText(t("last_sync", x="—"))
 
     def _log_activity(self, message: str):
         ts = datetime.now(timezone.utc).strftime("%H:%M:%S")

@@ -18,8 +18,16 @@ import decimal
 import json
 from typing import Any, Dict
 
-#: never travel: the local key, and what the graph already carries as identity
-_NOT_SENT = frozenset({"id_us", "node_uuid", "sito"})
+#: never travel: the local key, what the graph already carries as identity,
+#: and PostgreSQL's activity bookkeeping (its triggers fill it on every write)
+_NOT_SENT = frozenset({"id_us", "node_uuid", "sito",
+                       "last_modified_by", "last_modified_timestamp"})
+
+
+def us_columns(connection_url: str) -> set:
+    """The columns this database's us_table has (SQLite and PostgreSQL)."""
+    from sqlalchemy import create_engine, inspect
+    return {c["name"] for c in inspect(create_engine(connection_url)).get_columns("us_table")}
 
 
 def _plain(value: Any) -> Any:
