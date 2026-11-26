@@ -283,12 +283,17 @@ def database_rows(rows) -> Dict[str, str]:
 
 
 def send_site(connection_url: str, site: str, *, node: str, room: str, token: str,
-              workdir: str, title: Optional[str] = None, per_saggio: Optional[bool] = None,
+              workdir: str, title: Optional[str] = None, per_saggio: Optional[bool] = False,
               dry_run: bool = False) -> Dict[str, Any]:
     """The site's graph into ``room`` on ``node``: exported, then brought in.
 
     s3dgraphy's room import in its three steps — the plan, the choices (every
     database file stays a reference, see ``DATABASE_SUFFIXES``), the import.
+    The site goes as ONE graph by default (``per_saggio=False``): the room
+    import seats each graph's nodes and edges but not the links between
+    graphs, and a site split by trench lost its cross-trench relations
+    (measured 26 Nov 2026: 32 links in the export, 0 in the room).
+
     Returns its report plus what was exported (``em_json``, ``nodes``,
     ``edges``, ``export_warnings``) and ``kept_as_reference``. ``dry_run``:
     the plan only, nothing written on the node.

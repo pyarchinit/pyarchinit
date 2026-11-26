@@ -15,7 +15,7 @@ import re
 import tempfile
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
-from qgis.PyQt.QtWidgets import (QCheckBox, QComboBox, QDialog, QFormLayout,
+from qgis.PyQt.QtWidgets import (QCheckBox, QComboBox, QDialog, QFormLayout, QMessageBox,
                                  QHBoxLayout, QLabel, QLineEdit, QPushButton,
                                  QTextEdit, QVBoxLayout)
 from qgis.core import QgsSettings
@@ -72,6 +72,12 @@ class StratiGraphRoomDialog(QDialog):
         self.btn_sign = QPushButton("Sign in…")
         self.btn_send = QPushButton("Send site")
         self.btn_send.setEnabled(False)
+        # both directions with a room that already holds data
+        self.btn_compare = QPushButton("Compare with room")
+        self.btn_push = QPushButton("Send additions")
+        self.btn_pull = QPushButton("Pull from room")
+        self._found = None             # the last contribution (pyArchInit → room)
+        self._pull = None              # the last dry pull (room → pyArchInit)
 
         form = QFormLayout()
         form.addRow("Node", self.node)
@@ -83,15 +89,23 @@ class StratiGraphRoomDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addWidget(self.btn_sign)
         buttons.addWidget(self.btn_send)
+        sync = QHBoxLayout()
+        sync.addWidget(self.btn_compare)
+        sync.addWidget(self.btn_push)
+        sync.addWidget(self.btn_pull)
         root = QVBoxLayout(self)
         root.addLayout(form)
         root.addLayout(buttons)
+        root.addLayout(sync)
         root.addWidget(self.log)
         self.resize(560, 460)
 
         self.site.currentTextChanged.connect(self._site_changed)
         self.btn_sign.clicked.connect(self._sign_in)
         self.btn_send.clicked.connect(self._send)
+        self.btn_compare.clicked.connect(self._compare)
+        self.btn_push.clicked.connect(self._push)
+        self.btn_pull.clicked.connect(self._pull_room)
         self._site_changed(self.site.currentText())
 
     def _site_changed(self, site: str):
@@ -103,7 +117,12 @@ class StratiGraphRoomDialog(QDialog):
 
     def _busy(self, busy: bool):
         self.btn_sign.setEnabled(not busy)
-        self.btn_send.setEnabled(not busy and self.session is not None)
+        signed = not busy and self.session is not None
+        self.btn_send.setEnabled(signed)
+        self.btn_compare.setEnabled(signed)
+        self.btn_push.setEnabled(signed and self._found is not None
+                                 and bool(self._found["new_nodes"] or self._found["new_edges"]))
+        self.btn_pull.setEnabled(signed and self._pull is not None)
 
     def _run(self, fn, on_done):
         self._busy(True)
@@ -165,5 +184,91 @@ class StratiGraphRoomDialog(QDialog):
             link = report.get("room_link") or report.get("link")
             if link:
                 self._say(f"Room: {link}")
+
+        self._run(work, done)
+
+    # ── both directions with a room that already holds data ──────────────
+
+    def _target(self):
+        return self.node.text().strip(), self.site.currentText(), self.room.text().strip()
+
+    def _compare(self):
+        from ..modules.stratigraph import room_sync as RS
+        node, site, room = self._target()
+        workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
+        self._say(f"Comparing «{site}» with room {room} …")
+
+        def work():
+            token = self.session.access_token()
+            found = RS.contribution(self.connection_url, site, node=node, room=room,
+                                    token=token, workdir=workdir)
+            pulled = RS.pull_room(self.connection_url, site, node=node, room=room,
+                                  token=token, workdir=workdir)
+            return found, pulled
+
+        def done(result):
+            self._found, self._pull = result
+            f, p = self._found, self._pull
+            self._say(f"Room → pyArchInit: {p['inserted']} new unit(s), {p['updated']} to update "
+                      f"({p['format_only']} only in format), {len(p['real'])} real difference(s)")
+            for r in p["real"][:8]:
+                if r["field"] == "rapporti":
+                    self._say(f"  US {r['us']} ({r['unita_tipo']}): only here {r['only_local']}, "
+                              f"only in the room {r['only_room']}")
+                else:
+                    self._say(f"  US {r['us']} {r['field']}: here «{r['local']}», room «{r['room']}»")
+            self._say(f"pyArchInit → room: {len(f['new_nodes'])} new node(s) "
+                      f"{f['new_nodes'][:6]}, {f['new_edges']} new relation(s)")
+            if f["field_changes"]:
+                self._say(f"  {len(f['field_changes'])} field(s) differ — shown, not sent: "
+                          f"{f['field_changes'][:5]}")
+            if f["room_only"]:
+                self._say(f"  {f['room_only']} item(s) only in the room (others' work): left alone")
+            self._busy(False)
+
+        self._run(work, done)
+
+    def _push(self):
+        from ..modules.stratigraph import room_sync as RS
+        node, _site, room = self._target()
+
+        def work():
+            return RS.push_new(self._found, node=node, room=room, token=self.session.access_token())
+
+        def done(result):
+            self._say(f"✔ Additions sent: {result.get('applied', 0)} applied, "
+                      f"{len(result.get('refused') or [])} refused")
+            self._found = None
+            self._busy(False)
+
+        self._run(work, done)
+
+    def _pull_room(self):
+        from ..modules.stratigraph import room_sync as RS
+        node, site, room = self._target()
+        drops = [r for r in (self._pull or {}).get("real", []) if r.get("only_local")]
+        force = False
+        if drops:
+            lines = "\n".join(f"US {r['us']} ({r['unita_tipo']}): {r['only_local']}" for r in drops[:10])
+            answer = QMessageBox.question(
+                self, "Pull from room",
+                "The room does not have these relations of the local units, and pulling "
+                "would remove them:\n\n" + lines + "\n\nPull anyway?")
+            if answer != QMessageBox.StandardButton.Yes:
+                self._say("Pull cancelled: nothing written")
+                return
+            force = True
+        workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
+
+        def work():
+            return RS.pull_room(self.connection_url, site, node=node, room=room,
+                                token=self.session.access_token(), workdir=workdir,
+                                apply=True, force=force)
+
+        def done(report):
+            self._say(f"✔ Pulled from {room}: {report['inserted']} new unit(s), "
+                      f"{report['updated']} updated")
+            self._pull = None
+            self._busy(False)
 
         self._run(work, done)

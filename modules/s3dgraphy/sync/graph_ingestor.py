@@ -226,6 +226,41 @@ def _resync_pg_serial_sequences(conn, handle) -> None:
             pass
 
 
+def footprint_chain_ids(graph) -> set:
+    """I nodi della catena dell'impronta GIS che l'esportazione aggiunge a
+    sito e saggi (s3dgraphy dev113+): la proprietà ``footprint``, l'estrattore
+    ``gis_analysis`` che legge il layer e il documento del piano a cui è
+    legato. Abitano la mappa, non le schede: al ritorno da una stanza
+    diventavano tre righe nuove di us_table. Un nodo nato da una scheda non
+    ne fa mai parte."""
+    def dati(n):
+        d = getattr(n, "data", None)
+        return d if isinstance(d, dict) else (getattr(n, "attributes", None) or {})
+
+    def nato_da_scheda(n):
+        d = dati(n)
+        return bool(d.get("node_uuid") or d.get("us") not in (None, ""))
+
+    nodi = {getattr(n, "node_id", None): n for n in getattr(graph, "nodes", None) or []}
+    def campo(n, chiave):
+        # il tipo sta in ``data`` (em.json come esportato) o, dopo il
+        # caricamento, come attributo del nodo (PropertyNode.property_type)
+        return dati(n).get(chiave) or getattr(n, chiave, None)
+
+    catena = {nid for nid, n in nodi.items()
+              if not nato_da_scheda(n) and (
+                  campo(n, "property_type") == "footprint"
+                  or campo(n, "extractor_type") == "gis_analysis")}
+    estrattori = {nid for nid in catena if campo(nodi[nid], "extractor_type") == "gis_analysis"}
+    for e in getattr(graph, "edges", None) or []:
+        for a, b in ((e.edge_source, e.edge_target), (e.edge_target, e.edge_source)):
+            altro = nodi.get(b)
+            if (a in estrattori and altro is not None
+                    and type(altro).__name__ == "DocumentNode" and not nato_da_scheda(altro)):
+                catena.add(b)
+    return catena
+
+
 def _is_synthetic_node(node) -> bool:
     """True for graph artifacts that must NEVER become a us_table row.
 
@@ -529,6 +564,12 @@ class GraphIngestor:
                 # Defensive: if hydration fails, the graph still has
                 # whatever attributes the s3dgraphy importer preserved.
                 pass
+        else:
+            # Un grafo letto da un em.json (una stanza di un nodo, un file di
+            # EMStudio) tiene i campi della scheda in ``node.data``, non in
+            # ``attributes``: senza questo, «400» di un Extractor tornava
+            # «1.Extractor400» e il nodo sembrava nato in EMStudio.
+            hydrate_row_fields_from_data(graph)
         # AI07 Stage B: promote legacy 5.5.x ActivityNodeGroup nodes
         # with spatial group_kind to LocationNodeGroup (in-memory only;
         # emits DeprecationWarning if any). Run after the hydrator so
@@ -599,8 +640,10 @@ class GraphIngestor:
         # forme e processi restano fuori invece di diventare «US» — la
         # colonna unita_tipo vale 'US' per default (Enzo, 16 ottobre 2026:
         # 1064 «US» da TempluMare_v3.2.em.json).
+        impronta = footprint_chain_ids(graph)
         rows = _emn.row_nodes(graph, _NON_STRAT_TYPES - _PARADATA_ROW_TYPES,
-                              _is_synthetic_node)
+                              lambda n: _is_synthetic_node(n)
+                              or getattr(n, "node_id", None) in impronta)
         names = _emn.row_names(rows, getattr(graph, "edges", None) or [])
         area_of = {nid: str((getattr(n, "attributes", None) or {}).get("area") or "1")
                    for nid, (n, _ut) in rows.items()}
@@ -1412,6 +1455,35 @@ from s3dgraphy.rapporti import (
     CONTINUITY_UNIT_TYPES as _CONTINUITY_UNIT_TYPES,
     EDGE_TYPE_DIRECTION_FORWARD as _EDGE_TYPE_DIRECTION_FORWARD,
 )
+
+
+def hydrate_row_fields_from_data(graph) -> int:
+    """Per i nodi nati da una scheda di pyArchInit (``data`` con ``node_uuid``
+    o ``us``), i campi di ``data`` passano in ``attributes`` dove mancano —
+    dove li mette l'import GraphML e dove l'ingestore li legge. Un nodo nato
+    in EMStudio (senza quei due campi) non si tocca: le sue regole restano
+    quelle di ``em_native_import``. Torna quanti nodi ha completato."""
+    completati = 0
+    for node in getattr(graph, "nodes", None) or []:
+        data = getattr(node, "data", None)
+        if not isinstance(data, dict) or not (data.get("node_uuid") or data.get("us") not in (None, "")):
+            continue
+        attrs = getattr(node, "attributes", None)
+        if attrs is None:
+            attrs = {}
+            node.attributes = attrs
+        prima = dict(attrs)
+        for chiave, valore in data.items():
+            if attrs.get(chiave) in (None, "") and valore not in (None, ""):
+                attrs[chiave] = valore
+        # La descrizione del nodo È d_stratigrafica (la colonna ``is_description``
+        # del mapping us_table): EMStudio, StratiField o una stanza cambiano
+        # ``description``, non ``data.d_stratigrafica`` — vale la descrizione.
+        testo = str(getattr(node, "description", "") or "").strip()
+        if "d_stratigrafica" in data and testo and "d_stratigrafica" not in prima:
+            attrs["d_stratigrafica"] = testo
+        completati += attrs != prima
+    return completati
 
 
 def _hydrate_pyarchinit_data_keys(graph, graphml_path: Path) -> None:
