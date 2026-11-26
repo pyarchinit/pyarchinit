@@ -195,6 +195,17 @@ def _unsent(found: Optional[Dict[str, Any]]) -> Dict[str, list]:
             "removals": list(found.get("removed_relations") or [])}
 
 
+def _geometries(connection_url: str, site: str, graph, *, dry_run: bool) -> Dict[str, Any]:
+    """The room's footprints into pyArchInit's GIS layers; a failure here is
+    reported, it never undoes the records already written."""
+    try:
+        from .room_geometry import pull_geometries
+        return pull_geometries(connection_url, site, graph, dry_run=dry_run)
+    except Exception as e:  # noqa: BLE001
+        return {"footprints": 0, "inserted": 0, "updated": 0, "same": 0, "kept_local": [],
+                "skipped": [f"{type(e).__name__}: {e}"], "dry_run": dry_run}
+
+
 def pull_room(connection_url: str, site: str, *, node: str, room: str, token: str,
               workdir: str, apply: bool = False, force: bool = False,
               media: bool = True, found: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -230,6 +241,7 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
             from .room_media import pull_media
             report["media"] = pull_media(connection_url, site, graph, path, node=node,
                                          room=room, token=token, dry_run=True)
+        report["geometry"] = _geometries(connection_url, site, graph, dry_run=True)
         return report
     if base is None and drops and not force:
         raise NodeError(
@@ -257,6 +269,8 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
         hydrate_row_fields_from_data(graph)
         report["media"] = pull_media(connection_url, site, graph, path, node=node,
                                      room=room, token=token)
+    # the footprints into the GIS layers (site, trenches, areas, cuts)
+    report["geometry"] = _geometries(connection_url, site, graph, dry_run=False)
     if not done.errors:
         # both sides now agree on this room: it is the base of the next compare;
         # what the pull did not bring here on purpose is remembered as such
@@ -366,6 +380,8 @@ def contribution(connection_url: str, site: str, *, node: str, room: str, token:
              "local_em_json": local_path, "read": how, "base": base is not None,
              "base_doc": (base or {}).get("doc"), "base_cursor": (base or {}).get("cursor"),
              "not_here": list((base or {}).get("not_here") or [])}
+    from .room_checks import ambiguous_numbers
+    found["ambiguous_numbers"] = ambiguous_numbers(connection_url, site)
     if base is None:
         changes = [op for op in delta.ops if op.get("op") == "update_field"]
         room_only = [op for op in delta.ops if op.get("op") in ("remove_node", "remove_edge")]

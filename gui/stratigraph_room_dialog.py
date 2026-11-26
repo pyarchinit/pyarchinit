@@ -119,6 +119,12 @@ class StratiGraphRoomDialog(QDialog):
     def _say(self, text: str):
         self.log.append(text)
 
+    def _say_ambiguous(self, found):
+        """Same number, different type: the rapporti towards it are ambiguous."""
+        for a in (found or [])[:8]:
+            self._say(t("ambiguous_number", us=a["us"], area=a["area"], types=", ".join(a["types"]),
+                        n=len(a["referenced_by"]), refs=", ".join(a["referenced_by"][:5])))
+
     def _busy(self, busy: bool):
         self.btn_sign.setEnabled(not busy)
         signed = not busy and self.session is not None
@@ -188,6 +194,7 @@ class StratiGraphRoomDialog(QDialog):
             if records:
                 self._say(t("records_sent", units=records.get("units", 0),
                             fields=records.get("fields", 0)))
+            self._say_ambiguous(report.get("ambiguous_numbers"))
             media = report.get("media") or {}
             if media:
                 self._say(t("media_sent", res=media.get('resources', 0), links=media.get('links', 0),
@@ -226,6 +233,7 @@ class StratiGraphRoomDialog(QDialog):
         def done(result):
             self._found, self._pull = result
             f, p = self._found, self._pull
+            self._say_ambiguous(f.get("ambiguous_numbers"))
             how = f.get("read") or {}
             if how.get("read") == "incremental":
                 self._say(t("read_incremental", n=how.get("operations", 0)))
@@ -238,6 +246,10 @@ class StratiGraphRoomDialog(QDialog):
             m = p.get("media") or {}
             if m:
                 self._say(t("media_preview", new=m.get('new', 0), known=m.get('known', 0)))
+            g = p.get("geometry") or {}
+            if g.get("footprints"):
+                self._say(t("geometry_preview", new=g.get("inserted", 0) + g.get("updated", 0),
+                            same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
             for r in ([] if f.get("base") else p["real"][:8]):
                 if r["field"] == "rapporti":
                     self._say(t("rel_diff", us=r['us'], ut=r['unita_tipo'], here=r['only_local'],
@@ -322,6 +334,12 @@ class StratiGraphRoomDialog(QDialog):
             if m:
                 self._say(t("media_pulled", down=m.get('downloaded', 0), imp=m.get('imported', 0),
                             rel=m.get('relinked', 0), known=m.get('known', 0)))
+            g = report.get("geometry") or {}
+            if g.get("footprints"):
+                self._say(t("geometry_pulled", new=g.get("inserted", 0) + g.get("updated", 0),
+                            same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
+                for item in (g.get("kept_local") or [])[:6]:
+                    self._say(t("geometry_kept", what=item))
             self._pull = None
             self._busy(False)
 

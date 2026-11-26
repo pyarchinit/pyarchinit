@@ -337,6 +337,8 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
     else:
         report = RI.execute(run)
     report = dict(report or {})
+    from .room_checks import ambiguous_numbers
+    report["ambiguous_numbers"] = ambiguous_numbers(connection_url, site)
     report.update({"em_json": em_json, "nodes": n_nodes, "edges": n_edges,
                    "export_warnings": list(warnings or []), "media": media_report, "records": records_report,
                    "kept_as_reference": sorted(
