@@ -72,6 +72,16 @@ def add_media_resources(em_json: str, connection_url: str, site: str,
     from sqlalchemy import create_engine, text
 
     resize_dir = resize_dir or media_dirs()[1]
+    from sqlalchemy import inspect
+    engine = create_engine(connection_url)
+    tables = set(inspect(engine).get_table_names())
+    needed = {"media_table", "media_to_entity_table", "media_thumb_table"}
+    if not needed <= tables or "entity_uuid" not in {
+            c["name"] for c in inspect(engine).get_columns("media_table")}:
+        # an old database: the media have no stable identity yet (pyArchInit
+        # adds media_table.entity_uuid when it connects) — they wait, the rest goes
+        return {"resources": 0, "links": 0, "missing": [], "other_entities": {},
+                "skipped": "media_table has no entity_uuid (open the database in pyArchInit once)"}
     with open(em_json, encoding="utf-8") as fh:
         doc = json.load(fh)
     graph = _graphs(doc)[0]
@@ -195,6 +205,11 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
     links = [(str(e.edge_source), str(e.edge_target)) for e in getattr(graph, "edges", None) or []
              if e.edge_type == "has_linked_resource"
              and getattr(nodes.get(str(e.edge_target)), "node_type", "") == "resource"]
+    from sqlalchemy import inspect as _inspect
+    if "entity_uuid" not in {c["name"] for c in _inspect(engine).get_columns("media_table")}:
+        return {"known": 0, "relinked": 0, "downloaded": 0, "imported": 0, "not_on_node": 0,
+                "no_unit": 0, "dry_run": dry_run, "new": 0,
+                "skipped": "media_table has no entity_uuid (open the database in pyArchInit once)"}
     report = {"known": 0, "relinked": 0, "downloaded": 0, "imported": 0, "not_on_node": 0,
               "no_unit": 0,
               "dry_run": dry_run}

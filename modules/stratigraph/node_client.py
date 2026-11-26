@@ -88,8 +88,19 @@ def auth_config(node: str, timeout: float = 10.0) -> Dict[str, Any]:
     return config
 
 
-def client_of(config: Dict[str, Any]) -> str:
-    """The client a native app signs in as: the one the node names for it."""
+#: the Keycloak client pyArchInit asks WP4 for (docs/stratigraph/keycloak-client-pyarchinit.json)
+PYARCHINIT_CLIENT = "pyarchinit"
+
+
+def client_of(config: Dict[str, Any], preferred: Optional[str] = None) -> str:
+    """The client a native app signs in as: ``preferred`` when given (a
+    setting), else the one the node names for pyArchInit in ``native_clients``
+    (when a node publishes such a map), else the node's ``native_client_id``."""
+    if preferred:
+        return str(preferred)
+    named = config.get("native_clients")
+    if isinstance(named, dict) and named.get(PYARCHINIT_CLIENT):
+        return str(named[PYARCHINIT_CLIENT])
     return str(config.get("native_client_id") or config.get("client_id") or "")
 
 
@@ -121,12 +132,12 @@ class SignIn:
     """
 
     def __init__(self, node: str, *, open_browser: Optional[Callable[[str], Any]] = webbrowser.open,
-                 timeout: float = 300.0):
+                 timeout: float = 300.0, client_id: Optional[str] = None):
         self.node = node_base(node)
         self.open_browser = open_browser
         self.timeout = timeout
         self.config = auth_config(self.node)
-        self.client_id = client_of(self.config)
+        self.client_id = client_of(self.config, client_id)
         if not self.client_id:
             raise NodeError(f"{self.node} names no client for a desktop sign-in")
         self._got: Dict[str, str] = {}

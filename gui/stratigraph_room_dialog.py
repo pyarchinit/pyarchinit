@@ -23,6 +23,8 @@ from qgis.PyQt.QtWidgets import (QCheckBox, QComboBox, QDialog, QFormLayout, QMe
 from qgis.core import QgsSettings
 
 SETTINGS_NODE = "pyArchInit/stratigraph/node_url"
+#: the Keycloak client to sign in as; empty = the one the node names
+SETTINGS_CLIENT = "pyArchInit/stratigraph/client_id"
 DEFAULT_NODE = "https://em.localhost:8443/em"
 
 
@@ -142,7 +144,8 @@ class StratiGraphRoomDialog(QDialog):
         self._say(t("opening_signin", node=node))
 
         def work():
-            session = NC.NodeSession.sign_in(node)
+            session = NC.NodeSession.sign_in(
+                node, client_id=(QgsSettings().value(SETTINGS_CLIENT, "") or None))
             return session, NC.whoami(node, session.access_token())
 
         def done(result):

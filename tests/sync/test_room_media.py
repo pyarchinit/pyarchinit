@@ -74,3 +74,20 @@ def test_where_a_file_lives_is_not_an_edit():
     delta.update_field("u5", "description", "Rivista")
     out = RS._without_noise(delta, set(), frozenset({"m10"}))
     assert out.ops == [{"op": "update_field", "node_id": "u5", "field": "description", "value": "Rivista"}]
+
+
+def test_an_old_database_without_media_identity_sends_its_units_anyway(tmp_path):
+    """Measured on an old database (Pesaro): media_table without entity_uuid
+    stopped the whole compare. Now the media wait and the rest goes."""
+    db = tmp_path / "old.sqlite"
+    con = sqlite3.connect(db)
+    con.executescript("""
+        CREATE TABLE us_table (id_us INTEGER PRIMARY KEY, sito TEXT, us TEXT, node_uuid TEXT);
+        CREATE TABLE media_table (id_media INTEGER PRIMARY KEY, filename TEXT, filepath TEXT);
+        CREATE TABLE media_thumb_table (id_media_thumb INTEGER PRIMARY KEY, id_media INTEGER);
+        CREATE TABLE media_to_entity_table (id_mediaToEntity INTEGER PRIMARY KEY, id_entity INTEGER);""")
+    con.close()
+    em = tmp_path / "s.em.json"
+    em.write_text(json.dumps({"graphs": {"g": {"nodes": [], "edges": []}}}))
+    out = RM.add_media_resources(str(em), f"sqlite:///{db}", "S", resize_dir=str(tmp_path))
+    assert out["resources"] == 0 and "entity_uuid" in out["skipped"]

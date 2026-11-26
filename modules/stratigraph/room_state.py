@@ -107,6 +107,16 @@ def forget(connection_url: str, site: str, node: str, room: str, home: Optional[
 
 # ── the room now, incrementally ──────────────────────────────────────────────
 
+def _site_has_rows(connection_url: str, site: str) -> bool:
+    try:
+        from sqlalchemy import create_engine, text
+        with create_engine(connection_url).connect() as conn:
+            return conn.execute(text("SELECT 1 FROM us_table WHERE sito = :s LIMIT 1"),
+                                {"s": site}).fetchone() is not None
+    except Exception:                                       # noqa: BLE001
+        return True                                         # cannot tell: keep the base
+
+
 def _section(doc: Dict[str, Any], graph_id: Optional[str]) -> Optional[Dict[str, Any]]:
     graphs = doc.get("graphs") or {}
     if isinstance(graphs, dict):
@@ -146,6 +156,11 @@ def room_now(connection_url: str, site: str, *, node: str, room: str, token: str
     from s3dgraphy.api import apply_op
     from .room_sync import fetch_document
     base = load(connection_url, site, node, room, home)
+    if base is not None and not _site_has_rows(connection_url, site):
+        # a base for a site this database does not hold (recreated or emptied
+        # under the same name): there is no common history any more
+        forget(connection_url, site, node, room, home)
+        base = None
     if base and base.get("cursor"):
         feed = ops_after(node, room, token, base["cursor"])
         if feed["granted"]:

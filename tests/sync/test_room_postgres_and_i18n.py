@@ -101,3 +101,37 @@ def test_the_hashed_site_place_merges_into_the_real_one():
     assert g.find_node_by_id(hashed) is None
     assert [(e.edge_source, e.edge_target) for e in g.edges] == [("loc::area::study::1", "real-uuid")]
     assert _merge_hashed_site_place(g, "S") == 0                 # nothing left to merge
+
+
+def test_the_client_pyarchinit_signs_in_as():
+    from modules.stratigraph.node_client import client_of
+    node = {"native_client_id": "em-tools"}
+    assert client_of(node) == "em-tools"                                   # as today
+    assert client_of(node, "pyarchinit") == "pyarchinit"                   # a setting
+    assert client_of(dict(node, native_clients={"pyarchinit": "pa"})) == "pa"   # announced by the node
+
+
+def test_footprint_layers_fit_the_columns_the_database_has(tmp_path):
+    """PostGIS names pyarchinit_sondaggi's columns sito / id_sondagg; a layer
+    without a usable column is left out instead of stopping every footprint."""
+    import sqlite3
+    from types import SimpleNamespace
+    from sqlalchemy import create_engine
+    from modules.s3dgraphy.sync.graph_projector import _fit_footprint_layers
+    db = tmp_path / "g.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE pyarchinit_siti_polygonal (sito_id TEXT, the_geom BLOB)")
+    con.execute("CREATE TABLE pyarchinit_sondaggi (sito TEXT, id_sondagg TEXT, the_geom BLOB)")
+    con.execute("CREATE TABLE pyarchinit_ripartizioni_spaziali (other TEXT, the_geom BLOB)")
+    con.commit(); con.close()
+    importer = SimpleNamespace(mapping={"footprint_layers": {
+        "enabled": True,
+        "site": {"table": "pyarchinit_siti_polygonal", "site_column": "sito_id"},
+        "places": [{"table": "pyarchinit_sondaggi", "site_column": "sito_sond", "key_column": "id_sondaggio"},
+                   {"table": "pyarchinit_ripartizioni_spaziali", "site_column": "sito_rs", "key_column": "id_rs"}],
+        "units": {"table": "pyunitastratigrafiche", "site_column": "scavo_s", "key_column": "us_s"}}})
+    _fit_footprint_layers(importer, create_engine(f"sqlite:///{db}"))
+    cfg = importer.mapping["footprint_layers"]
+    assert cfg["site"]["site_column"] == "sito_id"
+    assert cfg["places"] == [{"table": "pyarchinit_sondaggi", "site_column": "sito", "key_column": "id_sondagg"}]
+    assert "units" not in cfg                                              # no such layer here

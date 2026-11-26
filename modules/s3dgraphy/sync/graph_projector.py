@@ -165,7 +165,8 @@ def _drop_paradata_of_paradata(graph, paradata_ids):
     if not doomed_edges:
         return 0
     orphan_candidates = {e.edge_target for e in doomed_edges}
-    survivors = [e for e in graph.edges if e not in doomed_edges]
+    doomed = {id(e) for e in doomed_edges}           # a set: «in a list» was O(E·D)
+    survivors = [e for e in graph.edges if id(e) not in doomed]
     still_touched = {e.edge_source for e in survivors}
     still_touched |= {e.edge_target for e in survivors}
     doomed_nodes = {n.node_id for n in graph.nodes
@@ -647,6 +648,7 @@ def _fold_inverse_edges(graph) -> int:
 
     archi = list(getattr(graph, "edges", None) or [])
     tolti = 0
+    via = set()                                     # ids to remove, all at the end
 
     # Passata 1 — chi è già nel verso giusto tiene il posto. Si registra
     # **prima** di guardare gli inversi: senza questo ordine, un inverso
@@ -658,7 +660,7 @@ def _fold_inverse_edges(graph) -> int:
         if chiave is None or getattr(edge, "edge_type", None) in _INVERSE_TO_FORWARD:
             continue
         if chiave in tenuti:
-            graph.remove_edge(getattr(edge, "edge_id", None))
+            via.add(getattr(edge, "edge_id", None))
             tolti += 1
             continue
         tenuti[chiave] = getattr(edge, "edge_id", None)
@@ -669,7 +671,7 @@ def _fold_inverse_edges(graph) -> int:
         if getattr(edge, "edge_type", None) not in _INVERSE_TO_FORWARD:
             continue
         chiave = chiave_di(edge)
-        graph.remove_edge(getattr(edge, "edge_id", None))
+        via.add(getattr(edge, "edge_id", None))
         if chiave in tenuti:
             tolti += 1
             continue
@@ -678,6 +680,14 @@ def _fold_inverse_edges(graph) -> int:
             graph.add_edge(edge_id=nuovo_id, edge_source=chiave[0],
                            edge_target=chiave[1], edge_type=chiave[2])
         tenuti[chiave] = nuovo_id
+    # One rebuild of the edge list instead of one per removed edge
+    # (``Graph.remove_edge`` copies the whole list each time: 2.0 s of a
+    # 10 s export on 1,020 units, 26 Nov 2026). As before, every edge that
+    # existed with a removed id goes; an edge added above stays.
+    if via:
+        prima = {id(e) for e in archi}
+        graph.edges = [e for e in graph.edges
+                       if not (id(e) in prima and getattr(e, "edge_id", None) in via)]
     return tolti
 
 
@@ -694,8 +704,56 @@ def _import_from_pg_full(handle, sito, mapping_name="pyarchinit_us_mapping"):
     already speaks PostgreSQL (``connection_url``): the projector uses it."""
     from s3dgraphy.importer.pyarchinit_importer import PyArchInitImporter
     url = handle.engine.url.render_as_string(hide_password=False)
-    return PyArchInitImporter(connection_url=url, mapping_name=mapping_name,
-                              filters={"sito": sito}).parse()
+    importer = PyArchInitImporter(connection_url=url, mapping_name=mapping_name,
+                                  filters={"sito": sito})
+    _fit_footprint_layers(importer, handle.engine)
+    return importer.parse()
+
+
+#: column names of pyArchInit's PostGIS schema where they differ from SQLite's
+#: (pyarchinit_schema_updated.sql: pyarchinit_sondaggi has «sito» and
+#: «id_sondagg», SQLite «sito_sond» and «id_sondaggio»)
+_PG_COLUMN_ALIASES = {"sito_sond": ("sito",), "id_sondaggio": ("id_sondagg",)}
+
+
+def _fit_footprint_layers(importer, engine) -> None:
+    """The mapping's footprint layers on the columns this database HAS.
+    s3dgraphy's reader queries the SQLite names and reads every layer in one
+    go: on PostGIS the query on pyarchinit_sondaggi failed (column «sito_sond»
+    does not exist), the transaction aborted, and NO footprint was read — not
+    even the site's (measured 26 Nov 2026). A known alias is used; a layer that
+    still lacks a column is left out instead of failing all the others."""
+    import copy
+    from sqlalchemy import inspect
+    cfg = copy.deepcopy((getattr(importer, "mapping", None) or {}).get("footprint_layers"))
+    if not cfg:
+        return
+    insp = inspect(engine)
+
+    def fit(spec):
+        if not spec:
+            return spec
+        try:
+            have = {c["name"] for c in insp.get_columns(spec["table"])}
+        except Exception:                                   # noqa: BLE001
+            return None                                     # no such layer here
+        for key in ("site_column", "key_column", "area_column", "type_column"):
+            col = spec.get(key)
+            if not col or col in have:
+                continue
+            alt = next((a for a in _PG_COLUMN_ALIASES.get(col, ()) if a in have), None)
+            if alt is None:
+                return None
+            spec[key] = alt
+        return spec
+
+    cfg["site"] = fit(cfg.get("site"))
+    cfg["places"] = [p for p in (fit(p) for p in cfg.get("places") or []) if p]
+    cfg["units"] = fit(cfg.get("units"))
+    for key in ("site", "units"):
+        if cfg.get(key) is None:
+            cfg.pop(key, None)
+    importer.mapping = dict(importer.mapping, footprint_layers=cfg)
 
 
 import threading as _threading

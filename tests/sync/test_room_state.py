@@ -123,3 +123,18 @@ def test_a_relation_the_pull_could_not_reproduce_is_not_a_removal(tmp_path):
     B, R, L = (_graph(tmp_path, d, n) for d, n in ((base, "b.json"), (room, "r.json"), (local, "l.json")))
     tw = RS.three_way(diff(_snapshot(R), L), B, R, L, frozenset({"u1|overlies|u2"}))
     assert tw["removed_here"] == 0 and tw["send_removals"] == []
+
+
+def test_a_base_for_a_site_the_database_no_longer_holds_is_dropped(tmp_path, monkeypatch):
+    import sqlite3
+    db = tmp_path / "x.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE us_table (id_us INTEGER PRIMARY KEY, sito TEXT, us TEXT)")
+    con.commit(); con.close()
+    url = f"sqlite:///{db}"
+    ST.save(url, "S", "https://n/em", "r", _doc([], []), "c:1", how="pull", home=str(tmp_path))
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
+    monkeypatch.setattr(RS, "fetch_document", lambda *a: {"doc": {"graphs": {}}, "cursor": "c:9"})
+    answer, base, how = ST.room_now(url, "S", node="https://n/em", room="r", token="t")
+    assert base is None and how == {"read": "full", "reason": "no_base"}
+    assert ST.load(url, "S", "https://n/em", "r", str(tmp_path)) is None
