@@ -306,6 +306,9 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
 
     em_json, n_nodes, n_edges, warnings = em_export.export_site(
         connection_url, site, workdir, per_saggio=per_saggio)
+    # the whole record of each unit, not only the graph's fields
+    from .room_records import add_unit_records
+    records_report = add_unit_records(em_json, connection_url, site)
     media_report = None
     if media:
         # the unit media as resources: room_import uploads each file once
@@ -324,7 +327,7 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
         report = RI.execute(run)
     report = dict(report or {})
     report.update({"em_json": em_json, "nodes": n_nodes, "edges": n_edges,
-                   "export_warnings": list(warnings or []), "media": media_report,
+                   "export_warnings": list(warnings or []), "media": media_report, "records": records_report,
                    "kept_as_reference": sorted(
                        row.get("path") for row in run["plan"]["rows"] if row["id"] in kept)})
     return report

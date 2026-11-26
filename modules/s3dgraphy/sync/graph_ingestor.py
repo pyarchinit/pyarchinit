@@ -697,6 +697,19 @@ class GraphIngestor:
                 # dry-run too, because dry-run executes the INSERTs (then
                 # rolls back) and would otherwise crash on the preview.
                 _resync_pg_serial_sequences(conn, handle)
+                # La scheda intera di un nodo nato da pyArchInit: ogni sua
+                # chiave che è una colonna vera di us_table si riscrive (una
+                # stanza ricostruita dava 15 colonne su 131: 26 nov 2026). Un
+                # nodo di EMStudio resta alle colonne del giro di andata e
+                # ritorno.
+                from sqlalchemy import inspect as _inspect
+                _scheda = tuple(c["name"] for c in _inspect(conn).get_columns("us_table")
+                                if c["name"] not in _WRITE_COLUMNS
+                                and c["name"] not in ("id_us", "node_uuid", "sito"))
+
+                def _cols(node):
+                    return _WRITE_COLUMNS + _scheda if _emn.is_row_born(node) else _WRITE_COLUMNS
+
                 # Ensure site_table has a row for `sito` — create if missing.
                 count_row = conn.execute(
                     text("SELECT COUNT(*) FROM site_table WHERE sito = :sito"),
@@ -919,7 +932,7 @@ class GraphIngestor:
                         inserted += 1
                         continue
                     row_changed = False
-                    for col in _WRITE_COLUMNS:
+                    for col in _cols(node):
                         if col not in attrs or col == "node_uuid":
                             # Identity column — never counts as a change
                             # (a natural-key copy match has a different uuid
@@ -957,7 +970,7 @@ class GraphIngestor:
                         node_uuid, attrs = pronto
                         existing, eff_uuid = _completa(nid, node, attrs)
                         col_payload = {col: attrs.get(col)
-                                       for col in _WRITE_COLUMNS
+                                       for col in _cols(node)
                                        if col in attrs}
                         col_payload["node_uuid"] = eff_uuid
                         col_payload["sito"] = sito
@@ -983,7 +996,7 @@ class GraphIngestor:
                             db_row = existing
                             diff_cols = []
                             diff_vals = []
-                            for col in _WRITE_COLUMNS:
+                            for col in _cols(node):
                                 if col not in attrs or col == "node_uuid":
                                     continue
                                 if _values_equal(col, db_row.get(col),

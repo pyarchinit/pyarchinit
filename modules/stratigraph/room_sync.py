@@ -72,6 +72,8 @@ def local_graph(connection_url: str, site: str, workdir: str) -> Tuple[Any, str]
     os.makedirs(out, exist_ok=True)
     path, _n, _e, _w = em_export.export_site(connection_url, site, out, per_saggio=False)
     from .room_media import add_media_resources
+    from .room_records import add_unit_records
+    add_unit_records(path, connection_url, site)           # the whole records, as in send_site
     add_media_resources(path, connection_url, site)        # the unit media, as in send_site
     container, _ = load_container_file(path)
     (_gid, graph), = container.graphs.items()
