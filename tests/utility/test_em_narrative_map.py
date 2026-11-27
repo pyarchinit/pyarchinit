@@ -122,3 +122,21 @@ def test_i_dati_della_mappa_non_portano_la_prima_epoca():
     vista = nm.map_view('<svg id="pya-svg"></svg>', {"all": [0, 0, 1, 1]},
                         {"u1": {"name": "1.US1", "epochs": ["e1"]}}, {}, lang="it")
     assert "firstEpoch" not in vista.script and '"units": {"u1": "1.US1"}' in vista.script
+
+
+def test_un_unita_con_solo_node_uuid_ha_numero_e_sito_dal_grafo():
+    """s3dgraphy dev143: il data di un'unità tiene solo node_uuid; numero,
+    area e tipo si rileggono dal grafo, il sito è il nodo dello studio.
+    Prima la mappa e la scena 3D della narrativa cadevano su KeyError 'us'
+    (TempluMare, 27 novembre 2026)."""
+    from s3dgraphy.unit_row import migrate_legacy_row_fields
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    g = _grafo()
+    n = StratigraphicUnit("u9", "1.US9")
+    n.data = {"sito": "Villa", "area": "1", "us": "9", "unita_tipo": "US", "node_uuid": "u9"}
+    g.add_node(n)
+    migrate_legacy_row_fields(g)
+    assert "us" not in (g.find_node_by_id("u9").data or {})
+    meta = nm.units_meta(g)
+    assert meta["u9"]["number"] == "9" and meta["u9"]["area"] == "1"
+    assert meta["u9"]["unita_tipo"] == "US" and meta["u9"]["sito"]

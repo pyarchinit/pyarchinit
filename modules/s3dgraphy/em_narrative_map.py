@@ -82,10 +82,34 @@ def units_meta(graph) -> Dict[str, Dict[str, Any]]:
     from ..utility.em_matrix_links import unit_identity
     epoche = epochs_of(graph)
     out: Dict[str, Dict[str, Any]] = {}
+    lettore = None
+    sito_del_grafo = None
     for n in getattr(graph, "nodes", None) or []:
         identita = unit_identity(n)
         if not identita:
             continue
+        if "us" not in identita:
+            # s3dgraphy dev143 (`unit_row`): data keeps only node_uuid; the
+            # row's columns are read back from the graph (27 Nov 2026: the
+            # TempluMare narrative lost its map and 3D scene on KeyError 'us')
+            if lettore is None:
+                from s3dgraphy.unit_row import RowReader
+                lettore = RowReader(graph)
+            try:
+                righe = dict(lettore.columns(n) or {})
+            except Exception:                       # noqa: BLE001
+                righe = {}
+            if not righe.get("sito"):
+                # the site is a node of the graph, not a column of the unit
+                if sito_del_grafo is None:
+                    from .em_narrative import _site_name
+                    sito_del_grafo = str(_site_name(graph) or "")
+                righe["sito"] = sito_del_grafo
+            if not righe.get("us") or not righe.get("sito"):
+                continue
+            identita = {"us": str(righe["us"]), "sito": str(righe["sito"]),
+                        "area": str(righe.get("area") or ""),
+                        "unita_tipo": str(righe.get("unita_tipo") or "")}
         uid = str(n.node_id)
         out[uid] = {"name": str(getattr(n, "name", "") or uid), "number": identita["us"],
                     "area": identita.get("area", ""), "sito": identita["sito"],

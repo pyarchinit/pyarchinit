@@ -748,6 +748,19 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
             b_keys = _named_rows(b_us, b_area, a_key[1], per_us)
             if not b_keys:
                 continue          # la voce non nomina nessuna riga del sito
+            if a_key in b_keys:
+                # A row related to itself. The graph keeps no edge from a
+                # node to itself, so the cycle search never saw it, and the
+                # scan asked for its "reciprocal" — an auto-fix that wrote
+                # a second self-relation (27 Nov 2026): it is a self-loop,
+                # and its fix removes it.
+                if not any(i.kind == SELF_LOOP and i.us_path == [a_key[0]]
+                           and (i.rows or [None])[0] == _as_row(a_key) for i in rep.issues):
+                    rep.issues.append(Issue(
+                        SELF_LOOP, [a_key[0]], True,
+                        _t(lang, "s_self").format(us=_utok(a_key[0], lang)),
+                        rows=[_as_row(a_key)]))
+                continue
             if any(_risponde(bk, inv, a_key) for bk in b_keys):
                 continue
             # Una sola riga candidata: la correzione sa dove scrivere. Più di
@@ -865,7 +878,12 @@ def _fill_edits(rep, graph, *, inverse_label=None):
             rem = tuple(tuple(str(x) for x in e)
                         for e in _coerce_to_list(a.get("rapporti"))
                         if isinstance(e, (list, tuple)) and len(e) >= 2
-                        and str(e[1]).strip() == us)
+                        and str(e[1]).strip() == us
+                        # only the entry naming this very row: a relation to
+                        # the same number in another area is not a self-loop
+                        and (len(e) < 3 or not str(e[2]).strip() or not riga
+                             or not str(riga.get("area") or "").strip()
+                             or str(e[2]).strip() == str(riga.get("area") or "").strip()))
             iss.edits = [Edit(us=us, remove=rem,
                               target=_target_of_row(riga))] if rem else []
         elif iss.kind == MISSING_RECIPROCITY:

@@ -5,6 +5,18 @@
 
 ---
 
+## [fix] - 2026-11-27 — Narrativa con mappa e 3D di nuovo; un self-loop si toglie, non si raddoppia — 5.19.2-alpha
+
+#### Fixed / Corretto
+- **Narrativa HTML senza mappa né scena 3D** con s3dgraphy dev143+: il `data` di un'unità tiene solo `node_uuid`, e `units_meta` cadeva su `KeyError 'us'`. Ora numero, area e tipo si rileggono dal grafo (`RowReader`), il sito dal nodo dello studio. TempluMare: 119 disegni sulla mappa, scheda «Map» e «3D», clic su un'unità nel testo.
+- **Verifica rapporti, una scheda in rapporto con sé stessa** («US 1 copre US 1»): il grafo non tiene l'arco, la ricerca dei cicli non la vedeva e la scansione dei reciproci la segnalava come «reciproco mancante» — la correzione automatica scriveva un secondo rapporto con sé stessa. Ora è un self-loop (automatico) e la correzione toglie solo la voce che nomina quella riga (non la US con lo stesso numero di un'altra area).
+
+#### Verificato
+- TempluMare in un DB creato in EPSG:31700 con «Ricava piante e prospetti dai modelli 3D»: 851 schede, 106 media, 65 piante in `pyunitastratigrafiche` e 320 prospetti in `pyunitastratigrafiche_usm` (74 s); narrativa HTML 7,4 MB con mappa delle piante e scena 3D dei 65 proxy.
+- Sito di esempio con 4 errori piantati: 8 problemi, 4 automatici (self-loop, reciproco, 2 datazioni) applicati; restano i 4 manuali (contraddizione, ciclo, 2 paradossi temporali).
+
+---
+
 ## [fix] - 2026-11-27 — Un em.json di EMStudio fino alla stanza e ritorno (TempluMare) — 5.19.1-alpha
 
 > Ciclo completo con TempluMare v3.2 (E. Demetrescu): import dell'em.json in un pyArchInit vuoto, export, invio alla stanza, pull in un altro pyArchInit vuoto.
