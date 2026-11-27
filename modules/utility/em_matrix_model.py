@@ -336,6 +336,15 @@ def read_em_json(source) -> MatrixModel:
 
     epoche: List[Epoch] = []
     unita_grezze: Dict[str, Dict[str, Any]] = {}
+    # What a unit's row says, written as nodes since s3dgraphy dev143
+    # (`unit_row`): its properties (d_interpretativa, attività, struttura) and
+    # the documents of its checklist hang from the unit — they belong to it,
+    # they are not rows of the matrix. A node with its own node_uuid is a row.
+    nati_da_riga = {str(n.get("id")) for n in nodi if isinstance(n, dict)
+                    and isinstance(n.get("data"), dict) and n["data"].get("node_uuid")}
+    della_riga = {str(e.get("target")) for e in archi if isinstance(e, dict)
+                  and e.get("edge_type") in ("has_property", "has_documentation")
+                  and str(e.get("source")) in nati_da_riga} - nati_da_riga
     for posizione, n in enumerate(nodi):
         if not isinstance(n, dict):
             raise ValueError(
@@ -364,6 +373,9 @@ def read_em_json(source) -> MatrixModel:
             continue
         elif tipo == "extractor" and str(dati.get("extractor_type") or "") == "gis_analysis":
             continue      # l'estrattore che legge il layer GIS dell'impronta
+        elif chiave in della_riga or (tipo == "document" and chiave not in nati_da_riga
+                                      and (chiave.startswith("doc::path::") or "_doc_" in chiave)):
+            continue      # a field of a unit's row, as a node (s3dgraphy unit_row)
         elif tipo not in _NOT_A_UNIT:
             if chiave in unita_grezze:
                 avvisi.append("Due nodi con lo stesso id «%s»: ne disegno uno."

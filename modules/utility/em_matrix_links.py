@@ -53,6 +53,11 @@ def unit_identity(unit) -> Dict[str, str]:
         return {}
     us = str(dati.get("us") or "").strip()
     sito = str(dati.get("sito") or "").strip()
+    node_uuid = str(dati.get("node_uuid") or "").strip()
+    if (not us or not sito) and node_uuid:
+        # s3dgraphy dev143 (`unit_row`): a unit's data keeps only its
+        # technical key; node_uuid alone finds the row of us_table
+        return {"node_uuid": node_uuid}
     if not us or not sito:
         return {}
     identita = {
@@ -61,7 +66,6 @@ def unit_identity(unit) -> Dict[str, str]:
         "area": str(dati.get("area") or "").strip(),
         "unita_tipo": str(dati.get("unita_tipo") or "").strip(),
     }
-    node_uuid = str(dati.get("node_uuid") or "").strip()
     if node_uuid:
         identita["node_uuid"] = node_uuid
     return identita
@@ -196,6 +200,16 @@ def _id_us(conn, identita: Dict[str, str]) -> Optional[int]:
         tentativi.append((
             "SELECT id_us FROM us_table WHERE node_uuid = :node_uuid",
             {"node_uuid": identita["node_uuid"]}))
+    if not identita.get("sito"):
+        tentativi_soli = tentativi
+        for sql, p in tentativi_soli:
+            righe = _rows(conn, sql, p)
+            if righe and righe[0][0] is not None:
+                try:
+                    return int(righe[0][0])
+                except (TypeError, ValueError):
+                    return None
+        return None
     base = ("SELECT id_us FROM us_table WHERE sito = :sito "
             "AND TRIM(CAST(us AS CHAR(50))) = :us")
     params = {"sito": identita["sito"], "us": identita["us"]}
@@ -304,6 +318,8 @@ def pick_feature_expression(unit, available_fields, id_us=None) -> Optional[str]
             return '"id_us" = %d' % int(id_us)
         except (TypeError, ValueError):
             pass
+    if not identita.get("sito"):
+        return None          # only the node_uuid: the layer is found by id_us
     for sito_f, area_f, us_f, tipo_f in FIELD_SETS:
         if not {sito_f, us_f} <= campi:
             continue

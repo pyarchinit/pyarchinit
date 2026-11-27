@@ -80,8 +80,16 @@ def remember_source(db, sito: str, emjson_path: str) -> bool:
     # sono di questo (revisione 16-10-2026). Un file di EMStudio non porta
     # nessun sito; quello dello stesso sito si ricorda (le aggiunte fatte in
     # EMStudio a un export di pyArchInit tornano).
-    siti = {str(d.get("sito")) for d in (n.get("data") or {} for n in _nodi_nel_file(doc).values())
+    nodi = _nodi_nel_file(doc).values()
+    siti = {str(d.get("sito")) for d in (n.get("data") or {} for n in nodi)
             if isinstance(d, dict) and d.get("sito")}
+    # since s3dgraphy dev143 a unit carries only its node_uuid: a file with
+    # rows is pyArchInit's, and its site is the name of its graphs
+    if not siti and any(isinstance(n.get("data"), dict) and n["data"].get("node_uuid") for n in nodi):
+        grafi = doc.get("graphs")
+        for gid, g in (grafi.items() if isinstance(grafi, dict) else enumerate(grafi or [])):
+            nome = (g or {}).get("name") if isinstance(g, dict) else None
+            siti.add(str(nome or gid))
     if siti and str(sito) not in siti:
         return False
     engine = _engine(db)

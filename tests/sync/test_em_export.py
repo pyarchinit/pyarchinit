@@ -64,9 +64,9 @@ def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):
     # Le 51 righe del sito arrivano tutte; dal 2026-10-08 sei di esse
     # (property, DOC×2, Extractor×2, Combinar) viaggiano come paradati e
     # non come unità stratigrafiche.
-    from_rows = [n for n in check.nodes
-                 if (getattr(n, "attributes", None) or {}).get("us")
-                 or ((getattr(n, "data", None) or {}).get("us"))]
+    # since s3dgraphy dev143 a row is known by its node_uuid (unit_row)
+    from s3dgraphy.unit_row import is_row_born
+    from_rows = [n for n in check.nodes if is_row_born(n)]
     assert len(from_rows) >= 51, "le 51 righe inglesi devono arrivare nel file"
     assert len(strat) == 45, "le unità stratigrafiche inglesi devono arrivare"
     assert any(is_masonry(n) for n in strat), (
@@ -101,12 +101,15 @@ def test_only_the_requested_site_travels(sample_db, tmp_path):
     check, _w = import_emjson(path)
     from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
     strat = [n for n in check.nodes if isinstance(n, StratigraphicNode)]
-    # on re-read the exporter's data{} lands in node.data (attributes
-    # keep only the lifecycle keys): look where the file actually put it
-    sites = {(getattr(n, "data", None) or {}).get("sito")
-             or (getattr(n, "attributes", None) or {}).get("sito")
-             for n in strat}
-    assert sites <= {"Scavo archeologico"}, sites
+    # since s3dgraphy dev143 a unit carries only its node_uuid: every unit of
+    # the file must be a row of the requested site
+    import sqlite3
+    from s3dgraphy.unit_row import node_uuid_of
+    db = str(sample_db).split("///", 1)[-1]
+    of_site = {r[0] for r in sqlite3.connect(db).execute(
+        "SELECT node_uuid FROM us_table WHERE sito = ?", ("Scavo archeologico",))}
+    foreign = [n.name for n in strat if node_uuid_of(n) not in of_site]
+    assert foreign == [], foreign
     assert len(strat) < 100, "più siti nel file (%d unità)" % len(strat)
 
 
@@ -342,18 +345,21 @@ def test_the_file_draws_virtual_units_as_virtual(sample_db, tmp_path):
     path, _, _, _ = em_export.export_site(
         sample_db, "Scavo archeologico", str(tmp_path / "out"),
         per_saggio=False)
-    graph = json.loads(Path(path).read_text())["graphs"]["Scavo archeologico"]
+    # since s3dgraphy dev143 the code is read from the node (unit_row)
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    from s3dgraphy.unit_row import is_row_born, row_code
+    check, _w = import_emjson(path)
     by_tipo = {}
-    for node in graph["nodes"]:
-        data = node.get("data") or {}
-        if data.get("unita_tipo"):
-            by_tipo.setdefault(data["unita_tipo"], set()).add(node["node_type"])
+    for node in check.nodes:
+        if is_row_born(node) and row_code(node):
+            by_tipo.setdefault(row_code(node), set()).add(node.node_type)
     assert by_tipo.get("USVs") == {"USVs"}, by_tipo
     assert by_tipo.get("USVn") == {"USVn"}, by_tipo
     assert not {"USVA", "USVB", "USVC"} & set(by_tipo), by_tipo
     assert by_tipo.get("SF") == {"SF"}, by_tipo
     assert by_tipo.get("US") == {"US"}, by_tipo
     assert by_tipo.get("USM") == {"US"}, by_tipo      # US + genere muraria
+    graph = json.loads(Path(path).read_text())["graphs"]["Scavo archeologico"]
     virtuali = [n for n in graph["nodes"] if n["node_type"] == "USVs"]
     assert virtuali and all(
         (n.get("data") or {}).get("symbol") != "white rectangle"

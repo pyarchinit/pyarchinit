@@ -1502,11 +1502,41 @@ def hydrate_row_fields_from_data(graph) -> int:
     dove li mette l'import GraphML e dove l'ingestore li legge. Un nodo nato
     in EMStudio (senza quei due campi) non si tocca: le sue regole restano
     quelle di ``em_native_import``. Torna quanti nodi ha completato."""
+    # s3dgraphy dev143 (`unit_row`, E.D. 27 Nov 2026): what a row says is
+    # written as nodes and edges — the place in is_in_location, the type in
+    # the class, the description, the properties, the epochs, the checklist
+    # documents — and a unit's data keeps only node_uuid. RowReader reads
+    # each column back from the graph; older s3dgraphy: data as before.
+    try:
+        from s3dgraphy.unit_row import RowReader
+        lettore = RowReader(graph)
+    except ImportError:
+        lettore = None
     completati = 0
     for node in getattr(graph, "nodes", None) or []:
         data = getattr(node, "data", None)
         if not isinstance(data, dict) or not (data.get("node_uuid") or data.get("us") not in (None, "")):
             continue
+        if lettore is not None:
+            try:
+                dal_grafo = lettore.columns(node)
+            except Exception:  # noqa: BLE001 — a node the reader cannot read: data only
+                dal_grafo = {}
+            attrs0 = getattr(node, "attributes", None)
+            if attrs0 is None:
+                attrs0 = {}
+                node.attributes = attrs0
+            dal_grafo = dict(dal_grafo or {})
+            if (dal_grafo.get("periodo_finale"), dal_grafo.get("fase_finale")) == \
+                    (dal_grafo.get("periodo_iniziale"), dal_grafo.get("fase_iniziale")):
+                # an empty final period means «the same»: the graph says it as
+                # survive_in_epoch of the first epoch — not written back
+                dal_grafo.pop("periodo_finale", None)
+                dal_grafo.pop("fase_finale", None)
+            for chiave, valore in dal_grafo.items():
+                if valore not in (None, "") and attrs0.get(chiave) in (None, "") \
+                        and data.get(chiave) in (None, ""):
+                    attrs0[chiave] = valore
         attrs = getattr(node, "attributes", None)
         if attrs is None:
             attrs = {}

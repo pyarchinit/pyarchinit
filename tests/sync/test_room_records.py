@@ -85,4 +85,6 @@ def test_a_site_rebuilt_from_its_em_json_keeps_every_column(tmp_path):
                "last_modified_by", "last_modified_timestamp")
     differ = {c for u in b for i, c in enumerate(cols)
               if c not in derived and norm(a[u][i]) != norm(b[u][i])}
-    assert differ == set()
+    diffs = [(a[u][cols.index('us')], c, a[u][i], b[u][i]) for u in b for i, c in enumerate(cols)
+             if c not in derived and norm(a[u][i]) != norm(b[u][i])]
+    assert differ == set(), diffs[:8]

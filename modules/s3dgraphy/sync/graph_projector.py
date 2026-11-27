@@ -24,7 +24,6 @@ from s3dgraphy.sync.graph_projector import *  # noqa: F401,F403
 from s3dgraphy.sync.graph_projector import (  # noqa: F401  (private, used by tests)
     GraphProjector as _LibGraphProjector,
     ProjectionError,
-    _create_paradata_node_for_unita_tipo,
     _create_stratigraphic_node_for_unita_tipo,
     _resolve_target_for_folder,
 )
@@ -691,160 +690,9 @@ def _fold_inverse_edges(graph) -> int:
     return tolti
 
 
-def _import_from_pg_full(handle, sito, mapping_name="pyarchinit_us_mapping"):
-    """PostgreSQL through the SAME importer as SQLite.
-
-    The library's projector reads PostgreSQL with ``import_from_pg``, a
-    reduced reader: the node id is the US NUMBER (SQLite: the row's
-    ``node_uuid``), so a unit lost its identity on every export and two
-    units with the same number in different areas or types overwrote each
-    other; no locations, epochs, documents, authors, voids. Measured 26 Nov
-    2026: a site exported from PostgreSQL showed 39 «new» units and 77
-    «room-only» items against the room it came from. ``PyArchInitImporter``
-    already speaks PostgreSQL (``connection_url``): the projector uses it."""
-    from s3dgraphy.importer.pyarchinit_importer import PyArchInitImporter
-    url = handle.engine.url.render_as_string(hide_password=False)
-    importer = PyArchInitImporter(connection_url=url, mapping_name=mapping_name,
-                                  filters={"sito": sito})
-    _fit_footprint_layers(importer, handle.engine)
-    return importer.parse()
-
-
-#: column names of pyArchInit's PostGIS schema where they differ from SQLite's
-#: (pyarchinit_schema_updated.sql: pyarchinit_sondaggi has «sito» and
-#: «id_sondagg», SQLite «sito_sond» and «id_sondaggio»)
-_PG_COLUMN_ALIASES = {"sito_sond": ("sito",), "id_sondaggio": ("id_sondagg",)}
-
-
-def _fit_footprint_layers(importer, engine) -> None:
-    """The mapping's footprint layers on the columns this database HAS.
-    s3dgraphy's reader queries the SQLite names and reads every layer in one
-    go: on PostGIS the query on pyarchinit_sondaggi failed (column «sito_sond»
-    does not exist), the transaction aborted, and NO footprint was read — not
-    even the site's (measured 26 Nov 2026). A known alias is used; a layer that
-    still lacks a column is left out instead of failing all the others."""
-    import copy
-    from sqlalchemy import inspect
-    cfg = copy.deepcopy((getattr(importer, "mapping", None) or {}).get("footprint_layers"))
-    if not cfg:
-        return
-    insp = inspect(engine)
-
-    def fit(spec):
-        if not spec:
-            return spec
-        try:
-            have = {c["name"] for c in insp.get_columns(spec["table"])}
-        except Exception:                                   # noqa: BLE001
-            return None                                     # no such layer here
-        for key in ("site_column", "key_column", "area_column", "type_column"):
-            col = spec.get(key)
-            if not col or col in have:
-                continue
-            alt = next((a for a in _PG_COLUMN_ALIASES.get(col, ()) if a in have), None)
-            if alt is None:
-                return None
-            spec[key] = alt
-        return spec
-
-    cfg["site"] = fit(cfg.get("site"))
-    cfg["places"] = [p for p in (fit(p) for p in cfg.get("places") or []) if p]
-    cfg["units"] = fit(cfg.get("units"))
-    for key in ("site", "units"):
-        if cfg.get(key) is None:
-            cfg.pop(key, None)
-    importer.mapping = dict(importer.mapping, footprint_layers=cfg)
-
-
-import threading as _threading
-
-_projecting = _threading.local()
-
-
-def _install_pg_dispatch():
-    """Install, once per module object (a reload of s3dgraphy makes a new
-    one), a reader that is the full importer ONLY in the thread where
-    pyArchInit is projecting, and the library's own reader everywhere else.
-    Swapping the global for the duration of a projection was not safe: a
-    projection running in a worker thread changed the reader under any
-    other caller meanwhile."""
-    try:
-        from s3dgraphy.sync import pyarchinit_pg_importer as pg
-    except ImportError:                                     # pragma: no cover
-        return
-    if getattr(pg.import_from_pg, "_pyarchinit_dispatch", False):
-        return
-    library = pg.import_from_pg
-
-    def import_from_pg(handle, sito, mapping_name="pyarchinit_us_mapping"):
-        if getattr(_projecting, "depth", 0):
-            return _import_from_pg_full(handle, sito, mapping_name)
-        return import_from_pg._library(handle, sito, mapping_name=mapping_name)
-
-    import_from_pg._pyarchinit_dispatch = True
-    import_from_pg._library = library
-    pg.import_from_pg = import_from_pg
-
-
-class _use_full_pg_importer:
-    """``with`` around pyArchInit's projection: this thread reads PostgreSQL
-    with the full importer."""
-
-    def __enter__(self):
-        _install_pg_dispatch()
-        _projecting.depth = getattr(_projecting, "depth", 0) + 1
-        return self
-
-    def __exit__(self, *exc):
-        _projecting.depth -= 1
-        return False
-
-
-def _merge_hashed_site_place(graph, sito) -> int:
-    """ONE site node. s3dgraphy's GIS footprint reader (SQLite) adds the site
-    with ``add_site(graph, name)`` before the projector emits it, so without
-    ``entity_uuid``: a second LocationNodeGroup of level ``sito`` whose id is
-    ``sha1(name|site)``, holding the footprint and the area/sector/trench
-    links, next to the real one (``site_table.entity_uuid``). PostgreSQL,
-    whose footprint read does not get that far, had only the real one: the
-    same site gave two different graphs (measured 26 Nov 2026, a room sent
-    from PostgreSQL and pulled into SQLite showed the hashed site as
-    «new»). The hashed node's edges move to the real one; returns how many."""
-    try:
-        from s3dgraphy.hdto import site_place_id
-    except ImportError:                                     # pragma: no cover
-        return 0
-    def _level(n):
-        for src in (getattr(n, "attributes", None) or {}, getattr(n, "data", None) or {}):
-            if isinstance(src, dict) and src.get("level"):
-                return src.get("level")
-        return None
-    hashed = site_place_id(sito, None)
-    places = [n for n in getattr(graph, "nodes", []) or []
-              if type(n).__name__ == "LocationNodeGroup" and _level(n) == "sito"
-              and str(getattr(n, "name", "")) == str(sito)]
-    real = next((n for n in places if n.node_id != hashed), None)
-    if real is None or not any(n.node_id == hashed for n in places):
-        return 0
-    have = {(e.edge_source, e.edge_type, e.edge_target) for e in graph.edges}
-    moving = [e for e in list(graph.edges) if hashed in (e.edge_source, e.edge_target)]
-    moved = 0
-    for e in moving:
-        src = real.node_id if e.edge_source == hashed else e.edge_source
-        tgt = real.node_id if e.edge_target == hashed else e.edge_target
-        if src == tgt or (src, e.edge_type, tgt) in have:
-            continue
-        try:
-            graph.add_edge(edge_id=f"{src}__{e.edge_type}__{tgt}", edge_source=src,
-                           edge_target=tgt, edge_type=e.edge_type)
-            have.add((src, e.edge_type, tgt))
-            moved += 1
-        except Exception:                                   # noqa: BLE001
-            pass
-    graph.remove_node(hashed)
-    if hasattr(graph, "invalidate_indices"):
-        graph.invalidate_indices()
-    return moved
+# PostgreSQL through the full importer, the footprint columns of PostGIS and
+# the site's identity in the footprint reader are s3dgraphy's since dev143
+# (our PRs #41, #42, #43): the workarounds that stood here are gone.
 
 
 class GraphProjector(_LibGraphProjector):
@@ -881,8 +729,7 @@ class GraphProjector(_LibGraphProjector):
         quindi resta: si spengono i raggruppamenti, non l'ancora dello
         studio.
         """
-        with _use_full_pg_importer():
-            graph = super().populate_graph(db_path, sito, **kwargs)
+        graph = super().populate_graph(db_path, sito, **kwargs)
 
         # pyArchInit's flat attributes (us / sito / unita_tipo / ...):
         # the round-trip ingestor, the d13 serialiser and the writers
@@ -901,7 +748,6 @@ class GraphProjector(_LibGraphProjector):
         # sul demo a dieci siti, pota 0 nodi. Resta come guardia — e
         # perche' le altre vie d'ingresso (yEd, em.json) non filtrano.
         self._prune_foreign_site_nodes(graph, sito)
-        _merge_hashed_site_place(graph, sito)
 
         # One epoch per (periodo, fase), named the way pyArchInit names
         # periods: the importer and the library projector each create

@@ -281,7 +281,9 @@ def test_i_dati_dei_nodi_delle_schede_tornano(mondo):
     assert nodi["pg1"]["data"]["property_type"] == "geometry"
     assert nodi["pg1"]["data"]["value"] == "ss1"
     assert nodi["doc"]["data"]["url"] == "D.05 Relazione.pdf"
-    assert nodi["u1"]["data"]["us"]                         # i dati di pyArchInit restano
+    # i dati di pyArchInit restano: dal s3dgraphy dev143 l'unità porta la sua
+    # chiave tecnica, il resto della riga è nei nodi (unit_row)
+    assert nodi["u1"]["data"].get("node_uuid") or nodi["u1"]["data"].get("us")
 
 
 def test_gli_archi_che_tornano_tengono_i_loro_attributi(mondo):

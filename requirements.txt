@@ -142,7 +142,13 @@ Pillow>=9.1.0
 # versions keep their spurious «Copre»: s3dgraphy.rapporti_check reads an
 # export back against its origin graph and reports them (read-only).
 # Datamodel nodes 1.6.56 / connections 1.6.61. tests/sync re-measured.
-s3dgraphy==1.6.0.dev141
+# 1.6.0.dev143 (27 Nov 2026): our PRs #41-#43 (PG projection through the
+# full importer, footprint site identity and per-layer guard, name index)
+# and E.D.'s rule «a row's fields are nodes and edges»: a unit's data keeps
+# only node_uuid (s3dgraphy.unit_row, RowReader / row_code); em.json files
+# written before are migrated on load. #40: a row finds its node by the
+# full key (site, area, number, type).
+s3dgraphy==1.6.0.dev143
 dtcstamp>=0.1.5
 
 # Remote Storage Backends (optional - install only if using remote storage)

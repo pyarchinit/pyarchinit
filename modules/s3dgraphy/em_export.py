@@ -179,6 +179,17 @@ def export_site(connection_url, site, out_dir, per_saggio=None,
     memoria = restore_for_export(connection_url, site, tutti)
     warnings = [str(w) for g in tutti
                 for w in (getattr(g, "warnings", None) or [])] + memoria
+    # The row's fields as nodes and edges, not on the unit (E.D.'s rule of
+    # 27 Nov 2026, s3dgraphy 1.6.0.dev143 `unit_row`): the projector here still
+    # writes them in `data`, and s3dgraphy would move them on reading — the
+    # file must already say what it will read back as.
+    try:
+        from s3dgraphy.unit_row import migrate_legacy_row_fields
+    except ImportError:                     # s3dgraphy before dev143
+        migrate_legacy_row_fields = None
+    if migrate_legacy_row_fields is not None:
+        for g in tutti:
+            migrate_legacy_row_fields(g)
 
 
     try:
@@ -220,7 +231,10 @@ def export_site(connection_url, site, out_dir, per_saggio=None,
         raise EmExportError(
             "Il file scritto non rilegge uguale (%d/%d nodi, %d/%d archi)."
             % (letti[0], nodi, letti[1], archi))
-    warnings.extend(str(w) for w in read_warnings)
+    # the paradata rows keep a few fields in data (the datamodel gives them no
+    # edge for those): s3dgraphy says so on every reading — known, nothing lost
+    warnings.extend(str(w) for w in read_warnings
+                    if not str(w).startswith("pyArchInit row fields in node.data:"))
     return path, nodi, archi, warnings
 
 

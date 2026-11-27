@@ -66,8 +66,12 @@ def scavo(tmp_path, monkeypatch):
 
 
 def _nodo_us(graph, us):
-    return next(n for n in graph.nodes if (getattr(n, "data", None) or {}).get("us") == us
-                and (n.data or {}).get("area") == "1")
+    # s3dgraphy dev143 (unit_row): the number is in the name, the area a place
+    from s3dgraphy.unit_row import RowReader, is_row_born
+    lettore = RowReader(graph)
+    return next(n for n in graph.nodes if is_row_born(n)
+                and str(lettore.columns(n).get("us")) == us
+                and str(lettore.columns(n).get("area")) == "1")
 
 
 def test_i_file_delle_immagini_di_una_unita_preferiscono_la_ridotta_poi_l_anteprima(scavo):
