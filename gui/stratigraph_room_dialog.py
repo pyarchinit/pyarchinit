@@ -80,6 +80,9 @@ class StratiGraphRoomDialog(QDialog):
         self.btn_compare = QPushButton(t("compare"))
         self.btn_push = QPushButton(t("send_changes"))
         self.btn_pull = QPushButton(t("pull"))
+        # the local values a confirmed pull replaced, put back (local only)
+        self.btn_restore = QPushButton(t("restore_btn"))
+        self.btn_restore.setToolTip(t("restore_tip"))
         self._found = None             # the last contribution (pyArchInit → room)
         self._pull = None              # the last dry pull (room → pyArchInit)
 
@@ -97,6 +100,7 @@ class StratiGraphRoomDialog(QDialog):
         sync.addWidget(self.btn_compare)
         sync.addWidget(self.btn_push)
         sync.addWidget(self.btn_pull)
+        sync.addWidget(self.btn_restore)
         root = QVBoxLayout(self)
         root.addLayout(form)
         root.addLayout(buttons)
@@ -110,6 +114,7 @@ class StratiGraphRoomDialog(QDialog):
         self.btn_compare.clicked.connect(self._compare)
         self.btn_push.clicked.connect(self._push)
         self.btn_pull.clicked.connect(self._pull_room)
+        self.btn_restore.clicked.connect(self._restore)
         self._site_changed(self.site.currentText())
 
     def _site_changed(self, site: str):
@@ -118,6 +123,23 @@ class StratiGraphRoomDialog(QDialog):
 
     def _say(self, text: str):
         self.log.append(text)
+
+    def _has_overwritten(self) -> bool:
+        try:
+            from ..modules.stratigraph import room_state
+            node, site, room = self._target()
+            return bool(room_state.overwritten(self.connection_url, site, node, room))
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _restore(self):
+        from ..modules.stratigraph import room_state
+        node, site, room = self._target()
+        done = room_state.restore_overwritten(self.connection_url, site, node, room)
+        self._say(t("restored", n=done["restored"]))
+        for what in done["skipped"][:6]:
+            self._say(t("restore_skipped", what=what))
+        self._busy(False)
 
     def _say_ambiguous(self, found):
         """Same number, different type: the rapporti towards it are ambiguous."""
@@ -135,6 +157,7 @@ class StratiGraphRoomDialog(QDialog):
                                           or self._found.get("local_edits")
                                           or self._found.get("send_removals")))
         self.btn_pull.setEnabled(signed and self._pull is not None)
+        self.btn_restore.setEnabled(not busy and self._has_overwritten())
 
     def _run(self, fn, on_done):
         self._busy(True)
@@ -307,7 +330,6 @@ class StratiGraphRoomDialog(QDialog):
             items = ([f"{n} · {fld}" for n, fld in u.get("edits", [])]
                      + [f"{c.get('name')} · {c.get('field')}: «{c.get('here')}» / «{c.get('room')}»"
                         for c in u.get("conflicts", [])]
-                     + [" ".join(map(str, r)) for r in u.get("relations", [])]
                      + ["− " + " ".join(map(str, r)) for r in u.get("removals", [])])
             question = t("unsent_question", lines="\n".join(items[:12])) if items else None
         else:
@@ -340,6 +362,10 @@ class StratiGraphRoomDialog(QDialog):
                             same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
                 for item in (g.get("kept_local") or [])[:6]:
                     self._say(t("geometry_kept", what=item))
+            if report.get("relations_kept"):
+                self._say(t("relations_kept", n=report["relations_kept"]))
+            if report.get("overwritten"):
+                self._say(t("overwritten_saved", n=report["overwritten"]))
             self._pull = None
             self._busy(False)
 

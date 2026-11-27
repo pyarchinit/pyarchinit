@@ -225,3 +225,89 @@ def advance(doc: Dict[str, Any], graph_id: Optional[str], ops: List[Dict[str, An
         elif kind == "remove_edge":
             section["edges"] = [e for e in section["edges"] if e.get("id") != op.get("id")]
     return doc
+
+
+# ── what a pull overwrote, and putting it back ───────────────────────────────
+#
+# A confirmed pull lets the room win a conflict, or replaces a local edit not
+# yet sent. The local value is not lost: it is written here first, one JSON
+# line per field, and ``restore_overwritten`` puts back those of the last pull
+# — they become local edits again, to send or to drop. (The idea of keeping
+# the superseded value next to the one that replaced it comes from
+# gogoymh/git-ontology-agent's «prev / corrects», MIT; no code taken.)
+
+def _log_path(connection_url: str, site: str, node: str, room: str, home: Optional[str] = None) -> str:
+    return os.path.join(state_dir(connection_url, site, node, room, home), "overwritten.jsonl")
+
+
+def log_overwritten(connection_url: str, site: str, node: str, room: str,
+                    entries: List[Dict[str, Any]], home: Optional[str] = None) -> str:
+    """Append ``entries`` (``{node_uuid, name, field, local, room}``) as one pull."""
+    if not entries:
+        return ""
+    path = _log_path(connection_url, site, node, room, home)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open(path, "a", encoding="utf-8") as fh:
+        for e in entries:
+            fh.write(json.dumps(dict(e, pull=stamp, room_id=room, restored=False),
+                                ensure_ascii=False, default=str) + "\n")
+    return stamp
+
+
+def overwritten(connection_url: str, site: str, node: str, room: str,
+                home: Optional[str] = None) -> List[Dict[str, Any]]:
+    """The entries of the LAST pull that overwrote something, not yet restored."""
+    try:
+        with open(_log_path(connection_url, site, node, room, home), encoding="utf-8") as fh:
+            entries = [json.loads(line) for line in fh if line.strip()]
+    except (OSError, ValueError):
+        return []
+    if not entries:
+        return []
+    last = entries[-1]["pull"]
+    return [e for e in entries if e["pull"] == last and not e.get("restored")]
+
+
+def _column_of(field: str, columns: set) -> Optional[str]:
+    """The us_table column a node field is: ``data.X`` → X; the description of
+    a record-born unit is its d_stratigrafica."""
+    if field.startswith("data."):
+        return field[5:] if field[5:] in columns else None
+    if field == "description" and "d_stratigrafica" in columns:
+        return "d_stratigrafica"
+    return None
+
+
+def restore_overwritten(connection_url: str, site: str, node: str, room: str,
+                        home: Optional[str] = None) -> Dict[str, Any]:
+    """Put back the local values the last pull overwrote."""
+    from sqlalchemy import create_engine, inspect, text
+    todo = overwritten(connection_url, site, node, room, home)
+    if not todo:
+        return {"restored": 0, "skipped": []}
+    engine = create_engine(connection_url)
+    columns = {c["name"] for c in inspect(engine).get_columns("us_table")}
+    restored, skipped = 0, []
+    with engine.begin() as conn:
+        for e in todo:
+            col = _column_of(e["field"], columns)
+            if col is None:
+                skipped.append(f"{e.get('name')} · {e['field']}")
+                continue
+            value = e.get("local")
+            if isinstance(value, (list, dict)):
+                value = json.dumps(value, ensure_ascii=False)
+            done = conn.execute(text(f'UPDATE us_table SET "{col}" = :v WHERE sito = :s AND node_uuid = :u'),
+                                {"v": value, "s": site, "u": e["node_uuid"]})
+            restored += done.rowcount or 0
+    path = _log_path(connection_url, site, node, room, home)
+    with open(path, encoding="utf-8") as fh:
+        entries = [json.loads(line) for line in fh if line.strip()]
+    last = todo[0]["pull"]
+    with open(path, "w", encoding="utf-8") as fh:
+        for e in entries:
+            if e["pull"] == last:
+                e["restored"] = True
+            fh.write(json.dumps(e, ensure_ascii=False, default=str) + "\n")
+    return {"restored": restored, "skipped": skipped}

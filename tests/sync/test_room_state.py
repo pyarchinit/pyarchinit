@@ -138,3 +138,57 @@ def test_a_base_for_a_site_the_database_no_longer_holds_is_dropped(tmp_path, mon
     answer, base, how = ST.room_now(url, "S", node="https://n/em", room="r", token="t")
     assert base is None and how == {"read": "full", "reason": "no_base"}
     assert ST.load(url, "S", "https://n/em", "r", str(tmp_path)) is None
+
+
+def test_derived_fields_are_never_an_edit():
+    from s3dgraphy.contract import Delta
+    delta = Delta(nodes=[], edges=[])
+    for f in ("data.order_layer", "data.cont_per", "data.datazione", "data.rapporti2"):
+        delta.update_field("u5", f, "x")
+    delta.update_field("u5", "data.colore", "Giallo")
+    out = RS._without_noise(delta, set())
+    assert [op["field"] for op in out.ops] == ["data.colore"]
+
+
+def test_relations_added_here_survive_a_pull(tmp_path):
+    import sqlite3
+    db = tmp_path / "s.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE us_table (sito TEXT, area TEXT, us TEXT, node_uuid TEXT, rapporti TEXT)")
+    con.execute("INSERT INTO us_table VALUES ('S', '1', '5', 'u5', ?)",
+                (str([["Copre", "6", "1", "S"], ["Copre", "7", "1", "S"]]),))
+    con.commit()
+    base = SimpleNamespace(nodes=[SimpleNamespace(node_id="u5", data={
+        "node_uuid": "u5", "area": "1", "rapporti": str([["Copre", "6", "", ""]])})])
+    url = f"sqlite:///{db}"
+    kept = RS._local_relation_entries(url, "S", base)
+    assert kept == {"u5": [["Copre", "7", "1", "S"]]}         # «Copre 6» was in the base
+    # the pull writes the room's relations (someone added «Taglia 9»)
+    con.execute("UPDATE us_table SET rapporti = ? WHERE node_uuid = 'u5'",
+                (str([["Copre", "6", "1", "S"], ["Taglia", "9", "1", "S"]]),))
+    con.commit()
+    assert RS._put_back_relations(url, "S", kept) == 1
+    after = con.execute("SELECT rapporti FROM us_table WHERE node_uuid = 'u5'").fetchone()[0]
+    assert RS._pairs(after, "1", "S") == {("Copre", "6", "1", "S"), ("Taglia", "9", "1", "S"),
+                                          ("Copre", "7", "1", "S")}
+    assert RS._put_back_relations(url, "S", kept) == 0                    # idempotent
+
+
+def test_a_replaced_value_is_logged_and_restored(tmp_path, monkeypatch):
+    import sqlite3
+    db = tmp_path / "s.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE us_table (sito TEXT, node_uuid TEXT, colore TEXT, d_stratigrafica TEXT)")
+    con.execute("INSERT INTO us_table VALUES ('S', 'u5', 'Rosso', 'Strato')")
+    con.commit()
+    url = f"sqlite:///{db}"
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
+    ST.log_overwritten(url, "S", "n", "r", [
+        {"node_uuid": "u5", "name": "1.US5", "field": "data.colore", "local": "Giallo", "room": "Rosso"},
+        {"node_uuid": "u5", "name": "1.US5", "field": "description", "local": "Strato rivisto", "room": "Strato"},
+        {"node_uuid": "u5", "name": "1.US5", "field": "name", "local": "x", "room": "y"}])
+    assert len(ST.overwritten(url, "S", "n", "r")) == 3
+    done = ST.restore_overwritten(url, "S", "n", "r")
+    assert done == {"restored": 2, "skipped": ["1.US5 · name"]}
+    assert con.execute("SELECT colore, d_stratigrafica FROM us_table").fetchone() == ("Giallo", "Strato rivisto")
+    assert ST.overwritten(url, "S", "n", "r") == []                       # done once

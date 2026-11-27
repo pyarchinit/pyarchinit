@@ -184,15 +184,85 @@ def _site_identity(connection_url: str, site: str, graph) -> None:
 
 
 def _unsent(found: Optional[Dict[str, Any]]) -> Dict[str, list]:
-    """What a pull would overwrite or lose of the local work not yet sent:
-    field edits, conflicts, relations added here (the pull rewrites a unit's
-    relations from the room). Empty without a base: nobody can tell."""
+    """What a pull would overwrite of the local work not yet sent: field
+    edits, conflicts, and relations REMOVED here (the room still has them, the
+    pull would bring them back). Relations ADDED here are not in it: they are
+    kept through the pull (``_local_relation_entries``). Empty without a base:
+    nobody can tell."""
     if not found or not found.get("base"):
-        return {"edits": [], "conflicts": [], "relations": [], "removals": []}
+        return {"edits": [], "conflicts": [], "removals": []}
     return {"edits": list(found.get("local_edits") or []),
             "conflicts": list(found.get("conflicts") or []),
-            "relations": list(found.get("local_relations") or []),
             "removals": list(found.get("removed_relations") or [])}
+
+
+def _local_relation_entries(connection_url: str, site: str, base_graph) -> Dict[str, list]:
+    """``{node_uuid: [rapporto, …]}``: the rapporti a local record has and the
+    base did not — added here, not yet in the room. A unit's relations are a
+    SET: what someone else added in the room and what was added here are both
+    true, so the pull brings the room's and these are put back after it."""
+    from sqlalchemy import create_engine, text
+    base_rap = {}
+    for n in getattr(base_graph, "nodes", None) or []:
+        data = getattr(n, "data", None) or {}
+        if data.get("node_uuid"):
+            base_rap[str(data["node_uuid"])] = (data.get("rapporti"), str(data.get("area") or ""))
+    out: Dict[str, list] = {}
+    with create_engine(connection_url).connect() as conn:
+        rows = conn.execute(text("SELECT node_uuid, area, rapporti FROM us_table WHERE sito = :s"),
+                            {"s": site}).fetchall()
+    for uuid_, area, rapporti in rows:
+        if not uuid_ or str(uuid_) not in base_rap:
+            continue                                    # a unit added here: sent whole
+        try:
+            items = ast.literal_eval(rapporti) if isinstance(rapporti, str) and rapporti.strip() else []
+        except (ValueError, SyntaxError):
+            continue
+        before = _pairs(base_rap[str(uuid_)][0], str(area or ""), site) or set()
+        added = [x for x in items or [] if isinstance(x, (list, tuple)) and len(x) >= 2
+                 and next(iter(_pairs([x], str(area or ""), site) or {None})) not in before]
+        if added:
+            out[str(uuid_)] = [list(x) for x in added]
+    return out
+
+
+def _put_back_relations(connection_url: str, site: str, entries: Dict[str, list]) -> int:
+    """After the pull: each record's relations added here, back where missing."""
+    from sqlalchemy import create_engine, text
+    put = 0
+    with create_engine(connection_url).begin() as conn:
+        for uuid_, added in entries.items():
+            row = conn.execute(text("SELECT area, rapporti FROM us_table WHERE sito = :s AND node_uuid = :u"),
+                               {"s": site, "u": uuid_}).fetchone()
+            if row is None:
+                continue
+            try:
+                items = ast.literal_eval(row[1]) if isinstance(row[1], str) and row[1].strip() else []
+            except (ValueError, SyntaxError):
+                items = []
+            items = [list(x) for x in items or [] if isinstance(x, (list, tuple))]
+            have = _pairs(items, str(row[0] or ""), site) or set()
+            new = [x for x in added if next(iter(_pairs([x], str(row[0] or ""), site) or {None})) not in have]
+            if new:
+                conn.execute(text("UPDATE us_table SET rapporti = :r WHERE sito = :s AND node_uuid = :u"),
+                             {"r": str(items + new), "s": site, "u": uuid_})
+                put += len(new)
+    return put
+
+
+def _overwritten_entries(found: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """The local values a pull is about to replace: conflicts and edits not
+    yet sent (``{node_uuid, name, field, local, room}``)."""
+    if not found or not found.get("base"):
+        return []
+    names = dict((c["node_id"], c.get("name")) for c in found.get("conflicts") or [])
+    out = [{"node_uuid": c["node_id"], "name": c.get("name"), "field": c["field"],
+            "local": c.get("here"), "room": c.get("room")} for c in found.get("conflicts") or []]
+    for op in found.get("send_fields") or []:
+        out.append({"node_uuid": op["node_id"], "name": names.get(op["node_id"]),
+                    "field": op["field"], "local": None if op.get("remove") else op.get("value"),
+                    "room": None})
+    return out
 
 
 def _geometries(connection_url: str, site: str, graph, *, dry_run: bool) -> Dict[str, Any]:
@@ -252,14 +322,22 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
     if base is not None and any(unsent.values()) and not force:
         raise NodeError(
             f"pulling would overwrite local work not yet sent: {len(unsent['edits'])} field edit(s), "
-            f"{len(unsent['conflicts'])} conflict(s), {len(unsent['relations'])} relation(s) added here, "
-            f"{len(unsent['removals'])} relation(s) removed here "
+            f"{len(unsent['conflicts'])} conflict(s), {len(unsent['removals'])} relation(s) removed here "
             "— send your changes first, or apply with force")
+    keep_relations: Dict[str, list] = {}
+    if base is not None:
+        base_graph, _bg, _ = room_graph({"doc": base["doc"]}, workdir, "base.em.json")
+        keep_relations = _local_relation_entries(connection_url, site, base_graph)
+        # what the room will overwrite, written down first (restore_overwritten)
+        room_state.log_overwritten(connection_url, site, node, room, _overwritten_entries(found))
     new_site = not _site_exists(connection_url, site)
     done = GraphIngestor().populate_list(graph, db_path=connection_url, sito=site,
                                          dry_run=False, create_missing_epochs=True)
     report.update({"inserted": done.inserted, "updated": done.updated, "skipped": done.skipped,
                    "errors": list(done.errors), "applied": True})
+    if keep_relations:
+        report["relations_kept"] = _put_back_relations(connection_url, site, keep_relations)
+    report["overwritten"] = len(room_state.overwritten(connection_url, site, node, room)) if base else 0
     if new_site:
         _site_identity(connection_url, site, graph)
     if media:
@@ -304,6 +382,13 @@ def _map_only(graph) -> set:
     return ids
 
 
+#: fields pyArchInit COMPUTES (stratigraphic order, period code, dating from
+#: the periodisation, the verbose copy of the rapporti): never a local edit nor
+#: a conflict — after a pull pyArchInit recomputes them. (Merge rules by kind of
+#: value: the idea comes from gogoymh/git-ontology-agent, MIT; no code taken.)
+DERIVED_FIELDS = frozenset({"data.order_layer", "data.cont_per", "data.datazione", "data.rapporti2"})
+
+
 def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
                    absent: frozenset = frozenset()):
     """The delta minus map artefacts, minus ``data.lang`` the node adds
@@ -320,6 +405,8 @@ def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
             continue
         if op.get("op") == "update_field" and op.get("field") == "data.rapporti":
             continue      # the text copy of the relations: they travel as edges
+        if op.get("op") == "update_field" and op.get("field") in DERIVED_FIELDS:
+            continue      # computed by pyArchInit: recomputed after a pull
         if (op.get("op") == "update_field" and op.get("node_id") in resources
                 and str(op.get("field", "")).startswith("data.")):
             continue      # where a file's bytes live (local path, room store): not an edit
