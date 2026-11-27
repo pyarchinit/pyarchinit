@@ -661,4 +661,15 @@ TEXTS = {
         "ro": "  Planuri de săpătură: {new} scrise în straturile US ({feat} poligoane), {same} deja identice, {kept} desenate altfel aici, neatinse",
         "pt": "  Plantas de escavação: {new} escritas nas camadas das UE ({feat} polígonos), {same} já iguais, {kept} desenhadas aqui de outra forma, intocadas",
         "el": "  Κατόψεις ανασκαφής: {new} γράφτηκαν στα επίπεδα ΣΜ ({feat} πολύγωνα), {same} ήδη ίδιες, {kept} σχεδιασμένες αλλιώς εδώ, δεν αγγίχτηκαν"},
+    "empty_here": {
+        "it": "Il sito «{site}» qui non ha ancora schede: niente da inviare, il pull porterà la stanza",
+        "en": "The site «{site}» has no records here yet: nothing to send, the pull will bring the room",
+        "de": "Die Fundstelle «{site}» hat hier noch keine Datensätze: nichts zu senden, das Holen bringt den Raum",
+        "es": "El sitio «{site}» aún no tiene fichas aquí: nada que enviar, el traer traerá la sala",
+        "fr": "Le site «{site}» n'a pas encore de fiches ici : rien à envoyer, la récupération apportera la salle",
+        "ar": "لا توجد بعد بطاقات للموقع «{site}» هنا: لا شيء للإرسال، وسيجلب الجلب محتوى الغرفة",
+        "ca": "El jaciment «{site}» encara no té fitxes aquí: res a enviar, el portar portarà la sala",
+        "ro": "Situl «{site}» nu are încă fișe aici: nimic de trimis, aducerea va aduce camera",
+        "pt": "O sítio «{site}» ainda não tem fichas aqui: nada a enviar, o trazer trará a sala",
+        "el": "Η θέση «{site}» δεν έχει ακόμη καρτέλες εδώ: τίποτα προς αποστολή, η λήψη θα φέρει την αίθουσα"},
 }

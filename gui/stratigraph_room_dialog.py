@@ -191,6 +191,17 @@ class StratiGraphRoomDialog(QDialog):
         node, site = self.node.text().strip(), self.site.currentText()
         room, title, dry = self.room.text().strip(), self.title.text().strip(), self.dry_run.isChecked()
         workdir = tempfile.mkdtemp(prefix="pyarchinit-room-")
+        if not dry:
+            # the fields pyArchInit computes, computed BEFORE they travel (GUI
+            # thread): a room that got stale values kept giving them back, and
+            # every compare after a pull showed them «to update» (27 Nov 2026)
+            try:
+                from ..modules.stratigraph.room_derived import recompute
+                d = recompute(self.connection_url, site)
+                self._say(t("derived_recomputed", d=d["datazione"], c=d["cont_per"],
+                            o=sum(d["order_layer"].values()), a=len(d["order_layer"])))
+            except Exception as e:  # noqa: BLE001
+                self._say(t("error", why=f"{type(e).__name__}: {e}"))
         self._say(t("planning" if dry else "sending", site=site, room=room))
 
         def work():
@@ -249,7 +260,13 @@ class StratiGraphRoomDialog(QDialog):
         self._say(t("comparing", site=site, room=room))
 
         def work():
+            from ..modules.stratigraph.room_state import _site_has_rows
             token = self.session.access_token()
+            if not _site_has_rows(self.connection_url, site):
+                # an empty database (the «other computer»): nothing to send,
+                # only what the pull would bring — not an error
+                return None, RS.pull_room(self.connection_url, site, node=node, room=room,
+                                          token=token, workdir=workdir)
             found = RS.contribution(self.connection_url, site, node=node, room=room,
                                     token=token, workdir=workdir)
             pulled = RS.pull_room(self.connection_url, site, node=node, room=room,
@@ -259,9 +276,16 @@ class StratiGraphRoomDialog(QDialog):
         def done(result):
             self._found, self._pull = result
             f, p = self._found, self._pull
+            if f is None:
+                self._say(t("empty_here", site=site))
+                f = {"read": {}, "base": True, "new_nodes": [], "new_edges": 0, "local_edits": [],
+                     "room_edits": [], "removed_in_room": 0, "conflicts": [], "field_changes": [],
+                     "room_only": 0, "empty": True}
             self._say_ambiguous(f.get("ambiguous_numbers"))
             how = f.get("read") or {}
-            if how.get("read") == "incremental":
+            if f.get("empty"):
+                pass
+            elif how.get("read") == "incremental":
                 self._say(t("read_incremental", n=how.get("operations", 0)))
             else:
                 self._say(t("read_full"))
@@ -287,8 +311,9 @@ class StratiGraphRoomDialog(QDialog):
                 else:
                     self._say(t("field_diff", us=r['us'], field=r['field'], here=r['local'],
                                 room=r['room']))
-            self._say(t("pa_to_room", n=len(f['new_nodes']), names=f['new_nodes'][:6],
-                        edges=f['new_edges']))
+            if not f.get("empty"):
+                self._say(t("pa_to_room", n=len(f['new_nodes']), names=f['new_nodes'][:6],
+                            edges=f['new_edges']))
             if f.get("base"):
                 if f["local_edits"]:
                     self._say(t("local_edits", n=len(f["local_edits"]), list=f["local_edits"][:6]))
