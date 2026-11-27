@@ -616,4 +616,15 @@ TEXTS = {
         "fr": "  non restaurable (pas une colonne de la fiche) : {what}", "ar": "  لا يمكن استعادتها (ليست عموداً في البطاقة): {what}",
         "ca": "  no es pot restaurar (no és una columna de la fitxa): {what}", "ro": "  nu poate fi restaurată (nu este o coloană a fișei): {what}",
         "pt": "  não é possível repor (não é uma coluna da ficha): {what}", "el": "  δεν μπορεί να επαναφερθεί (δεν είναι στήλη της καρτέλας): {what}"},
+    "derived_recomputed": {
+        "it": "  Campi calcolati aggiornati: datazione {d}, codice periodo {c}, ordine stratigrafico di {o} US in {a} aree",
+        "en": "  Computed fields updated: dating {d}, period code {c}, stratigraphic order of {o} SU in {a} area(s)",
+        "de": "  Berechnete Felder aktualisiert: Datierung {d}, Periodencode {c}, stratigraphische Ordnung von {o} SE in {a} Areal(en)",
+        "es": "  Campos calculados actualizados: datación {d}, código de periodo {c}, orden estratigráfico de {o} UE en {a} área(s)",
+        "fr": "  Champs calculés mis à jour : datation {d}, code de période {c}, ordre stratigraphique de {o} US dans {a} zone(s)",
+        "ar": "  حُدّثت الحقول المحسوبة: التأريخ {d}، رمز الفترة {c}، الترتيب الطبقي لـ {o} وحدة في {a} منطقة",
+        "ca": "  Camps calculats actualitzats: datació {d}, codi de període {c}, ordre estratigràfic de {o} UE en {a} àrea(es)",
+        "ro": "  Câmpuri calculate actualizate: datare {d}, cod perioadă {c}, ordine stratigrafică pentru {o} US în {a} zone",
+        "pt": "  Campos calculados atualizados: datação {d}, código de período {c}, ordem estratigráfica de {o} UE em {a} área(s)",
+        "el": "  Ενημερώθηκαν τα υπολογιζόμενα πεδία: χρονολόγηση {d}, κωδικός περιόδου {c}, στρωματογραφική σειρά {o} ΣΜ σε {a} περιοχές"},
 }

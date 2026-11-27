@@ -143,11 +143,12 @@ def test_a_base_for_a_site_the_database_no_longer_holds_is_dropped(tmp_path, mon
 def test_derived_fields_are_never_an_edit():
     from s3dgraphy.contract import Delta
     delta = Delta(nodes=[], edges=[])
-    for f in ("data.order_layer", "data.cont_per", "data.datazione", "data.rapporti2"):
+    for f in ("data.order_layer", "data.cont_per", "data.datazione"):
         delta.update_field("u5", f, "x")
     delta.update_field("u5", "data.colore", "Giallo")
+    delta.update_field("u5", "data.rapporti2", "[]")          # filled in the form: a real field
     out = RS._without_noise(delta, set())
-    assert [op["field"] for op in out.ops] == ["data.colore"]
+    assert [op["field"] for op in out.ops] == ["data.colore", "data.rapporti2"]
 
 
 def test_relations_added_here_survive_a_pull(tmp_path):

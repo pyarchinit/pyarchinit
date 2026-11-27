@@ -362,6 +362,17 @@ class StratiGraphRoomDialog(QDialog):
                             same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
                 for item in (g.get("kept_local") or [])[:6]:
                     self._say(t("geometry_kept", what=item))
+            if report.get("applied") and not report.get("errors"):
+                # the fields pyArchInit computes, computed again (GUI thread)
+                try:
+                    from ..modules.stratigraph.room_derived import recompute
+                    d = recompute(self.connection_url, site)
+                    self._say(t("derived_recomputed", d=d["datazione"], c=d["cont_per"],
+                                o=sum(d["order_layer"].values()), a=len(d["order_layer"])))
+                    for err in d["errors"][:5]:
+                        self._say(t("error", why=err))
+                except Exception as e:  # noqa: BLE001
+                    self._say(t("error", why=f"{type(e).__name__}: {e}"))
             if report.get("relations_kept"):
                 self._say(t("relations_kept", n=report["relations_kept"]))
             if report.get("overwritten"):

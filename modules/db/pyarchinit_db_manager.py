@@ -3493,7 +3493,10 @@ class Pyarchinit_db_management(object):
                                       fase=us_record.fase_finale).first()
 
                     datazione_string = ""
-                    if periodizzazione_iniziale and periodizzazione_finale:
+                    # the same period at both ends is one dating, not «A/A»
+                    # (27 Nov 2026: every unit of the sample site came out doubled)
+                    if (periodizzazione_iniziale and periodizzazione_finale
+                            and periodizzazione_finale.datazione_estesa != periodizzazione_iniziale.datazione_estesa):
                         datazione_string = f"{periodizzazione_iniziale.datazione_estesa}/{periodizzazione_finale.datazione_estesa}"
                     elif periodizzazione_iniziale:
                         datazione_string = periodizzazione_iniziale.datazione_estesa
@@ -3824,11 +3827,15 @@ class Pyarchinit_db_management(object):
         session.close()
         return res
 
-    def update_cont_per(self, s):
+    def update_cont_per(self, s, quiet=False):
         """
         Optimized: pre-loads all periodizzazione data in 1 query,
         computes all cont_per values in memory, then batch-updates in 1 SQL.
         ~100x faster than the old per-record query approach.
+
+        ``quiet``: no message box, the outcome is returned instead
+        (``{processed, updated, errors}``) — for the StratiGraph pull, which
+        recomputes the derived fields after writing a room into the records.
         """
         self.sito = s
         errori = []
@@ -3842,6 +3849,8 @@ class Pyarchinit_db_management(object):
             total_records = len(lista_us)
 
             if total_records == 0:
+                if quiet:
+                    return {"processed": 0, "updated": 0, "errors": []}
                 QMessageBox.information(None, "Info", "No records to process", QMessageBox.Ok)
                 return
 
@@ -3930,6 +3939,8 @@ class Pyarchinit_db_management(object):
                         except:
                             pass
 
+            if quiet:
+                return {"processed": total_records, "updated": len(updates), "errors": errori}
             if errori:
                 QMessageBox.warning(None, "Completed with errors",
                     f"Processed {total_records} US, updated {len(updates)}, {len(errori)} errors.\n\n"
@@ -3941,6 +3952,8 @@ class Pyarchinit_db_management(object):
                     QMessageBox.Ok)
 
         except Exception as e:
+            if quiet:
+                return {"processed": 0, "updated": 0, "errors": [str(e)]}
             QMessageBox.critical(None, "Error", f"Error: {str(e)}", QMessageBox.Ok)
         finally:
             if 'session' in locals():

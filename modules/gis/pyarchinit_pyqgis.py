@@ -9459,6 +9459,32 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
 
         QApplication.processEvents()
 
+    def compute(self, reverse_order=True):
+        """The same order as ``main_order_layer``, without its window: a
+        progress bar that shows nothing stands in for it (the StratiGraph pull
+        recomputes the order after writing a room into the records). Returns
+        the order dict, or ``"error"``. Call it on the GUI thread: the steps
+        process events."""
+        class _Quiet:
+            def __getattr__(self, _name):
+                return lambda *a, **k: None
+        self.progress_widget = None
+        self.progress_bar = _Quiet()
+        try:
+            if not self._load_all_data() or not self.all_us or not self._build_graph():
+                return "error"
+            levels = self._topological_sort_with_levels(reverse_order=reverse_order)
+            if not levels and getattr(self, "generated_levels", None):
+                levels = self.generated_levels
+            if not levels:
+                return "error"
+            self.order_dict = {i: list(units) for i, units in enumerate(levels) if units}
+            self.order_count = len(self.order_dict)
+            return self.order_dict
+        except Exception as e:  # noqa: BLE001
+            self.logger.error(f"compute: {type(e).__name__}: {e}", exc_info=True)
+            return "error"
+
     def main_order_layer(self, reverse_order=True):
         """
         Metodo principale che calcola l'ordine stratigrafico usando grafi in memoria.
@@ -9778,6 +9804,10 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             # is the reciprocal row, like Coperto da, and stays out.
             rel_covers = list(COVERS_GROUP | FILLS_GROUP | CUTS_GROUP | ABUTS_GROUP | frozenset(['>>', '>']))
             rel_equals = list(SAME_AS_GROUP | CONNECTED_GROUP)
+            # «copre» is «Copre»: rapporti written by some imports are lower
+            # case, and were left out of the order (27 Nov 2026)
+            covers_key = {str(r).strip().lower() for r in rel_covers}
+            equals_key = {str(r).strip().lower() for r in rel_equals}
 
             self.logger.info(f"Relazioni di copertura riconosciute: {rel_covers}")
             self.logger.info(f"Relazioni di uguaglianza riconosciute: {rel_equals}")
@@ -9801,6 +9831,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                     for rapporto in rapporti_list:
                         if isinstance(rapporto, list) and len(rapporto) >= 2:
                             rel_type = rapporto[0]
+                            rel_key = str(rel_type).strip().lower()
                             target_us = str(rapporto[1])
 
                             # Aggiungi target_us al set di tutti i nodi
@@ -9808,14 +9839,14 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
 
                             # Relazioni di copertura (us copre target_us = us è più recente, target_us è più antica)
                             # Nel grafo: us -> target_us (us dipende da target_us, che deve essere processata prima)
-                            if rel_type in rel_covers:
+                            if rel_key in covers_key:
                                 self.graph_edges[us].add(target_us)
                                 self.graph_reverse[target_us].add(us)
                                 rel_count += 1
                                 self.logger.debug(f"Aggiunta relazione: {us} -> {target_us} ({rel_type})")
 
                             # Relazioni di uguaglianza
-                            elif rel_type in rel_equals:
+                            elif rel_key in equals_key:
                                 self.us_equals[us].add(target_us)
                                 self.us_equals[target_us].add(us)
                                 rel_count += 1

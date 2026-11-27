@@ -383,10 +383,11 @@ def _map_only(graph) -> set:
 
 
 #: fields pyArchInit COMPUTES (stratigraphic order, period code, dating from
-#: the periodisation, the verbose copy of the rapporti): never a local edit nor
-#: a conflict — after a pull pyArchInit recomputes them. (Merge rules by kind of
-#: value: the idea comes from gogoymh/git-ontology-agent, MIT; no code taken.)
-DERIVED_FIELDS = frozenset({"data.order_layer", "data.cont_per", "data.datazione", "data.rapporti2"})
+#: the periodisation): never a local edit nor a conflict — the pull recomputes
+#: them (``room_derived``). ``rapporti2`` is not one: the extended relations
+#: are filled in the form. (Merge rules by kind of value: the idea comes from
+#: gogoymh/git-ontology-agent, MIT; no code taken.)
+DERIVED_FIELDS = frozenset({"data.order_layer", "data.cont_per", "data.datazione"})
 
 
 def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
