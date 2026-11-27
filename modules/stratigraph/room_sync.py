@@ -384,10 +384,14 @@ def _map_only(graph) -> set:
 
 #: fields pyArchInit COMPUTES (stratigraphic order, period code, dating from
 #: the periodisation): never a local edit nor a conflict — the pull recomputes
-#: them (``room_derived``). ``rapporti2`` is not one: the extended relations
-#: are filled in the form. (Merge rules by kind of value: the idea comes from
+#: them (``room_derived``). Plus ``rapporti2``, retired on 8 May 2026
+#: (7cd9588c: the «Rapporti per EM» tab is hidden, it duplicated ``rapporti``,
+#: the s3dgraphy export reads ``rapporti``): it still travels with the record,
+#: so a rebuild loses nothing, but it is never an edit nor a conflict.
+#: (Merge rules by kind of value: the idea comes from
 #: gogoymh/git-ontology-agent, MIT; no code taken.)
 DERIVED_FIELDS = frozenset({"data.order_layer", "data.cont_per", "data.datazione"})
+RETIRED_FIELDS = frozenset({"data.rapporti2"})
 
 
 def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
@@ -406,7 +410,7 @@ def _without_noise(delta, skip: set, resources: frozenset = frozenset(),
             continue
         if op.get("op") == "update_field" and op.get("field") == "data.rapporti":
             continue      # the text copy of the relations: they travel as edges
-        if op.get("op") == "update_field" and op.get("field") in DERIVED_FIELDS:
+        if op.get("op") == "update_field" and op.get("field") in (DERIVED_FIELDS | RETIRED_FIELDS):
             continue      # computed by pyArchInit: recomputed after a pull
         if (op.get("op") == "update_field" and op.get("node_id") in resources
                 and str(op.get("field", "")).startswith("data.")):

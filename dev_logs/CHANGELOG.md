@@ -5,6 +5,12 @@
 
 ---
 
+## [fix] - 2026-11-27 — rapporti2 è dismesso, non un campo da confrontare — 5.16.3-alpha
+
+- `rapporti2` è dismesso dall'8 maggio 2026 (`7cd9588c`: scheda «Rapporti per EM» nascosta, duplicava `rapporti`; l'esportazione s3dgraphy legge `rapporti`). In 5.16.2 era tornato un campo normale per errore: ora (`RETIRED_FIELDS`) viaggia ancora col record, così una ricostruzione non perde nulla, ma non è mai una modifica né un conflitto.
+
+---
+
 ## [feat] - 2026-11-27 — Campi calcolati ricalcolati a fine pull — 5.16.2-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2649 verdi**, 66 saltati, 1 xfail, 0 falliti.

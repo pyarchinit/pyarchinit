@@ -146,9 +146,9 @@ def test_derived_fields_are_never_an_edit():
     for f in ("data.order_layer", "data.cont_per", "data.datazione"):
         delta.update_field("u5", f, "x")
     delta.update_field("u5", "data.colore", "Giallo")
-    delta.update_field("u5", "data.rapporti2", "[]")          # filled in the form: a real field
+    delta.update_field("u5", "data.rapporti2", "[]")          # retired 8 May 2026: never an edit
     out = RS._without_noise(delta, set())
-    assert [op["field"] for op in out.ops] == ["data.colore", "data.rapporti2"]
+    assert [op["field"] for op in out.ops] == ["data.colore"]
 
 
 def test_relations_added_here_survive_a_pull(tmp_path):
