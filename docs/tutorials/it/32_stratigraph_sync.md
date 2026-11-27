@@ -308,7 +308,19 @@ Con il sito viaggiano anche i disegni dei layer GIS di pyArchInit, come impronte
 
 **Porta dalla stanza** li riscrive nei layer, in SpatiaLite o PostGIS, nel sistema di riferimento del layer: un elemento che manca viene aggiunto, uno uguale non viene toccato, e un elemento **disegnato qui in modo diverso resta com'è** e viene segnalato: il pull non sovrascrive mai un disegno locale.
 
-I poligoni delle US positive non viaggiano: per l'Extended Matrix la loro geometria è il modello 3D. Ortofoto e raster restano in QGIS.
+Ortofoto e raster restano in QGIS.
+
+### Piante di scavo: i poligoni delle US positive
+
+I poligoni delle US positive non sono la geometria dell'unità (per l'Extended Matrix è il modello 3D) ma la sua **documentazione**: viaggiano come **piante di scavo**, nella forma decisa con il gruppo di s3dgraphy.
+
+- Il sito ha **un solo documento**, «Piante di scavo · *sito*», che resta aperto finché lo scavo continua.
+- Ogni **pianta** è l'insieme dei poligoni disegnati per una US in una data, nel layer delle US o in quello delle USM. Nella stanza è un modello di rappresentazione del documento (RMDoc), collegato alla sua US.
+- La geometria è un **file GeoJSON** con il suo sistema di riferimento, uno per pianta, caricato nell'archivio della stanza come le foto. Il grafo porta solo il nodo, i suoi legami e l'indirizzo del file.
+
+**Invia il sito** manda le piante insieme alle schede. **Porta dalla stanza** scarica quelle che qui mancano e le scrive nei layer `pyunitastratigrafiche` e `pyunitastratigrafiche_usm`, con le loro colonne (tipo, disegnatore, data…). Una pianta che qui esiste già, uguale o diversa, non viene mai toccata: quella diversa è segnalata nel registro. Un poligono disegnato su una US che le schede non hanno resta fuori, e il registro lo dice.
+
+Le piante sono documentazione, non schede: non compaiono tra le modifiche da inviare. Una pianta nuova disegnata qui va nella stanza con un nuovo **Invia il sito**.
 
 ### Problemi frequenti
 

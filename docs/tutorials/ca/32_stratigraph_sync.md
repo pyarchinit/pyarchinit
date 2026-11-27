@@ -308,7 +308,19 @@ Amb el jaciment viatgen també els dibuixos de les capes SIG de pyArchInit, com 
 
 **Porta de la sala** els torna a escriure a les capes, SpatiaLite o PostGIS, en el sistema de referència de la capa: un element que falta s'afegeix, un d'igual no es toca, i un element **dibuixat aquí d'una altra manera es queda com està** i se senyala: el portar mai no sobreescriu un dibuix local.
 
-Els polígons de les UE positives no viatgen: per a l'Extended Matrix la seva geometria és el model 3D. Ortofotos i ràsters es queden a QGIS.
+Ortofotos i ràsters es queden a QGIS.
+
+### Plantes d'excavació: els polígons de les UE positives
+
+Els polígons de les UE positives no són la geometria de la unitat (per a l'Extended Matrix és el model 3D) sinó la seva **documentació**: viatgen com a **plantes d'excavació**, en la forma acordada amb l'equip de s3dgraphy.
+
+- El jaciment té **un sol document**, «Piante di scavo · *jaciment*», que roman obert mentre l'excavació continua.
+- Cada **planta** és el conjunt de polígons dibuixats per a una UE en una data, a la capa de les UE o a la de les USM. A la sala és un model de representació documental (RMDoc) del document, vinculat a la seva UE.
+- La geometria és un **fitxer GeoJSON** amb el seu sistema de referència, un per planta, pujat al magatzem de la sala com les fotos. El graf només porta el node, els seus vincles i l'adreça del fitxer.
+
+**Envia el jaciment** envia les plantes amb les fitxes. **Porta de la sala** baixa les que falten aquí i les escriu a les capes `pyunitastratigrafiche` i `pyunitastratigrafiche_usm`, amb les seves columnes (tipus, dibuixant, data…). Una planta que ja existeix aquí, igual o diferent, no es toca mai: la diferent s'assenyala al registre. Un polígon dibuixat sobre una UE que les fitxes no tenen es queda fora, i el registre ho diu.
+
+Les plantes són documentació, no fitxes: no apareixen mai entre els canvis per enviar. Una planta nova dibuixada aquí arriba a la sala amb un nou **Envia el jaciment**.
 
 ### Problemes frequents
 

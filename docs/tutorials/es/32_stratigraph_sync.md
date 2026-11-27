@@ -308,7 +308,19 @@ Con el sitio viajan también los dibujos de las capas SIG de pyArchInit, como hu
 
 **Traer de la sala** los vuelve a escribir en las capas, SpatiaLite o PostGIS, en el sistema de referencia de la capa: un elemento que falta se añade, uno igual no se toca, y un elemento **dibujado aquí de otro modo se queda como está** y se señala: el traer nunca sobrescribe un dibujo local.
 
-Los polígonos de las UE positivas no viajan: para el Extended Matrix su geometría es el modelo 3D. Ortofotos y ráster se quedan en QGIS.
+Ortofotos y ráster se quedan en QGIS.
+
+### Plantas de excavación: los polígonos de las UE positivas
+
+Los polígonos de las UE positivas no son la geometría de la unidad (para el Extended Matrix es el modelo 3D) sino su **documentación**: viajan como **plantas de excavación**, en la forma acordada con el equipo de s3dgraphy.
+
+- El sitio tiene **un solo documento**, «Piante di scavo · *sitio*», que sigue abierto mientras la excavación continúa.
+- Cada **planta** es el conjunto de polígonos dibujados para una UE en una fecha, en la capa de las UE o en la de las USM. En la sala es un modelo de representación documental (RMDoc) del documento, vinculado a su UE.
+- La geometría es un **archivo GeoJSON** con su sistema de referencia, uno por planta, subido al almacén de la sala como las fotos. El grafo solo lleva el nodo, sus vínculos y la dirección del archivo.
+
+**Enviar el sitio** manda las plantas con las fichas. **Traer de la sala** descarga las que faltan aquí y las escribe en las capas `pyunitastratigrafiche` y `pyunitastratigrafiche_usm`, con sus columnas (tipo, dibujante, fecha…). Una planta que ya existe aquí, igual o distinta, nunca se toca: la distinta se señala en el registro. Un polígono dibujado sobre una UE que las fichas no tienen se queda fuera, y el registro lo dice.
+
+Las plantas son documentación, no fichas: no aparecen entre los cambios por enviar. Una planta nueva dibujada aquí llega a la sala con un nuevo **Enviar el sitio**.
 
 ### Problemas frecuentes
 

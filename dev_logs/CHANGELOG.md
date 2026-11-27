@@ -5,6 +5,25 @@
 
 ---
 
+## [feat] - 2026-11-27 — Piante di scavo nella stanza e ritorno (s3Dgraphy#44) — 5.17.0-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2654 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Added / Aggiunto
+- `modules/stratigraph/room_plans.py`: i poligoni delle US positive (`pyunitastratigrafiche`, `pyunitastratigrafiche_usm`) viaggiano come **piante di scavo**, nella forma scelta da E.D. (s3Dgraphy#44): un documento per sito «Piante di scavo · sito» (`spatial_documentation`/`cartography`), una `representation_model_doc` per pianta (US + data + layer), la geometria in un **file GeoJSON** con CRS, caricato nel bucket da `room_import` come le foto. La US raggiunge la pianta con `has_linked_resource` sulla stessa risorsa. Le US con impronta (tagli) restano impronte.
+- Pull: le piante si scaricano e si scrivono nei layer solo dove la US non ha disegni in quella data; una pianta già presente, uguale o diversa, non viene toccata (quella diversa è segnalata).
+- Finestra della stanza: righe nel registro per invio, anteprima e pull delle piante, in 10 lingue (`plans_sent`, `plans_preview`, `plans_pulled`).
+
+#### Fixed / Corretto
+- Il catalogo delle piante diventava una riga DOC di `us_table`: `footprint_chain_ids` tiene fuori catalogo, RMDoc e GeoJSON.
+- Le risorse delle piante non sono media (`pull_media` le esclude); il pull scrive le piante prima dei media, che azzerano l'indirizzo delle risorse non importate.
+- Il confronto delle unioni rende valide le parti: un poligono che si autointerseca rendeva l'unione dipendente dall'ordine (US 5: 0,70 m² contro 1,47 m²).
+
+#### Verificato
+- Dev-stack, sito d'esempio: 57 piante (501 poligoni, 37 US), 56 inviate (una è su USM 0, assente dalle schede: segnalata). Pull in SQLite vuoto e in PostGIS vuoto (5433, DB di prova eliminato): 56/56 identiche, secondo pull 56 «già uguali», confronto pulito, 0 righe DOC, 150 foto come prima.
+
+---
+
 ## [fix] - 2026-11-27 — rapporti2 è dismesso, non un campo da confrontare — 5.16.3-alpha
 
 - `rapporti2` è dismesso dall'8 maggio 2026 (`7cd9588c`: scheda «Rapporti per EM» nascosta, duplicava `rapporti`; l'esportazione s3dgraphy legge `rapporti`). In 5.16.2 era tornato un campo normale per errore: ora (`RETIRED_FIELDS`) viaggia ancora col record, così una ricostruzione non perde nulla, ma non è mai una modifica né un conflitto.

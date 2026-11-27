@@ -308,7 +308,19 @@ Mit der Fundstelle reisen auch die Zeichnungen der GIS-Layer von pyArchInit, als
 
 **Aus dem Raum holen** schreibt sie in die Layer zurück, SpatiaLite oder PostGIS, im Bezugssystem des Layers: ein fehlendes Objekt wird ergänzt, ein gleiches bleibt unberührt, und ein **hier anders gezeichnetes Objekt bleibt, wie es ist**, und wird gemeldet: das Holen überschreibt nie eine lokale Zeichnung.
 
-Die Polygone der positiven SE reisen nicht: für die Extended Matrix ist ihre Geometrie das 3D-Modell. Orthofotos und Raster bleiben in QGIS.
+Orthofotos und Raster bleiben in QGIS.
+
+### Grabungspläne: die Polygone der positiven SE
+
+Die Polygone der positiven SE sind nicht die Geometrie der Einheit (für die Extended Matrix ist das das 3D-Modell), sondern ihre **Dokumentation**: Sie reisen als **Grabungspläne**, in der mit dem s3dgraphy-Team vereinbarten Form.
+
+- Die Fundstelle hat **ein einziges Dokument**, «Piante di scavo · *Fundstelle*», das offen bleibt, solange die Grabung andauert.
+- Jeder **Plan** ist die Menge der Polygone, die für eine SE an einem Datum gezeichnet wurden, im SE-Layer oder im USM-Layer. Im Raum ist er ein dokumentarisches Repräsentationsmodell (RMDoc) des Dokuments, mit seiner SE verbunden.
+- Die Geometrie ist eine **GeoJSON-Datei** mit ihrem Bezugssystem, eine pro Plan, die wie die Fotos in den Speicher des Raums hochgeladen wird. Der Graph trägt nur den Knoten, seine Verbindungen und die Adresse der Datei.
+
+**Fundstelle senden** schickt die Pläne mit den Datensätzen. **Aus dem Raum holen** lädt die hier fehlenden herunter und schreibt sie in die Layer `pyunitastratigrafiche` und `pyunitastratigrafiche_usm`, mit ihren Spalten (Typ, Zeichner, Datum…). Ein Plan, der hier schon existiert, gleich oder nicht, wird nie angerührt: ein abweichender wird im Protokoll gemeldet. Ein Polygon auf einer SE, die die Datensätze nicht haben, bleibt draußen, und das Protokoll sagt es.
+
+Pläne sind Dokumentation, keine Datensätze: Sie erscheinen nie unter den zu sendenden Änderungen. Ein hier neu gezeichneter Plan kommt mit einem neuen **Fundstelle senden** in den Raum.
 
 ### Haeufige Probleme
 

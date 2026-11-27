@@ -308,7 +308,19 @@ Odată cu situl călătoresc și desenele straturilor GIS din pyArchInit, ca amp
 
 **Adu din cameră** le scrie înapoi în straturi, SpatiaLite sau PostGIS, în sistemul de referință al stratului: un element care lipsește este adăugat, unul identic nu este atins, iar un element **desenat altfel aici rămâne cum este** și este semnalat: aducerea nu suprascrie niciodată un desen local.
 
-Poligoanele US pozitive nu călătoresc: pentru Extended Matrix geometria lor este modelul 3D. Ortofotografiile și rasterele rămân în QGIS.
+Ortofotografiile și rasterele rămân în QGIS.
+
+### Planuri de săpătură: poligoanele US pozitive
+
+Poligoanele US pozitive nu sunt geometria unității (pentru Extended Matrix aceasta este modelul 3D), ci **documentația** ei: călătoresc ca **planuri de săpătură**, în forma convenită cu echipa s3dgraphy.
+
+- Situl are **un singur document**, «Piante di scavo · *sit*», care rămâne deschis cât timp săpătura continuă.
+- Fiecare **plan** este mulțimea poligoanelor desenate pentru o US la o dată, în stratul US sau în stratul USM. În cameră este un model de reprezentare documentară (RMDoc) al documentului, legat de US-ul său.
+- Geometria este un **fișier GeoJSON** cu sistemul său de referință, câte unul pe plan, încărcat în depozitul camerei ca fotografiile. Graful poartă doar nodul, legăturile lui și adresa fișierului.
+
+**Trimite situl** trimite planurile împreună cu fișele. **Adu din cameră** descarcă planurile care lipsesc aici și le scrie în straturile `pyunitastratigrafiche` și `pyunitastratigrafiche_usm`, cu coloanele lor (tip, desenator, dată…). Un plan care există deja aici, identic sau nu, nu este atins niciodată: unul diferit este semnalat în jurnal. Un poligon desenat pe o US pe care fișele nu o au rămâne afară, iar jurnalul o spune.
+
+Planurile sunt documentație, nu fișe: nu apar niciodată printre modificările de trimis. Un plan nou desenat aici ajunge în cameră cu un nou **Trimite situl**.
 
 ### Probleme frecvente
 

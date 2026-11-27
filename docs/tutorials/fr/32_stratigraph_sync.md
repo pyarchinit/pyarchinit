@@ -308,7 +308,19 @@ Avec le site voyagent aussi les dessins des couches SIG de pyArchInit, comme emp
 
 **Récupérer de la salle** les réécrit dans les couches, SpatiaLite ou PostGIS, dans le système de référence de la couche : un élément manquant est ajouté, un élément identique n'est pas touché, et un élément **dessiné autrement ici reste tel quel** et est signalé : la récupération n'écrase jamais un dessin local.
 
-Les polygones des US positives ne voyagent pas : pour l'Extended Matrix leur géométrie est le modèle 3D. Orthophotos et rasters restent dans QGIS.
+Orthophotos et rasters restent dans QGIS.
+
+### Plans de fouille : les polygones des US positives
+
+Les polygones des US positives ne sont pas la géométrie de l'unité (pour l'Extended Matrix c'est le modèle 3D) mais sa **documentation** : ils voyagent comme **plans de fouille**, sous la forme convenue avec l'équipe de s3dgraphy.
+
+- Le site a **un seul document**, «Piante di scavo · *site*», qui reste ouvert tant que la fouille continue.
+- Chaque **plan** est l'ensemble des polygones dessinés pour une US à une date, dans la couche des US ou dans celle des USM. Dans la salle c'est un modèle de représentation documentaire (RMDoc) du document, lié à son US.
+- La géométrie est un **fichier GeoJSON** avec son système de référence, un par plan, téléversé dans le stockage de la salle comme les photos. Le graphe ne porte que le nœud, ses liens et l'adresse du fichier.
+
+**Envoyer le site** envoie les plans avec les fiches. **Récupérer de la salle** télécharge ceux qui manquent ici et les écrit dans les couches `pyunitastratigrafiche` et `pyunitastratigrafiche_usm`, avec leurs colonnes (type, dessinateur, date…). Un plan qui existe déjà ici, identique ou non, n'est jamais touché : un plan différent est signalé dans le journal. Un polygone dessiné sur une US que les fiches n'ont pas reste dehors, et le journal le dit.
+
+Les plans sont de la documentation, pas des fiches : ils n'apparaissent jamais parmi les modifications à envoyer. Un nouveau plan dessiné ici rejoint la salle avec un nouvel **Envoyer le site**.
 
 ### Problemes frequents
 

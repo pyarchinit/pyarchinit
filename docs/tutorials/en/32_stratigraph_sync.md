@@ -307,7 +307,19 @@ The drawings of pyArchInit's GIS layers travel with the site too, as footprints 
 
 **Pull from room** writes them back into the layers, SpatiaLite or PostGIS, in the layer's reference system: a missing feature is added, an identical one is left alone, and a feature **drawn differently here stays as it is** and is reported: the pull never overwrites a local drawing.
 
-Positive SU polygons do not travel: for the Extended Matrix their geometry is the 3D model. Orthophotos and rasters stay in QGIS.
+Orthophotos and rasters stay in QGIS.
+
+### Excavation plans: the polygons of positive SU
+
+The polygons of positive SU are not the unit's geometry (for the Extended Matrix that is the 3D model) but its **documentation**: they travel as **excavation plans**, in the shape agreed with the s3dgraphy team.
+
+- The site has **one document**, «Piante di scavo · *site*», which stays open while the excavation goes on.
+- Each **plan** is the set of polygons drawn for one SU on one date, in the SU layer or in the USM layer. In the room it is a documentary representation model (RMDoc) of the document, linked to its SU.
+- The geometry is a **GeoJSON file** with its reference system, one per plan, uploaded to the room's store like the photos. The graph only carries the node, its links and the file's address.
+
+**Send site** sends the plans with the records. **Pull from room** downloads the ones missing here and writes them into the `pyunitastratigrafiche` and `pyunitastratigrafiche_usm` layers, with their columns (type, draughtsman, date…). A plan that already exists here, the same or not, is never touched: a different one is reported in the log. A polygon drawn on a SU the records do not have stays out, and the log says so.
+
+Plans are documentation, not records: they never appear among the changes to send. A new plan drawn here goes to the room with a new **Send site**.
 
 ### Common Problems
 
