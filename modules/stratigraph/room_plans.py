@@ -261,15 +261,35 @@ def union_of(geoms):
     return union
 
 
+def _in_layer(g, source: Optional[int], target: Optional[int], multi: bool):
+    """The geometry in the layer's CRS, single or multi like the layer — the
+    OGR object itself, never through WKT: WKT keeps 15 significant digits and
+    coordinates in metres of a national grid have 16 (2324922.185450377): a
+    45 cm² plan (US 26) came back «different» from its own source (27 Nov)."""
+    from osgeo import ogr, osr
+    g = g.Clone()
+    if source and target and source != target:
+        src, dst = osr.SpatialReference(), osr.SpatialReference()
+        src.ImportFromEPSG(source)
+        dst.ImportFromEPSG(target)
+        for ref in (src, dst):
+            if hasattr(ref, "SetAxisMappingStrategy"):
+                ref.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+        g.Transform(osr.CoordinateTransformation(src, dst))
+    if multi:
+        g = ogr.ForceToMultiPolygon(g)
+    elif g.GetGeometryType() in (ogr.wkbMultiPolygon, ogr.wkbMultiPolygon25D) and g.GetGeometryCount() == 1:
+        g = g.GetGeometryRef(0).Clone()
+    return g
+
+
 def _union(features: List[Dict[str, Any]], target: Optional[int], source: Optional[int]):
     from osgeo import ogr
-    from .room_geometry import _geometry
     parts = []
     for f in features:
         g = ogr.CreateGeometryFromJson(json.dumps(f["geometry"]))
-        if g is None:
-            continue
-        parts.append(_geometry(g.ExportToWkt(), source or target or 0, target if source else None, False))
+        if g is not None:
+            parts.append(_in_layer(g, source, target, False))
     return union_of(parts)
 
 
@@ -285,7 +305,7 @@ def pull_plans(connection_url: str, site: str, graph, *, node: str, room: str, t
     the unit has nothing drawn on that date, never over a local drawing."""
     from sqlalchemy import inspect, text
     from .node_client import node_base
-    from .room_geometry import _engine, _geometry, _layer_info, _same
+    from .room_geometry import _engine, _layer_info, _same
     from .room_media import _safe, download
 
     report = {"plans": 0, "written": 0, "features": 0, "same": 0, "kept_local": [],
@@ -303,7 +323,8 @@ def pull_plans(connection_url: str, site: str, graph, *, node: str, room: str, t
     cache = os.path.join(home, "stratigraph_plans", _safe(room))
     engine = _engine(connection_url)
     dialect = engine.dialect.name
-    geom_from = "ST_GeomFromText" if dialect == "postgresql" else "GeomFromText"
+    # written as WKB: exact, as read (WKT would round the 16th digit)
+    geom_from = "ST_GeomFromWKB" if dialect == "postgresql" else "GeomFromWKB"
     as_wkb = "ST_AsBinary" if dialect == "postgresql" else "AsBinary"
     tables = set(inspect(engine).get_table_names())
     base = node_base(node)
@@ -357,7 +378,7 @@ def pull_plans(connection_url: str, site: str, graph, *, node: str, room: str, t
                 g = ogr.CreateGeometryFromJson(json.dumps(f["geometry"]))
                 if g is None:
                     continue
-                g = _geometry(g.ExportToWkt(), source or srid or 0, srid if source else None, multi)
+                g = _in_layer(g, source, srid, multi)
                 props = {c: v for c, v in (f.get("properties") or {}).items() if c in have and c != "the_geom"}
                 props.update({"scavo_s": site, "area_s": str(p.get("area")), "us_s": str(p.get("us"))})
                 if "stratigraph_index_us" in props and props["stratigraph_index_us"] not in (None, ""):
@@ -366,10 +387,11 @@ def pull_plans(connection_url: str, site: str, graph, *, node: str, room: str, t
                     except ValueError:
                         props["stratigraph_index_us"] = None
                 cols = list(props)
-                params = dict(props, wkt=g.ExportToWkt(), srid=srid or source or -1)
+                params = dict(props, wkb=bytes(g.ExportToIsoWkb() if dialect == "postgresql" else g.ExportToWkb()),
+                              srid=srid or source or -1)
                 conn.execute(text(
                     f'INSERT INTO "{layer}" ({", ".join(chr(34) + c + chr(34) for c in cols)}, the_geom) '
-                    f'VALUES ({", ".join(":" + c for c in cols)}, {geom_from}(:wkt, :srid))'), params)
+                    f'VALUES ({", ".join(":" + c for c in cols)}, {geom_from}(:wkb, :srid))'), params)
                 report["features"] += 1
             report["written"] += 1
     return report
