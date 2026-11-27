@@ -586,6 +586,216 @@ _L = {
         "m_manual_fix_phases": "(nenhuma correção automática — escolha manual na ficha Periodização)",
         "m_manual_fix_us": "(nenhuma correção automática — escolha manual na ficha US)",
     },
+    "ca": {
+        "t_self_loop": "Autobucle (UE relacionada amb ella mateixa)",
+        "t_missing_reciprocity": "Reciprocitat absent (es crearà)",
+        "t_contradiction_redundant": "Contradicció redundant",
+        "t_contradiction_ambiguous": "Contradicció directa (elecció manual)",
+        "t_cycle": "Cicle estratigràfic (elecció manual)",
+        "t_illegal_connection": "Tipus de relació no vàlid (només avís)",
+        "t_temporal_inversion": "Paradoxa temporal (inversió de període)",
+        "t_temporal_contemporaneity": "Paradoxa temporal (contemporaneïtat no superposada)",
+        "t_temporal_unevaluable": "Coherència temporal no avaluable (falta el període)",
+        "s_self": "{us} està relacionada amb ella mateixa",
+        "s_recip": "Falta el recíproc a {b} per a {a} (relació «{rel}»)",
+        "s_contr": "Contradicció: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— conserva una direcció, elimina l'altra",
+        "s_cycle": "Cicle: {chain} — trenca el cicle eliminant la relació errònia",
+        "s_illegal": "Tipus de relació no vàlid: {a} → {b}",
+        "s_temporal_inv": "{a} (període {pa}) és del tot més antiga que {b} "
+                          "(període {pb}) tot i ser estratigràficament més recent — "
+                          "mou {a} a un període ≥ {pb}, o {b} ≤ {pa}, o "
+                          "comprova la relació",
+        "s_temporal_contemp": "{a} (període {pa}) i {b} (període {pb}) es declaren "
+                              "contemporànies però els seus períodes no se superposen — "
+                              "assigna-les al mateix període",
+        "s_temporal_uneval": "{a} i {b} comparteixen una relació però falta la "
+                             "datació del període per avaluar-ne la coherència — "
+                             "assigna el període que falta",
+        "t_epoch_overlap": "Fases amb intervals superposats (elecció manual)",
+        "t_epoch_reversed": "Periodització que comença després d'acabar (elecció manual)",
+        "t_epoch_no_dates": "Fase sense anys (només avís)",
+        "t_datazione_mismatch": "Datació de la fitxa desalineada (es reescriurà)",
+        "s_epoch_overlap": "Les fases {a} i {b} se superposen durant {anni} anys ({ini}–{fin})",
+        "s_epoch_reversed": "Fase {fase}: comença el {ini} després d'acabar el {fin} — "
+                            "probablement anys aC introduïts sense el signe menys "
+                            "(aC = nombres negatius, p. ex. -1650). La proposta "
+                            "reescriu els dos anys en negatiu ({nini} → {nfin}); "
+                            "si és un error tipogràfic, intercanvia els dos valors "
+                            "a la fitxa Periodització",
+        "s_epoch_reversed_swap": "Fase {fase}: comença el {ini} després d'acabar el {fin} "
+                                 "— aquí el signe menys no falta, per tant la lectura "
+                                 "més probable és un error tipogràfic: la proposta "
+                                 "intercanvia els dos anys ({nini} → {nfin}). Comprova-ho "
+                                 "a la fitxa Periodització",
+        "s_epoch_no_dates": "Fase {fase}: cap any llegible a cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "UE {us} (fase {fase}): datació «{corrente}» en lloc de «{atteso}»",
+        "m_loading_sites": "S'estan llegint els jaciments…",
+        "m_db_unreadable": "No es pot llegir la base de dades: {errore}. Comprova la connexió i torna a obrir aquesta finestra.",
+        "m_no_database": "Cap base de dades per verificar: obre una base de dades de pyArchInit i torna a obrir aquesta finestra.",
+        "m_site_changed": "El jaciment ha canviat: l'arbre mostra la verificació de «{atteso}», "
+                          "el selector diu «{scelto}». Torna a executar la verificació "
+                          "al jaciment que vols corregir — les marques es mantenen.",
+        "m_nothing_to_undo": "No hi ha res a desfer: en aquesta sessió no s'ha aplicat cap correcció.",
+        "m_manual_fix_phases": "(cap correcció automàtica — elecció manual a la fitxa Periodització)",
+        "m_manual_fix_us": "(cap correcció automàtica — elecció manual a la fitxa UE)",
+    },
+    "ro": {
+        "t_self_loop": "Autobuclă (US în relație cu ea însăși)",
+        "t_missing_reciprocity": "Reciprocitate lipsă (va fi creată)",
+        "t_contradiction_redundant": "Contradicție redundantă",
+        "t_contradiction_ambiguous": "Contradicție directă (alegere manuală)",
+        "t_cycle": "Ciclu stratigrafic (alegere manuală)",
+        "t_illegal_connection": "Tip de relație nevalid (doar semnalare)",
+        "t_temporal_inversion": "Paradox temporal (inversiune de perioadă)",
+        "t_temporal_contemporaneity": "Paradox temporal (contemporaneitate fără suprapunere)",
+        "t_temporal_unevaluable": "Coerență temporală neevaluabilă (perioadă lipsă)",
+        "s_self": "{us} este în relație cu ea însăși",
+        "s_recip": "Lipsește reciproca pe {b} pentru {a} (relația „{rel}”)",
+        "s_contr": "Contradicție: {a} „{lab1}” {b}  ⇄  {b} „{lab2}” {a} "
+                   "— păstrează o singură direcție, elimină-o pe cealaltă",
+        "s_cycle": "Ciclu: {chain} — rupe bucla eliminând relația greșită",
+        "s_illegal": "Tip de relație nevalid: {a} → {b}",
+        "s_temporal_inv": "{a} (perioada {pa}) este în întregime mai veche decât {b} "
+                          "(perioada {pb}) deși este stratigrafic mai recentă — "
+                          "mută {a} într-o perioadă ≥ {pb}, sau {b} ≤ {pa}, sau "
+                          "verifică relația",
+        "s_temporal_contemp": "{a} (perioada {pa}) și {b} (perioada {pb}) sunt "
+                              "declarate contemporane, dar perioadele lor nu se "
+                              "suprapun — atribuie-le aceeași perioadă",
+        "s_temporal_uneval": "{a} și {b} au o relație comună, dar lipsește "
+                             "datarea perioadei pentru a evalua coerența — "
+                             "atribuie perioada lipsă",
+        "t_epoch_overlap": "Faze cu intervale suprapuse (alegere manuală)",
+        "t_epoch_reversed": "Periodizare care începe după ce se termină (alegere manuală)",
+        "t_epoch_no_dates": "Fază fără ani (doar semnalare)",
+        "t_datazione_mismatch": "Datarea fișei nealiniată (va fi rescrisă)",
+        "s_epoch_overlap": "Fazele {a} și {b} se suprapun pe {anni} ani ({ini}–{fin})",
+        "s_epoch_reversed": "Faza {fase}: începe în {ini} după ce se termină în {fin} — "
+                            "probabil ani î.Hr. introduși fără semnul minus "
+                            "(î.Hr. = numere negative, ex. -1650). Propunerea "
+                            "rescrie ambii ani ca negativi ({nini} → {nfin}); "
+                            "dacă este o greșeală de tastare, inversează cele două "
+                            "valori în fișa Periodizare",
+        "s_epoch_reversed_swap": "Faza {fase}: începe în {ini} după ce se termină în {fin} "
+                                 "— aici semnul minus nu lipsește, deci cea mai "
+                                 "probabilă explicație este o greșeală de tastare: "
+                                 "propunerea inversează cei doi ani ({nini} → {nfin}). "
+                                 "Verifică în fișa Periodizare",
+        "s_epoch_no_dates": "Faza {fase}: niciun an lizibil în cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (faza {fase}): datare „{corrente}” în loc de „{atteso}”",
+        "m_loading_sites": "Se citesc siturile…",
+        "m_db_unreadable": "Baza de date nu poate fi citită: {errore}. Verifică conexiunea și redeschide această fereastră.",
+        "m_no_database": "Nicio bază de date de verificat: deschide o bază de date pyArchInit și redeschide această fereastră.",
+        "m_site_changed": "Situl s-a schimbat: arborele arată verificarea pentru „{atteso}”, "
+                          "selectorul indică „{scelto}”. Rulează din nou verificarea "
+                          "pe situl pe care vrei să-l corectezi — bifele rămân.",
+        "m_nothing_to_undo": "Nimic de anulat: în această sesiune nu a fost aplicată nicio corecție.",
+        "m_manual_fix_phases": "(nicio corecție automată — alegere manuală în fișa Periodizare)",
+        "m_manual_fix_us": "(nicio corecție automată — alegere manuală în fișa US)",
+    },
+    "el": {
+        "t_self_loop": "Αυτοβρόχος (ΣΜ σε σχέση με τον εαυτό της)",
+        "t_missing_reciprocity": "Λείπει η αμοιβαιότητα (θα δημιουργηθεί)",
+        "t_contradiction_redundant": "Πλεονάζουσα αντίφαση",
+        "t_contradiction_ambiguous": "Άμεση αντίφαση (χειροκίνητη επιλογή)",
+        "t_cycle": "Στρωματογραφικός κύκλος (χειροκίνητη επιλογή)",
+        "t_illegal_connection": "Μη έγκυρος τύπος σχέσης (μόνο επισήμανση)",
+        "t_temporal_inversion": "Χρονικό παράδοξο (αντιστροφή περιόδου)",
+        "t_temporal_contemporaneity": "Χρονικό παράδοξο (συγχρονία χωρίς επικάλυψη)",
+        "t_temporal_unevaluable": "Η χρονική συνέπεια δεν αξιολογείται (λείπει η περίοδος)",
+        "s_self": "Η {us} σχετίζεται με τον εαυτό της",
+        "s_recip": "Λείπει η αντίστροφη σχέση στη {b} για τη {a} (σχέση «{rel}»)",
+        "s_contr": "Αντίφαση: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— κρατήστε μία κατεύθυνση, αφαιρέστε την άλλη",
+        "s_cycle": "Κύκλος: {chain} — σπάστε τον κύκλο αφαιρώντας τη λάθος σχέση",
+        "s_illegal": "Μη έγκυρος τύπος σχέσης: {a} → {b}",
+        "s_temporal_inv": "Η {a} (περίοδος {pa}) είναι εξ ολοκλήρου παλαιότερη από τη {b} "
+                          "(περίοδος {pb}) αν και στρωματογραφικά νεότερη — "
+                          "μετακινήστε τη {a} σε περίοδο ≥ {pb}, ή τη {b} ≤ {pa}, ή "
+                          "ελέγξτε τη σχέση",
+        "s_temporal_contemp": "Η {a} (περίοδος {pa}) και η {b} (περίοδος {pb}) δηλώνονται "
+                              "σύγχρονες, αλλά οι περίοδοί τους δεν επικαλύπτονται — "
+                              "αντιστοιχίστε τες στην ίδια περίοδο",
+        "s_temporal_uneval": "Η {a} και η {b} έχουν κοινή σχέση, αλλά λείπει η "
+                             "χρονολόγηση περιόδου για να αξιολογηθεί η συνέπεια — "
+                             "συμπληρώστε την περίοδο που λείπει",
+        "t_epoch_overlap": "Φάσεις με επικαλυπτόμενα διαστήματα (χειροκίνητη επιλογή)",
+        "t_epoch_reversed": "Περιοδολόγηση που αρχίζει μετά το τέλος της (χειροκίνητη επιλογή)",
+        "t_epoch_no_dates": "Φάση χωρίς έτη (μόνο επισήμανση)",
+        "t_datazione_mismatch": "Χρονολόγηση δελτίου μη ευθυγραμμισμένη (θα ξαναγραφτεί)",
+        "s_epoch_overlap": "Οι φάσεις {a} και {b} επικαλύπτονται κατά {anni} έτη ({ini}–{fin})",
+        "s_epoch_reversed": "Φάση {fase}: αρχίζει το {ini} μετά το τέλος της το {fin} — "
+                            "πιθανότατα έτη π.Χ. χωρίς το πρόσημο μείον "
+                            "(π.Χ. = αρνητικοί αριθμοί, π.χ. -1650). Η πρόταση "
+                            "ξαναγράφει και τα δύο έτη ως αρνητικά ({nini} → {nfin}); "
+                            "αν πρόκειται για τυπογραφικό λάθος, ανταλλάξτε τις δύο "
+                            "τιμές στο δελτίο Περιοδολόγησης",
+        "s_epoch_reversed_swap": "Φάση {fase}: αρχίζει το {ini} μετά το τέλος της το {fin} "
+                                 "— εδώ το μείον δεν λείπει, άρα η πιθανότερη ερμηνεία "
+                                 "είναι τυπογραφικό λάθος: η πρόταση ανταλλάσσει τα δύο "
+                                 "έτη ({nini} → {nfin}). Ελέγξτε το στο δελτίο Περιοδολόγησης",
+        "s_epoch_no_dates": "Φάση {fase}: κανένα αναγνώσιμο έτος σε cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "ΣΜ {us} (φάση {fase}): χρονολόγηση «{corrente}» αντί για «{atteso}»",
+        "m_loading_sites": "Ανάγνωση θέσεων…",
+        "m_db_unreadable": "Η βάση δεδομένων δεν μπορεί να διαβαστεί: {errore}. Ελέγξτε τη σύνδεση και ανοίξτε ξανά αυτό το παράθυρο.",
+        "m_no_database": "Καμία βάση δεδομένων για έλεγχο: ανοίξτε μια βάση δεδομένων pyArchInit και ανοίξτε ξανά αυτό το παράθυρο.",
+        "m_site_changed": "Η θέση άλλαξε: το δέντρο δείχνει τον έλεγχο της «{atteso}», "
+                          "ο επιλογέας λέει «{scelto}». Εκτελέστε ξανά τον έλεγχο "
+                          "στη θέση που θέλετε να διορθώσετε — οι επιλογές παραμένουν.",
+        "m_nothing_to_undo": "Τίποτα προς αναίρεση: σε αυτή τη συνεδρία δεν εφαρμόστηκε καμία διόρθωση.",
+        "m_manual_fix_phases": "(καμία αυτόματη διόρθωση — χειροκίνητη επιλογή στο δελτίο Περιοδολόγησης)",
+        "m_manual_fix_us": "(καμία αυτόματη διόρθωση — χειροκίνητη επιλογή στο δελτίο ΣΜ)",
+    },
+    "ar": {
+        "t_self_loop": "حلقة ذاتية (وحدة طبقية مرتبطة بنفسها)",
+        "t_missing_reciprocity": "علاقة عكسية مفقودة (ستُنشأ)",
+        "t_contradiction_redundant": "تناقض زائد",
+        "t_contradiction_ambiguous": "تناقض مباشر (اختيار يدوي)",
+        "t_cycle": "دورة طبقية (اختيار يدوي)",
+        "t_illegal_connection": "نوع علاقة غير صالح (تنبيه فقط)",
+        "t_temporal_inversion": "مفارقة زمنية (انعكاس الفترة)",
+        "t_temporal_contemporaneity": "مفارقة زمنية (تعاصر دون تداخل)",
+        "t_temporal_unevaluable": "تعذّر تقييم الاتساق الزمني (فترة مفقودة)",
+        "s_self": "{us} مرتبطة بنفسها",
+        "s_recip": "العلاقة العكسية مفقودة في {b} بالنسبة إلى {a} (العلاقة «{rel}»)",
+        "s_contr": "تناقض: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— احتفظ باتجاه واحد واحذف الآخر",
+        "s_cycle": "دورة: {chain} — اكسر الحلقة بحذف العلاقة الخاطئة",
+        "s_illegal": "نوع علاقة غير صالح: {a} → {b}",
+        "s_temporal_inv": "{a} (الفترة {pa}) أقدم كليًا من {b} (الفترة {pb}) "
+                          "مع أنها أحدث طبقيًا — انقل {a} إلى فترة ≥ {pb}، "
+                          "أو {b} ≤ {pa}، أو تحقق من العلاقة",
+        "s_temporal_contemp": "{a} (الفترة {pa}) و{b} (الفترة {pb}) مُعلنتان "
+                              "متعاصرتين لكن فترتيهما لا تتداخلان — "
+                              "أسندهما إلى الفترة نفسها",
+        "s_temporal_uneval": "{a} و{b} تتشاركان علاقة لكن تأريخ الفترة مفقود "
+                             "لتقييم الاتساق — أضف الفترة المفقودة",
+        "t_epoch_overlap": "أطوار ذات مجالات متداخلة (اختيار يدوي)",
+        "t_epoch_reversed": "تحقيب يبدأ بعد نهايته (اختيار يدوي)",
+        "t_epoch_no_dates": "طور بلا سنوات (تنبيه فقط)",
+        "t_datazione_mismatch": "تأريخ السجل غير متوافق (سيُعاد كتابته)",
+        "s_epoch_overlap": "الطوران {a} و{b} يتداخلان لمدة {anni} سنة ({ini}–{fin})",
+        "s_epoch_reversed": "الطور {fase}: يبدأ في {ini} بعد أن ينتهي في {fin} — "
+                            "على الأرجح سنوات قبل الميلاد أُدخلت دون إشارة السالب "
+                            "(ق.م = أعداد سالبة، مثل -1650). يعيد المقترح كتابة "
+                            "السنتين بالسالب ({nini} → {nfin})؛ وإن كان خطأً "
+                            "مطبعيًا فبدّل القيمتين في سجل التحقيب",
+        "s_epoch_reversed_swap": "الطور {fase}: يبدأ في {ini} بعد أن ينتهي في {fin} "
+                                 "— إشارة السالب ليست مفقودة هنا، لذا فالتفسير الأرجح "
+                                 "خطأ مطبعي: يبدّل المقترح السنتين ({nini} → {nfin}). "
+                                 "تحقق من ذلك في سجل التحقيب",
+        "s_epoch_no_dates": "الطور {fase}: لا توجد سنة مقروءة في cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "الوحدة {us} (الطور {fase}): التأريخ «{corrente}» بدلًا من «{atteso}»",
+        "m_loading_sites": "جارٍ قراءة المواقع…",
+        "m_db_unreadable": "تعذّرت قراءة قاعدة البيانات: {errore}. تحقق من الاتصال وأعد فتح هذه النافذة.",
+        "m_no_database": "لا توجد قاعدة بيانات للفحص: افتح قاعدة بيانات pyArchInit وأعد فتح هذه النافذة.",
+        "m_site_changed": "تغيّر الموقع: تعرض الشجرة فحص «{atteso}»، والمحدِّد يشير إلى «{scelto}». "
+                          "أعد تشغيل الفحص على الموقع الذي تريد تصحيحه — تبقى العلامات كما هي.",
+        "m_nothing_to_undo": "لا شيء للتراجع عنه: لم يُطبَّق أي تصحيح في هذه الجلسة.",
+        "m_manual_fix_phases": "(لا تصحيح تلقائي — اختيار يدوي في سجل التحقيب)",
+        "m_manual_fix_us": "(لا تصحيح تلقائي — اختيار يدوي في سجل الوحدة الطبقية)",
+    },
 }
 
 

@@ -5,6 +5,20 @@
 
 ---
 
+## [fix] - 2026-11-27 — Rifiniture per la demo: DOC, config, EPSG deprecati, LaTeX, verifica nelle 10 lingue — 5.19.3-alpha
+
+#### Fixed / Corretto
+- **Schede DOC da EMStudio.** Il file del documento va anche in `doc_usv` (regola di s3dgraphy per una scheda DOC; i trigger di pyArchInit lo copiano in `d_interpretativa`). Prima restava vuoto all'import e si riempiva solo al ritorno da una stanza: 37 schede di TempluMare risultavano diverse dopo il giro. `doc_usv` è fra le colonne che l'import scrive, solo quando il grafo lo porta.
+- **config.cfg rovinato.** La riparazione delle chiavi mancanti (`SITE_SET`, `LOGO`, `THUMB_RESIZE`, `SSLMODE`) scriveva per posizione di byte e su un file senza a capo finale lasciava `'SITE_SET' :','LOGO'`: ogni export falliva con SyntaxError. Ora il file si legge come dizionario, si completano le chiavi e si riscrive; un file che non si legge resta com'è.
+- **Codici EPSG deprecati.** TempluMare dichiara EPSG:31700, che il selettore di QGIS nasconde. Il messaggio di fermo di «Ricava piante e prospetti dai modelli 3D» propone ora il codice attuale (31700 → 3844, lo stesso Stereo 70, oppure la sostituzione registrata in PROJ); con il database in 3844 pyArchInit converte, e le coordinate non si spostano (0,00 m). Verificato: 65 piante e 320 prospetti come con 31700.
+- **LaTeX nella narrativa HTML.** `\textit{…}`, `\emph{…}`, `\textbf{…}` rimasti nel testo, anche con la graffa mai chiusa (un titolo di TempluMare: «\textit{Forum Novum»), diventano corsivo e grassetto nella pagina e nell'indice.
+
+#### Added / Aggiunto
+- **Verifica rapporti nelle 10 lingue.** Pulsanti, conferme e finestra della continuità (`gui/rapporti_check_i18n.py`, 42 voci) e le spiegazioni dei problemi anche in arabo, catalano, rumeno e greco (prima uscivano in inglese).
+- Tutorial 36 nelle 10 lingue: §8.4 «che cosa si corregge da solo e che cosa no», schede DOC, codici EPSG deprecati, LaTeX nella narrativa. STRATIGRAPH_INTEGRATION.md: il ciclo di TempluMare e la verifica prima dell'invio.
+
+---
+
 ## [fix] - 2026-11-27 — Narrativa con mappa e 3D di nuovo; un self-loop si toglie, non si raddoppia — 5.19.2-alpha
 
 #### Fixed / Corretto

@@ -19,6 +19,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from modules.utility import rapporti_check as RC
+from gui import rapporti_check_i18n as T
 from modules.utility.pyarchinit_home import pyarchinit_home
 
 _USER_ROLE = int(Qt.UserRole)
@@ -80,16 +81,14 @@ class RapportiCheckPanel(QWidget):
     def _build_ui(self):
         lay = QVBoxLayout(self)
         top = QHBoxLayout()
-        top.addWidget(QLabel("Sito:"))
+        top.addWidget(QLabel(T.t(self._lang, "site")))
         self.cboSite = QComboBox()
         top.addWidget(self.cboSite, 1)
-        self.btnRun = QPushButton("Esegui verifica")
+        self.btnRun = QPushButton(T.t(self._lang, "run"))
         self.btnRun.clicked.connect(self._run)
         top.addWidget(self.btnRun)
-        self.btnContinuity = QPushButton("Genera continuità")
-        self.btnContinuity.setToolTip(
-            "Crea/aggiorna le schede CON per le US/USM che attraversano "
-            "più periodi (periodo iniziale ≠ finale).")
+        self.btnContinuity = QPushButton(T.t(self._lang, "continuity"))
+        self.btnContinuity.setToolTip(T.t(self._lang, "continuity_tip"))
         self.btnContinuity.clicked.connect(self._run_genera_continuita)
         top.addWidget(self.btnContinuity)
         # Di suo la continuità guarda il **periodo**, e una muratura che
@@ -98,13 +97,8 @@ class RapportiCheckPanel(QWidget):
         # non si accende da sé — questo bottone è già nelle mani di
         # qualcuno, e un automatismo che cambia idea da solo scrive nel
         # database cose che nessuno ha chiesto.
-        self.chkPhases = QCheckBox("anche i salti di fase")
-        self.chkPhases.setToolTip(
-            "Spenta, la continuità nasce solo quando il periodo iniziale è "
-            "diverso dal finale.\nAccesa, conta anche il salto di fase "
-            "dentro lo stesso periodo (2/3 → 2/4): servono entrambe le "
-            "fasi.\nUn'unità che non si muove — stesso periodo e stessa "
-            "fase — non è mai una continuità.")
+        self.chkPhases = QCheckBox(T.t(self._lang, "phases"))
+        self.chkPhases.setToolTip(T.t(self._lang, "phases_tip"))
         top.addWidget(self.chkPhases)
         lay.addLayout(top)
         # Senza database lo si dice qui, non con un avviso modale (vedi _load_sites).
@@ -113,7 +107,7 @@ class RapportiCheckPanel(QWidget):
         self.lblStato.setWordWrap(True)
         self.lblStato.setHidden(True)
         stato.addWidget(self.lblStato, 1)
-        self.btnRiprova = QPushButton("Riprova")
+        self.btnRiprova = QPushButton(T.t(self._lang, "retry"))
         self.btnRiprova.setHidden(True)
         self.btnRiprova.clicked.connect(self._retry)
         stato.addWidget(self.btnRiprova)
@@ -121,7 +115,7 @@ class RapportiCheckPanel(QWidget):
 
         split = QSplitter(Qt.Vertical)
         self.tree = QTreeWidget()
-        self.tree.setHeaderLabels(["Problema"])
+        self.tree.setHeaderLabels([T.t(self._lang, "problem")])
         self.tree.itemSelectionChanged.connect(self._preview)
         split.addWidget(self.tree)
         self.preview = QTextEdit()
@@ -135,11 +129,11 @@ class RapportiCheckPanel(QWidget):
 
         btns = QHBoxLayout()
         btns.addStretch(1)
-        self.btnRollback = QPushButton("Annulla ultimo fix")
+        self.btnRollback = QPushButton(T.t(self._lang, "rollback"))
         self.btnRollback.clicked.connect(self._rollback)
         self.btnRollback.setEnabled(False)
         btns.addWidget(self.btnRollback)
-        self.btnApply = QPushButton("Applica fix selezionati")
+        self.btnApply = QPushButton(T.t(self._lang, "apply"))
         self.btnApply.clicked.connect(self._apply)
         btns.addWidget(self.btnApply)
         lay.addLayout(btns)
@@ -270,7 +264,7 @@ class RapportiCheckPanel(QWidget):
                 # rapporti, che ha già risposto: si dice e si va avanti.
                 self._chrono_errore = str(exc)
         except Exception as exc:
-            QMessageBox.critical(self, "pyArchInit", f"Verifica fallita: {exc}")
+            QMessageBox.critical(self, "pyArchInit", T.t(self._lang, "check_failed", e=exc))
             return
         self._render()
 
@@ -304,21 +298,19 @@ class RapportiCheckPanel(QWidget):
         total = len(self._report.issues)
         # «(selezionati)» rimanda alle spunte: con zero correzioni automatiche
         # non ce n'è nessuna, e la parentesi non dice niente.
-        testo = ("%d problemi · %d correggibili automaticamente"
-                 % (total, n_auto))
+        testo = T.t(self._lang, "summary", n=total, a=n_auto)
         if n_auto:
-            testo += " (selezionati)"
+            testo += T.t(self._lang, "selected")
         if n_prop:
-            testo += " · %d proposte, da spuntare a mano" % n_prop
-        testo += ". Anteprima un elemento per i dettagli."
+            testo += T.t(self._lang, "proposals", p=n_prop)
+        testo += T.t(self._lang, "preview_hint")
         self.lblSummary.setText(testo)
         if self._chrono_errore:
             # Non si inghiotte in silenzio: la riga di riepilogo dice che gli
             # avvisi cronologici mancano, e perché.
             self.lblSummary.setText(
                 self.lblSummary.text()
-                + "  ⚠ verifica cronologia non eseguita: %s"
-                % self._chrono_errore)
+                + T.t(self._lang, "chrono_failed", e=self._chrono_errore))
         self._token = None
         self.btnRollback.setEnabled(False)
 
@@ -394,7 +386,7 @@ class RapportiCheckPanel(QWidget):
         edits = [e for iss in issues for e in iss.edits]
         if not edits:
             QMessageBox.information(self, "pyArchInit",
-                                   "Nessuna correzione selezionata.")
+                                   T.t(self._lang, "none_selected"))
             return
         sito = self.cboSite.currentText().strip()
         # Il sito dell'albero, non quello del selettore: fra «Esegui verifica»
@@ -410,9 +402,9 @@ class RapportiCheckPanel(QWidget):
                                     atteso=atteso, scelto=sito))
             return
         if QMessageBox.question(
-                self, "Conferma",
-                f"Applicare {len(edits)} correzioni al sito '{sito}'?\n"
-                f"(potrai annullare con 'Annulla ultimo fix')",
+                self, T.t(self._lang, "confirm_title"),
+                T.t(self._lang, "confirm_text", n=len(edits), sito=sito,
+                    undo=T.t(self._lang, "rollback")),
                 QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
             return
         if any(getattr(e, "set_fields", ()) for e in edits):
@@ -432,8 +424,8 @@ class RapportiCheckPanel(QWidget):
                     auto_backup_sqlite(Path(h.sqlite_path), "temporal_fix")
             except BackupSkipped:
                 if QMessageBox.question(
-                        self, "Backup non disponibile",
-                        "pg_dump non trovato: procedo senza backup?",
+                        self, T.t(self._lang, "backup_title"),
+                        T.t(self._lang, "backup_text"),
                         QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
                     return
             except Exception:
@@ -441,7 +433,7 @@ class RapportiCheckPanel(QWidget):
         try:
             self._token = RC.apply_edits(edits, self._handle(), sito=sito)
         except Exception as exc:
-            QMessageBox.critical(self, "pyArchInit", f"Apply fallito: {exc}")
+            QMessageBox.critical(self, "pyArchInit", T.t(self._lang, "apply_failed", e=exc))
             return
         QMessageBox.information(self, "pyArchInit",
                                f"{len(edits)} correzioni applicate.")
@@ -469,48 +461,47 @@ class RapportiCheckPanel(QWidget):
                                  include_phase=anche_le_fasi)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit",
-                                 f"Genera continuità fallita: {exc}")
+                                 T.t(self._lang, "cont_failed", e=exc))
             return
         if not (plan.to_create or plan.to_update or plan.orphan):
             # Perché non c'è niente, non solo che non c'è niente: la
             # regola guarda il periodo, e chi ha davanti una USM da 2/3 a
             # 2/4 deve sapere che gli manca una spunta, non un dato.
-            coda = (f"({len(plan.unchanged)} già allineate)"
+            coda = (T.t(self._lang, "cont_aligned", n=len(plan.unchanged))
                     if plan.unchanged else
-                    "Nessuna US/USM ha il periodo iniziale diverso dal "
-                    "finale." + ("" if anche_le_fasi else
-                                 "\nSe le tue unità cambiano solo fase "
-                                 "dentro lo stesso periodo, spunta "
-                                 "«anche i salti di fase»."))
+                    T.t(self._lang, "cont_no_span") + ("" if anche_le_fasi else
+                                 T.t(self._lang, "cont_phase_hint",
+                                     phases=T.t(self._lang, "phases"))))
             QMessageBox.information(
                 self, "pyArchInit",
-                f"Nessuna continuità da generare per '{sito}'.\n{coda}")
+                T.t(self._lang, "cont_nothing", sito=sito, coda=coda))
             return
         # Preview dialog
         dlg = QDialog(self)
-        dlg.setWindowTitle("Anteprima continuità")
+        dlg.setWindowTitle(T.t(self._lang, "cont_preview"))
         lay = QVBoxLayout(dlg)
         summary = QTextEdit(); summary.setReadOnly(True)
-        lines = [f"Sito: {sito}",
-                 f"Da creare: {len(plan.to_create)}",
-                 f"Da aggiornare: {len(plan.to_update)}",
-                 f"Invariate: {len(plan.unchanged)}",
-                 f"Orfane: {len(plan.orphan)}", ""]
+        L = lambda k: T.t(self._lang, k)            # noqa: E731
+        lines = [f"{L('site')} {sito}",
+                 f"{L('to_create')}: {len(plan.to_create)}",
+                 f"{L('to_update')}: {len(plan.to_update)}",
+                 f"{L('unchanged')}: {len(plan.unchanged)}",
+                 f"{L('orphans')}: {len(plan.orphan)}", ""]
         for d in plan.to_create:
-            lines.append(f"  + {d['us']}  (periodi {d['periodo_iniziale']}→"
+            lines.append(f"  + {d['us']}  ({L('periods')} {d['periodo_iniziale']}→"
                          f"{d['periodo_finale']})")
         for d in plan.to_update:
-            lines.append(f"  ~ {d['us']}  (periodi {d['periodo_iniziale']}→"
+            lines.append(f"  ~ {d['us']}  ({L('periods')} {d['periodo_iniziale']}→"
                          f"{d['periodo_finale']})")
         for us in plan.orphan:
-            lines.append(f"  ? {us}  (orfana)")
+            lines.append(f"  ? {us}  ({L('orphan')})")
         summary.setPlainText("\n".join(lines))
         lay.addWidget(summary)
-        chkOrphans = QCheckBox("Rimuovi anche le CON orfane")
+        chkOrphans = QCheckBox(T.t(self._lang, "remove_orphans"))
         chkOrphans.setEnabled(bool(plan.orphan))
         lay.addWidget(chkOrphans)
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        bb.button(QDialogButtonBox.Ok).setText("Genera")
+        bb.button(QDialogButtonBox.Ok).setText(T.t(self._lang, "generate"))
         bb.accepted.connect(dlg.accept); bb.rejected.connect(dlg.reject)
         lay.addWidget(bb)
         dlg.resize(520, 460)
@@ -523,14 +514,12 @@ class RapportiCheckPanel(QWidget):
                 include_phase=anche_le_fasi)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit",
-                                 f"Generazione fallita: {exc}")
+                                 T.t(self._lang, "gen_failed", e=exc))
             return
-        msg = (f"Continuità generata per '{sito}'.\n"
-               f"Create: {rep.created} · Aggiornate: {rep.updated} · "
-               f"Invariate: {rep.unchanged} · "
-               f"Orfane rimosse: {rep.orphans_removed}")
+        msg = T.t(self._lang, "cont_done", sito=sito, c=rep.created, u=rep.updated,
+                  i=rep.unchanged, o=rep.orphans_removed)
         if rep.warnings:
-            msg += "\n\nAvvisi:\n" + "\n".join(f"• {w}" for w in rep.warnings)
+            msg += "\n\n" + T.t(self._lang, "warnings") + ":\n" + "\n".join(f"• {w}" for w in rep.warnings)
         QMessageBox.information(self, "pyArchInit", msg)
 
     def _current_user(self):
@@ -552,11 +541,11 @@ class RapportiCheckPanel(QWidget):
         try:
             RC.rollback(self._token, self._handle())
         except Exception as exc:
-            QMessageBox.critical(self, "pyArchInit", f"Rollback fallito: {exc}")
+            QMessageBox.critical(self, "pyArchInit", T.t(self._lang, "rollback_failed", e=exc))
             return
         self._token = None
         self.btnRollback.setEnabled(False)
-        QMessageBox.information(self, "pyArchInit", "Ultimo fix annullato.")
+        QMessageBox.information(self, "pyArchInit", T.t(self._lang, "rollback_done"))
         self._run()
 
 
@@ -566,7 +555,7 @@ class RapportiCheckDialog(QDialog):
     def __init__(self, iface=None, parent=None, db_provider=None):
         super().__init__(parent)
         self.iface = iface
-        self.setWindowTitle("Verifica rapporti stratigrafici")
+        self.setWindowTitle(T.t(_qgis_lang(), "window_title"))
         lay = QVBoxLayout(self)
         self.panel = RapportiCheckPanel(iface=iface, db_provider=db_provider)
         lay.addWidget(self.panel)

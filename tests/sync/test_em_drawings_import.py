@@ -152,7 +152,10 @@ def test_la_regola_dell_srid(tmp_path, srid, tipo):
     if tipo == "convert":
         assert decisione.message == "Converto le piante in EPSG:3004 del database?"
     if tipo == "refuse":
-        assert "ricrea il database in epsg:31700" in decisione.message.lower()
+        # 31700 is deprecated (QGIS hides it): the current code is offered
+        # and the em.json's own code named (5.19.3-alpha)
+        assert "ricrea il database in epsg:3844" in decisione.message.lower()
+        assert "epsg:31700" in decisione.message.lower()
 
 
 def test_senza_geometrie_nessun_controllo(tmp_path):

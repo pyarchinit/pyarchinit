@@ -1312,6 +1312,23 @@ HTML_DRAFT_CSS = """
 """
 
 
+_LATEX_TAGS = {"textit": "i", "emph": "i", "textbf": "b", "textsc": "span", "underline": "u"}
+
+
+def latex_to_html(html: str) -> str:
+    """LaTeX left in the narrative's text — «\\textit{Forum Novum}», even
+    with the brace never closed, as in TempluMare's chapter title (27 Nov
+    2026) — becomes the HTML it meant, instead of showing its backslash in
+    the page and in the index."""
+    import re
+
+    def tag(m):
+        t = _LATEX_TAGS[m.group(1)]
+        return "<%s>%s</%s>" % (t, m.group(2), t)
+    # closed «{…}», or unclosed up to the end of the element or line
+    return re.sub(r"\\(textit|emph|textbf|textsc|underline)\{([^{}<\n]*)\}?", tag, html)
+
+
 def export_file(graph, narrative, fmt: str, path, *,
                 figures: Optional[Dict[str, bytes]] = None,
                 map_conn: Optional[str] = None, lang: Optional[str] = None,
@@ -1338,7 +1355,7 @@ def export_file(graph, narrative, fmt: str, path, *,
                              **opzioni)
     payload = esito["payload"]
     if fmt == "html":
-        payload = str(payload).replace("</style>", HTML_DRAFT_CSS + "</style>", 1)
+        payload = latex_to_html(str(payload)).replace("</style>", HTML_DRAFT_CSS + "</style>", 1)
         if map_conn:
             try:
                 from . import em_narrative_map as nmap

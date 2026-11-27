@@ -252,6 +252,38 @@ def _descrivi(srid) -> str:
         "ha un sistema sconosciuto (EPSG:%s)" % srid
 
 
+#: deprecated EPSG codes and the current code for the same grid, when PROJ
+#: has no supersession for them (EMStudio offers the same: TempluMare's
+#: Stereo 70, EPSG:31700 → 3844, «the same grid, the code only»)
+_CURRENT_CODE = {31700: 3844}
+
+
+def current_code_of(epsg) -> Optional[int]:
+    """The current code for a deprecated EPSG code, or None."""
+    try:
+        epsg = int(epsg)
+    except (TypeError, ValueError):
+        return None
+    if epsg in _CURRENT_CODE:
+        return _CURRENT_CODE[epsg]
+    try:
+        from qgis.core import QgsCoordinateReferenceSystem, QgsProjUtils
+        if not QgsCoordinateReferenceSystem.fromEpsgId(epsg).isDeprecated():
+            return None
+        import os
+        import sqlite3
+        for cartella in QgsProjUtils.searchPaths():
+            db = os.path.join(cartella, "proj.db")
+            if os.path.exists(db):
+                riga = sqlite3.connect(db).execute(
+                    "SELECT replacement_code FROM supersession WHERE superseded_auth_name='EPSG' "
+                    "AND superseded_code=? AND replacement_auth_name='EPSG' LIMIT 1", (str(epsg),)).fetchone()
+                return int(riga[0]) if riga else None
+    except Exception:                               # noqa: BLE001
+        return None
+    return None
+
+
 def crs_decision(db, georef, choice: Choice) -> CrsDecision:
     """La regola dell'SRID (spec D8), da chiedere prima di scrivere qualsiasi cosa."""
     piante, verticali = wants(choice, georef)
@@ -271,6 +303,13 @@ def crs_decision(db, georef, choice: Choice) -> CrsDecision:
     if problemi:
         rimedio = ("ricrea il database in EPSG:%s (quello dell'em.json)" % georef.epsg
                    if georef.usable else "ricrea il database in un sistema metrico")
+        nuovo = current_code_of(georef.epsg) if georef.usable else None
+        if nuovo:
+            # a deprecated code the CRS selector hides: the current one is
+            # offered instead, and the plans are converted at import
+            rimedio = ("ricrea il database in EPSG:%s — l'em.json dice EPSG:%s, un codice "
+                       "deprecato che il selettore di QGIS nasconde; pyArchInit converte"
+                       % (nuovo, georef.epsg))
         if no_piante and no_verticali:
             cosa, solo = "piante e prospetti", ""
         elif no_verticali:

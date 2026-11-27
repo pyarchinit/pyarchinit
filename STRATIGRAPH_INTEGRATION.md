@@ -280,6 +280,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Coerenza ID/UUID | `[FATTO]` | 100% | Formato, duplicati, mancanti verificati |
 | Report warning/errori | `[FATTO]` | 100% | ValidationResult con ERROR/WARNING/INFO |
 | Validazione dati archeologici | `[FATTO]` | 90% | Già presente per US, siti, materiali, ecc. |
+| Verifica rapporti prima dell'invio | `[FATTO]` | 95% | Pannello «Verifica rapporti» (tutorial 36 §8.4): self-loop, reciproci mancanti e datazioni disallineate si correggono da soli (con backup e annulla), contraddizioni, cicli e paradossi temporali restano manuali; dalla 5.19.3-alpha nelle 10 lingue e il self-loop non si raddoppia più |
 
 **File creato**: `modules/stratigraph/bundle_validator.py`
 **File da estendere**: `modules/report/validation_tools.py`
@@ -328,6 +329,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Prestazioni | `[IN CORSO]` | 60% | Misurato 26 nov: 3.060 US → export 17,8 s (era 47,8), confronto a tre vie < 2 s, pull in database vuoto 4,0 s, secondo pull 2,8 s. Resta `_find_node_by_name` O(n²) in s3dgraphy (issue #27) |
 | Recupero errori validazione | `[PARZIALE]` | 50% | `refused` e `conflicts` delle operazioni arrivano nel report; non ancora mostrati riga per riga nella UI |
 | Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator; l'invio a una stanza è idempotente (un secondo invio non duplica) |
+| Un progetto EMStudio fino alla stanza e ritorno | `[FATTO]` | 100% | Provato 27 nov 2026 con TempluMare v3.2 (E.D.): import in pyArchInit vuoto (851 schede, 106 media, con «Ricava piante e prospetti dai modelli 3D» 65 piante e 320 prospetti in un DB EPSG:31700 o 3844), invio (7.878 operazioni, 0 rifiutate, 129 piante come GeoJSON), pull in un altro DB vuoto: 851 schede, 106 media, rapporti identici. Correzioni 5.19.1–5.19.3: identità dei media importati, indirizzi delle risorse ricordate, `doc_usv` delle schede DOC, niente rapporti di una scheda con sé stessa |
 
 **File creati**: `modules/stratigraph/node_client.py`, `gui/stratigraph_room_dialog.py`, `scripts/stratigraph_send_site.py`
 **Verificato**: dev-stack di stratigraph-server con Keycloak attivo — login completo, sito di esempio in 4 grafi (844 operazioni, 0 rifiutate), 401 senza token, 403 senza ruolo
@@ -780,6 +782,7 @@ Per i task `[BLOCCATO]`, la strategia è:
 | 2026-02-08 | — | Metadata: versione 5.0.1-alpha, experimental=True. Task 1.5 bundle\_validator completato. |
 | 2026-02-08 | — | Fase 2 completata: sync\_state\_machine, sync\_queue, connectivity\_monitor, sync\_orchestrator, stratigraph\_sync\_panel. Integrato in pyarchinitPlugin.py. |
 | 2026-02-08 | — | Aggiunta sezione 1.1 (architettura KG) e 1.2 (mock server). Creato `scripts/stratigraph_mock_server.py` per testing locale del flusso sync. |
+| 2026-11-27 | — | 5.19.1–5.19.3-alpha: ciclo completo di TempluMare (EMStudio → pyArchInit → stanza → pyArchInit), narrativa HTML con mappa e 3D di nuovo con s3dgraphy dev143+, verifica rapporti nelle 10 lingue, codici EPSG deprecati (31700 → 3844). |
 
 ---
 

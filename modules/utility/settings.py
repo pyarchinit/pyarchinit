@@ -28,6 +28,42 @@ from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
+#: keys every config.cfg must carry, with the value a new one gets
+_CONFIG_DEFAULTS = (("THUMB_RESIZE", "insert path for the image resized"),
+                    ("SITE_SET", ""),
+                    ("LOGO", "insert path for the image logo"),
+                    ("SSLMODE", "allow"))
+
+
+def _ensure_config_keys(path_rel):
+    """Add the keys a config.cfg lacks, reading it as the dictionary it is.
+
+    The old repair patched the file by byte offsets (``seek(-3, 2)``): on a
+    file without a trailing newline, or lacking two keys at once, it wrote
+    ``'SITE_SET' :','LOGO'`` and the configuration no longer parsed — every
+    export failed with SyntaxError (27 Nov 2026). A file that does not parse
+    is left exactly as it is."""
+    import ast
+    try:
+        with open(path_rel, "r", encoding="utf-8") as fh:
+            testo = fh.read()
+        conf = ast.literal_eval(testo.strip())
+    except Exception:                               # noqa: BLE001
+        return
+    if not isinstance(conf, dict):
+        return
+    mancanti = [(k, v) for k, v in _CONFIG_DEFAULTS if k not in conf]
+    if not mancanti:
+        return
+    for k, v in mancanti:
+        conf[k] = v
+    try:
+        with open(path_rel, "w", encoding="utf-8") as fh:
+            fh.write(repr(conf))
+    except Exception:                               # noqa: BLE001
+        pass
+
+
 class Settings(object):
 
     SERVER = ""
@@ -46,49 +82,7 @@ class Settings(object):
     HOME = os.environ['PYARCHINIT_HOME']
     path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
     
-    conf = open( path_rel, "rb+")
-
-    data = conf.read()
-
-    text = (b'THUMB_RESIZE')
-    text_a = (b'SITE_SET')
-    text_b = (b'LOGO')
-    text_c = (b'SSLMODE')
-
-    if text in data:
-        pass
-    else:
-        conf.seek(-3, 2)
-        conf.read(1)
-        conf.write(b"','THUMB_RESIZE' : 'insert path for the image resized'")
-
-    if text_a in data:
-        pass
-    else:
-        conf.seek(-3, 2)
-        conf.read(1)
-        conf.write(b"','SITE_SET' : '")
-
-    if text_b in data:
-        pass
-    else:
-        conf.seek(-3, 2)
-        conf.read(1)
-        conf.write(b"','LOGO' : 'insert path for the image logo'}")
-
-    conf.close()
-
-    # Add SSLMODE if missing (reopen file)
-    if text_c not in data:
-        conf = open(path_rel, "r")
-        content = conf.read()
-        conf.close()
-        # Insert SSLMODE before the closing brace
-        if "'SSLMODE'" not in content:
-            content = content.rstrip().rstrip('}') + ", 'SSLMODE': 'allow'}"
-            conf = open(path_rel, "w")
-            conf.write(content)
-            conf.close()
+    _ensure_config_keys(path_rel)
 
     def __init__(self, s):
 

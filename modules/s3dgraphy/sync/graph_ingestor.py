@@ -117,7 +117,7 @@ _PARADATA_ROW_TYPES: frozenset = frozenset({
 #: e il codice periodo (questi due dalla periodizzazione, solo se la scheda
 #: non li ha: Enzo, 17 ottobre 2026).
 _WRITE_COLUMNS: tuple = MAPPED_COLUMNS + ("descrizione", "periodo_finale", "fase_finale",
-                                          "datazione", "cont_per")
+                                          "datazione", "cont_per", "doc_usv")
 
 
 # ---------------------------------------------------------------------------
@@ -674,11 +674,18 @@ class GraphIngestor:
             if "unita_tipo" not in attrs or attrs["unita_tipo"] is None:
                 attrs["unita_tipo"] = unita_tipo
             # DocumentNode: its `url` goes into documentazione (#6 H.4 fix).
-            if (type(node).__name__ == "DocumentNode"
-                    and not attrs.get("documentazione")):
+            if type(node).__name__ == "DocumentNode":
                 doc_url = getattr(node, "url", None) or attrs.get("url")
-                if doc_url:
+                if doc_url and not attrs.get("documentazione"):
                     attrs["documentazione"] = str(doc_url)
+                # A DOC row keeps its file in doc_usv — s3dgraphy's rule
+                # (unit_row: «for a DOC row, the document's own url») and
+                # pyArchInit's (the DOC triggers mirror it into
+                # d_interpretativa). A document born in EMStudio came in
+                # without it, and came back from a room with it: 37 DOC
+                # rows of TempluMare differed after the round trip.
+                if doc_url and not attrs.get("doc_usv"):
+                    attrs["doc_usv"] = str(doc_url)
             if not attrs.get("attivita") and attivita_of.get(nid):
                 attrs["attivita"] = attivita_of[nid]
             # Un nodo di EMStudio porta il testo nella descrizione del nodo.
