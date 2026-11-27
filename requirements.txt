@@ -148,7 +148,12 @@ Pillow>=9.1.0
 # only node_uuid (s3dgraphy.unit_row, RowReader / row_code); em.json files
 # written before are migrated on load. #40: a row finds its node by the
 # full key (site, area, number, type).
-s3dgraphy==1.6.0.dev143
+# 1.6.0.dev144 (27 Nov 2026, s3Dgraphy#40): places with the EM vocabulary
+# (quad_par -> quadrato, ambient -> ambiente), CON kept as source_code, one
+# edge per relation (copre / coperto da are one edge, written back on both
+# rows), epochs from cron_iniziale/cron_finale/descrizione/datazione_estesa,
+# schedatore / direttore_us / responsabile_us as authors of acts.
+s3dgraphy==1.6.0.dev144
 dtcstamp>=0.1.5
 
 # Remote Storage Backends (optional - install only if using remote storage)
