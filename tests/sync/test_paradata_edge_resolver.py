@@ -232,3 +232,20 @@ def test_the_direction_written_in_the_data_wins_whatever_the_order():
         terne = {(e.edge_source, e.edge_type, e.edge_target) for e in g.edges}
         assert terne == {("P101", "has_data_provenance", "E01"),
                          ("E01", "extracted_from", "P108")}, (prima_la_lettura, terne)
+
+
+def test_a_link_typed_only_the_other_way_round_keeps_its_direction():
+    """«106 >> 400» (a USVs towards an extractor): the datamodel types it only
+    as «400 extracted_from 106». Turned round, the voice came back on the
+    other row (27 Nov 2026, s3dgraphy dev144); it stays generic, as written."""
+    from s3dgraphy.graph import Graph
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    from s3dgraphy.nodes.stratigraphic_node import StructuralVirtualStratigraphicUnit
+    from modules.s3dgraphy.sync.paradata_edge_resolver import refine_generic_connections
+    g = Graph("g")
+    g.add_node(StructuralVirtualStratigraphicUnit("u106", "1.USVs106"))
+    g.add_node(ExtractorNode("x400", "1.Extractor400"))
+    g.add_edge("e", "u106", "x400", "generic_connection")
+    refine_generic_connections(g)
+    (e,) = g.edges
+    assert (e.edge_source, e.edge_type, e.edge_target) == ("u106", "generic_connection", "x400")

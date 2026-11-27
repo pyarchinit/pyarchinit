@@ -19,8 +19,10 @@ The rules (which node classes may be linked by which edge type) live in the
 authoritative s3dgraphy data model
 (``JSON_config/s3Dgraphy_connections_datamodel.json``, ``allowed_connections``).
 This module reads that file — no rules are hard-coded here — and retypes each
-``generic_connection`` edge to the most specific allowed type, swapping the
-endpoints when the rule is satisfied only in the reverse direction.
+``generic_connection`` edge to the most specific type allowed IN THE DIRECTION
+THE ROW WROTE IT; an edge allowed only the other way round stays generic (the
+library's projector does the same since dev144: the voice must come back on
+the row that wrote it).
 
 Combiner / Extractor never connect to a plain US/USM: no datamodel rule allows
 it, so such edges simply stay ``generic_connection``.
@@ -217,8 +219,13 @@ def refine_generic_connections(graph) -> int:
             continue
         edge_type, swap = res
         if swap:
-            edge.edge_source, edge.edge_target = (
-                edge.edge_target, edge.edge_source)
+            # The direction the user wrote wins (s3dgraphy dev144, 27 Nov 2026):
+            # a link the datamodel types only the other way round stays a
+            # generic_connection, as the library's projector leaves it.
+            # Turning it round gave it the EM type but moved its voice to the
+            # other row on the way back: «106 >> 400» came back as
+            # «106 << 400» + «400 >> 106» on the sample site.
+            continue
         edge.edge_type = edge_type
         retyped += 1
     return retyped

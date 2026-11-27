@@ -5,6 +5,20 @@
 
 ---
 
+## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev144 — 5.19.0-alpha
+
+> Suite completa **2652 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Changed / Modificato
+- Pin `s3dgraphy==1.6.0.dev144` (s3Dgraphy#40): luoghi col vocabolario EM (`quad_par` → `quadrato`, `ambient` → `ambiente`), CON in `source_code`, un arco per rapporto (copre/coperto da sono lo stesso arco, riscritto su entrambe le schede), epoche da `cron_iniziale`/`cron_finale`/`descrizione`/`datazione_estesa`, `schedatore`/`direttore_us`/`responsabile_us` come autori di atti: ora tornano col pull.
+- `paradata_edge_resolver`: un legame che il modello dati tipizza solo al contrario resta `generic_connection` nel verso scritto, come fa il proiettore di s3dgraphy; girato, la sua voce tornava sull'altra scheda («106 >> 400» diventava «106 << 400» + «400 >> 106»).
+
+#### Verificato
+- Dev-stack SQLite: 50 schede, persone/quadrato/ambiente 50/50 identici, rapporti identici come insiemi salvo la voce inversa ora scritta sulla seconda scheda e il rapporto con la CON 500 generata; 150 foto, 56 piante «già uguali».
+- PostGIS 5433 (DB di prova eliminato): pull 50 US, 56/56 piante; export dal PG 423 nodi senza avvisi; invio 2.039 operazioni; confronto subito dopo pulito.
+
+---
+
 ## [chore] - 2026-11-27 — Pannello StratiGraph: nascosta la sincronizzazione a pacchetti — 5.18.1-alpha
 
 - Il pannello mostra solo «Invia il sito a una stanza…» e il registro. Stato, connessione, coda, «Esporta pacchetto», «Sincronizza ora» e «Coda…» (sincronizzazione a bundle della Fase 2, verso `/api/v1/bundles`, che nessun nodo espone: il nodo scambia stanze e operazioni) sono nascosti con `StratiGraphSyncPanel.SHOW_BUNDLE_SYNC = False`. Il codice resta, con i suoi test: tornerà o verrà tolto quando sarà decisa la sincronizzazione fra nodi (D1–D5).

@@ -388,7 +388,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
-| Installazione dipendenze WP4 | `[FATTO]` | 100% | La libreria condivisa è s3dgraphy (pin esatto `1.6.0.dev143` in `requirements.txt`, 5.18.0-alpha): i campi della scheda viaggiano come nodi e archi (`s3dgraphy.unit_row`), il `data` di un'unità tiene solo `node_uuid`; in attesa di E.D.: `quad_par` (ancora nel `data`), schedatore/direttore/responsabile (non tornano col pull) |
+| Installazione dipendenze WP4 | `[FATTO]` | 100% | La libreria condivisa è s3dgraphy (pin esatto `1.6.0.dev144` in `requirements.txt`, 5.19.0-alpha): i campi della scheda viaggiano come nodi e archi (`s3dgraphy.unit_row`), il `data` di un'unità tiene solo `node_uuid`; dalla dev144 `quad_par` è il luogo `quadrato` e schedatore/direttore/responsabile tornano col pull (autori di atti) |
 | Wrapper per accesso KG | `[PARZIALE]` | 40% | Accesso alle stanze via REST in `node_client.py`; nessuna query sul Catalog ancora |
 | Wrapper per auth WP4 | `[FATTO]` | 90% | Vedi 3.7 |
 | Wrapper per sync WP4 | `[PARZIALE]` | 30% | Solo sito → stanza. La sincronizzazione campo ↔ cloud fra nodi è ancora aperta lato WP4 (`docs/SYNC-FIELD-TO-CLOUD.md` del server, decisioni D1–D5) |
