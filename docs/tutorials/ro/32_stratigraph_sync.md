@@ -292,7 +292,7 @@ După prima **Adu din cameră** (sau prima **Trimite situl**) pyArchInit își a
 - comparația citește din cameră **doar noutățile** de la ultima sincronizare, nu tot documentul;
 - fiecare diferență are un autor: **schimbat aici** (se trimite), **schimbat în cameră** (o aduce aducerea), **schimbat de ambele părți** (conflict, afișat cu ambele valori), **eliminat în cameră** (se elimină și aici), **eliminat aici** (se trimite);
 - **Adu din cameră** nu suprascrie niciodată în tăcere munca încă netrimisă: dacă există modificări locale, conflicte, relații eliminate aici, fereastra le enumeră și recomandă trimiterea lor mai întâi. Într-un conflict confirmat câștigă valoarea camerei.
-- câmpurile pe care pyArchInit le **calculează** (ordinea stratigrafică, codul perioadei, datarea, relațiile extinse) nu sunt niciodată modificări sau conflicte: se recalculează după aducere;
+- câmpurile pe care pyArchInit le **calculează** (ordinea stratigrafică, codul perioadei, datarea) nu sunt niciodată modificări sau conflicte: la sfârșitul aducerii pyArchInit le recalculează singur, ca butoanele fișei US;
 - **relațiile sunt o mulțime**: cele adăugate aici și încă netrimise rămân după aducere, împreună cu cele adăugate de alții în cameră;
 - dacă confirmați o aducere care înlocuiește valori locale, acele valori **nu se pierd**: **Restaurează valorile înlocuite** le pune la loc, și redevin modificări de trimis.
 

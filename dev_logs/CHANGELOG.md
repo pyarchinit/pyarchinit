@@ -5,6 +5,26 @@
 
 ---
 
+## [feat] - 2026-11-27 — Campi calcolati ricalcolati a fine pull — 5.16.2-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2649 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Added / Aggiunto
+- `modules/stratigraph/room_derived.recompute`: a fine pull la finestra della stanza ricalcola datazione (`update_us_dating_from_periodizzazione`), codice periodo (`update_cont_per(quiet=True)`) e ordine stratigrafico area per area (`Order_layer_graph.compute`, stesso calcolo del pulsante della scheda US, senza finestra di avanzamento). Riga nel registro in 10 lingue (`derived_recomputed`).
+- `Order_layer_graph.compute()` e `update_cont_per(..., quiet=True)`: le stesse funzioni della scheda US, senza message box.
+
+#### Changed / Modificato
+- `rapporti2` non è più un campo calcolato (`DERIVED_FIELDS`): i rapporti estesi si compilano nella scheda, viaggiano come gli altri campi.
+
+#### Fixed / Corretto
+- Datazione raddoppiata («Età A/Età A») quando periodo iniziale e finale coincidono: su tutte le 51 US del sito d'esempio. Ora 49/51 uguali all'originale, le 2 diverse hanno periodo finale diverso (il valore salvato era vecchio).
+- Ordine stratigrafico: i rapporti in minuscolo («copre») restavano fuori dal grafo; il confronto ora ignora maiuscole e spazi.
+
+#### Verificato
+- Dev-stack: pull di `scavo-geometrie` dalla finestra in un DB vuoto → 50 US, 150 media, «Campi calcolati aggiornati: datazione 1, codice periodo 50, ordine stratigrafico di 50 US in 1 aree»; order_layer/cont_per/datazione pieni su 50/50.
+
+---
+
 ## [feat] - 2026-11-27 — Regole per tipo di campo e valori sostituiti recuperabili — 5.16.1-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2648 verdi**, 66 saltati, 1 xfail, 0 falliti.

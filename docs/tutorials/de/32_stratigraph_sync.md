@@ -292,7 +292,7 @@ Nach dem ersten **Aus dem Raum holen** (oder dem ersten **Fundstelle senden**) m
 - liest der Vergleich aus dem Raum **nur das Neue** seit der letzten Synchronisation, nicht das ganze Dokument;
 - hat jeder Unterschied einen Urheber: **hier geändert** (wird gesendet), **im Raum geändert** (das Holen bringt es), **auf beiden Seiten geändert** (Konflikt, mit beiden Werten angezeigt), **im Raum entfernt** (das Holen entfernt es auch hier), **hier entfernt** (wird gesendet);
 - überschreibt **Aus dem Raum holen** nie stillschweigend noch nicht gesendete Arbeit: gibt es lokale Änderungen, Konflikte, hier entfernte Beziehungen, listet das Fenster sie auf und empfiehlt, sie zuerst zu senden. Bei einem bestätigten Konflikt gewinnt der Wert des Raums.
-- die von pyArchInit **berechneten** Felder (stratigraphische Ordnung, Periodencode, Datierung, ausführliche Beziehungen) sind nie Änderungen oder Konflikte: sie werden nach dem Holen neu berechnet;
+- die von pyArchInit **berechneten** Felder (stratigraphische Ordnung, Periodencode, Datierung) sind nie Änderungen oder Konflikte: am Ende des Holens berechnet pyArchInit sie selbst neu, wie die Schaltflächen des SE-Formulars;
 - **Beziehungen sind eine Menge**: hier hinzugefügte und noch nicht gesendete bleiben nach dem Holen erhalten, zusammen mit denen, die andere im Raum hinzugefügt haben;
 - bestätigst du ein Holen, das lokale Werte ersetzt, **gehen diese nicht verloren**: **Ersetzte Werte wiederherstellen** setzt sie zurück, und sie werden wieder zu sendende Änderungen.
 

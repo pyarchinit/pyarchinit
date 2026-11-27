@@ -291,7 +291,7 @@ After the first **Pull from room** (or the first **Send site**) pyArchInit remem
 - the comparison reads from the room **only what is new** since the last sync, not the whole document;
 - every difference has an author: **changed here** (sent), **changed in the room** (the pull brings it), **changed on both sides** (a conflict, shown with both values), **removed in the room** (the pull removes it here too), **removed here** (sent);
 - **Pull from room** never silently overwrites work not yet sent: if there are local edits, conflicts, relations removed here, the window lists them and suggests sending them first. In a confirmed conflict the room's value wins.
-- the fields pyArchInit **computes** (stratigraphic order, period code, dating, verbose relations) are never edits nor conflicts: they are recomputed after the pull;
+- the fields pyArchInit **computes** (stratigraphic order, period code, dating) are never edits nor conflicts: at the end of the pull pyArchInit recomputes them by itself, as the SU form's buttons do;
 - **relations are a set**: those added here and not yet sent stay after the pull, together with those others added in the room;
 - if you confirm a pull that replaces local values, those values **are not lost**: **Restore replaced values** puts them back, and they become changes to send again.
 

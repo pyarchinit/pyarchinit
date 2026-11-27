@@ -291,7 +291,7 @@ Depois do primeiro **Trazer da sala** (ou do primeiro **Enviar o sítio**) o pyA
 - a comparação lê da sala **só as novidades** desde a última sincronização, não o documento inteiro;
 - cada diferença tem um autor: **alterado aqui** (envia-se), **alterado na sala** (trá-lo o «Trazer»), **alterado dos dois lados** (conflito, mostrado com os dois valores), **retirado na sala** (retira-se também aqui), **retirado aqui** (envia-se);
 - **Trazer da sala** nunca sobrescreve em silêncio trabalho ainda não enviado: se houver alterações locais, conflitos, relações retiradas aqui, a janela lista-os e aconselha enviá-los primeiro. Num conflito confirmado ganha o valor da sala.
-- os campos que o pyArchInit **calcula** (ordem estratigráfica, código de período, datação, relações extensas) nunca são alterações nem conflitos: recalculam-se depois do trazer;
+- os campos que o pyArchInit **calcula** (ordem estratigráfica, código de período, datação) nunca são alterações nem conflitos: no fim do trazer o pyArchInit recalcula-os sozinho, como os botões da ficha UE;
 - **as relações são um conjunto**: as acrescentadas aqui e ainda não enviadas mantêm-se depois do trazer, juntamente com as que outros acrescentaram na sala;
 - se confirmar um trazer que substitui valores locais, esses valores **não se perdem**: **Repor os valores substituídos** repõe-nos, e voltam a ser alterações a enviar.
 

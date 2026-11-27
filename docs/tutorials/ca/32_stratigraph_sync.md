@@ -292,7 +292,7 @@ Després del primer **Porta de la sala** (o del primer **Envia el jaciment**) py
 - la comparació llegeix de la sala **només les novetats** des de la darrera sincronització, no tot el document;
 - cada diferència té un autor: **canviat aquí** (s'envia), **canviat a la sala** (el porta «Porta»), **canviat a les dues bandes** (conflicte, mostrat amb els dos valors), **tret a la sala** (es treu també aquí), **tret aquí** (s'envia);
 - **Porta de la sala** mai no sobreescriu en silenci feina encara no enviada: si hi ha canvis locals, conflictes, relacions tretes aquí, la finestra els llista i aconsella enviar-los abans. En un conflicte confirmat guanya el valor de la sala.
-- els camps que pyArchInit **calcula** (ordre estratigràfic, codi de període, datació, relacions esteses) no són mai canvis ni conflictes: es recalculen després del portar;
+- els camps que pyArchInit **calcula** (ordre estratigràfic, codi de període, datació) no són mai canvis ni conflictes: al final del portar pyArchInit els recalcula sol, com els botons de la fitxa UE;
 - **les relacions són un conjunt**: les afegides aquí i encara no enviades es mantenen després del portar, juntament amb les que altres han afegit a la sala;
 - si confirmes un portar que substitueix valors locals, aquests valors **no es perden**: **Restaura els valors substituïts** els torna a posar, i tornen a ser canvis per enviar.
 

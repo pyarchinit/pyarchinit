@@ -292,7 +292,7 @@ Après la première **Récupérer de la salle** (ou le premier **Envoyer le site
 - la comparaison ne lit dans la salle **que les nouveautés** depuis la dernière synchronisation, pas tout le document ;
 - chaque différence a un auteur : **modifié ici** (envoyé), **modifié dans la salle** (la récupération l'apporte), **modifié des deux côtés** (conflit, affiché avec les deux valeurs), **retiré dans la salle** (retiré aussi ici), **retiré ici** (envoyé) ;
 - **Récupérer de la salle** n'écrase jamais en silence le travail pas encore envoyé : s'il y a des modifications locales, des conflits, des relations retirées ici, la fenêtre les liste et conseille de les envoyer d'abord. Dans un conflit confirmé, la valeur de la salle l'emporte.
-- les champs que pyArchInit **calcule** (ordre stratigraphique, code de période, datation, relations détaillées) ne sont jamais des modifications ni des conflits : ils sont recalculés après la récupération ;
+- les champs que pyArchInit **calcule** (ordre stratigraphique, code de période, datation) ne sont jamais des modifications ni des conflits : à la fin de la récupération pyArchInit les recalcule tout seul, comme les boutons de la fiche US ;
 - **les relations sont un ensemble** : celles ajoutées ici et pas encore envoyées restent après la récupération, avec celles que d'autres ont ajoutées dans la salle ;
 - si vous confirmez une récupération qui remplace des valeurs locales, ces valeurs **ne sont pas perdues** : **Restaurer les valeurs remplacées** les remet, et elles redeviennent des modifications à envoyer.
 
