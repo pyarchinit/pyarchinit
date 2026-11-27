@@ -5,9 +5,9 @@
 
 ---
 
-## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev143: i campi della scheda come nodi e archi (ramo `stratigraph-s3dgraphy-dev143`)
+## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev143: i campi della scheda come nodi e archi — 5.18.0-alpha
 
-> Ramo separato, da unire dopo la demo del 10 dicembre. Suite completa **2651 verdi**, 66 saltati, 1 xfail, 0 falliti.
+> Unito in `Stratigraph_00001` il 27 novembre. Suite completa **2651 verdi**, 66 saltati, 1 xfail, 0 falliti.
 
 #### Changed / Modificato
 - Pin `s3dgraphy==1.6.0.dev143`: contiene le nostre PR #41–#43 e la regola di E.D. (s3Dgraphy#40): nel `data` di un'unità resta solo `node_uuid`, il resto della riga è scritto come nodi e archi (`s3dgraphy.unit_row`).
