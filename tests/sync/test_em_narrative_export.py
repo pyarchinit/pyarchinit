@@ -52,7 +52,10 @@ def test_la_narrativa_resta_quando_il_sito_si_riesporta(sample_db, tmp_path):
     cont2, _ = en.load_project(path2)
     viste = en.overview(cont2, "it")
     assert viste and all(v.status == "ai_endorsed" for v in viste if v.can_generate)
-    assert "Capitolo scritto dal modello finto." in viste[1].text
+    # the first chapter the model writes (since 5.19.4 the site is placed, and
+    # «Dove si trova» — a map, not the model's prose — comes before it)
+    scritti = [v for v in viste if v.can_generate]
+    assert scritti and "Capitolo scritto dal modello finto." in scritti[0].text
 
     senza, _, _, avvisi3 = em_export.export_site(sample_db, SITO, str(out), per_saggio=False,
                                                  keep_narrative=False)

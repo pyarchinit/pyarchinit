@@ -190,6 +190,14 @@ def export_site(connection_url, site, out_dir, per_saggio=None,
     if migrate_legacy_row_fields is not None:
         for g in tutti:
             migrate_legacy_row_fields(g)
+    # Where the site is (EPSG of its GIS layers, anchor in the middle of its
+    # drawings): without it EMStudio lists the room's plans and draws none.
+    try:
+        from .site_frame import declare_site_frame
+        for g in tutti:
+            declare_site_frame(g, connection_url, site)
+    except Exception:                       # noqa: BLE001
+        pass
 
 
     try:

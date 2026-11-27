@@ -5,6 +5,14 @@
 
 ---
 
+## [fix] - 2026-11-27 — Le piante della stanza disegnate in EMStudio — 5.19.4-alpha
+
+#### Fixed / Corretto
+- **L'em.json dice dove sta il sito.** Il GeoPositionNode di un sito nato in pyArchInit non aveva EPSG, ed EMStudio (che disegna i layer GIS solo con la georeferenza dichiarata) elencava le 56 piante della stanza senza disegnarle. L'export ora scrive il sistema dei layer GIS dello scavo (se metrico: per il sito di esempio EPSG:3004) e un'origine al centro dei disegni, arrotondata a 10 m (`modules/s3dgraphy/site_frame.py`, `api.declare_georeference`). Un em.json che la dichiara già (TempluMare) resta com'è. Verificato in EMStudio 1.6.0-dev.155: le 56 piante disegnate nello Space.
+- **La posizione del sito.** Con la sola georeferenza della scena il capitolo «Dove si trova» della narrativa restava «da scrivere» (regola di s3dgraphy: lo spostamento della scena non è il posto del sito). Ora il nodo del grafo porta anche `site_position` in WGS 84, il centro dei disegni: il capitolo diventa «il contesto geografico», con la mappa.
+
+---
+
 ## [fix] - 2026-11-27 — Rifiniture per la demo: DOC, config, EPSG deprecati, LaTeX, verifica nelle 10 lingue — 5.19.3-alpha
 
 #### Fixed / Corretto
