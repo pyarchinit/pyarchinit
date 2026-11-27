@@ -1533,6 +1533,12 @@ def hydrate_row_fields_from_data(graph) -> int:
                 # survive_in_epoch of the first epoch — not written back
                 dal_grafo.pop("periodo_finale", None)
                 dal_grafo.pop("fase_finale", None)
+            descr = str(getattr(node, "description", "") or "").strip()
+            if descr and str(data.get("descrizione") or "").strip() == descr:
+                # for USV, SF and the paradata rows the node's description is
+                # the `descrizione` column, not d_stratigrafica (which RowReader
+                # always reads it as): an empty d_stratigrafica stays empty
+                dal_grafo.pop("d_stratigrafica", None)
             for chiave, valore in dal_grafo.items():
                 if valore not in (None, "") and attrs0.get(chiave) in (None, "") \
                         and data.get(chiave) in (None, ""):

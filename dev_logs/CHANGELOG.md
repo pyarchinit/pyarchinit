@@ -5,6 +5,26 @@
 
 ---
 
+## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev143: i campi della scheda come nodi e archi (ramo `stratigraph-s3dgraphy-dev143`)
+
+> Ramo separato, da unire dopo la demo del 10 dicembre. Suite completa **2651 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Changed / Modificato
+- Pin `s3dgraphy==1.6.0.dev143`: contiene le nostre PR #41–#43 e la regola di E.D. (s3Dgraphy#40): nel `data` di un'unità resta solo `node_uuid`, il resto della riga è scritto come nodi e archi (`s3dgraphy.unit_row`).
+- `em_export`: scrive già la forma nuova (`migrate_legacy_row_fields` prima di salvare), così il file rilegge uguale; l'avviso atteso dei paradati (campi che il modello dati non lega) non arriva all'utente.
+- `graph_ingestor.hydrate_row_fields_from_data`: le colonne si rileggono dal grafo con `RowReader`; un periodo finale vuoto resta vuoto; per USV, SF e paradati la descrizione del nodo è `descrizione`, non `d_stratigrafica`.
+- Matrice: le proprietà e i documenti nati da una riga non sono unità; il pannello ritrova la scheda dal `node_uuid`.
+- `em_sources`: un em.json di pyArchInit si riconosce dal nome dei grafi.
+
+#### Removed / Tolto
+- Gli aggiustamenti provvisori ora in s3dgraphy: `_use_full_pg_importer` (PG con l'importatore completo, #41), `_fit_footprint_layers` (colonne PostGIS delle impronte, #42), `_merge_hashed_site_place` (doppio nodo del sito, #42).
+
+#### Verificato
+- Dev-stack, SQLite: invio, pull in un DB vuoto (50 US, 150 foto, 56 piante «già uguali»), modifica e ritorno, confronto pulito. Differenze rispetto all'originale: spazi finali di un `settore`, ordine delle voci di `documentazione`.
+- PostGIS 5433 (DB di prova eliminato): pull 50 US, 56/56 piante identiche; export dal PG 327 nodi senza avvisi; invio 1.797 operazioni; confronto subito dopo pulito.
+
+---
+
 ## [feat] - 2026-11-27 — Piante di scavo nella stanza e ritorno (s3Dgraphy#44) — 5.17.0-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2654 verdi**, 66 saltati, 1 xfail, 0 falliti.
