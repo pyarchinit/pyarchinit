@@ -5,6 +5,22 @@
 
 ---
 
+## [feat] - 2026-11-27 — Regole per tipo di campo e valori sostituiti recuperabili — 5.16.1-alpha
+
+> Branch `Stratigraph_00001`. Suite completa **2648 verdi**, 66 saltati, 1 xfail, 0 falliti.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **campi calcolati** (`order_layer`, `cont_per`, `datazione`, `rapporti2`): mai modifiche né conflitti nel confronto con la stanza, pyArchInit li ricalcola.
+- 🇮🇹 **IT**: **i rapporti sono un insieme**: quelli aggiunti qui e non ancora inviati non bloccano più il pull e non si perdono — il pull porta i rapporti della stanza e poi rimette quelli locali (confrontati su tipo, US, area, sito). I rapporti TOLTI qui chiedono ancora conferma, perché il pull li riporterebbe.
+- 🇮🇹 **IT**: **valori sostituiti recuperabili**: un pull confermato che fa vincere la stanza su un conflitto, o sostituisce una modifica non inviata, prima scrive il valore locale in `stratigraph_rooms/<…>/overwritten.jsonl` (scheda, campo, valore locale e della stanza, data); il pulsante **Ripristina i valori sostituiti** li rimette e tornano modifiche da inviare.
+- 🇮🇹 **IT**: idee prese da gogoymh/git-ontology-agent (MIT: regole di unione per tipo, valore precedente conservato accanto a quello che lo sostituisce); nessun codice copiato.
+- 🇬🇧 **EN**: derived fields never conflict; relations merge as a set through a pull; values a pull replaces are logged and can be restored.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sul dev-stack, due computer: B cambia il colore della US 5 e lo invia; A cambia lo stesso colore, tocca `order_layer` della US 3, aggiunge «US 5 copre US 7». Confronto di A: un conflitto, nessuna modifica per `order_layer`; il pull senza conferma si ferma solo per il conflitto; con conferma vince la stanza, il valore di A va nel registro, il rapporto 5→7 resta; il ripristino rimette il valore di A, che torna «da inviare». Nuovi test in `tests/sync/test_room_state.py`. Tutorial 32 nelle dieci lingue.
+
+---
+
 ## [feat] - 2026-11-26 — Le geometrie tornano dalla stanza nei layer GIS; avviso sui numeri US ambigui — 5.16.0-alpha
 
 > Branch `Stratigraph_00001`. Suite completa **2645 verdi**, 66 saltati, 1 xfail, 0 falliti.

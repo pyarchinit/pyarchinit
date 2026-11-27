@@ -291,7 +291,10 @@ Después del primer **Traer de la sala** (o del primer **Enviar el sitio**) pyAr
 
 - la comparación lee de la sala **solo lo nuevo** desde la última sincronización, no todo el documento;
 - cada diferencia tiene un autor: **cambiado aquí** (se envía), **cambiado en la sala** (lo trae «Traer»), **cambiado en ambos lados** (conflicto, mostrado con los dos valores), **quitado en la sala** (se quita también aquí), **quitado aquí** (se envía);
-- **Traer de la sala** nunca sobrescribe en silencio trabajo aún no enviado: si hay cambios locales, conflictos, relaciones añadidas o quitadas aquí, la ventana los lista y aconseja enviarlos antes. En un conflicto confirmado gana el valor de la sala.
+- **Traer de la sala** nunca sobrescribe en silencio trabajo aún no enviado: si hay cambios locales, conflictos, relaciones quitadas aquí, la ventana los lista y aconseja enviarlos antes. En un conflicto confirmado gana el valor de la sala.
+- los campos que pyArchInit **calcula** (orden estratigráfico, código de periodo, datación, relaciones extendidas) nunca son cambios ni conflictos: se recalculan tras el traer;
+- **las relaciones son un conjunto**: las añadidas aquí y aún no enviadas se mantienen tras el traer, junto con las que otros añadieron en la sala;
+- si confirmas un traer que sustituye valores locales, esos valores **no se pierden**: **Restaurar los valores sustituidos** los repone, y vuelven a ser cambios por enviar.
 
 Las unidades que el traer deja fuera a propósito (las continuidades CON generadas y sus medios) quedan en la sala y no cuentan como eliminaciones. Funciona igual con SQLite y PostgreSQL.
 

@@ -291,7 +291,10 @@ Dopo il primo **Porta dalla stanza** (o il primo **Invia il sito**) pyArchInit r
 
 - il confronto legge dalla stanza **solo le novità** arrivate dopo l'ultima sincronizzazione, non tutto il documento;
 - ogni differenza ha un autore: **cambiato qui** (si invia), **cambiato nella stanza** (lo porta il pull), **cambiato da entrambe le parti** (conflitto, mostrato con i due valori), **tolto nella stanza** (il pull lo toglie anche qui), **tolto qui** (si invia);
-- **Porta dalla stanza** non sovrascrive mai in silenzio il lavoro non ancora inviato: se ci sono modifiche locali, conflitti, rapporti aggiunti o tolti qui, la finestra li elenca e consiglia di inviarli prima. In un conflitto confermato vince il valore della stanza.
+- **Porta dalla stanza** non sovrascrive mai in silenzio il lavoro non ancora inviato: se ci sono modifiche locali, conflitti, rapporti tolti qui, la finestra li elenca e consiglia di inviarli prima. In un conflitto confermato vince il valore della stanza.
+- i **campi calcolati** da pyArchInit (ordine stratigrafico, codice periodo, datazione, rapporti estesi) non sono mai modifiche né conflitti: dopo il pull si ricalcolano;
+- i **rapporti sono un insieme**: quelli aggiunti qui e non ancora inviati restano anche dopo il pull, insieme a quelli che altri hanno aggiunto nella stanza;
+- se confermi un pull che sostituisce valori locali, quei valori **non si perdono**: **Ripristina i valori sostituiti** li rimette, e tornano modifiche da inviare.
 
 Le unità che il pull non porta di proposito (le continuità CON generate e i loro media) restano nella stanza e non contano come rimozioni. Funziona allo stesso modo con SQLite e PostgreSQL.
 
