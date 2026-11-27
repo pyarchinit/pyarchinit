@@ -58,6 +58,8 @@ Il pannello appare come un **dock widget a sinistra** nell'interfaccia di QGIS. 
 
 ## Comprensione dell'interfaccia
 
+> **Dalla versione 5.18.1 il pannello mostra solo «Invia il sito a una stanza…» e il registro.** Stato, connessione, coda, «Esporta pacchetto», «Sincronizza ora» e «Coda…» sono nascosti: appartengono alla sincronizzazione a pacchetti (bundle) della Fase 2, mentre il nodo StratiGraph scambia **stanze e operazioni**, non pacchetti. Le sezioni che seguono, fino a «Inviare un sito a una stanza StratiGraph», descrivono quel meccanismo: torneranno, o verranno tolte, quando sarà decisa la sincronizzazione fra nodi.
+
 Il pannello StratiGraph Sync e suddiviso in diverse sezioni, dall'alto verso il basso.
 
 ### Indicatore di stato

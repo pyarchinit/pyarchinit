@@ -58,6 +58,8 @@ Panoul apare ca un **widget dock in stanga** in interfata QGIS. Il puteti trage 
 
 ## Intelegerea interfetei
 
+> **Începând cu versiunea 5.18.1 panoul arată doar «Trimite situl într-o cameră…» și jurnalul.** Starea, conexiunea, coada, «Exportă pachetul», «Sincronizează acum» și «Coadă…» sunt ascunse: aparțin sincronizării prin pachete (bundle) din Faza 2, în timp ce nodul StratiGraph schimbă **camere și operații**, nu pachete. Secțiunile următoare, până la «Trimiterea unui sit intr-o camera StratiGraph», descriu acel mecanism: va reveni sau va fi eliminat când se va decide sincronizarea între noduri.
+
 Panoul StratiGraph Sync este impartit in mai multe sectiuni, de sus in jos.
 
 ### Indicatorul de stare

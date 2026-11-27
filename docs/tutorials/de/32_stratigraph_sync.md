@@ -58,6 +58,8 @@ Das Panel erscheint als **linkes Dock-Widget** in der QGIS-Oberflaeche. Sie koen
 
 ## Die Oberflaeche verstehen
 
+> **Seit Version 5.18.1 zeigt das Panel nur «Fundstelle an einen Raum senden…» und das Protokoll.** Status, Verbindung, Warteschlange, «Paket exportieren», «Jetzt synchronisieren» und «Warteschlange…» sind ausgeblendet: Sie gehören zur Paket-Synchronisation (Bundle) der Phase 2, während der StratiGraph-Knoten **Räume und Operationen** austauscht, keine Pakete. Die folgenden Abschnitte bis «Eine Fundstelle in einen StratiGraph-Raum senden» beschreiben diesen Mechanismus: Er kommt zurück oder wird entfernt, sobald die Synchronisation zwischen Knoten entschieden ist.
+
 Das StratiGraph Sync-Panel ist in mehrere Abschnitte unterteilt, von oben nach unten.
 
 ### Statusanzeige

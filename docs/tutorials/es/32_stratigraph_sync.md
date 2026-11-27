@@ -58,6 +58,8 @@ El panel aparece como un **dock widget a la izquierda** en la interfaz de QGIS. 
 
 ## Comprension de la interfaz
 
+> **Desde la versión 5.18.1 el panel muestra solo «Enviar el sitio a una sala…» y el registro.** Estado, conexión, cola, «Exportar paquete», «Sincronizar ahora» y «Cola…» están ocultos: pertenecen a la sincronización por paquetes (bundle) de la Fase 2, mientras que el nodo StratiGraph intercambia **salas y operaciones**, no paquetes. Las secciones siguientes, hasta «Enviar un sitio a una sala StratiGraph», describen ese mecanismo: volverá, o se quitará, cuando se decida la sincronización entre nodos.
+
 El panel StratiGraph Sync se divide en varias secciones, de arriba a abajo.
 
 ### Indicador de estado

@@ -57,6 +57,8 @@ The panel appears as a **left dock widget** in the QGIS interface. You can drag 
 
 ## Understanding the Interface
 
+> **Since version 5.18.1 the panel shows only «Send site to a room…» and the log.** Status, connection, queue, «Export Bundle», «Sync Now» and «Queue…» are hidden: they belong to the Phase 2 bundle sync, while the StratiGraph node exchanges **rooms and operations**, not bundles. The sections below, up to «Sending a Site to a StratiGraph Room», describe that mechanism: it will come back, or be removed, once node-to-node sync is decided.
+
 The StratiGraph Sync panel is divided into several sections, from top to bottom.
 
 ### State Indicator

@@ -5,6 +5,13 @@
 
 ---
 
+## [chore] - 2026-11-27 — Pannello StratiGraph: nascosta la sincronizzazione a pacchetti — 5.18.1-alpha
+
+- Il pannello mostra solo «Invia il sito a una stanza…» e il registro. Stato, connessione, coda, «Esporta pacchetto», «Sincronizza ora» e «Coda…» (sincronizzazione a bundle della Fase 2, verso `/api/v1/bundles`, che nessun nodo espone: il nodo scambia stanze e operazioni) sono nascosti con `StratiGraphSyncPanel.SHOW_BUNDLE_SYNC = False`. Il codice resta, con i suoi test: tornerà o verrà tolto quando sarà decisa la sincronizzazione fra nodi (D1–D5).
+- Tutorial 32, dieci lingue: nota all'inizio di «Comprensione dell'interfaccia».
+
+---
+
 ## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev143: i campi della scheda come nodi e archi — 5.18.0-alpha
 
 > Unito in `Stratigraph_00001` il 27 novembre. Suite completa **2651 verdi**, 66 saltati, 1 xfail, 0 falliti.

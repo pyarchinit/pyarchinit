@@ -58,6 +58,8 @@ Le panneau apparait comme un **dock widget a gauche** dans l'interface QGIS. Vou
 
 ## Comprendre l'interface
 
+> **Depuis la version 5.18.1, le panneau n'affiche que «Envoyer le site vers une salle…» et le journal.** État, connexion, file, «Exporter le paquet», «Synchroniser maintenant» et «File…» sont masqués : ils appartiennent à la synchronisation par paquets (bundle) de la Phase 2, alors que le nœud StratiGraph échange des **salles et des opérations**, pas des paquets. Les sections suivantes, jusqu'à «Envoyer un site dans une salle StratiGraph», décrivent ce mécanisme : il reviendra, ou sera retiré, quand la synchronisation entre nœuds sera décidée.
+
 Le panneau StratiGraph Sync est divise en plusieurs sections, de haut en bas.
 
 ### Indicateur d'etat

@@ -100,6 +100,13 @@ class StratiGraphSyncPanel(QDockWidget):
 
     # -- UI construction -----------------------------------------------------
 
+    #: the Phase 2 bundle sync (export bundle, sync now, queue, its status):
+    #: hidden since 5.18.1. The StratiGraph node exchanges ROOMS and
+    #: OPERATIONS, not bundles — those buttons posted to an endpoint no node
+    #: has. The code stays (Phase 2 deliverable, tested); it comes back, or
+    #: goes, once node↔node sync is decided (D1–D5 with PSNC).
+    SHOW_BUNDLE_SYNC = False
+
     def _build_ui(self):
         container = QWidget()
         root = QVBoxLayout(container)
@@ -118,6 +125,7 @@ class StratiGraphSyncPanel(QDockWidget):
                     self._lbl_queue, self._lbl_last_sync):
             status_layout.addWidget(lbl)
         root.addWidget(status_group)
+        status_group.setVisible(self.SHOW_BUNDLE_SYNC)
 
         # ── Action buttons ──────────────────────────────────
         btn_layout = QHBoxLayout()
@@ -129,6 +137,8 @@ class StratiGraphSyncPanel(QDockWidget):
         btn_layout.addWidget(self._btn_sync)
         btn_layout.addWidget(self._btn_queue)
         root.addLayout(btn_layout)
+        for b in (self._btn_export, self._btn_sync, self._btn_queue):
+            b.setVisible(self.SHOW_BUNDLE_SYNC)
 
         # ── Phase 3: the site into a room of a StratiGraph node ─────
         self._btn_room = QPushButton(t("room_btn"))

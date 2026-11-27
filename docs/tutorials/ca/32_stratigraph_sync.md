@@ -58,6 +58,8 @@ El panell apareix com un **dock widget a l'esquerra** a la interficie de QGIS. P
 
 ## Comprensio de la interficie
 
+> **Des de la versió 5.18.1 el tauler només mostra «Envia el jaciment a una sala…» i el registre.** Estat, connexió, cua, «Exporta el paquet», «Sincronitza ara» i «Cua…» estan amagats: pertanyen a la sincronització per paquets (bundle) de la Fase 2, mentre que el node StratiGraph intercanvia **sales i operacions**, no paquets. Les seccions següents, fins a «Enviar un jaciment a una sala StratiGraph», descriuen aquest mecanisme: tornarà, o es traurà, quan es decideixi la sincronització entre nodes.
+
 El panell StratiGraph Sync es divideix en diverses seccions, de dalt a baix.
 
 ### Indicador d'estat

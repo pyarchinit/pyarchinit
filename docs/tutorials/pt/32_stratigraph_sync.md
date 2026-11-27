@@ -57,6 +57,8 @@ O painel aparece como um **widget acoplavel a esquerda** na interface do QGIS. P
 
 ## Compreender a Interface
 
+> **Desde a versão 5.18.1 o painel mostra apenas «Enviar o sítio para uma sala…» e o registo.** Estado, ligação, fila, «Exportar pacote», «Sincronizar agora» e «Fila…» estão ocultos: pertencem à sincronização por pacotes (bundle) da Fase 2, enquanto o nó StratiGraph troca **salas e operações**, não pacotes. As secções seguintes, até «Enviar um sitio para uma sala StratiGraph», descrevem esse mecanismo: voltará, ou será retirado, quando for decidida a sincronização entre nós.
+
 O painel StratiGraph Sync esta dividido em varias seccoes, de cima para baixo.
 
 ### Indicador de Estado
