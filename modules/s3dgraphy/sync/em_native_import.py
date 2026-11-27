@@ -563,6 +563,12 @@ def build_rapporti(graph, rows: Dict[str, Tuple[Any, str]], names: Dict[str, str
         if tipo in NOT_RAPPORTI_EDGES:
             continue
         ut_src, ut_tgt = rows[src][1], rows[tgt][1]
+        if (names.get(src) == names.get(tgt) and str(ut_src) == str(ut_tgt)
+                and str(area_of.get(src) or "") == str(area_of.get(tgt) or "")):
+            # two nodes of the same row (a DOC and the document an imported
+            # em.json remembers, both «D.05»): a rapporto of a row with
+            # itself says nothing (TempluMare, 27 Nov 2026: 42 «DOC 05 >> 05»)
+            continue
         canonici = (canonical_unita_tipo(ut_src) in CANONICAL_UNIT_TYPES
                     and canonical_unita_tipo(ut_tgt) in CANONICAL_UNIT_TYPES)
         if tipo in TEMPORAL_EDGES:

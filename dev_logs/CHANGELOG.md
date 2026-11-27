@@ -5,6 +5,24 @@
 
 ---
 
+## [fix] - 2026-11-27 — Un em.json di EMStudio fino alla stanza e ritorno (TempluMare) — 5.19.1-alpha
+
+> Ciclo completo con TempluMare v3.2 (E. Demetrescu): import dell'em.json in un pyArchInit vuoto, export, invio alla stanza, pull in un altro pyArchInit vuoto.
+
+#### Fixed / Corretto
+- I media importati da un em.json non avevano `entity_uuid` e non partivano mai verso una stanza: ora prendono l'id della risorsa da cui vengono (per un file appeso alla scheda stessa, come l'url di un DOC, un id proprio derivato da scheda e nome del file); all'invio un media ancora senza identità ne riceve una.
+- Le risorse che pyArchInit ricorda dall'em.json importato avevano indirizzi relativi alla sua cartella (`DosCo/…`, `../RB/…`): inviate da un'altra cartella non si trovavano e la stanza riceveva 0 file. Ora il file su questo disco diventa l'indirizzo, il vecchio resta come secondo (solo per i nodi risorsa: l'url di un documento è un campo della sua scheda).
+- Un'unità nata in EMStudio non ripete il `node_uuid` nel `data`: i media si collegano anche per id del nodo.
+- Un rapporto di una scheda con sé stessa (il DOC e il documento ricordato dall'em.json, entrambi «D.05») non si scrive più.
+
+#### Verificato (dev-stack, SQLite)
+- Import: 851 schede (114 unità, 360 proprietà, 301 estrattori, 55 documenti, 23 combinatori), 3 periodi, 106 media (3D 65, documenti 30, immagini 11), 1,9 s.
+- Export: 2.005 nodi / 5.079 archi, nessun tipo di nodo perso rispetto all'originale, 8 s.
+- Invio: 7.232 operazioni, 0 rifiutate, 66 file caricati (240 MB; gli altri già nel bucket per impronta), 21 s.
+- Pull in un DB vuoto: 851 schede, 106 media scaricati e registrati, 107 collegamenti, 45 s; rapporti identici come insiemi su 851/851; colonne identiche salvo 37 DOC che ricevono il nome del loro file (`doc_usv`, `d_interpretativa`); confronto dopo l'invio pulito.
+
+---
+
 ## [feat] - 2026-11-27 — s3dgraphy 1.6.0.dev144 — 5.19.0-alpha
 
 > Suite completa **2652 verdi**, 66 saltati, 1 xfail, 0 falliti.

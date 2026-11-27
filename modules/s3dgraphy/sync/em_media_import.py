@@ -278,6 +278,7 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
     da_collegare: List[Tuple[str, str]] = []                  # (id della scheda, percorso)
     mancanti, vuoti = [], []
     risolti: Dict[str, Optional[str]] = {}
+    risorsa_di: Dict[str, str] = {}
     for nid, voci in collect_files(graph, rows).items():
         for voce in voci:
             loc = voce["locator"]
@@ -312,6 +313,17 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
                     (vuoti if stato["state"] == "empty_copy" else mancanti).append(loc)
             if risolti[loc]:
                 da_collegare.append((nid, risolti[loc]))
+                # the medium's identity is the resource it came from: the same
+                # id in the em.json, in a room and in any copy of the database
+                if voce.get("id"):
+                    rid = str(voce["id"])
+                    if rid == str(nid):
+                        # the file hangs from the row itself (a DOC and its
+                        # url): the row's id is the UNIT's, not the medium's
+                        import uuid as _uuid
+                        rid = str(_uuid.uuid5(_uuid.NAMESPACE_URL,
+                                              "pyarchinit-media:%s|%s" % (nid, os.path.basename(risolti[loc]))))
+                    risorsa_di.setdefault(risolti[loc], rid)
     # Lo stesso file citato due volte (il PDF dal documento, «D.05.pdf», e
     # dalla sua risorsa, «DosCo/D.05.pdf») è un file solo che manca.
     esito.missing = _per_file(mancanti)
@@ -362,10 +374,18 @@ def import_emjson_media(db, graph, sito: str, emjson_path: str, *,
                                            "filetype": estensione, "mediatype": media_type_of(percorso)})
                 else:
                     tipo = media_type_of(percorso)
-                    conn.execute(t_media.insert().values(
-                        id_media=prossimo_media, mediatype=tipo, filename=nome,
-                        filetype=estensione, filepath=percorso,
-                        descrizione=str(getattr(rows[nid][0], "name", "") or nome)))
+                    valori = dict(id_media=prossimo_media, mediatype=tipo, filename=nome,
+                                  filetype=estensione, filepath=percorso,
+                                  descrizione=str(getattr(rows[nid][0], "name", "") or nome))
+                    # without it the medium never reached a room: send_site
+                    # carries only media with a stable identity (27 Nov 2026,
+                    # TempluMare: 106 media imported, 0 sent)
+                    if "entity_uuid" in t_media.c and risorsa_di.get(percorso):
+                        uso = conn.execute(text("SELECT 1 FROM media_table WHERE entity_uuid = :u"),
+                                           {"u": risorsa_di[percorso]}).fetchone()
+                        if uso is None:
+                            valori["entity_uuid"] = risorsa_di[percorso]
+                    conn.execute(t_media.insert().values(**valori))
                     voce = {"id_media": prossimo_media, "path": percorso, "filename": nome,
                             "filetype": estensione, "mediatype": tipo}
                     nuovi.append(voce)

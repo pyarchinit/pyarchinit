@@ -87,7 +87,12 @@ def add_media_resources(em_json: str, connection_url: str, site: str,
     graph = _graphs(doc)[0]
     unit_of = {str((n.get("data") or {}).get("node_uuid") or ""): n["id"]
                for n in graph.get("nodes") or [] if (n.get("data") or {}).get("node_uuid")}
+    # a unit born in EMStudio and imported: its id IS its node_uuid, and the
+    # file need not repeat it in data (TempluMare, 27 Nov 2026: 0 media sent)
+    for n in graph.get("nodes") or []:
+        unit_of.setdefault(str(n["id"]), n["id"])
     existing = {n["id"] for n in graph.get("nodes") or []}
+    by_id = {n["id"]: n for n in graph.get("nodes") or []}
     edges = {(e.get("source"), e.get("edge_type"), e.get("target")) for e in graph.get("edges") or []}
     report = {"resources": 0, "links": 0, "missing": [], "other_entities": {}}
     query = text("""
@@ -98,7 +103,22 @@ def add_media_resources(em_json: str, connection_url: str, site: str,
         LEFT JOIN media_thumb_table t ON t.id_media = m.id_media
         JOIN us_table u ON u.id_us = e.id_entity
         WHERE e.entity_type = :ut AND u.sito = :site""")
-    with create_engine(connection_url).connect() as conn:
+    with create_engine(connection_url).begin() as conn:
+        # a medium without its stable identity (an older import, a row added
+        # in this session before pyArchInit backfilled it) gets one now:
+        # skipped, it would never reach the room
+        import uuid as _uuid
+        senza = conn.execute(text("""
+            SELECT DISTINCT m.id_media FROM media_to_entity_table e
+            JOIN media_table m ON m.id_media = e.id_media
+            JOIN us_table u ON u.id_us = e.id_entity
+            WHERE e.entity_type = :ut AND u.sito = :site
+              AND (m.entity_uuid IS NULL OR m.entity_uuid = '')"""),
+            {"ut": UNIT_ENTITY, "site": site}).fetchall()
+        for (id_media,) in senza:
+            conn.execute(text("UPDATE media_table SET entity_uuid = :u WHERE id_media = :i"),
+                         {"u": str(_uuid.uuid4()), "i": id_media})
+        report["identified"] = len(senza)
         rows = conn.execute(query, {"ut": UNIT_ENTITY, "site": site}).fetchall()
         for et, n in conn.execute(text(
                 "SELECT entity_type, COUNT(*) FROM media_to_entity_table "
@@ -122,6 +142,28 @@ def add_media_resources(em_json: str, connection_url: str, site: str,
                     "tags": tags}}})
             existing.add(uuid_)
             report["resources"] += 1
+        else:
+            # the resource is already in the file — the one an imported
+            # em.json is remembered with, same id — but its address is
+            # relative to THAT em.json's folder (DosCo/…, ../RB/…): from the
+            # folder this file is written in it resolves to nothing and the
+            # room import uploaded 0 files (TempluMare, 27 Nov 2026). The
+            # file on this disk becomes its address, the old one stays second.
+            node = by_id.get(uuid_)
+            if node is not None and node.get("node_type") not in ("resource", "resource_file"):
+                node = None          # a document, a unit: its url is a field of a row
+            data = node.setdefault("data", {}) if node is not None else None
+            if isinstance(data, dict):
+                old_url = str(data.get("url") or "")
+                if old_url != path and not os.path.isfile(old_url):
+                    data["url"] = path
+                    if old_url:
+                        addresses = data.setdefault("addresses", [])
+                        known = {(a.get("locator") if isinstance(a, dict) else a) for a in addresses} \
+                            if isinstance(addresses, list) else set()
+                        if isinstance(addresses, list) and old_url not in known:
+                            addresses.append({"locator": old_url})   # s3dgraphy's form
+                    report["readdressed"] = report.get("readdressed", 0) + 1
         key = (unit, "has_linked_resource", uuid_)
         if key not in edges:
             graph.setdefault("edges", []).append({

@@ -91,3 +91,36 @@ def test_an_old_database_without_media_identity_sends_its_units_anyway(tmp_path)
     em.write_text(json.dumps({"graphs": {"g": {"nodes": [], "edges": []}}}))
     out = RM.add_media_resources(str(em), f"sqlite:///{db}", "S", resize_dir=str(tmp_path))
     assert out["resources"] == 0 and "entity_uuid" in out["skipped"]
+
+
+def test_a_remembered_resource_gets_the_file_on_this_disk(tmp_path):
+    """An em.json imported from EMStudio is remembered with its resources;
+    their addresses are relative to THAT file's folder. Sent from elsewhere
+    they resolved to nothing and the room got 0 files (TempluMare, 27 Nov
+    2026): the local file becomes the address, the old one the second."""
+    import json, sqlite3
+    from modules.stratigraph.room_media import add_media_resources
+    photo = tmp_path / "f.jpg"; photo.write_bytes(b"x")
+    db = tmp_path / "d.sqlite"
+    c = sqlite3.connect(db)
+    c.executescript("""
+      CREATE TABLE us_table (id_us INTEGER PRIMARY KEY, sito TEXT, us TEXT, node_uuid TEXT);
+      CREATE TABLE media_table (id_media INTEGER PRIMARY KEY, entity_uuid TEXT, filename TEXT, filetype TEXT,
+        mediatype TEXT, filepath TEXT, descrizione TEXT, tags TEXT);
+      CREATE TABLE media_thumb_table (id_media_thumb INTEGER PRIMARY KEY, id_media INTEGER, path_resize TEXT);
+      CREATE TABLE media_to_entity_table (id_mediaToEntity INTEGER PRIMARY KEY, id_entity INTEGER,
+        entity_type TEXT, id_media INTEGER);
+    """)
+    c.execute("INSERT INTO us_table VALUES (1, 'S', '1', 'u1')")
+    c.execute("INSERT INTO media_table VALUES (1, 'r1', 'f', 'jpg', 'image', ?, '', '')", (str(photo),))
+    c.execute("INSERT INTO media_to_entity_table VALUES (1, 1, 'US', 1)")
+    c.commit(); c.close()
+    em = tmp_path / "s.em.json"
+    em.write_text(json.dumps({"graphs": {"g": {"nodes": [
+        {"id": "u1", "node_type": "US", "name": "1.US1", "data": {}},
+        {"id": "r1", "node_type": "resource", "name": "f.jpg", "data": {"url": "DosCo/f.jpg"}}],
+        "edges": [{"id": "e", "source": "u1", "target": "r1", "edge_type": "has_linked_resource"}]}}}))
+    report = add_media_resources(str(em), f"sqlite:///{db}", "S", resize_dir=str(tmp_path))
+    node = next(n for n in json.loads(em.read_text())["graphs"]["g"]["nodes"] if n["id"] == "r1")
+    assert report["readdressed"] == 1 and node["data"]["url"] == str(photo)
+    assert {"locator": "DosCo/f.jpg"} in node["data"]["addresses"]
