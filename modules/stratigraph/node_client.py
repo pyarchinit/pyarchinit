@@ -325,6 +325,14 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
         # the unit media as resources: room_import uploads each file once
         from .room_media import add_media_resources
         media_report = add_media_resources(em_json, connection_url, site)
+    plans_report = None
+    if media:
+        # the positive units' plans: GeoJSON files, uploaded like the media (s3Dgraphy#44)
+        try:
+            from .room_plans import add_plan_resources
+            plans_report = add_plan_resources(em_json, connection_url, site, workdir)
+        except Exception as e:  # noqa: BLE001 — the plans never stop the site
+            plans_report = {"plans": 0, "error": f"{type(e).__name__}: {e}"}
     run = RI.prepare(em_json, node=node_base(node), room=room, title=title or site,
                      token=token, dry_run=dry_run)
     kept = database_rows(run["plan"]["rows"])
@@ -340,7 +348,7 @@ def send_site(connection_url: str, site: str, *, node: str, room: str, token: st
     from .room_checks import ambiguous_numbers
     report["ambiguous_numbers"] = ambiguous_numbers(connection_url, site)
     report.update({"em_json": em_json, "nodes": n_nodes, "edges": n_edges,
-                   "export_warnings": list(warnings or []), "media": media_report, "records": records_report,
+                   "export_warnings": list(warnings or []), "media": media_report, "plans": plans_report, "records": records_report,
                    "kept_as_reference": sorted(
                        row.get("path") for row in run["plan"]["rows"] if row["id"] in kept)})
     seeded = report.get("seeded") or {}

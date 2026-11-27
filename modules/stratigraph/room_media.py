@@ -195,6 +195,7 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
 
     from modules.s3dgraphy.sync.em_media_import import import_emjson_media
     from .node_client import node_base
+    from .room_plans import is_plan
 
     home = home or os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5")
     thumb_dir, resize_dir = media_dirs(home)
@@ -204,7 +205,8 @@ def pull_media(connection_url: str, site: str, graph: Any, em_json: str, *, node
     nodes = {str(n.node_id): n for n in getattr(graph, "nodes", None) or []}
     links = [(str(e.edge_source), str(e.edge_target)) for e in getattr(graph, "edges", None) or []
              if e.edge_type == "has_linked_resource"
-             and getattr(nodes.get(str(e.edge_target)), "node_type", "") == "resource"]
+             and getattr(nodes.get(str(e.edge_target)), "node_type", "") == "resource"
+             and not is_plan(nodes.get(str(e.edge_target)))]      # a plan is not a medium
     from sqlalchemy import inspect as _inspect
     if "entity_uuid" not in {c["name"] for c in _inspect(engine).get_columns("media_table")}:
         return {"known": 0, "relinked": 0, "downloaded": 0, "imported": 0, "not_on_node": 0,

@@ -6,7 +6,8 @@ What goes TO a room (s3dgraphy's footprint reader, decided with E.D. on
 — and the negative units (cuts, ``pyunitastratigrafiche``), each as a
 ``footprint`` property: ``"<CRS URI> WKT"``, with an extractor naming the layer,
 the key column and the feature it was read from. Positive units' polygons are
-not sent (s3dgraphy treats their geometry as the 3D proxy).
+not footprints (s3dgraphy treats their geometry as the 3D proxy): they travel
+as excavation plans, GeoJSON files of the site's catalogue (``room_plans``).
 
 Here, the way back: each footprint of the room is written into the same layer
 of the local database, SpatiaLite or PostGIS, in the layer's own CRS

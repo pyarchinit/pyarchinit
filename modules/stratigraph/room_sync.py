@@ -93,6 +93,8 @@ def local_graph(connection_url: str, site: str, workdir: str) -> Tuple[Any, str]
     from .room_records import add_unit_records
     add_unit_records(path, connection_url, site)           # the whole records, as in send_site
     add_media_resources(path, connection_url, site)        # the unit media, as in send_site
+    from .room_plans import add_plan_resources
+    add_plan_resources(path, connection_url, site, out)    # the excavation plans, as in send_site
     container, _ = load_container_file(path)
     (_gid, graph), = container.graphs.items()
     return graph, path
@@ -276,6 +278,18 @@ def _geometries(connection_url: str, site: str, graph, *, dry_run: bool) -> Dict
                 "skipped": [f"{type(e).__name__}: {e}"], "dry_run": dry_run}
 
 
+def _plans(connection_url: str, site: str, graph, *, node: str, room: str, token: str,
+           dry_run: bool) -> Dict[str, Any]:
+    """The room's excavation plans into the unit layers; a failure is reported."""
+    try:
+        from .room_plans import pull_plans
+        return pull_plans(connection_url, site, graph, node=node, room=room, token=token,
+                          dry_run=dry_run)
+    except Exception as e:  # noqa: BLE001
+        return {"plans": 0, "written": 0, "features": 0, "same": 0, "kept_local": [],
+                "skipped": [f"{type(e).__name__}: {e}"], "dry_run": dry_run}
+
+
 def pull_room(connection_url: str, site: str, *, node: str, room: str, token: str,
               workdir: str, apply: bool = False, force: bool = False,
               media: bool = True, found: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -312,6 +326,9 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
             report["media"] = pull_media(connection_url, site, graph, path, node=node,
                                          room=room, token=token, dry_run=True)
         report["geometry"] = _geometries(connection_url, site, graph, dry_run=True)
+        if media:
+            report["plans"] = _plans(connection_url, site, graph, node=node, room=room,
+                                     token=token, dry_run=True)
         return report
     if base is None and drops and not force:
         raise NodeError(
@@ -340,6 +357,11 @@ def pull_room(connection_url: str, site: str, *, node: str, room: str, token: st
     report["overwritten"] = len(room_state.overwritten(connection_url, site, node, room)) if base else 0
     if new_site:
         _site_identity(connection_url, site, graph)
+    if media:
+        # the excavation plans into the unit layers (s3Dgraphy#44) — BEFORE the
+        # media: pull_media blanks the address of every resource it does not import
+        report["plans"] = _plans(connection_url, site, graph, node=node, room=room,
+                                 token=token, dry_run=False)
     if media:
         # after the units: the media attach to their id_us
         from modules.s3dgraphy.sync.graph_ingestor import hydrate_row_fields_from_data

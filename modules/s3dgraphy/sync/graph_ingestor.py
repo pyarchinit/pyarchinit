@@ -247,10 +247,14 @@ def footprint_chain_ids(graph) -> set:
         # caricamento, come attributo del nodo (PropertyNode.property_type)
         return dati(n).get(chiave) or getattr(n, chiave, None)
 
+    # e le piante di scavo (s3Dgraphy#44, 27 nov 2026): il catalogo del sito,
+    # le RMDoc e i loro GeoJSON tornano nei layer, non in us_table (il
+    # catalogo diventava una riga DOC)
     catena = {nid for nid, n in nodi.items()
               if not nato_da_scheda(n) and (
                   campo(n, "property_type") == "footprint"
-                  or campo(n, "extractor_type") == "gis_analysis")}
+                  or campo(n, "extractor_type") == "gis_analysis"
+                  or campo(n, "pyarchinit_plans") or campo(n, "pyarchinit_plan"))}
     estrattori = {nid for nid in catena if campo(nodi[nid], "extractor_type") == "gis_analysis"}
     for e in getattr(graph, "edges", None) or []:
         for a, b in ((e.edge_source, e.edge_target), (e.edge_target, e.edge_source)):

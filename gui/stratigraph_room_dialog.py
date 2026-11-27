@@ -226,6 +226,9 @@ class StratiGraphRoomDialog(QDialog):
                 if other:
                     self._say(t("media_local",
                                 list=", ".join(f"{k} {v}" for k, v in sorted(other.items()))))
+            plans = report.get("plans") or {}
+            if plans.get("plans"):
+                self._say(t("plans_sent", n=plans["plans"], units=plans.get("units", 0)))
             for refusal in (seeded.get("refusals") or [])[:5]:
                 self._say(t("refused", what=json.dumps(refusal, ensure_ascii=False, default=str)[:200]))
             link = report.get("room_link") or report.get("link")
@@ -273,6 +276,10 @@ class StratiGraphRoomDialog(QDialog):
             if g.get("footprints"):
                 self._say(t("geometry_preview", new=g.get("inserted", 0) + g.get("updated", 0),
                             same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
+            pl = p.get("plans") or {}
+            if pl.get("plans"):
+                self._say(t("plans_preview", new=pl.get("written", 0), same=pl.get("same", 0),
+                            kept=len(pl.get("kept_local") or [])))
             for r in ([] if f.get("base") else p["real"][:8]):
                 if r["field"] == "rapporti":
                     self._say(t("rel_diff", us=r['us'], ut=r['unita_tipo'], here=r['only_local'],
@@ -361,6 +368,12 @@ class StratiGraphRoomDialog(QDialog):
                 self._say(t("geometry_pulled", new=g.get("inserted", 0) + g.get("updated", 0),
                             same=g.get("same", 0), kept=len(g.get("kept_local") or [])))
                 for item in (g.get("kept_local") or [])[:6]:
+                    self._say(t("geometry_kept", what=item))
+            pl = report.get("plans") or {}
+            if pl.get("plans"):
+                self._say(t("plans_pulled", new=pl.get("written", 0), feat=pl.get("features", 0),
+                            same=pl.get("same", 0), kept=len(pl.get("kept_local") or [])))
+                for item in (pl.get("kept_local") or [])[:6]:
                     self._say(t("geometry_kept", what=item))
             if report.get("applied") and not report.get("errors"):
                 # the fields pyArchInit computes, computed again (GUI thread)
